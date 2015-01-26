@@ -1,0 +1,29 @@
+{
+  "name": "node-fetch",
+  "version": "0.1.0",
+  "description": "A light-weight module that brings window.fetch to node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitinn/node-fetch.git"
+  },
+  "keywords": [
+    "fetch",
+    "http",
+    "promise"
+  ],
+  "author": "David Frank",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitinn/node-fetch/issues"
+  },
+  "homepage": "https://github.com/bitinn/node-fetch",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "chai-as-promised": "^4.1.1",
+    "mocha": "^2.1.0"
+  }
+}
