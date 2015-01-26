@@ -27,7 +27,7 @@ function Fetch(url, opts) {
 		return new Fetch(url, opts);
 
 	if (!Fetch.Promise) {
-		throw new Error('native promise missing, set Fetch.Promise to your favorite substitute');
+		throw new Error('native promise missing, set Fetch.Promise to your favorite alternative');
 	}
 
 	return new Fetch.Promise(function(resolve, reject) {
