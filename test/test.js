@@ -14,12 +14,23 @@ var fetch = require('../index.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
-var url, opts;
+var url, opts, local;
 
 describe('Fetch', function() {
 
-	before(function() {
-		// TODO: local server for more stable testing
+	before(function(done) {
+		// TODO: create a server instance for testing
+		local = http.createServer(function(req, res) {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.write('hello world');
+			res.end();
+		});
+		local.listen(30001, done);
+	});
+
+	after(function(done) {
+		local.close(done);
 	});
 
 	it('should return a promise', function() {
@@ -27,7 +38,7 @@ describe('Fetch', function() {
 		expect(fetch(url)).to.be.an.instanceof(fetch.Promise);
 	});
 
-	it('should return custom promise', function() {
+	it('should custom promise', function() {
 		url = 'http://example.com/';
 		var old = fetch.Promise;
 		fetch.Promise = then;
@@ -46,9 +57,10 @@ describe('Fetch', function() {
 	});
 
 	it('should resolve with result', function() {
-		url = 'http://example.com/';
+		url = 'http://127.0.0.1:30001/';
 		return fetch(url).then(function(res) {
-			console.log(res);
+			expect(res.status).to.equal(200);
+			expect(res.headers).to.include({ 'content-type': 'text/plain' });
 		});
 	});
 });

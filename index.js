@@ -10,6 +10,7 @@ var resolve = require('url').resolve;
 var http = require('http');
 var https = require('https');
 var zlib = require('zlib');
+var PassThrough = require('stream').PassThrough;
 
 module.exports = Fetch;
 
@@ -45,7 +46,7 @@ function Fetch(url, opts) {
 		}
 
 		var request;
-		if (uri.protocol !== 'https:') {
+		if (uri.protocol === 'https:') {
 			request = https.request;
 		} else {
 			request = http.request;
@@ -65,20 +66,21 @@ function Fetch(url, opts) {
 		var req = request(options);
 		var output;
 
+		req.on('error', function(err) {
+			// TODO: handle network error
+			console.log(err.stack);
+		});
+
 		req.on('response', function(res) {
 			output = {
 				headers: res.headers
 				, status: res.statusCode
-				, bytes: 0
+				, body: res.pipe(new PassThrough())
 			};
 
-			res.on('data', function(chunk) {
-				output.bytes += chunk.length;
-			});
-			
-			res.on('end', function() {
-				resolve(output);
-			});
+			// TODO: redirect
+			// TODO: type switch
+			resolve(output);
 		});
 
 		req.end();
