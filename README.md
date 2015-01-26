@@ -19,8 +19,8 @@ Plus if you are going all the way to implement `XMLHttpRequest` in node and then
 
 # Features
 
-* Stay consistent with `window.fetch` API.
-* Make conscious trade-off when following [WHATWG fetch spec](https://fetch.spec.whatwg.org/) implementation details, document known difference.
+* Stay consistent with `window.fetch` API whenever possible.
+* Make conscious trade-off when following [whatwg fetch spec](https://fetch.spec.whatwg.org/) implementation details, document known difference.
 * Use native promise, but allow substituting it with [insert your favorite promise library].
 
 
