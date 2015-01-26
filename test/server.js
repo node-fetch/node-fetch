@@ -7,7 +7,7 @@ module.exports = TestServer;
 function TestServer() {
 	this.server = http.createServer(this.router);
 	this.port = 30001;
-	this.hostname = '127.0.0.1';
+	this.hostname = 'localhost';
 	this.server.on('error', function(err) {
 		console.log(err.stack);
 	});

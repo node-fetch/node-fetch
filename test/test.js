@@ -43,6 +43,16 @@ describe('Fetch', function() {
 		fetch.Promise = old;
 	});
 
+	it('should throw error when no promise implementation found', function() {
+		url = 'http://example.com/';
+		var old = fetch.Promise;
+		fetch.Promise = undefined;
+		expect(function() {
+			fetch(url)
+		}).to.throw(Error);
+		fetch.Promise = old;
+	});
+
 	it('should reject with error if url is protocol relative', function() {
 		url = '//example.com/';
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
@@ -58,12 +68,18 @@ describe('Fetch', function() {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
 	});
 
+	it('should reject with error on network failure', function() {
+		url = 'http://localhost:50000/';
+		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
+	});
+
 	it('should resolve status code, headers, body correctly', function() {
 		url = base + '/hello';
 		return fetch(url).then(function(res) {
 			expect(res.status).to.equal(200);
 			expect(res.headers).to.include({ 'content-type': 'text/plain' });
 			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.url).to.equal(url);
 		});
 	});
 
