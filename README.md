@@ -25,6 +25,9 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js 
 - Stay consistent with `window.fetch` API.
 - Make conscious trade-off when following [whatwg fetch spec](https://fetch.spec.whatwg.org/) and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known difference.
 - Use native promise, but allow substituting it with [insert your favorite promise library].
+- Use native stream for body, on both request and response.
+- Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to utf-8 automatically.
+- Useful extensions such as timeout, redirect limit, response size limit.
 
 
 # Difference from client-side fetch
@@ -118,6 +121,34 @@ co(function *() {
 ```
 
 See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for more examples.
+
+
+# API
+
+## fetch(url, options)
+
+Returns a `Promise`
+
+### Url
+
+Should be an absolute url, eg `http://example.com/`
+
+### Options
+
+default values are shown, note that only `method`, `headers` and `body` are allowed in `window.fetch`, others are node.js extensions.
+
+```
+{
+	method: 'GET'
+	, headers: {}     // request header, format {a:1} or {b:[1,2,3]}
+	, follow: 20      // maximum redirect count, 0 to disable
+	, timeout: 0      // request timeout in ms, 0 to disable, note that it's for each request when following redirect
+	, compress: true  // support gzip/deflate content encoding, false to disable
+	, size: 0         // maximum response body size in bytes, 0 to disable
+	, body: empty     // request body, can be a string or readable stream
+	, agent: null     // custom http.Agent instance
+}
+```
 
 
 # License

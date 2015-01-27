@@ -2,7 +2,7 @@
 Known limits
 ============
 
-*As of 0.x release*
+*As of 1.x release*
 
 - Topics such as cross-origin, content security policy, mixed content, service workers are ignored, given our server-side context.
 
@@ -13,5 +13,7 @@ Known limits
 - For convenience, `res.body` is a transform stream, so decoding can be handled independently.
 
 - Similarly, `req.body` can either be a string or a readable stream.
+
+- Only support `res.text()` and `res.json()` at the moment, until there are good use-cases for blob.
 
 - There is currently no built-in caching, as server-side caching varies by use-cases.
