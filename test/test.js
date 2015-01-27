@@ -11,6 +11,8 @@ var TestServer = require('./server');
 
 // test subjects
 var fetch = require('../index.js');
+var Headers = require('../lib/headers.js');
+var Response = require('../lib/response.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
@@ -73,13 +75,17 @@ describe('Fetch', function() {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
 	});
 
-	it('should resolve status code, headers, body correctly', function() {
+	it('should resolve into response', function() {
 		url = base + '/hello';
 		return fetch(url).then(function(res) {
+			expect(res).to.be.an.instanceof(Response);
+			expect(res.headers).to.be.an.instanceof(Headers);
+			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.status).to.equal(200);
-			expect(res.headers).to.include({ 'content-type': 'text/plain' });
-			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.statusText).to.equal('OK');
 			expect(res.url).to.equal(url);
+			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.bodyUsed).to.be.false;
 		});
 	});
 

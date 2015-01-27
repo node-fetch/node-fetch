@@ -27,5 +27,8 @@
     "chai-as-promised": "^4.1.1",
     "mocha": "^2.1.0",
     "promise": "^6.1.0"
+  },
+  "dependencies": {
+    "encoding": "^0.1.11"
   }
 }

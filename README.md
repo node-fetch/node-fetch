@@ -12,13 +12,11 @@ A light-weight module that brings `window.fetch` to node.js
 
 I really like the notion of Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch): it bridges the API gap between client-side and server-side http requests, so developers have less to worry about.
 
-But I think the term [isomorphic](http://isomorphic.net/) is generally misleading: it gives developers a false sense of security that their javascript code will run happily on both controlled server environment as well as uncontrollable user browsers. When the latter is only true for a small subset of modern browsers, not to mention quirks in native implementation.
+But I think the term [isomorphic](http://isomorphic.net/) is generally misleading: it gives developers a false sense of security that their javascript code will run happily on both controlled server environment as well as uncontrollable user browsers. When the latter is only true for a subset of modern browsers, not to mention quirks in native implementation.
 
 Instead of implementing `XMLHttpRequest` in node to run browser-specific [fetch polyfill](https://github.com/github/fetch), why not go from node's `http` to `fetch` API directly? Node has native stream support, browserify build targets (browsers) don't, so underneath they are going to be vastly different anyway.
 
-IMHO, it's safer to be aware of javascript runtime's strength and weakness, than to assume they are a unified platform under a singular spec.
-
-Hence `node-fetch`, minimal code for a `window.fetch` compatible API.
+Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js runtime.
 
 
 # Features
@@ -28,11 +26,11 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API.
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 
 
-# Difference to client-side fetch
+# Difference from client-side fetch
 
-- This module is WIP, see [Known limits](https://github.com/bitinn/node-fetch/blob/master/LIMITS.md) for details.
-
-(If you spot a missing feature that `window.fetch` offers, feel free to open an issue. Pull requests are welcomed too!)
+- See [Known limits](https://github.com/bitinn/node-fetch/blob/master/LIMITS.md) for details.
+- If you happen to use a missing feature that `window.fetch` offers, feel free to open an issue.
+- Pull requests are welcomed too!
 
 
 # Install
