@@ -232,6 +232,7 @@ describe('node-fetch', function() {
 			expect(res.statusText).to.equal('Internal Server Error');
 			return res.text().then(function(result) {
 				expect(res.bodyUsed).to.be.true;
+				expect(res.ok).to.be.false;
 				expect(result).to.be.a('string');
 				expect(result).to.equal('server error');
 			});
@@ -444,6 +445,7 @@ describe('node-fetch', function() {
 		};
 		return fetch(url, opts).then(function(res) {
 			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
 		});
 	});
 
