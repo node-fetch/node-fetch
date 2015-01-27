@@ -41,7 +41,70 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js 
 
 # Usage
 
-TODO
+```javascript
+var fetch = require('node-fetch');
+
+// plain text or html
+
+fetch('https://github.com/')
+	.then(function(res) {
+		return res.text();
+	}).then(function(body) {
+		console.log(body);
+	});
+
+// json
+
+fetch('https://api.github.com/users/github')
+	.then(function(res) {
+		return res.json();
+	}).then(function(json) {
+		console.log(json);
+	});
+
+// meta
+
+fetch('https://github.com/')
+	.then(function(res) {
+		console.log(res.status);
+		console.log(res.statusText);
+		console.log(res.headers.raw());
+		console.log(res.headers.get('content-type'));
+	});
+
+// post
+
+fetch('http://httpbin.org/post', { body: 'a=1' })
+	.then(function(res) {
+		return res.json();
+	}).then(function(json) {
+		console.log(json);
+	});
+
+// post with stream
+
+var resumer = require('resumer');
+fetch('http://httpbin.org/post', { body: resumer().queue('a=1').end() })
+	.then(function(res) {
+		return res.json();
+	}).then(function(json) {
+		console.log(json);
+	});
+
+// post with formdata
+
+var FormData = require('form-data');
+var form = new FormData();
+form.append('a', 1);
+fetch('http://httpbin.org/post', { body: form, headers: form.getHeaders() })
+	.then(function(res) {
+		return res.json();
+	}).then(function(json) {
+		console.log(json);
+	});
+```
+
+See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for more examples.
 
 
 # License
