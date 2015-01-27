@@ -2,7 +2,7 @@
 Known limits
 ============
 
-*As of 1.x release*
+*As of 0.x release*
 
 - Topics such as cross-origin, content security policy, mixed content, service workers are ignored, given our server-side context.
 

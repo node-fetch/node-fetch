@@ -2,8 +2,8 @@
 Changelog
 =========
 
-# 1.x release
+# 0.x release
 
-## v1.0.0
+## v0.1
 
 - Major: initial public release
