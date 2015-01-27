@@ -5,8 +5,8 @@
  * a request API compatible with window.fetch
  */
 
-var parse = require('url').parse;
-var resolve = require('url').resolve;
+var parse_url = require('url').parse;
+var resolve_url = require('url').resolve;
 var http = require('http');
 var https = require('https');
 var zlib = require('zlib');
@@ -41,15 +41,15 @@ function Fetch(url, opts) {
 
 	// wrap http.request into fetch
 	return new Fetch.Promise(function(resolve, reject) {
-		var uri = parse(url);
+		var uri = parse_url(url);
 
 		if (!uri.protocol || !uri.hostname) {
-			reject(Error('only absolute urls are supported'));
+			reject(new Error('only absolute urls are supported'));
 			return;
 		}
 
 		if (uri.protocol !== 'http:' && uri.protocol !== 'https:') {
-			reject(Error('only http(s) protocols are supported'));
+			reject(new Error('only http(s) protocols are supported'));
 			return;
 		}
 
@@ -73,7 +73,7 @@ function Fetch(url, opts) {
 			, follow: opts.follow || 20
 			, counter: opts.counter || 0
 			, timeout: opts.timeout || 0
-			, compress: opts.compress || true
+			, compress: opts.compress !== false
 			, size: opts.size || 0
 			, body: opts.body
 			, agent: opts.agent
@@ -122,14 +122,18 @@ function Fetch(url, opts) {
 			// handle redirect
 			if (self.isRedirect(res.statusCode)) {
 				if (options.counter >= options.follow) {
-					reject(Error('maximum redirect reached at: ' + uri.href));
+					reject(new Error('maximum redirect reached at: ' + uri.href));
+					return;
 				}
 
 				if (!res.headers.location) {
-					reject(Error('redirect location header missing at: ' + uri.href));
+					reject(new Error('redirect location header missing at: ' + uri.href));
+					return;
 				}
 
-				resolve(Fetch(resolve(uri.href, res.headers.location), options));
+				options.counter++;
+
+				resolve(Fetch(resolve_url(uri.href, res.headers.location), options));
 				return;
 			}
 
@@ -137,7 +141,7 @@ function Fetch(url, opts) {
 			var body = res.pipe(new stream.PassThrough());
 			var headers = new Headers(res.headers);
 
-			if (headers.has('content-encoding')) {
+			if (options.compress && headers.has('content-encoding')) {
 				var name = headers.get('content-encoding');
 
 				if (name == 'gzip' || name == 'x-gzip') {
@@ -161,7 +165,7 @@ function Fetch(url, opts) {
 		if (typeof options.body === 'string') {
 			req.write(options.body);
 			req.end();
-		} else if (options.body instanceof stream.Readable) {
+		} else if (typeof options.body === 'object' && options.body.pipe) {
 			options.body.pipe(req);
 		} else {
 			req.end();
