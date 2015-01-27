@@ -66,7 +66,7 @@ function Fetch(url, opts) {
 		var options = {
 			hostname: uri.hostname
 			, port: uri.port
-			, path: uri.path || '/'
+			, path: uri.path
 			, auth: uri.auth
 			, method: opts.method || 'GET'
 			, headers: opts.headers || {}
@@ -156,6 +156,7 @@ function Fetch(url, opts) {
 				url: uri.href
 				, status: res.statusCode
 				, headers: headers
+				, size: options.size
 			});
 
 			resolve(output);

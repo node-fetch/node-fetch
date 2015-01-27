@@ -189,12 +189,58 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should obey maximum redirect limit', function() {
+	it('should follow redirect chain', function() {
+		url = base + '/redirect/chain';
+		return fetch(url).then(function(res) {
+			expect(res.url).to.equal(base + '/inspect');
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	it('should obey maximum redirect', function() {
 		url = base + '/redirect/chain';
 		opts = {
 			follow: 1
-		};
+		}
 		return expect(fetch(url, opts)).to.eventually.be.rejectedWith(Error);
+	});
+
+	it('should reject broken redirect', function() {
+		url = base + '/error/redirect';
+		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
+	});
+
+	it('should handle client-error response', function() {
+		url = base + '/error/400';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			expect(res.status).to.equal(400);
+			expect(res.statusText).to.equal('Bad Request');
+			return res.text().then(function(result) {
+				expect(res.bodyUsed).to.be.true;
+				expect(result).to.be.a('string');
+				expect(result).to.equal('client error');
+			});
+		});
+	});
+
+	it('should handle server-error response', function() {
+		url = base + '/error/500';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			expect(res.status).to.equal(500);
+			expect(res.statusText).to.equal('Internal Server Error');
+			return res.text().then(function(result) {
+				expect(res.bodyUsed).to.be.true;
+				expect(result).to.be.a('string');
+				expect(result).to.equal('server error');
+			});
+		});
+	});
+
+	it('should handle network-error response', function() {
+		url = base + '/error/reset';
+		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
 	});
 
 	it('should decompress gzip response', function() {
@@ -278,6 +324,126 @@ describe('node-fetch', function() {
 		}).then(function(res) {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	it('should allow PUT request', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'PUT'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('PUT');
+			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	it('should allow DELETE request', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'DELETE'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('DELETE');
+		});
+	});
+
+	it('should allow HEAD request', function() {
+		url = base + '/hello';
+		opts = {
+			method: 'HEAD'
+
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(200);
+			expect(res.statusText).to.equal('OK');
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			expect(res.body).to.be.an.instanceof(stream.Transform);
+		});
+	});
+
+	it('should reject decoding body twice', function() {
+		url = base + '/plain';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.text().then(function(result) {
+				expect(res.bodyUsed).to.be.true;
+				return expect(res.text()).to.eventually.be.rejectedWith(Error);
+			});
+		});
+	});
+
+	it('should support maximum response size', function() {
+		url = base + '/long';
+		opts = {
+			size: 1
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return expect(res.text()).to.eventually.be.rejectedWith(Error);
+		});
+	});
+
+	it('should support encoding decode, conte-type detect', function() {
+		url = base + '/encoding/shift-jis';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			return res.text().then(function(result) {
+				expect(result).to.equal('<div>日本語</div>');
+			});
+		});
+	});
+
+	it('should support encoding decode, html5 detect', function() {
+		url = base + '/encoding/gbk';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			return res.text().then(function(result) {
+				expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
+			});
+		});
+	});
+
+	it('should support encoding decode, html4 detect', function() {
+		url = base + '/encoding/gb2312';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			return res.text().then(function(result) {
+				expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
+			});
+		});
+	});
+
+	it('should allow get all responses of a header', function() {
+		url = base + '/cookie';
+		return fetch(url).then(function(res) {
+			expect(res.headers.getAll('set-cookie')).to.deep.equal(['a=1', 'b=1']);
+		});
+	});
+
+	it('should allow deleting header', function() {
+		url = base + '/cookie';
+		return fetch(url).then(function(res) {
+			res.headers.delete('set-cookie');
+			expect(res.headers.get('set-cookie')).to.be.null;
+			expect(res.headers.getAll('set-cookie')).to.be.empty;
+		});
+	});
+
+	it('should support https request', function() {
+		this.timeout(5000);
+		url = 'https://github.com/';
+		opts = {
+			method: 'HEAD'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(200);
 		});
 	});
 

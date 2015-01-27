@@ -3,6 +3,7 @@ var http = require('http');
 var parse = require('url').parse;
 var zlib = require('zlib');
 var stream = require('stream');
+var convert = require('encoding').convert;
 
 module.exports = TestServer;
 
@@ -53,6 +54,17 @@ TestServer.prototype.router = function(req, res) {
 		}));
 	}
 
+	if (p === '/long') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain');
+		setTimeout(function() {
+			res.write('test');
+		}, 50);
+		setTimeout(function() {
+			res.end('test');
+		}, 100);
+	}
+
 	if (p === '/gzip') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/plain');
@@ -77,6 +89,30 @@ TestServer.prototype.router = function(req, res) {
 			res.setHeader('Content-Type', 'text/plain');
 			res.end('text');
 		}, 1000);
+	}
+
+	if (p === '/cookie') {
+		res.statusCode = 200;
+		res.setHeader('Set-Cookie', ['a=1', 'b=1']);
+		res.end('cookie');
+	}
+
+	if (p === '/encoding/gbk') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/html');
+		res.end(convert('<meta charset="gbk"><div>中文</div>', 'gbk'));
+	}
+
+	if (p === '/encoding/gb2312') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/html');
+		res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>', 'gb2312'));
+	}
+
+	if (p === '/encoding/shift-jis') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/html; charset=Shift-JIS');
+		res.end(convert('<div>日本語</div>', 'Shift_JIS'));
 	}
 
 	if (p === '/redirect/301') {
@@ -113,6 +149,28 @@ TestServer.prototype.router = function(req, res) {
 		res.statusCode = 301;
 		res.setHeader('Location', '/redirect/301');
 		res.end();
+	}
+
+	if (p === '/error/redirect') {
+		res.statusCode = 301;
+		//res.setHeader('Location', '/inspect');
+		res.end();
+	}
+
+	if (p === '/error/400') {
+		res.statusCode = 400;
+		res.setHeader('Content-Type', 'text/plain');
+		res.end('client error');
+	}
+
+	if (p === '/error/500') {
+		res.statusCode = 500;
+		res.setHeader('Content-Type', 'text/plain');
+		res.end('server error');
+	}
+
+	if (p === '/error/reset') {
+		res.destroy();
 	}
 
 	if (p === '/inspect') {
