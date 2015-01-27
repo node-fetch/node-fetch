@@ -74,34 +74,49 @@ fetch('https://github.com/')
 
 // post
 
-fetch('http://httpbin.org/post', { body: 'a=1' })
+fetch('http://httpbin.org/post', { method: 'POST', body: 'a=1' })
 	.then(function(res) {
 		return res.json();
 	}).then(function(json) {
 		console.log(json);
 	});
 
-// post with stream
+// post with stream from resumer
 
 var resumer = require('resumer');
-fetch('http://httpbin.org/post', { body: resumer().queue('a=1').end() })
+var stream = resumer().queue('a=1').end();
+fetch('http://httpbin.org/post', { method: 'POST', body: stream })
 	.then(function(res) {
 		return res.json();
 	}).then(function(json) {
 		console.log(json);
 	});
 
-// post with formdata
+// post with form-data
 
 var FormData = require('form-data');
 var form = new FormData();
 form.append('a', 1);
-fetch('http://httpbin.org/post', { body: form, headers: form.getHeaders() })
+fetch('http://httpbin.org/post', { method: 'POST', body: form, headers: form.getHeaders() })
 	.then(function(res) {
 		return res.json();
 	}).then(function(json) {
 		console.log(json);
 	});
+
+// node 0.11+, yield with co
+
+var co = require('co');
+co(function *() {
+	var res = yield fetch('https://api.github.com/users/github')
+		.then(function(res) {
+			return res.json();
+		}).then(function(json) {
+			console.log(json);
+		});
+
+	console.log(res);
+});
 ```
 
 See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for more examples.
