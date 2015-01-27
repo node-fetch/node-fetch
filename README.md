@@ -111,8 +111,6 @@ co(function *() {
 	var res = yield fetch('https://api.github.com/users/github')
 		.then(function(res) {
 			return res.json();
-		}).then(function(json) {
-			console.log(json);
 		});
 
 	console.log(res);
