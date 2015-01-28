@@ -87,6 +87,7 @@ describe('node-fetch', function() {
 			expect(res.bodyUsed).to.be.false;
 
 			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
 			expect(res.status).to.equal(200);
 			expect(res.statusText).to.equal('OK');
 		});
@@ -216,6 +217,7 @@ describe('node-fetch', function() {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.status).to.equal(400);
 			expect(res.statusText).to.equal('Bad Request');
+			expect(res.ok).to.be.false;
 			return res.text().then(function(result) {
 				expect(res.bodyUsed).to.be.true;
 				expect(result).to.be.a('string');
@@ -230,9 +232,9 @@ describe('node-fetch', function() {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.status).to.equal(500);
 			expect(res.statusText).to.equal('Internal Server Error');
+			expect(res.ok).to.be.false;
 			return res.text().then(function(result) {
 				expect(res.bodyUsed).to.be.true;
-				expect(res.ok).to.be.false;
 				expect(result).to.be.a('string');
 				expect(result).to.equal('server error');
 			});

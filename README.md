@@ -47,6 +47,9 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js 
 ```javascript
 var fetch = require('node-fetch');
 
+// If you are not on node v0.11, set a Promise library first, eg.
+// fetch.Promise = require('bluebird');
+
 // plain text or html
 
 fetch('https://github.com/')
@@ -69,6 +72,7 @@ fetch('https://api.github.com/users/github')
 
 fetch('https://github.com/')
 	.then(function(res) {
+		console.log(res.ok);
 		console.log(res.status);
 		console.log(res.statusText);
 		console.log(res.headers.raw());
