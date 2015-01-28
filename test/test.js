@@ -428,10 +428,10 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support maximum response size', function() {
-		url = base + '/long';
+	it('should support maximum response size, multiple chunk', function() {
+		url = base + '/size/chunk';
 		opts = {
-			size: 1
+			size: 5
 		};
 		return fetch(url, opts).then(function(res) {
 			expect(res.status).to.equal(200);
@@ -440,7 +440,29 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support encoding decode, conte-type detect', function() {
+	it('should support maximum response size, single chunk', function() {
+		url = base + '/size/long';
+		opts = {
+			size: 5
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return expect(res.text()).to.eventually.be.rejectedWith(Error);
+		});
+	});
+
+	it('should support encoding decode, xml dtd detect', function() {
+		url = base + '/encoding/euc-jp';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			return res.text().then(function(result) {
+				expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
+			});
+		});
+	});
+
+	it('should support encoding decode, content-type detect', function() {
 		url = base + '/encoding/shift-jis';
 		return fetch(url).then(function(res) {
 			expect(res.status).to.equal(200);

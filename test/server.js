@@ -54,17 +54,6 @@ TestServer.prototype.router = function(req, res) {
 		}));
 	}
 
-	if (p === '/long') {
-		res.statusCode = 200;
-		res.setHeader('Content-Type', 'text/plain');
-		setTimeout(function() {
-			res.write('test');
-		}, 50);
-		setTimeout(function() {
-			res.end('test');
-		}, 100);
-	}
-
 	if (p === '/gzip') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/plain');
@@ -104,6 +93,23 @@ TestServer.prototype.router = function(req, res) {
 		res.end('cookie');
 	}
 
+	if (p === '/size/chunk') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain');
+		setTimeout(function() {
+			res.write('test');
+		}, 50);
+		setTimeout(function() {
+			res.end('test');
+		}, 100);
+	}
+
+	if (p === '/size/long') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain');
+		res.end('testtest');
+	}
+
 	if (p === '/encoding/gbk') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');
@@ -120,6 +126,12 @@ TestServer.prototype.router = function(req, res) {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html; charset=Shift-JIS');
 		res.end(convert('<div>日本語</div>', 'Shift_JIS'));
+	}
+
+	if (p === '/encoding/euc-jp') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/xml');
+		res.end(convert('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>', 'EUC-JP'));
 	}
 
 	if (p === '/encoding/utf8') {
