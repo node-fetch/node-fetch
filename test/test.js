@@ -146,6 +146,7 @@ describe('node-fetch', function() {
 		return fetch(url).then(function(res) {
 			expect(res.url).to.equal(base + '/inspect');
 			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
 		});
 	});
 
