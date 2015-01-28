@@ -115,11 +115,8 @@ fetch('http://httpbin.org/post', { method: 'POST', body: form, headers: form.get
 
 var co = require('co');
 co(function *() {
-	var res = yield fetch('https://api.github.com/users/github')
-		.then(function(res) {
-			return res.json();
-		});
-
+	var res = yield fetch('https://api.github.com/users/github');
+	var json = yield res.json();
 	console.log(res);
 });
 ```
@@ -146,7 +143,7 @@ default values are shown, note that only `method`, `headers` and `body` are allo
 	method: 'GET'
 	, headers: {}     // request header, format {a:1} or {b:[1,2,3]}
 	, follow: 20      // maximum redirect count, 0 to disable
-	, timeout: 0      // request timeout in ms, 0 to disable, note that it's for each request when following redirect
+	, timeout: 0      // request timeout in ms, 0 to disable, note that redirect restart timeout
 	, compress: true  // support gzip/deflate content encoding, false to disable
 	, size: 0         // maximum response body size in bytes, 0 to disable
 	, body: empty     // request body, can be a string or readable stream
