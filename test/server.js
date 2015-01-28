@@ -83,6 +83,13 @@ TestServer.prototype.router = function(req, res) {
 		});
 	}
 
+	if (p === '/sdch') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain');
+		res.setHeader('Content-Encoding', 'sdch');
+		res.end('fake sdch string');
+	}
+
 	if (p === '/timeout') {
 		setTimeout(function() {
 			res.statusCode = 200;
@@ -113,6 +120,11 @@ TestServer.prototype.router = function(req, res) {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html; charset=Shift-JIS');
 		res.end(convert('<div>日本語</div>', 'Shift_JIS'));
+	}
+
+	if (p === '/encoding/utf8') {
+		res.statusCode = 200;
+		res.end('中文');
 	}
 
 	if (p === '/redirect/301') {
@@ -171,6 +183,17 @@ TestServer.prototype.router = function(req, res) {
 
 	if (p === '/error/reset') {
 		res.destroy();
+	}
+
+	if (p === '/error/json') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/json');
+		res.end('invalid json');
+	}
+
+	if (p === '/empty') {
+		res.statusCode = 204;
+		res.end();
 	}
 
 	if (p === '/inspect') {

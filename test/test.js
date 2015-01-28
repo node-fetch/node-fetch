@@ -246,6 +246,27 @@ describe('node-fetch', function() {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
 	});
 
+	it('should reject invalid json response', function() {
+		url = base + '/error/json';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('application/json');
+			return expect(res.json()).to.eventually.be.rejectedWith(Error);
+		});
+	});
+
+	it('should handle empty response', function() {
+		url = base + '/empty';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(204);
+			expect(res.statusText).to.equal('No Content');
+			expect(res.ok).to.be.true;
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
 	it('should decompress gzip response', function() {
 		url = base + '/gzip';
 		return fetch(url).then(function(res) {
@@ -264,6 +285,17 @@ describe('node-fetch', function() {
 			return res.text().then(function(result) {
 				expect(result).to.be.a('string');
 				expect(result).to.equal('hello world');
+			});
+		});
+	});
+
+	it('should skip decompression if unsupported', function() {
+		url = base + '/sdch';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.equal('fake sdch string');
 			});
 		});
 	});
@@ -356,6 +388,20 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow PATCH request', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'PATCH'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('PATCH');
+			expect(res.body).to.equal('a=1');
+		});
+	});
+
 	it('should allow HEAD request', function() {
 		url = base + '/hello';
 		opts = {
@@ -423,10 +469,40 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should default to utf8 encoding', function() {
+		url = base + '/encoding/utf8';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('content-type')).to.be.null;
+			return res.text().then(function(result) {
+				expect(result).to.equal('中文');
+			});
+		});
+	});
+
+	it('should allow piping response body as stream', function(done) {
+		url = base + '/hello';
+		fetch(url).then(function(res) {
+			expect(res.body).to.be.an.instanceof(stream.Transform);
+			res.body.on('data', function(chunk) {
+				if (chunk === null) {
+					return;
+				}
+				expect(chunk.toString()).to.equal('world');
+			});
+			res.body.on('end', function() {
+				done();
+			});
+		});
+	});
+
 	it('should allow get all responses of a header', function() {
 		url = base + '/cookie';
 		return fetch(url).then(function(res) {
+			expect(res.headers.get('set-cookie')).to.equal('a=1');
+			expect(res.headers.get('Set-Cookie')).to.equal('a=1');
 			expect(res.headers.getAll('set-cookie')).to.deep.equal(['a=1', 'b=1']);
+			expect(res.headers.getAll('Set-Cookie')).to.deep.equal(['a=1', 'b=1']);
 		});
 	});
 
