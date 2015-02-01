@@ -102,17 +102,15 @@ function Fetch(url, opts) {
 
 		// send request
 		var req = request(options);
-		var started = false;
 
-		req.on('socket', function(socket) {
-			if (!started && options.timeout) {
-				started = true;
+		if (options.timeout) {
+			req.once('socket', function(socket) {
 				setTimeout(function() {
 					req.abort();
 					reject(new Error('network timeout at: ' + uri.href));
 				}, options.timeout);
-			}
-		});
+			});
+		}
 
 		req.on('error', function(err) {
 			reject(new Error('request to ' + uri.href + ' failed, reason: ' + err.message));
