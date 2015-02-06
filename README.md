@@ -6,7 +6,7 @@ node-fetch
 [![build status][travis-image]][travis-url]
 [![coverage status][coveralls-image]][coveralls-url]
 
-A light-weight module that brings `window.fetch` to node.js
+A light-weight module that brings `window.fetch` to node.js & io.js
 
 
 # Motivation
@@ -17,7 +17,7 @@ But I think the term [isomorphic](http://isomorphic.net/) is generally misleadin
 
 Instead of implementing `XMLHttpRequest` in node to run browser-specific [fetch polyfill](https://github.com/github/fetch), why not go from node's `http` to `fetch` API directly? Node has native stream support, browserify build targets (browsers) don't, so underneath they are going to be vastly different anyway.
 
-Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js runtime.
+Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js/io.js runtime.
 
 
 # Features

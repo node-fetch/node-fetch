@@ -7,6 +7,7 @@ Changelog
 
 ## v1.0.4 (master)
 
+- Enhance: test iojs support
 - Enhance: timeout attached to socket event only fire once per redirect
 
 ## v1.0.3

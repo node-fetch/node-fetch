@@ -1,7 +1,7 @@
 {
   "name": "node-fetch",
   "version": "1.0.3",
-  "description": "A light-weight module that brings window.fetch to node.js",
+  "description": "A light-weight module that brings window.fetch to node.js and io.js",
   "main": "index.js",
   "scripts": {
     "test": "mocha test/test.js",
