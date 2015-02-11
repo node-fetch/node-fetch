@@ -1,3 +1,6 @@
+# generated fetch shim
+browser-fetch.js
+
 # Logs
 logs
 *.log
