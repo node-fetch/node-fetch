@@ -1,6 +1,6 @@
 {
   "name": "node-fetch",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A light-weight module that brings window.fetch to node.js and io.js",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "encoding": "^0.1.11",
+    "es6-promise": "^2.0.1",
     "whatwg-fetch": "^0.7.0"
   }
 }
