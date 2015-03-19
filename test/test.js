@@ -150,7 +150,6 @@ describe('node-fetch', function() {
 		});
 	});
 
-
 	it('should follow redirect code 302', function() {
 		url = base + '/redirect/302';
 		return fetch(url).then(function(res) {
@@ -195,6 +194,14 @@ describe('node-fetch', function() {
 		url = base + '/redirect/chain';
 		opts = {
 			follow: 1
+		}
+		return expect(fetch(url, opts)).to.eventually.be.rejectedWith(Error);
+	});
+
+	it('should allow not following redirect', function() {
+		url = base + '/redirect/301';
+		opts = {
+			follow: 0
 		}
 		return expect(fetch(url, opts)).to.eventually.be.rejectedWith(Error);
 	});

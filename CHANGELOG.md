@@ -7,6 +7,7 @@ Changelog
 
 ## v1.0.5 (master)
 
+- Fix: when follow = 0, fetch should not follow redirect
 - Enhance: update tests for better coverage
 - Enhance: code formatting
 - Enhance: clean up doc

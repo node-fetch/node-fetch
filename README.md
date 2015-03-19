@@ -140,7 +140,7 @@ default values are shown, note that only `method`, `headers` and `body` are allo
 {
 	method: 'GET'
 	, headers: {}     // request header, format {a:1} or {b:[1,2,3]}
-	, follow: 20      // maximum redirect count, 0 to disable, 1 to not follow redirect
+	, follow: 20      // maximum redirect count, 0 to not follow redirect
 	, timeout: 0      // request timeout in ms, 0 to disable, timeout reset on redirect
 	, compress: true  // support gzip/deflate content encoding, false to disable
 	, size: 0         // maximum response body size in bytes, 0 to disable

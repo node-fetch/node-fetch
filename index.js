@@ -70,7 +70,7 @@ function Fetch(url, opts) {
 			, auth: uri.auth
 			, method: opts.method || 'GET'
 			, headers: opts.headers || {}
-			, follow: opts.follow || 20
+			, follow: opts.follow !== undefined ? opts.follow : 20
 			, counter: opts.counter || 0
 			, timeout: opts.timeout || 0
 			, compress: opts.compress !== false
