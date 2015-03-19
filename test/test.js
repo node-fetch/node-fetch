@@ -191,14 +191,6 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should follow redirect chain', function() {
-		url = base + '/redirect/chain';
-		return fetch(url).then(function(res) {
-			expect(res.url).to.equal(base + '/inspect');
-			expect(res.status).to.equal(200);
-		});
-	});
-
 	it('should obey maximum redirect', function() {
 		url = base + '/redirect/chain';
 		opts = {
@@ -536,6 +528,20 @@ describe('node-fetch', function() {
 			expect(res.headers.get('set-cookie')).to.be.null;
 			expect(res.headers.getAll('set-cookie')).to.be.empty;
 		});
+	});
+
+	it('should skip prototype when reading response headers', function() {
+		var FakeHeader = function() {};
+		FakeHeader.prototype.c = 'string';
+		FakeHeader.prototype.d = [1,2,3,4];
+		var res = new FakeHeader;
+		res.a = 'string';
+		res.b = [];
+		var headers = new Headers(res);
+		expect(headers._headers['a']).to.include('string');
+		expect(headers._headers['b']).to.be.undefined;
+		expect(headers._headers['c']).to.be.undefined;
+		expect(headers._headers['d']).to.be.undefined;
 	});
 
 	it('should support https request', function() {

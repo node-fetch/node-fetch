@@ -13,8 +13,6 @@ A light-weight module that brings `window.fetch` to node.js & io.js
 
 I really like the notion of Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch): it bridges the API gap between client-side and server-side http requests, so developers have less to worry about.
 
-But I think the term [isomorphic](http://isomorphic.net/) is generally misleading: it gives developers a false sense of security that their javascript code will run happily on both controlled server environment as well as uncontrollable user browsers. When the latter is only true for a subset of modern browsers, not to mention quirks in native implementation.
-
 Instead of implementing `XMLHttpRequest` in node to run browser-specific [fetch polyfill](https://github.com/github/fetch), why not go from node's `http` to `fetch` API directly? Node has native stream support, browserify build targets (browsers) don't, so underneath they are going to be vastly different anyway.
 
 Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js/io.js runtime.
@@ -47,7 +45,7 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js/
 ```javascript
 var fetch = require('node-fetch');
 
-// If you are not on node v0.11, set a Promise library first, eg.
+// If you are not on node v0.12, set a Promise library first, eg.
 // fetch.Promise = require('bluebird');
 
 // plain text or html
@@ -142,8 +140,8 @@ default values are shown, note that only `method`, `headers` and `body` are allo
 {
 	method: 'GET'
 	, headers: {}     // request header, format {a:1} or {b:[1,2,3]}
-	, follow: 20      // maximum redirect count, 0 to disable
-	, timeout: 0      // request timeout in ms, 0 to disable, note that redirect restart timeout
+	, follow: 20      // maximum redirect count, 0 to disable, 1 to not follow redirect
+	, timeout: 0      // request timeout in ms, 0 to disable, timeout reset on redirect
 	, compress: true  // support gzip/deflate content encoding, false to disable
 	, size: 0         // maximum response body size in bytes, 0 to disable
 	, body: empty     // request body, can be a string or readable stream

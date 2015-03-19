@@ -5,7 +5,13 @@ Changelog
 
 # 1.x release
 
-## v1.0.4 (master)
+## v1.0.5 (master)
+
+- Enhance: update tests for better coverage
+- Enhance: code formatting
+- Enhance: clean up doc
+
+## v1.0.4
 
 - Enhance: test iojs support
 - Enhance: timeout attached to socket event only fire once per redirect
