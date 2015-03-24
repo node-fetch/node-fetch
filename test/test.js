@@ -502,6 +502,26 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support uncommon content-type order, charset in front', function() {
+		url = base + '/encoding/order1';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			return res.text().then(function(result) {
+				expect(result).to.equal('中文');
+			});
+		});
+	});
+
+	it('should support uncommon content-type order, end with qs', function() {
+		url = base + '/encoding/order2';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			return res.text().then(function(result) {
+				expect(result).to.equal('中文');
+			});
+		});
+	});
+
 	it('should allow piping response body as stream', function(done) {
 		url = base + '/hello';
 		fetch(url).then(function(res) {

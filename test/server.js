@@ -139,6 +139,18 @@ TestServer.prototype.router = function(req, res) {
 		res.end('中文');
 	}
 
+	if (p === '/encoding/order1') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'charset=gbk; text/plain');
+		res.end(convert('中文', 'gbk'));
+	}
+
+	if (p === '/encoding/order2') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain; charset=gbk; qs=1');
+		res.end(convert('中文', 'gbk'));
+	}
+
 	if (p === '/redirect/301') {
 		res.statusCode = 301;
 		res.setHeader('Location', '/inspect');

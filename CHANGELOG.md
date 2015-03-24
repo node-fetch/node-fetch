@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.0.5 (master)
+## v1.0.6 (master)
+
+- Fix: less greedy content-type charset matching
+
+## v1.0.5
 
 - Fix: when follow = 0, fetch should not follow redirect
 - Enhance: update tests for better coverage
