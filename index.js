@@ -161,7 +161,7 @@ function Fetch(url, opts) {
 		});
 
 		// accept string or readable stream as body
-		if (typeof options.body === 'string') {
+		if (typeof options.body === 'string' || Buffer.isBuffer(options.body)) {
 			req.write(options.body);
 			req.end();
 		} else if (typeof options.body === 'object' && options.body.pipe) {
