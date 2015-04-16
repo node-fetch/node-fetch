@@ -6,6 +6,7 @@ chai.use(cap);
 var expect = chai.expect;
 var bluebird = require('bluebird');
 var then = require('promise');
+var spawn = require('child_process').spawn;
 var stream = require('stream');
 var resumer = require('resumer');
 
@@ -583,4 +584,11 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should remove timeout on response', function (done) {
+		this.timeout(1e3);
+		spawn('node', ['-e', 'require("./")("' + base + '/hello", {timeout: 1e4})'])
+			.on('exit', function () {
+				done();
+			});
+	});
 });
