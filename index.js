@@ -102,10 +102,11 @@ function Fetch(url, opts) {
 
 		// send request
 		var req = request(options);
+		var reqTimeout;
 
 		if (options.timeout) {
 			req.once('socket', function(socket) {
-				setTimeout(function() {
+				reqTimeout = setTimeout(function() {
 					req.abort();
 					reject(new Error('network timeout at: ' + uri.href));
 				}, options.timeout);
@@ -113,10 +114,13 @@ function Fetch(url, opts) {
 		}
 
 		req.on('error', function(err) {
+			clearTimeout(reqTimeout);
 			reject(new Error('request to ' + uri.href + ' failed, reason: ' + err.message));
 		});
 
 		req.on('response', function(res) {
+			clearTimeout(reqTimeout);
+
 			// handle redirect
 			if (self.isRedirect(res.statusCode)) {
 				if (options.counter >= options.follow) {
