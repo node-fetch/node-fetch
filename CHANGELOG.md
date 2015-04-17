@@ -5,7 +5,12 @@ Changelog
 
 # 1.x release
 
-## v1.0.6 (master)
+## v1.1.0 (master)
+
+- Enhance: timeout now also applies to response body (in case of slow response)
+- Fix: timeout is now cleared properly when fetch is done/has failed
+
+## v1.0.6
 
 - Fix: less greedy content-type charset matching
 
