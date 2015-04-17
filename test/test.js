@@ -349,6 +349,20 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow POST request with buffer body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'POST'
+			, body: new Buffer([116, 101, 115, 116]) // 'test'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('test');
+		});
+	});
+
 	it('should allow POST request with readable stream as body', function() {
 		url = base + '/inspect';
 		opts = {
