@@ -87,6 +87,15 @@ TestServer.prototype.router = function(req, res) {
 		}, 1000);
 	}
 
+	if (p === '/slow') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain');
+		res.write('test');
+		setTimeout(function() {
+			res.end('test');
+		}, 1000);
+	}
+
 	if (p === '/cookie') {
 		res.statusCode = 200;
 		res.setHeader('Set-Cookie', ['a=1', 'b=1']);

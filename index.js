@@ -159,6 +159,7 @@ function Fetch(url, opts) {
 				, status: res.statusCode
 				, headers: headers
 				, size: options.size
+				, timeout: options.timeout
 			});
 
 			resolve(output);

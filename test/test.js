@@ -316,11 +316,48 @@ describe('node-fetch', function() {
 	});
 
 	it('should allow custom timeout', function() {
+		this.timeout(500);
 		url = base + '/timeout';
 		opts = {
 			timeout: 100
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejectedWith(Error);
+	});
+
+	it('should allow custom timeout on response body', function() {
+		this.timeout(500);
+		url = base + '/slow';
+		opts = {
+			timeout: 100
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.ok).to.be.true;
+			return expect(res.text()).to.eventually.be.rejectedWith(Error);
+		});
+	});
+
+	it('should clear internal timeout on fetch response', function (done) {
+		this.timeout(1000);
+		spawn('node', ['-e', 'require("./")("' + base + '/hello", { timeout: 5000 })'])
+			.on('exit', function () {
+				done();
+			});
+	});
+
+	it('should clear internal timeout on fetch redirect', function (done) {
+		this.timeout(1000);
+		spawn('node', ['-e', 'require("./")("' + base + '/redirect/301", { timeout: 5000 })'])
+			.on('exit', function () {
+				done();
+			});
+	});
+
+	it('should clear internal timeout on fetch error', function (done) {
+		this.timeout(1000);
+		spawn('node', ['-e', 'require("./")("' + base + '/error/reset", { timeout: 5000 })'])
+			.on('exit', function () {
+				done();
+			});
 	});
 
 	it('should allow POST request', function() {
@@ -582,13 +619,5 @@ describe('node-fetch', function() {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 		});
-	});
-
-	it('should remove timeout on response', function (done) {
-		this.timeout(1e3);
-		spawn('node', ['-e', 'require("./")("' + base + '/hello", {timeout: 1e4})'])
-			.on('exit', function () {
-				done();
-			});
 	});
 });
