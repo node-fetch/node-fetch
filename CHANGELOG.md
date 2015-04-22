@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.1.0 (master)
+## v1.1.1 (master)
+
+- Enhance: now req.headers accept both plain object and `Headers` instance
+
+## v1.1.0
 
 - Enhance: timeout now also applies to response body (in case of slow response)
 - Fix: timeout is now cleared properly when fetch is done/has failed

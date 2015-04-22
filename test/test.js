@@ -142,6 +142,18 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should accept headers instance', function() {
+		url = base + '/inspect';
+		opts = {
+			headers: new Headers({ 'x-custom-header': 'abc' })
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.headers['x-custom-header']).to.equal('abc');
+		});
+	});
+
 	it('should follow redirect code 301', function() {
 		url = base + '/redirect/301';
 		return fetch(url).then(function(res) {
@@ -205,6 +217,19 @@ describe('node-fetch', function() {
 			follow: 0
 		}
 		return expect(fetch(url, opts)).to.eventually.be.rejectedWith(Error);
+	});
+
+	it('should follow redirect code 301 and keep existing headers', function() {
+		url = base + '/redirect/301';
+		opts = {
+			headers: new Headers({ 'x-custom-header': 'abc' })
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(base + '/inspect');
+			return res.json();
+		}).then(function(res) {
+			expect(res.headers['x-custom-header']).to.equal('abc');
+		});
 	});
 
 	it('should reject broken redirect', function() {
@@ -609,6 +634,30 @@ describe('node-fetch', function() {
 		expect(headers._headers['d']).to.be.undefined;
 	});
 
+	it('should wrap headers', function() {
+		var h1 = new Headers({
+			a: '1'
+		});
+
+		var h2 = new Headers(h1);
+		h2.set('b', '1');
+
+		var h3 = new Headers(h2);
+		h3.append('a', '2');
+
+		expect(h1._headers['a']).to.include('1');
+		expect(h1._headers['a']).to.not.include('2');
+		expect(h1._headers['b']).to.not.include('1');
+
+		expect(h2._headers['a']).to.include('1');
+		expect(h2._headers['a']).to.not.include('2');
+		expect(h2._headers['b']).to.include('1');
+
+		expect(h3._headers['a']).to.include('1');
+		expect(h3._headers['a']).to.include('2');
+		expect(h3._headers['b']).to.include('1');
+	});
+
 	it('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
@@ -620,4 +669,5 @@ describe('node-fetch', function() {
 			expect(res.ok).to.be.true;
 		});
 	});
+
 });
