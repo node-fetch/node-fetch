@@ -620,18 +620,39 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should skip prototype when reading response headers', function() {
+	it('should ignore unsupported attributes while reading headers', function() {
 		var FakeHeader = function() {};
-		FakeHeader.prototype.c = 'string';
-		FakeHeader.prototype.d = [1,2,3,4];
+		FakeHeader.prototype.z = 'string';
+
 		var res = new FakeHeader;
 		res.a = 'string';
-		res.b = [];
+		res.b = ['1','2'];
+		res.c = '';
+		res.d = [];
+		res.e = { a:1 };
+		res.f = 1;
+		res.g = undefined;
+		res.h = null;
+		res.i = NaN;
+		res.j = true;
+		res.k = false;
+
 		var headers = new Headers(res);
+
 		expect(headers._headers['a']).to.include('string');
-		expect(headers._headers['b']).to.be.undefined;
-		expect(headers._headers['c']).to.be.undefined;
+		expect(headers._headers['b']).to.include('1');
+		expect(headers._headers['b']).to.include('2');
+		expect(headers._headers['c']).to.include('');
+
 		expect(headers._headers['d']).to.be.undefined;
+		expect(headers._headers['e']).to.be.undefined;
+		expect(headers._headers['f']).to.be.undefined;
+		expect(headers._headers['g']).to.be.undefined;
+		expect(headers._headers['h']).to.be.undefined;
+		expect(headers._headers['i']).to.be.undefined;
+		expect(headers._headers['j']).to.be.undefined;
+		expect(headers._headers['k']).to.be.undefined;
+		expect(headers._headers['z']).to.be.undefined;
 	});
 
 	it('should wrap headers', function() {
