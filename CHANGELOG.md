@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.1.1 (master)
+## v1.1.2 (master)
+
+- Fix: `Headers` should only support `String` and `Array` properties, and ignore others
+
+## v1.1.1
 
 - Enhance: now req.headers accept both plain object and `Headers` instance
 
