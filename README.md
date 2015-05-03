@@ -26,6 +26,7 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API on node.js/
 - Use native stream for body, on both request and response.
 - Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to utf-8 automatically.
 - Useful extensions such as timeout, redirect limit, response size limit.
+- Exposes `Response` and `Headers` constructors
 
 
 # Difference from client-side fetch
