@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.1.2 (master)
+## v1.2.0 (master)
+
+- Enhance: now fetch.Headers and fetch.Response are exposed, making testing easier
+
+## v1.1.2
 
 - Fix: `Headers` should only support `String` and `Array` properties, and ignore others
 
