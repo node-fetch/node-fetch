@@ -59,6 +59,11 @@ describe('node-fetch', function() {
 		fetch.Promise = old;
 	});
 
+	it('should expose Headers and Response constructors', function() {
+		expect(fetch.Headers).to.equal(Headers);
+		expect(fetch.Response).to.equal(Response);
+	});
+
 	it('should reject with error if url is protocol relative', function() {
 		url = '//example.com/';
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
