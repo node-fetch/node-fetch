@@ -625,39 +625,40 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should ignore unsupported attributes while reading headers', function() {
+	it('should throw if unsupported attributes while reading headers', function() {
 		var FakeHeader = function() {};
 		FakeHeader.prototype.z = 'string';
 
-		var res = new FakeHeader;
-		res.a = 'string';
-		res.b = ['1','2'];
-		res.c = '';
-		res.d = [];
-		res.e = { a:1 };
-		res.f = 1;
-		res.g = undefined;
-		res.h = null;
-		res.i = NaN;
-		res.j = true;
-		res.k = false;
+		var testHeaders = [
+			{ key: 'a', value: 'string' },
+			{ key: 'b', value: ['1','2'] },
+			{ key: 'c', value: '' },
+			{ key: 'd', value: [] },
+			{ key: 'e', value: { a:1 } },
+			{ key: 'f', value: 1 },
+			{ key: 'g', value: undefined },
+			{ key: 'h', value: null },
+			{ key: 'i', value: NaN },
+			{ key: 'j', value: true },
+			{ key: 'k', value: false }
+		];
 
-		var headers = new Headers(res);
-
-		expect(headers._headers['a']).to.include('string');
-		expect(headers._headers['b']).to.include('1');
-		expect(headers._headers['b']).to.include('2');
-		expect(headers._headers['c']).to.include('');
-
-		expect(headers._headers['d']).to.be.undefined;
-		expect(headers._headers['e']).to.be.undefined;
-		expect(headers._headers['f']).to.be.undefined;
-		expect(headers._headers['g']).to.be.undefined;
-		expect(headers._headers['h']).to.be.undefined;
-		expect(headers._headers['i']).to.be.undefined;
-		expect(headers._headers['j']).to.be.undefined;
-		expect(headers._headers['k']).to.be.undefined;
-		expect(headers._headers['z']).to.be.undefined;
+		testHeaders.forEach(function(header) {
+			var res = new FakeHeader;
+			res[header.key] = header.value;
+			try {
+				var headers = new Headers(res);
+				if (header.value instanceof Array) {
+					header.value.forEach(function(val) {
+						expect(headers._headers[header.key]).to.include(val);
+					})
+				} else
+					expect(headers._headers[header.key]).to.include(header.value);
+			} catch (e) {
+				expect(e.message).to.equal('invalid header "' + header.key + '" ' +
+					'(value must must be of type string)')
+			}
+		})
 	});
 
 	it('should wrap headers', function() {
