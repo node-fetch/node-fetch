@@ -154,6 +154,14 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should reject invalid headers', function() {
+		var fn = function() {
+			return new Headers({ 'content-length': 100 });
+		}
+		return expect(fn).to.throw('invalid header "content-length" ' +
+			'(value must must be of type string)');
+	});
+
 	it('should follow redirect code 301', function() {
 		url = base + '/redirect/301';
 		return fetch(url).then(function(res) {
