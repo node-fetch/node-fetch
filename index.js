@@ -190,3 +190,5 @@ Fetch.prototype.isRedirect = function(code) {
 
 // expose Promise
 Fetch.Promise = global.Promise;
+Fetch.Response = Response;
+Fetch.Headers = Headers;

@@ -59,6 +59,11 @@ describe('node-fetch', function() {
 		fetch.Promise = old;
 	});
 
+	it('should expose Headers and Response constructors', function() {
+		expect(fetch.Headers).to.equal(Headers);
+		expect(fetch.Response).to.equal(Response);
+	});
+
 	it('should reject with error if url is protocol relative', function() {
 		url = '//example.com/';
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
@@ -152,14 +157,6 @@ describe('node-fetch', function() {
 		}).then(function(res) {
 			expect(res.headers['x-custom-header']).to.equal('abc');
 		});
-	});
-
-	it('should reject invalid headers', function() {
-		var fn = function() {
-			return new Headers({ 'content-length': 100 });
-		}
-		return expect(fn).to.throw('invalid header "content-length" ' +
-			'(value must must be of type string)');
 	});
 
 	it('should follow redirect code 301', function() {
@@ -628,18 +625,40 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should skip prototype when reading response headers', function() {
+	it('should throw if unsupported attributes while reading headers', function() {
 		var FakeHeader = function() {};
-		FakeHeader.prototype.c = 'string';
-		FakeHeader.prototype.d = [1,2,3,4];
-		var res = new FakeHeader;
-		res.a = 'string';
-		res.b = [];
-		var headers = new Headers(res);
-		expect(headers._headers['a']).to.include('string');
-		expect(headers._headers['b']).to.be.undefined;
-		expect(headers._headers['c']).to.be.undefined;
-		expect(headers._headers['d']).to.be.undefined;
+		FakeHeader.prototype.z = 'string';
+
+		var testHeaders = [
+			{ key: 'a', value: 'string' },
+			{ key: 'b', value: ['1','2'] },
+			{ key: 'c', value: '' },
+			{ key: 'd', value: [] },
+			{ key: 'e', value: { a:1 } },
+			{ key: 'f', value: 1 },
+			{ key: 'g', value: undefined },
+			{ key: 'h', value: null },
+			{ key: 'i', value: NaN },
+			{ key: 'j', value: true },
+			{ key: 'k', value: false }
+		];
+
+		testHeaders.forEach(function(header) {
+			var res = new FakeHeader;
+			res[header.key] = header.value;
+			try {
+				var headers = new Headers(res);
+				if (header.value instanceof Array) {
+					header.value.forEach(function(val) {
+						expect(headers._headers[header.key]).to.include(val);
+					})
+				} else
+					expect(headers._headers[header.key]).to.include(header.value);
+			} catch (e) {
+				expect(e.message).to.equal('invalid header "' + header.key + '" ' +
+					'(value must must be of type string)')
+			}
+		})
 	});
 
 	it('should wrap headers', function() {

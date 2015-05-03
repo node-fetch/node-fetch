@@ -5,7 +5,15 @@ Changelog
 
 # 1.x release
 
-## v1.1.1 (master)
+## v1.2.0 (master)
+
+- Enhance: now fetch.Headers and fetch.Response are exposed, making testing easier
+
+## v1.1.2
+
+- Fix: `Headers` should only support `String` and `Array` properties, and ignore others
+
+## v1.1.1
 
 - Enhance: now req.headers accept both plain object and `Headers` instance
 
