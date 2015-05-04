@@ -627,37 +627,46 @@ describe('node-fetch', function() {
 
 	it('should ignore unsupported attributes while reading headers', function() {
 		var FakeHeader = function() {};
-		FakeHeader.prototype.z = 'string';
+		// prototypes are ignored
+		FakeHeader.prototype.z = 'fake';
 
 		var res = new FakeHeader;
+		// valid
 		res.a = 'string';
 		res.b = ['1','2'];
 		res.c = '';
 		res.d = [];
-		res.e = { a:1 };
-		res.f = 1;
-		res.g = undefined;
-		res.h = null;
-		res.i = NaN;
-		res.j = true;
-		res.k = false;
+		// common mistakes, normalized
+		res.e = 1;
+		res.f = [1, 2];
+		// invalid, ignored
+		res.g = { a:1 };
+		res.h = undefined;
+		res.i = null;
+		res.j = NaN;
+		res.k = true;
+		res.l = false;
 
-		var headers = new Headers(res);
+		var h1 = new Headers(res);
 
-		expect(headers._headers['a']).to.include('string');
-		expect(headers._headers['b']).to.include('1');
-		expect(headers._headers['b']).to.include('2');
-		expect(headers._headers['c']).to.include('');
+		expect(h1._headers['a']).to.include('string');
+		expect(h1._headers['b']).to.include('1');
+		expect(h1._headers['b']).to.include('2');
+		expect(h1._headers['c']).to.include('');
+		expect(h1._headers['d']).to.be.undefined;
 
-		expect(headers._headers['d']).to.be.undefined;
-		expect(headers._headers['e']).to.be.undefined;
-		expect(headers._headers['f']).to.be.undefined;
-		expect(headers._headers['g']).to.be.undefined;
-		expect(headers._headers['h']).to.be.undefined;
-		expect(headers._headers['i']).to.be.undefined;
-		expect(headers._headers['j']).to.be.undefined;
-		expect(headers._headers['k']).to.be.undefined;
-		expect(headers._headers['z']).to.be.undefined;
+		expect(h1._headers['e']).to.include('1');
+		expect(h1._headers['f']).to.include('1');
+		expect(h1._headers['f']).to.include('2');
+
+		expect(h1._headers['g']).to.be.undefined;
+		expect(h1._headers['h']).to.be.undefined;
+		expect(h1._headers['i']).to.be.undefined;
+		expect(h1._headers['j']).to.be.undefined;
+		expect(h1._headers['k']).to.be.undefined;
+		expect(h1._headers['l']).to.be.undefined;
+
+		expect(h1._headers['z']).to.be.undefined;
 	});
 
 	it('should wrap headers', function() {
