@@ -34,6 +34,6 @@
     "resumer": "0.0.0"
   },
   "dependencies": {
-    "encoding": "^0.1.11"
+    "iconv-lite": "^0.4.8"
   }
 }
