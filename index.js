@@ -71,6 +71,7 @@ function Fetch(url, opts) {
 			, method: opts.method || 'GET'
 			, headers: opts.headers || {}
 			, follow: opts.follow !== undefined ? opts.follow : 20
+			, redirect: opts.redirect || 'follow'
 			, counter: opts.counter || 0
 			, timeout: opts.timeout || 0
 			, compress: opts.compress !== false
@@ -122,7 +123,8 @@ function Fetch(url, opts) {
 			clearTimeout(reqTimeout);
 
 			// handle redirect
-			if (self.isRedirect(res.statusCode)) {
+			var redirected = self.isRedirect(res.statusCode);
+			if (options.redirect === "follow" && redirected) {
 				if (options.counter >= options.follow) {
 					reject(new Error('maximum redirect reached at: ' + uri.href));
 					return;
@@ -136,6 +138,10 @@ function Fetch(url, opts) {
 				options.counter++;
 
 				resolve(Fetch(resolve_url(uri.href, res.headers.location), options));
+				return;
+			}
+			if (options.redirect === "error" && redirected) {
+				reject(new Error('redirection occured at: ' + uri.href));
 				return;
 			}
 
