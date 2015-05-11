@@ -242,6 +242,24 @@ describe('node-fetch', function() {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
 	});
 
+	it('should not follow redirects when instructed to', function() {
+		url = base + '/redirect/302';
+		opts = {
+			redirect: 'manual'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(302);
+		});
+	});
+
+	it('should reject on redirects when instructed to', function() {
+		url = base + '/redirect/302';
+		opts = {
+			redirect: 'error'
+		};
+		return expect(fetch(url, opts)).to.eventually.be.rejectedWith(Error);
+	});
+
 	it('should handle client-error response', function() {
 		url = base + '/error/400';
 		return fetch(url).then(function(res) {
