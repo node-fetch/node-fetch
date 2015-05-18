@@ -15,6 +15,7 @@ var TestServer = require('./server');
 // test subjects
 var fetch = require('../index.js');
 var Headers = require('../lib/headers.js');
+var Request = require('../lib/request.js');
 var Response = require('../lib/response.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
@@ -59,8 +60,9 @@ describe('node-fetch', function() {
 		fetch.Promise = old;
 	});
 
-	it('should expose Headers and Response constructors', function() {
+	it('should expose Headers, Request and Response constructors', function() {
 		expect(fetch.Headers).to.equal(Headers);
+		expect(fetch.Request).to.equal(Request);
 		expect(fetch.Response).to.equal(Response);
 	});
 
@@ -96,6 +98,28 @@ describe('node-fetch', function() {
 			expect(res.ok).to.be.true;
 			expect(res.status).to.equal(200);
 			expect(res.statusText).to.equal('OK');
+		});
+	});
+
+	it('should resolve a request into a response', function() {
+		url = base + '/hello';
+		var req = new Request(url);
+		function check(res) {
+			expect(res).to.be.an.instanceof(Response);
+			expect(res.headers).to.be.an.instanceof(Headers);
+			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.bodyUsed).to.be.false;
+
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+			expect(res.statusText).to.equal('OK');
+		}
+		return fetch(req).then(function(res) {
+			check(res);
+			return fetch(req).then(function(res) { // twice
+				check(res);
+			});
 		});
 	});
 
