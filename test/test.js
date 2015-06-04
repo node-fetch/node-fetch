@@ -16,6 +16,7 @@ var TestServer = require('./server');
 var fetch = require('../index.js');
 var Headers = require('../lib/headers.js');
 var Response = require('../lib/response.js');
+var Request = require('../lib/request.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
@@ -59,9 +60,10 @@ describe('node-fetch', function() {
 		fetch.Promise = old;
 	});
 
-	it('should expose Headers and Response constructors', function() {
+	it('should expose Headers, Response and Request constructors', function() {
 		expect(fetch.Headers).to.equal(Headers);
 		expect(fetch.Response).to.equal(Response);
+		expect(fetch.Request).to.equal(Request);
 	});
 
 	it('should reject with error if url is protocol relative', function() {
@@ -474,7 +476,6 @@ describe('node-fetch', function() {
 		url = base + '/hello';
 		opts = {
 			method: 'HEAD'
-
 		};
 		return fetch(url, opts).then(function(res) {
 			expect(res.status).to.equal(200);
@@ -693,6 +694,52 @@ describe('node-fetch', function() {
 		expect(h3._headers['b']).to.include('1');
 	});
 
+	it('should support fetch with Request instance', function() {
+		url = base + '/hello';
+		var req = new Request(url);
+		return fetch(req).then(function(res) {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	it('should support wrapping Request instance', function() {
+		url = base + '/hello';
+		var r1 = new Request(url, {
+			method: 'POST'
+			, follow: 1
+		});
+		var r2 = new Request(r1, {
+			follow: 2
+		})
+		expect(r2.url).to.equal(url);
+		expect(r2.method).to.equal('POST');
+		expect(r1.follow).to.equal(1);
+		expect(r2.follow).to.equal(2);
+	});
+
+	it('should support overwrite Request instance', function() {
+		url = base + '/inspect';
+		var req = new Request(url, {
+			method: 'POST'
+			, headers: {
+				a: '1'
+			}
+		});
+		return fetch(req, {
+			method: 'GET'
+			, headers: {
+				a: '2'
+			}
+		}).then(function(res) {
+			return res.json();
+		}).then(function(body) {
+			expect(body.method).to.equal('GET');
+			expect(body.headers.a).to.equal('2');
+		});
+	});
+
 	it('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
@@ -704,5 +751,4 @@ describe('node-fetch', function() {
 			expect(res.ok).to.be.true;
 		});
 	});
-
 });
