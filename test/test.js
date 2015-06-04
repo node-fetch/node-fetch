@@ -16,6 +16,7 @@ var TestServer = require('./server');
 var fetch = require('../index.js');
 var Headers = require('../lib/headers.js');
 var Response = require('../lib/response.js');
+var Request = require('../lib/request.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
@@ -59,9 +60,10 @@ describe('node-fetch', function() {
 		fetch.Promise = old;
 	});
 
-	it('should expose Headers and Response constructors', function() {
+	it('should expose Headers, Response and Request constructors', function() {
 		expect(fetch.Headers).to.equal(Headers);
 		expect(fetch.Response).to.equal(Response);
+		expect(fetch.Request).to.equal(Request);
 	});
 
 	it('should reject with error if url is protocol relative', function() {
@@ -691,6 +693,16 @@ describe('node-fetch', function() {
 		expect(h3._headers['a']).to.include('1');
 		expect(h3._headers['a']).to.include('2');
 		expect(h3._headers['b']).to.include('1');
+	});
+
+	it('should support fetch with Request instance', function() {
+		url = base + '/hello';
+		var req = new Request(url);
+		return fetch(req).then(function(res) {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
 	});
 
 	it('should support https request', function() {

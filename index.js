@@ -14,7 +14,7 @@ var stream = require('stream');
 
 var Response = require('./lib/response');
 var Headers = require('./lib/headers');
-var Request = require('./lib/Request');
+var Request = require('./lib/request');
 
 module.exports = Fetch;
 
