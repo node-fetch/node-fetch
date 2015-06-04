@@ -14,13 +14,14 @@ var stream = require('stream');
 
 var Response = require('./lib/response');
 var Headers = require('./lib/headers');
+var Request = require('./lib/Request');
 
 module.exports = Fetch;
 
 /**
  * Fetch class
  *
- * @param   String   url   Absolute url
+ * @param   Mixed    url   Absolute url or Request instance
  * @param   Object   opts  Fetch options
  * @return  Promise
  */
@@ -41,43 +42,21 @@ function Fetch(url, opts) {
 
 	// wrap http.request into fetch
 	return new Fetch.Promise(function(resolve, reject) {
-		var uri = parse_url(url);
-
-		if (!uri.protocol || !uri.hostname) {
-			reject(new Error('only absolute urls are supported'));
+		// build request object
+		var options;
+		try {
+			options = new Request(url, opts);
+		} catch (err) {
+			reject(err);
 			return;
 		}
 
-		if (uri.protocol !== 'http:' && uri.protocol !== 'https:') {
-			reject(new Error('only http(s) protocols are supported'));
-			return;
-		}
-
-		var request;
-		if (uri.protocol === 'https:') {
-			request = https.request;
+		var send;
+		if (options.protocol === 'https:') {
+			send = https.request;
 		} else {
-			request = http.request;
+			send = http.request;
 		}
-
-		opts = opts || {};
-
-		// avoid side-effect on input options
-		var options = {
-			hostname: uri.hostname
-			, port: uri.port
-			, path: uri.path
-			, auth: uri.auth
-			, method: opts.method || 'GET'
-			, headers: opts.headers || {}
-			, follow: opts.follow !== undefined ? opts.follow : 20
-			, counter: opts.counter || 0
-			, timeout: opts.timeout || 0
-			, compress: opts.compress !== false
-			, size: opts.size || 0
-			, body: opts.body
-			, agent: opts.agent
-		};
 
 		// normalize headers
 		var headers = new Headers(options.headers);
@@ -101,21 +80,21 @@ function Fetch(url, opts) {
 		options.headers = headers.raw();
 
 		// send request
-		var req = request(options);
+		var req = send(options);
 		var reqTimeout;
 
 		if (options.timeout) {
 			req.once('socket', function(socket) {
 				reqTimeout = setTimeout(function() {
 					req.abort();
-					reject(new Error('network timeout at: ' + uri.href));
+					reject(new Error('network timeout at: ' + options.url));
 				}, options.timeout);
 			});
 		}
 
 		req.on('error', function(err) {
 			clearTimeout(reqTimeout);
-			reject(new Error('request to ' + uri.href + ' failed, reason: ' + err.message));
+			reject(new Error('request to ' + options.url + ' failed, reason: ' + err.message));
 		});
 
 		req.on('response', function(res) {
@@ -124,18 +103,18 @@ function Fetch(url, opts) {
 			// handle redirect
 			if (self.isRedirect(res.statusCode)) {
 				if (options.counter >= options.follow) {
-					reject(new Error('maximum redirect reached at: ' + uri.href));
+					reject(new Error('maximum redirect reached at: ' + options.url));
 					return;
 				}
 
 				if (!res.headers.location) {
-					reject(new Error('redirect location header missing at: ' + uri.href));
+					reject(new Error('redirect location header missing at: ' + options.url));
 					return;
 				}
 
 				options.counter++;
 
-				resolve(Fetch(resolve_url(uri.href, res.headers.location), options));
+				resolve(Fetch(resolve_url(options.url, res.headers.location), options));
 				return;
 			}
 
@@ -155,7 +134,7 @@ function Fetch(url, opts) {
 
 			// response object
 			var output = new Response(body, {
-				url: uri.href
+				url: options.url
 				, status: res.statusCode
 				, headers: headers
 				, size: options.size
@@ -192,3 +171,4 @@ Fetch.prototype.isRedirect = function(code) {
 Fetch.Promise = global.Promise;
 Fetch.Response = Response;
 Fetch.Headers = Headers;
+Fetch.Request = Request;
