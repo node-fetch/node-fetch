@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.2.1 (master)
+## v1.3.0 (master)
+
+- Enhance: now fetch.Request is exposed as well.
+
+## v1.2.1
 
 - Enhance: `Headers` now normalized `Number` value to `String`, prevent common mistakes
 

@@ -16,6 +16,4 @@ Known differences
 
 - Only support `res.text()` and `res.json()` at the moment, until there are good use-cases for blob.
 
-- Only expose `Response` and `Headers` constructors at the moment, we don't see a good use-case for `Request` interface yet.
-
 - There is currently no built-in caching, as server-side caching varies by use-cases.
