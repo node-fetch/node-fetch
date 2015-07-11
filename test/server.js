@@ -244,4 +244,10 @@ TestServer.prototype.router = function(req, res) {
 		});
 	}
 
+	if (p === '/host') {
+		res.statusCode = 200;
+		res.setHeader('Fetch-Sent-Host', req.headers.host);
+		res.end();
+	}
+
 }
