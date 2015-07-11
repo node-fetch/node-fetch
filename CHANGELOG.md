@@ -5,9 +5,13 @@ Changelog
 
 # 1.x release
 
-## v1.3.0 (master)
+## v1.3.1
 
-- Enhance: now fetch.Request is exposed as well.
+- Enhance: allow custom host header to be set (server-side only feature, as it's a forbidden header on client-side)
+
+## v1.3.0
+
+- Enhance: now fetch.Request is exposed as well
 
 ## v1.2.1
 

@@ -161,6 +161,20 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should accept custom host header', function() {
+		url = base + '/inspect';
+		opts = {
+			headers: {
+				host: 'example.com'
+			}
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.headers['host']).to.equal('example.com');
+		});
+	});
+
 	it('should follow redirect code 301', function() {
 		url = base + '/redirect/301';
 		return fetch(url).then(function(res) {
@@ -749,19 +763,6 @@ describe('node-fetch', function() {
 		return fetch(url, opts).then(function(res) {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
-		});
-	});
-
-	it('should allow setting of custom host', function() {
-		url = base + '/host';
-		opts = {
-			method: 'HEAD',
-			headers: {
-				host: 'bitinn.net'
-			}
-		};
-		return fetch(url, opts).then(function(res) {
-			expect(res.headers.get('fetch-sent-host')).to.equal('bitinn.net');
 		});
 	});
 
