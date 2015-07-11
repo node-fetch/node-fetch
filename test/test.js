@@ -751,4 +751,18 @@ describe('node-fetch', function() {
 			expect(res.ok).to.be.true;
 		});
 	});
+
+	it('should allow setting of custom host', function() {
+		url = base + '/host';
+		opts = {
+			method: 'HEAD',
+			headers: {
+				host: 'bitinn.net'
+			}
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.headers.get('fetch-sent-host')).to.equal('bitinn.net');
+		});
+	});
+
 });

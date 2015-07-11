@@ -79,6 +79,11 @@ function Fetch(url, opts) {
 
 		options.headers = headers.raw();
 
+		// HACK: headers.host must be a string, cannot be an array otherwise get error ‘undefined is not a function’
+		if (options.headers.host) {
+			options.headers.host = options.headers.host[0];
+		}
+
 		// send request
 		var req = send(options);
 		var reqTimeout;
