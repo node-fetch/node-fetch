@@ -5,7 +5,7 @@ Changelog
 
 # 1.x release
 
-## v1.3.1
+## v1.3.1 (master)
 
 - Enhance: allow custom host header to be set (server-side only feature, as it's a forbidden header on client-side)
 
