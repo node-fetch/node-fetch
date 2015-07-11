@@ -79,7 +79,7 @@ function Fetch(url, opts) {
 
 		options.headers = headers.raw();
 
-		// HACK: headers.host must be a string, cannot be an array otherwise get error ‘undefined is not a function’
+		// http.request only support string as host header, this hack make custom host header possible
 		if (options.headers.host) {
 			options.headers.host = options.headers.host[0];
 		}
