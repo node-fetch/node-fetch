@@ -77,6 +77,10 @@ function Fetch(url, opts) {
 			headers.set('accept', '*/*');
 		}
 
+		if (!headers.has('content-type') && options.body && typeof options.body.getBoundary === "function") {
+			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
+		}
+
 		options.headers = headers.raw();
 
 		// http.request only support string as host header, this hack make custom host header possible

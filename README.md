@@ -102,7 +102,7 @@ fetch('http://httpbin.org/post', { method: 'POST', body: stream })
 var FormData = require('form-data');
 var form = new FormData();
 form.append('a', 1);
-fetch('http://httpbin.org/post', { method: 'POST', body: form, headers: form.getHeaders() })
+fetch('http://httpbin.org/post', { method: 'POST', body: form })
 	.then(function(res) {
 		return res.json();
 	}).then(function(json) {
