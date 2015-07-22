@@ -4,6 +4,7 @@ var parse = require('url').parse;
 var zlib = require('zlib');
 var stream = require('stream');
 var convert = require('encoding').convert;
+var Multipart = require('parted').multipart;
 
 module.exports = TestServer;
 
@@ -244,4 +245,22 @@ TestServer.prototype.router = function(req, res) {
 		});
 	}
 
+	if (p === '/multipart') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/json');
+		var parser = new Multipart(req.headers['content-type']);
+		var body = '';
+		parser.on('part', function(field, part) {
+			body += field + '=' + part;
+		});
+		parser.on('end', function() {
+			res.end(JSON.stringify({
+				method: req.method,
+				url: req.url,
+				headers: req.headers,
+				body: body
+			}));
+		});
+		req.pipe(parser);
+	}
 }
