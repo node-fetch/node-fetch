@@ -449,9 +449,9 @@ describe('node-fetch', function() {
 
 	it('should allow POST request with form-data as body', function() {
 		var form = new FormData();
-		form.append('a', '1');
+		form.append('a','1');
 
-		url = base + '/inspect';
+		url = base + '/multipart';
 		opts = {
 			method: 'POST'
 			, body: form
@@ -460,11 +460,33 @@ describe('node-fetch', function() {
 			return res.json();
 		}).then(function(res) {
 			expect(res.method).to.equal('POST');
-			expect(res.body).to.contain('Content-Disposition: form-data;')
-				.and.to.contain('name="a"');
+			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.body).to.equal('a=1');
 		});
 	});
 
+	it('should allow POST request with form-data as body and custom headers', function() {
+		var form = new FormData();
+		form.append('a','1');
+
+		var headers = form.getHeaders();
+		headers['b'] = '2';
+
+		url = base + '/multipart';
+		opts = {
+			method: 'POST'
+			, body: form
+			, headers: headers
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers.b).to.equal('2');
+			expect(res.body).to.equal('a=1');
+		});
+	});
 
 	it('should allow PUT request', function() {
 		url = base + '/inspect';

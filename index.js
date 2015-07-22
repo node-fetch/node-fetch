@@ -77,7 +77,8 @@ function Fetch(url, opts) {
 			headers.set('accept', '*/*');
 		}
 
-		if (!headers.has('content-type') && options.body && typeof options.body.getBoundary === "function") {
+		// detect form data input from form-data module, this hack avoid the need to pass multipart header manually
+		if (!headers.has('content-type') && options.body && typeof options.body.getBoundary === 'function') {
 			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
 		}
 

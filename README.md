@@ -97,12 +97,24 @@ fetch('http://httpbin.org/post', { method: 'POST', body: stream })
 		console.log(json);
 	});
 
-// post with form-data
+// post with form-data (detect multipart)
 
 var FormData = require('form-data');
 var form = new FormData();
 form.append('a', 1);
 fetch('http://httpbin.org/post', { method: 'POST', body: form })
+	.then(function(res) {
+		return res.json();
+	}).then(function(json) {
+		console.log(json);
+	});
+
+// post with form-data (custom headers)
+
+var FormData = require('form-data');
+var form = new FormData();
+form.append('a', 1);
+fetch('http://httpbin.org/post', { method: 'POST', body: form, headers: form.getHeaders() })
 	.then(function(res) {
 		return res.json();
 	}).then(function(json) {

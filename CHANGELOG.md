@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.3.1 (master)
+## v1.3.2 (master)
+
+- Enhance: allow auto detect of form-data input (no `FormData` spec on node.js, this is form-data specific feature)
+
+## v1.3.1
 
 - Enhance: allow custom host header to be set (server-side only feature, as it's a forbidden header on client-side)
 
