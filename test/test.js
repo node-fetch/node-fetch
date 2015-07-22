@@ -9,6 +9,7 @@ var then = require('promise');
 var spawn = require('child_process').spawn;
 var stream = require('stream');
 var resumer = require('resumer');
+var FormData = require('form-data');
 
 var TestServer = require('./server');
 
@@ -445,6 +446,25 @@ describe('node-fetch', function() {
 			expect(res.body).to.equal('a=1');
 		});
 	});
+
+	it('should allow POST request with form-data as body', function() {
+		var form = new FormData();
+		form.append('a', '1');
+
+		url = base + '/inspect';
+		opts = {
+			method: 'POST'
+			, body: form
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.contain('Content-Disposition: form-data;')
+				.and.to.contain('name="a"');
+		});
+	});
+
 
 	it('should allow PUT request', function() {
 		url = base + '/inspect';
