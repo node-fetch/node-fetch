@@ -808,4 +808,18 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support parsing headers in Response constructor', function(){
+
+		var r = new Response(null, {headers: {'foo': 'bar'}});
+		expect(r.headers.get('foo')).to.equal('bar');
+
+	});
+
+	it('should support parsing headers in Request constructor', function(){
+
+		var r = new Request('http://foo', {headers: {'foo': 'bar'}});
+		expect(r.headers.get('foo')).to.equal('bar');
+
+	});
+
 });
