@@ -12,6 +12,7 @@ var https = require('https');
 var zlib = require('zlib');
 var stream = require('stream');
 
+var Body = require('./lib/body');
 var Response = require('./lib/response');
 var Headers = require('./lib/headers');
 var Request = require('./lib/request');
@@ -36,7 +37,7 @@ function Fetch(url, opts) {
 		throw new Error('native promise missing, set Fetch.Promise to your favorite alternative');
 	}
 
-	Response.Promise = Fetch.Promise;
+	Body.Promise = Fetch.Promise;
 
 	var self = this;
 
