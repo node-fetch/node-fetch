@@ -808,6 +808,28 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should not support bad https request', function() {
+		this.timeout(5000);
+		url = 'https://192.30.252.128/';
+		opts = {
+			method: 'HEAD'
+		};
+                return expect(fetch(url,opts)).to.eventually.be.rejectedWith(Error);
+	});
+
+	it('should support bad https request with reject options', function() {
+		this.timeout(5000);
+		url = 'https://192.30.252.128/';
+		opts = {
+			method: 'HEAD',
+                        rejectUnauthorized:false
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+		});
+	});
+
 	it('should support parsing headers in Response constructor', function(){
 
 		var r = new Response(null, {headers: {'foo': 'bar'}});
