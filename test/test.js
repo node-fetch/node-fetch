@@ -348,6 +348,14 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should reject if response compression is invalid', function() {
+		url = base + '/invalid-content-encoding';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return expect(res.text()).to.eventually.be.rejectedWith(Error);
+		});
+	});
+
 	it('should allow disabling auto decompression', function() {
 		url = base + '/gzip';
 		opts = {
