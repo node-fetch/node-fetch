@@ -860,6 +860,7 @@ describe('node-fetch', function() {
 
 	it('should support empty options in Response constructor', function() {
 		var body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
 		var res = new Response(body);
 		return res.text().then(function(result) {
 			expect(result).to.equal('a=1');
@@ -868,6 +869,7 @@ describe('node-fetch', function() {
 
 	it('should support parsing headers in Response constructor', function() {
 		var body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
 		var res = new Response(body, {
 			headers: {
 				a: '1'
