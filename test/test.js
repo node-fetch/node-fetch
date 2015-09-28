@@ -858,14 +858,25 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support empty options in Response constructor', function() {
+		var body = resumer().queue('a=1').end();
+		var res = new Response(body);
+		return res.text().then(function(result) {
+			expect(result).to.equal('a=1');
+		});
+	});
+
 	it('should support parsing headers in Response constructor', function() {
-		url = base;
-		var res = new Response(url, {
+		var body = resumer().queue('a=1').end();
+		var res = new Response(body, {
 			headers: {
 				a: '1'
 			}
 		});
 		expect(res.headers.get('a')).to.equal('1');
+		return res.text().then(function(result) {
+			expect(result).to.equal('a=1');
+		});
 	});
 
 	it('should support parsing headers in Request constructor', function() {
@@ -875,10 +886,11 @@ describe('node-fetch', function() {
 				a: '1'
 			}
 		});
+		expect(req.url).to.equal(url);
 		expect(req.headers.get('a')).to.equal('1');
 	});
 
-	it.skip('should support https request', function() {
+	it('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
 		opts = {
