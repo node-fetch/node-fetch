@@ -547,20 +547,6 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should set request content-length when sending string as body', function() {
-		url = base + '/inspect';
-		opts = {
-			method: 'POST'
-			, body: 'a=1'
-		};
-		return fetch(url, opts).then(function(res) {
-			return res.json();
-		}).then(function(res) {
-			expect(res.method).to.equal('POST');
-
-		});
-	});
-
 	it('should reject decoding body twice', function() {
 		url = base + '/plain';
 		return fetch(url).then(function(res) {

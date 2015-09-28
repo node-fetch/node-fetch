@@ -82,8 +82,8 @@ function Fetch(url, opts) {
 			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
 		}
 
-		// bring node-fetch closer to browser fetch behavior by setting content-length automatically for post, put, patch requests when body is string
-		if (options.method.substr(0, 1).toUpperCase() === 'P' && typeof options.body === 'string') {
+		// bring node-fetch closer to browser behavior by setting content-length automatically for POST, PUT, PATCH requests when body is string
+		if (!headers.has('content-length') && typeof options.body === 'string' && options.method.substr(0, 1).toUpperCase() === 'P') {
 			headers.set('content-length', Buffer.byteLength(options.body));
 		}
 
