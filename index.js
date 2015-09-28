@@ -82,6 +82,11 @@ function Fetch(url, opts) {
 			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
 		}
 
+		// bring node-fetch closer to browser fetch behavior by setting content-length automatically for post, put, patch requests when body is string
+		if (options.method.substr(0, 1).toUpperCase() === 'P' && typeof options.body === 'string') {
+			headers.set('content-length', Buffer.byteLength(options.body));
+		}
+
 		options.headers = headers.raw();
 
 		// http.request only support string as host header, this hack make custom host header possible

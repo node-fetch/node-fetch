@@ -416,6 +416,8 @@ describe('node-fetch', function() {
 			return res.json();
 		}).then(function(res) {
 			expect(res.method).to.equal('POST');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('0');
 		});
 	});
 
@@ -430,6 +432,8 @@ describe('node-fetch', function() {
 		}).then(function(res) {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('3');
 		});
 	});
 
@@ -444,6 +448,8 @@ describe('node-fetch', function() {
 		}).then(function(res) {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.equal('chunked');
+			expect(res.headers['content-length']).to.be.undefined;
 		});
 	});
 
@@ -538,6 +544,20 @@ describe('node-fetch', function() {
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.body).to.be.an.instanceof(stream.Transform);
+		});
+	});
+
+	it('should set request content-length when sending string as body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'POST'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+
 		});
 	});
 
@@ -796,6 +816,26 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support parsing headers in Response constructor', function() {
+		url = base;
+		var res = new Response(url, {
+			headers: {
+				a: '1'
+			}
+		});
+		expect(res.headers.get('a')).to.equal('1');
+	});
+
+	it('should support parsing headers in Request constructor', function() {
+		url = base;
+		var req = new Request(url, {
+			headers: {
+				a: '1'
+			}
+		});
+		expect(req.headers.get('a')).to.equal('1');
+	});
+
 	it('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
@@ -806,20 +846,6 @@ describe('node-fetch', function() {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 		});
-	});
-
-	it('should support parsing headers in Response constructor', function(){
-
-		var r = new Response(null, {headers: {'foo': 'bar'}});
-		expect(r.headers.get('foo')).to.equal('bar');
-
-	});
-
-	it('should support parsing headers in Request constructor', function(){
-
-		var r = new Request('http://foo', {headers: {'foo': 'bar'}});
-		expect(r.headers.get('foo')).to.equal('bar');
-
 	});
 
 });
