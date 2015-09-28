@@ -225,6 +225,54 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should follow POST request redirect code 301 with GET', function() {
+		url = base + '/redirect/301';
+		opts = {
+			method: 'POST'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(base + '/inspect');
+			expect(res.status).to.equal(200);
+			return res.json().then(function(result) {
+				expect(result.method).to.equal('GET');
+				expect(result.body).to.equal('');
+			});
+		});
+	});
+
+	it('should follow POST request redirect code 302 with GET', function() {
+		url = base + '/redirect/302';
+		opts = {
+			method: 'POST'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(base + '/inspect');
+			expect(res.status).to.equal(200);
+			return res.json().then(function(result) {
+				expect(result.method).to.equal('GET');
+				expect(result.body).to.equal('');
+			});
+		});
+	});
+
+	it('should follow redirect code 303 with GET', function() {
+		url = base + '/redirect/303';
+		opts = {
+			method: 'PUT'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(base + '/inspect');
+			expect(res.status).to.equal(200);
+			return res.json().then(function(result) {
+				expect(result.method).to.equal('GET');
+				expect(result.body).to.equal('');
+			});
+		});
+	});
+
 	it('should obey maximum redirect', function() {
 		url = base + '/redirect/chain';
 		opts = {
@@ -830,7 +878,7 @@ describe('node-fetch', function() {
 		expect(req.headers.get('a')).to.equal('1');
 	});
 
-	it('should support https request', function() {
+	it.skip('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
 		opts = {

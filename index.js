@@ -132,6 +132,15 @@ function Fetch(url, opts) {
 					return;
 				}
 
+				// per fetch spec, for POST request with 301/302 response, or any request with 303 response, use GET when following redirect
+				if (res.statusCode === 303
+					|| ((res.statusCode === 301 || res.statusCode === 302) && options.method === 'POST'))
+				{
+					options.method = 'GET';
+					delete options.body;
+					delete options.headers['content-length'];
+				}
+
 				options.counter++;
 
 				resolve(Fetch(resolve_url(options.url, res.headers.location), options));
