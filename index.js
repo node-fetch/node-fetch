@@ -82,9 +82,14 @@ function Fetch(url, opts) {
 			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
 		}
 
-		// bring node-fetch closer to browser behavior by setting content-length automatically for POST, PUT, PATCH requests when body is string
-		if (!headers.has('content-length') && typeof options.body === 'string' && options.method.substr(0, 1).toUpperCase() === 'P') {
-			headers.set('content-length', Buffer.byteLength(options.body));
+		// bring node-fetch closer to browser behavior by setting content-length automatically for POST, PUT, PATCH requests when body is empty or string
+		if (!headers.has('content-length') && options.method.substr(0, 1).toUpperCase() === 'P') {
+			if (typeof options.body === 'string') {
+				headers.set('content-length', Buffer.byteLength(options.body));
+			// this is only necessary for older nodejs releases (before iojs merge)
+			} else if (options.body === undefined || options.body === null) {
+				headers.set('content-length', '0');
+			}
 		}
 
 		options.headers = headers.raw();
