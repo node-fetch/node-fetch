@@ -658,8 +658,8 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support encoding decode, meta charset detect at large header', function() {
-		url = base + '/encoding/large-shift-jis';
+	it('should support encoding decode, meta charset detect with chunked data', function() {
+		url = base + '/encoding/chunked';
 		return fetch(url).then(function(res) {
 			expect(res.status).to.equal(200);
 			return res.text().then(function(result) {
