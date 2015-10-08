@@ -658,6 +658,17 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support encoding decode, meta charset detect at large header', function() {
+		url = base + '/encoding/large-shift-jis';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			return res.text().then(function(result) {
+				expect(result).to.match(/テスト用サンプル タイトル/);
+			});
+		});
+	});
+
+
 	it('should support encoding decode, html5 detect', function() {
 		url = base + '/encoding/gbk';
 		return fetch(url).then(function(res) {

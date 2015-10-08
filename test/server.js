@@ -145,6 +145,35 @@ TestServer.prototype.router = function(req, res) {
 		res.end(convert('<div>日本語</div>', 'Shift_JIS'));
 	}
 
+	if (p === '/encoding/large-shift-jis') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/html');
+		res.setHeader('Transfer-Encoding', 'chunked');
+		var html = [
+			'<!DOCTYPE HTML>',
+			'<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://ogp.me/ns#" xmlns:fb="https://www.facebook.com/2008/fbml">',
+			'<head>',
+			'<meta http-equiv="X-UA-Compatible" content="IE=edge" />',
+			'<meta name="author" content="テスト" />',
+			'<meta name="copyright" content="Copyright &copy; Sample Corporation. All Rights Reserved." />',
+			'<title>テスト用サンプル タイトル</title>',
+			'<meta name="description" content="これはテスト用のDescriptionです">',
+			'<meta name="keywords" content="キーワード" />',
+			'<meta name="target-year" content="2015" />',
+			'<meta property="og:title" content="サンプル タイル" />',
+			'<meta property="og:type" content="article" />',
+			'<meta property="og:url" content="http://example.com/test.html" />',
+			'<meta property="og:image" content="http://example.com/test.png" />',
+			'<meta property="og:description" content="これはテスト用のDescriptionです" />',
+			'<meta property="og:locale" content="ja_JP" />',
+			'<meta property="og:site_name" content="Sample" />',
+			'<link rel="canonical" href="http://example.com/test.html" />',
+			'<link rel="stylesheet" href="/css.css">',
+			'<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />',
+		].join('');
+		res.end(convert(html, 'Shift_JIS'));
+	}
+
 	if (p === '/encoding/euc-jp') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/xml');
