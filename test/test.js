@@ -906,17 +906,17 @@ describe('node-fetch', function() {
 
 	it('should support the .text() convenience method', function() {
 		this.timeout(5000);
-		return fetch('http://jsonplaceholder.typicode.com/users').text().then(function(text) {
+		return fetch(base + '/hello').text().then(function(text) {
 			expect(text).to.be.a('string')
-			expect(text).to.satisfy(function(s) { return s.length > 0 })
+			expect(text).to.equal('world')
 		})
 	});
 
 	it('should support the .json() convenience method', function() {
 		this.timeout(5000);
-		return fetch('http://jsonplaceholder.typicode.com/users').json().then(function(users) {
-			expect(users).to.be.instanceof(Array)
-			expect(users[0].id).to.equal(1)
+		return fetch(base + '/json').json().then(function(json) {
+			expect(json).to.be.a('object')
+			expect(json.name).to.equal('value')
 		})
 	});
 
