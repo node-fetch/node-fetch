@@ -904,4 +904,20 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support the .text() convenience method', function() {
+		this.timeout(5000);
+		return fetch('http://jsonplaceholder.typicode.com/users').text().then(function(text) {
+			expect(text).to.be.a('string')
+			expect(text).to.satisfy(function(s) { return s.length > 0 })
+		})
+	});
+
+	it('should support the .json() convenience method', function() {
+		this.timeout(5000);
+		return fetch('http://jsonplaceholder.typicode.com/users').json().then(function(users) {
+			expect(users).to.be.instanceof(Array)
+			expect(users[0].id).to.equal(1)
+		})
+	});
+
 });
