@@ -41,7 +41,7 @@ function Fetch(url, opts) {
 	var self = this;
 
 	// wrap http.request into fetch
-	return new Fetch.Promise(function(resolve, reject) {
+	return decorate(new Fetch.Promise(function(resolve, reject) {
 		// build request object
 		var options;
 		try {
@@ -182,9 +182,28 @@ function Fetch(url, opts) {
 		} else {
 			req.end();
 		}
-	});
+	}));
 
 };
+
+/**
+ * Adds convenience methods to the promise:
+ * .json() & .text()
+ */
+function decorate(fetchPromise) {
+	fetchPromise.json = function() {
+		return fetchPromise.then(function (res) {
+			return res.json()
+		})
+	}
+
+	fetchPromise.text = function() {
+		return fetchPromise.then(function (res) {
+			return res.text()
+		})
+	}
+	return fetchPromise
+}
 
 /**
  * Redirect code matching
