@@ -927,4 +927,20 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support the .text() convenience method', function() {
+		this.timeout(5000);
+		return fetch(base + '/hello').text().then(function(text) {
+			expect(text).to.be.a('string')
+			expect(text).to.equal('world')
+		})
+	});
+
+	it('should support the .json() convenience method', function() {
+		this.timeout(5000);
+		return fetch(base + '/json').json().then(function(json) {
+			expect(json).to.be.a('object')
+			expect(json.name).to.equal('value')
+		})
+	});
+
 });
