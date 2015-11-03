@@ -158,6 +158,7 @@ default values are shown, note that only `method`, `headers` and `body` are allo
 	, size: 0         // maximum response body size in bytes, 0 to disable
 	, body: empty     // request body, can be a string or readable stream
 	, agent: null     // custom http.Agent instance
+	, keepAlive: null // keep sockets around in a pool to be used by other requests in the future
 }
 ```
 
