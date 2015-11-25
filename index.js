@@ -86,6 +86,9 @@ function Fetch(url, opts) {
 		if (!headers.has('content-length') && options.method.substr(0, 1).toUpperCase() === 'P') {
 			if (typeof options.body === 'string') {
 				headers.set('content-length', Buffer.byteLength(options.body));
+			// detect form data input from form-data module, this hack avoid the need to add content-length header manually
+			} else if (options.body && typeof options.body.getLengthSync === 'function') {
+				headers.set('content-length', options.body.getLengthSync().toString());
 			// this is only necessary for older nodejs releases (before iojs merge)
 			} else if (options.body === undefined || options.body === null) {
 				headers.set('content-length', '0');
