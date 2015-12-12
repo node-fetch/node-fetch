@@ -118,33 +118,37 @@ function Fetch(url, opts) {
 		});
 
 		req.on('response', function(res) {
+			var throwOnMaximumRedirect = opts && opts.throwOnMaximumRedirect === false ? false : true;
 			clearTimeout(reqTimeout);
 
 			// handle redirect
 			if (self.isRedirect(res.statusCode)) {
-				if (options.counter >= options.follow) {
-					reject(new Error('maximum redirect reached at: ' + options.url));
-					return;
-				}
-
 				if (!res.headers.location) {
 					reject(new Error('redirect location header missing at: ' + options.url));
 					return;
 				}
 
-				// per fetch spec, for POST request with 301/302 response, or any request with 303 response, use GET when following redirect
-				if (res.statusCode === 303
-					|| ((res.statusCode === 301 || res.statusCode === 302) && options.method === 'POST'))
-				{
-					options.method = 'GET';
-					delete options.body;
-					delete options.headers['content-length'];
+				if (options.counter < options.follow) {
+
+					// per fetch spec, for POST request with 301/302 response, or any request with 303 response, use GET when following redirect
+					if (res.statusCode === 303
+						|| ((res.statusCode === 301 || res.statusCode === 302) && options.method === 'POST'))
+					{
+						options.method = 'GET';
+						delete options.body;
+						delete options.headers['content-length'];
+					}
+
+					options.counter++;
+
+					resolve(Fetch(resolve_url(options.url, res.headers.location), options));
+					return;
 				}
 
-				options.counter++;
-
-				resolve(Fetch(resolve_url(options.url, res.headers.location), options));
-				return;
+				if (throwOnMaximumRedirect) {
+					reject(new Error('maximum redirect reached at: ' + options.url));
+					return;
+				}
 			}
 
 			// handle compression
