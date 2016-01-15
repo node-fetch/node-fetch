@@ -915,6 +915,18 @@ describe('node-fetch', function() {
 		expect(req.headers.get('a')).to.equal('1');
 	});
 
+	it('should support string bodies in Response constructor', function() {
+		return (new Response('foo')).text().then(function(text) {
+			expect(text).to.equal('foo');
+		});
+	});
+
+	it('should support Buffer bodies in Response constructor', function() {
+		return (new Response(new Buffer('foo'))).text().then(function(text) {
+			expect(text).to.equal('foo');
+		});
+	});
+
 	it('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
