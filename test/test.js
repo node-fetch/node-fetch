@@ -138,6 +138,18 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should accept buffer response', function() {
+		url = base + '/buffer';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('application/octet-stream');
+			return res.buffer().then(function(result) {
+				expect(res.bodyUsed).to.be.true;
+				expect(result).to.be.an('object');
+				expect(result).to.deep.equal(new Buffer([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]));
+			});
+		});
+	});
+
 	it('should send request with custom headers', function() {
 		url = base + '/inspect';
 		opts = {

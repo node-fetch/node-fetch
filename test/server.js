@@ -55,6 +55,12 @@ TestServer.prototype.router = function(req, res) {
 		}));
 	}
 
+	if (p === '/buffer') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/octet-stream');
+		res.end(new Buffer([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]));
+	}
+
 	if (p === '/gzip') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/plain');
