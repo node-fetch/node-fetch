@@ -904,6 +904,15 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support strings as a response body', function() {
+		var body = '{"id": 1}';
+		var res = new Response(body);
+
+		return res.json().then(function(result) {
+			expect(result.id).to.equal(1);
+		});
+	});
+
 	it('should support parsing headers in Request constructor', function() {
 		url = base;
 		var req = new Request(url, {
