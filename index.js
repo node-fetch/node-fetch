@@ -115,7 +115,7 @@ function Fetch(url, opts) {
 
 		req.on('error', function(err) {
 			clearTimeout(reqTimeout);
-			reject(new Error('request to ' + options.url + ' failed, reason: ' + err.message));
+			reject(err);
 		});
 
 		req.on('response', function(res) {
