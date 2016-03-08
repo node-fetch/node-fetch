@@ -121,6 +121,19 @@ fetch('http://httpbin.org/post', { method: 'POST', body: form, headers: form.get
 		console.log(json);
 	});
 
+// post with capturing (json) error(output)
+function myreq( url, opts ){
+  var response = null;
+  fetch( url, opts )
+    .then(function(res) {
+      return res.json();
+    }).then(function(json) {
+      console.log(json);
+    }).catch(function(err) {
+      console.log( err+ "\n\n" + response._raw.toString() )
+    });
+}
+
 // node 0.11+, yield with co
 
 var co = require('co');
