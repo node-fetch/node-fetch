@@ -126,6 +126,7 @@ function myreq( url, opts ){
   var response = null;
   fetch( url, opts )
     .then(function(res) {
+      response = res;
       return res.json();
     }).then(function(json) {
       console.log(json);
