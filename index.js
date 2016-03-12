@@ -18,6 +18,7 @@ var Headers = require('./lib/headers');
 var Request = require('./lib/request');
 
 module.exports = Fetch;
+module.exports.default = module.exports;
 
 /**
  * Fetch class
