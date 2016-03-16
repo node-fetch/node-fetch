@@ -977,7 +977,7 @@ describe('node-fetch', function() {
         // attempt to read with delay as well
         setTimeout(function() {
             expect(r._raw.length).is.equal(1); // ensure something has been written to make the test more sophisticated
-            Promise.all([text1, r.clone().text()]).then(function(texts) {
+            fetch.Promise.all([text1, r.clone().text()]).then(function(texts) {
                 expect(texts[0]).to.equal('foobar');
                 expect(texts[1]).to.equal('foobar');
                 done();
@@ -988,7 +988,7 @@ describe('node-fetch', function() {
 
     it('should support cloning of Responses with string body', function() {
         var r = new Response('foo');
-        return Promise.all([r.text(), r.clone().text()]).then(function(texts) {
+        return fetch.Promise.all([r.text(), r.clone().text()]).then(function(texts) {
             expect(texts[0]).to.equal('foo');
             expect(texts[1]).to.equal('foo');
         });
@@ -996,7 +996,7 @@ describe('node-fetch', function() {
 
     it('should support cloning of Responses with buffer body', function() {
         var r = new Response(new Buffer('foo'));
-        return Promise.all([r.text(), r.clone().text()]).then(function(texts) {
+        return fetch.Promise.all([r.text(), r.clone().text()]).then(function(texts) {
             expect(texts[0]).to.equal('foo');
             expect(texts[1]).to.equal('foo');
         });
