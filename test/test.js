@@ -986,6 +986,43 @@ describe('node-fetch', function() {
 
     });
 
+	it('should support cloning of Responses with stream body and direct use of .body', function(done) {
+
+		var str = resumer();
+		var body = str.pipe(new stream.PassThrough());
+		var r = new Response(body);
+
+		function readBody(body) {
+			return new fetch.Promise(function(resolve, reject) {
+				var chunks = [];
+				body.on('data', function(chunk) {
+					chunks.push(chunk);
+				});
+				body.on('end', function() {
+					resolve(Buffer.concat(chunks));
+				});
+			});
+		}
+
+		str.queue('foo'); // write first part before clone
+
+		// make sure actual data will arrive with delay
+		setTimeout(function() {
+			str.queue('bar'); // write second part after clone, both should be captured
+			str.end();
+		}, 100);
+
+		// attempt to read with delay as well
+		setTimeout(function() {
+			fetch.Promise.all([readBody(r.body), readBody(r.clone().body)]).then(function(texts) {
+				expect(texts[0].toString()).to.equal('foobar');
+				expect(texts[1].toString()).to.equal('foobar');
+				done();
+			}).catch(done);
+		}, 50);
+
+	});
+
     it('should support cloning of Responses with string body', function() {
         var r = new Response('foo');
         return fetch.Promise.all([r.text(), r.clone().text()]).then(function(texts) {
