@@ -957,6 +957,86 @@ describe('node-fetch', function() {
 		return (new Request('http://foo', {body: '{"foo":"bar"}'})).json().then(function(json) {
 			expect(json.foo).to.equal('bar');
 		});
-	}); 
+	});
+
+    it('should support cloning of Responses with stream body', function(done) {
+
+        var str = resumer();
+        var body = str.pipe(new stream.PassThrough());
+        var r = new Response(body);
+        var text1 = r.text(); // start reading immediately
+
+        str.queue('foo'); // write first part before clone
+
+        // make sure actual data will arrive with delay
+        setTimeout(function() {
+            str.queue('bar'); // write second part after clone, both should be captured
+            str.end();
+        }, 100);
+
+        // attempt to read with delay as well
+        setTimeout(function() {
+            expect(r._raw.length).is.equal(1); // ensure something has been written to make the test more sophisticated
+            fetch.Promise.all([text1, r.clone().text()]).then(function(texts) {
+                expect(texts[0]).to.equal('foobar');
+                expect(texts[1]).to.equal('foobar');
+                done();
+            }).catch(done);
+        }, 50);
+
+    });
+
+	it('should support cloning of Responses with stream body and direct use of .body', function(done) {
+
+		var str = resumer();
+		var body = str.pipe(new stream.PassThrough());
+		var r = new Response(body);
+
+		function readBody(body) {
+			return new fetch.Promise(function(resolve, reject) {
+				var chunks = [];
+				body.on('data', function(chunk) {
+					chunks.push(chunk);
+				});
+				body.on('end', function() {
+					resolve(Buffer.concat(chunks));
+				});
+			});
+		}
+
+		str.queue('foo'); // write first part before clone
+
+		// make sure actual data will arrive with delay
+		setTimeout(function() {
+			str.queue('bar'); // write second part after clone, both should be captured
+			str.end();
+		}, 100);
+
+		// attempt to read with delay as well
+		setTimeout(function() {
+			fetch.Promise.all([readBody(r.body), readBody(r.clone().body)]).then(function(texts) {
+				expect(texts[0].toString()).to.equal('foobar');
+				expect(texts[1].toString()).to.equal('foobar');
+				done();
+			}).catch(done);
+		}, 50);
+
+	});
+
+    it('should support cloning of Responses with string body', function() {
+        var r = new Response('foo');
+        return fetch.Promise.all([r.text(), r.clone().text()]).then(function(texts) {
+            expect(texts[0]).to.equal('foo');
+            expect(texts[1]).to.equal('foo');
+        });
+    });
+
+    it('should support cloning of Responses with buffer body', function() {
+        var r = new Response(new Buffer('foo'));
+        return fetch.Promise.all([r.text(), r.clone().text()]).then(function(texts) {
+            expect(texts[0]).to.equal('foo');
+            expect(texts[1]).to.equal('foo');
+        });
+    }); 
 
 });
