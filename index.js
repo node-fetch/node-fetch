@@ -172,6 +172,7 @@ function Fetch(url, opts) {
 			var output = new Response(body, {
 				url: options.url
 				, status: res.statusCode
+				, statusText: res.statusMessage
 				, headers: headers
 				, size: options.size
 				, timeout: options.timeout

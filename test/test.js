@@ -10,6 +10,7 @@ var spawn = require('child_process').spawn;
 var stream = require('stream');
 var resumer = require('resumer');
 var FormData = require('form-data');
+var http = require('http');
 
 var TestServer = require('./server');
 
@@ -723,6 +724,17 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should only do encoding detection up to 1024 bytes', function() {
+		url = base + '/encoding/invalid';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			var padding = 'a'.repeat(1200);
+			return res.text().then(function(result) {
+				expect(result).to.not.equal(padding + '中文');
+			});
+		});
+	});
+
 	it('should allow piping response body as stream', function(done) {
 		url = base + '/hello';
 		fetch(url).then(function(res) {
@@ -737,6 +749,62 @@ describe('node-fetch', function() {
 				done();
 			});
 		});
+	});
+
+	it('should allow cloning a response, and use both as stream', function(done) {
+		url = base + '/hello';
+		return fetch(url).then(function(res) {
+			var counter = 0;
+			var r1 = res.clone();
+			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(r1.body).to.be.an.instanceof(stream.Transform);
+			res.body.on('data', function(chunk) {
+				if (chunk === null) {
+					return;
+				}
+				expect(chunk.toString()).to.equal('world');
+			});
+			res.body.on('end', function() {
+				counter++;
+				if (counter == 2) {
+					done();
+				}
+			});
+			r1.body.on('data', function(chunk) {
+				if (chunk === null) {
+					return;
+				}
+				expect(chunk.toString()).to.equal('world');
+			});
+			r1.body.on('end', function() {
+				counter++;
+				if (counter == 2) {
+					done();
+				}
+			});
+		});
+	});
+
+	it('should allow cloning a json response, and log it as text response', function() {
+		url = base + '/json';
+		return fetch(url).then(function(res) {
+			var r1 = res.clone();
+			return fetch.Promise.all([r1.text(), res.json()]).then(function(results) {
+				expect(results[0]).to.equal('{"name":"value"}');
+				expect(results[1]).to.deep.equal({name: 'value'});
+			});
+		});
+	});
+
+	it('should not allow cloning a response after its been used', function() {
+		url = base + '/hello';
+		return fetch(url).then(function(res) {
+			return res.text().then(function(result) {
+				expect(function() {
+					var r1 = res.clone();
+				}).to.throw(Error);
+			});
+		})
 	});
 
 	it('should allow get all responses of a header', function() {
@@ -768,7 +836,7 @@ describe('node-fetch', function() {
 			, ["b", "3"]
 			, ["c", "4"]
 		];
-		expect(result).to.be.deep.equal(expected);
+		expect(result).to.deep.equal(expected);
 	});
 
 	it('should allow deleting header', function() {
@@ -925,6 +993,26 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support clone() method in Response constructor', function() {
+		var res = new Response('a=1', {
+			headers: {
+				a: '1'
+			}
+			, url: base
+			, status: 346
+			, statusText: 'production'
+		});
+		var cl = res.clone();
+		expect(cl.headers.get('a')).to.equal('1');
+		expect(cl.url).to.equal(base);
+		expect(cl.status).to.equal(346);
+		expect(cl.statusText).to.equal('production');
+		expect(cl.ok).to.be.false;
+		return cl.text().then(function(result) {
+			expect(result).to.equal('a=1');
+		});
+	});
+
 	it('should support stream as body in Response constructor', function() {
 		var body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
@@ -980,6 +1068,34 @@ describe('node-fetch', function() {
 			expect(result.a).to.equal(1);
 		});
 	}); 
+
+	it('should support clone() method in Request constructor', function() {
+		url = base;
+		var agent = new http.Agent();
+		var req = new Request(url, {
+			body: 'a=1'
+			, method: 'POST'
+			, headers: {
+				b: '2'
+			}
+			, follow: 3
+			, compress: false
+			, agent: agent
+		});
+		var cl = req.clone();
+		expect(cl.url).to.equal(url);
+		expect(cl.method).to.equal('POST');
+		expect(cl.headers.get('b')).to.equal('2');
+		expect(cl.follow).to.equal(3);
+		expect(cl.compress).to.equal(false);
+		expect(cl.method).to.equal('POST');
+		expect(cl.counter).to.equal(3);
+		expect(cl.agent).to.equal(agent);
+		return fetch.Promise.all([cl.text(), req.text()]).then(function(results) {
+			expect(results[0]).to.equal('a=1');
+			expect(results[1]).to.equal('a=1');
+		});
+	});
 
 	it('should support text() and json() method in Body constructor', function() {
 		var body = new Body('a=1');
