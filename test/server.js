@@ -43,7 +43,7 @@ TestServer.prototype.router = function(req, res) {
 
 	if (p === '/options') {
 		res.statusCode = 200;
-		res.setHeader('Allow', ['GET', 'HEAD', 'OPTIONS']);
+		res.setHeader('Allow', 'GET, HEAD, OPTIONS');
 		res.end('hello world');
 	}
 
