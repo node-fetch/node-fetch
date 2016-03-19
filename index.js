@@ -17,7 +17,9 @@ var Response = require('./lib/response');
 var Headers = require('./lib/headers');
 var Request = require('./lib/request');
 
+// commonjs
 module.exports = Fetch;
+// es6 default export compatibility
 module.exports.default = module.exports;
 
 /**
@@ -170,6 +172,7 @@ function Fetch(url, opts) {
 			var output = new Response(body, {
 				url: options.url
 				, status: res.statusCode
+				, statusText: res.statusMessage
 				, headers: headers
 				, size: options.size
 				, timeout: options.timeout

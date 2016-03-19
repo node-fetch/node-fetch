@@ -24,18 +24,19 @@
   },
   "homepage": "https://github.com/bitinn/node-fetch",
   "devDependencies": {
-    "bluebird": "^2.9.1",
-    "chai": "^1.10.0",
-    "chai-as-promised": "^4.1.1",
+    "bluebird": "^3.3.4",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
     "coveralls": "^2.11.2",
     "form-data": "^1.0.0-rc1",
-    "istanbul": "^0.3.5",
+    "istanbul": "^0.4.2",
     "mocha": "^2.1.0",
     "parted": "^0.1.1",
-    "promise": "^6.1.0",
+    "promise": "^7.1.1",
     "resumer": "0.0.0"
   },
   "dependencies": {
-    "encoding": "^0.1.11"
+    "encoding": "^0.1.11",
+    "is-stream": "^1.0.1"
   }
 }
