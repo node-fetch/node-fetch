@@ -18,6 +18,7 @@ var fetch = require('../index.js');
 var Headers = require('../lib/headers.js');
 var Response = require('../lib/response.js');
 var Request = require('../lib/request.js');
+var Body = require('../lib/body.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
@@ -890,14 +891,46 @@ describe('node-fetch', function() {
 	});
 
 	it('should support parsing headers in Response constructor', function() {
-		var body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-		var res = new Response(body, {
+		var res = new Response(null, {
 			headers: {
 				a: '1'
 			}
 		});
 		expect(res.headers.get('a')).to.equal('1');
+	});
+
+	it('should support text() method in Response constructor', function() {
+		var res = new Response('a=1');
+		return res.text().then(function(result) {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support json() method in Response constructor', function() {
+		var res = new Response('{"a":1}');
+		return res.json().then(function(result) {
+			expect(result.a).to.equal(1);
+		});
+	});
+
+	it('should support stream as body in Response constructor', function() {
+		var body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+		var res = new Response(body);
+		return res.text().then(function(result) {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support string as body in Response constructor', function() {
+		var res = new Response('a=1');
+		return res.text().then(function(result) {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support buffer as body in Response constructor', function() {
+		var res = new Response(new Buffer('a=1'));
 		return res.text().then(function(result) {
 			expect(result).to.equal('a=1');
 		});
@@ -914,6 +947,34 @@ describe('node-fetch', function() {
 		expect(req.headers.get('a')).to.equal('1');
 	});
 
+	it('should support text() method in Request constructor', function() {
+		url = base;
+		var req = new Request(url, {
+			body: 'a=1'
+		});
+		expect(req.url).to.equal(url);
+		return req.text().then(function(result) {
+			expect(result).to.equal('a=1');
+		});
+	}); 
+
+	it('should support json() method in Request constructor', function() {
+		url = base;
+		var req = new Request(url, {
+			body: '{"a":1}'
+		});
+		expect(req.url).to.equal(url);
+		return req.json().then(function(result) {
+			expect(result.a).to.equal(1);
+		});
+	}); 
+
+	it('should support text() and json() method in Body constructor', function() {
+		var body = new Body('a=1');
+		expect(body).to.have.property('text');
+		expect(body).to.have.property('json');
+	}); 
+
 	it('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
@@ -925,37 +986,5 @@ describe('node-fetch', function() {
 			expect(res.ok).to.be.true;
 		});
 	});
-
-	it('should support parsing headers in Response constructor', function(){
-
-		var r = new Response(null, {headers: {'foo': 'bar'}});
-		expect(r.headers.get('foo')).to.equal('bar');
-
-	});
-
-	it('should support parsing headers in Request constructor', function(){
-
-		var r = new Request('http://foo', {headers: {'foo': 'bar'}});
-		expect(r.headers.get('foo')).to.equal('bar');
-
-	});
-
-	it('should support string bodies in Response constructor', function() {
-		return (new Response('foo')).text().then(function(text) {
-			expect(text).to.equal('foo');
-		});
-	});
-
-	it('should support text() method in Request class', function() {
-		return (new Request('http://foo', {body: 'foo'})).text().then(function(text) {
-			expect(text).to.equal('foo');
-		});
-	}); 
-
-	it('should support json() method in Request class', function() {
-		return (new Request('http://foo', {body: '{"foo":"bar"}'})).json().then(function(json) {
-			expect(json.foo).to.equal('bar');
-		});
-	}); 
 
 });
