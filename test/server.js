@@ -189,7 +189,8 @@ TestServer.prototype.router = function(req, res) {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');
 		res.setHeader('Transfer-Encoding', 'chunked');
-		var padding = 'a'.repeat(120);
+		// because node v0.12 doesn't have str.repeat
+		var padding = new Array(120 + 1).join('a');
 		for (var i = 0; i < 10; i++) {
 			res.write(padding);
 		}

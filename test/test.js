@@ -730,7 +730,8 @@ describe('node-fetch', function() {
 		url = base + '/encoding/chunked';
 		return fetch(url).then(function(res) {
 			expect(res.status).to.equal(200);
-			var padding = 'a'.repeat(10);
+			// because node v0.12 doesn't have str.repeat
+			var padding = new Array(10 + 1).join('a');
 			return res.text().then(function(result) {
 				expect(result).to.equal(padding + '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>');
 			});
@@ -741,7 +742,8 @@ describe('node-fetch', function() {
 		url = base + '/encoding/invalid';
 		return fetch(url).then(function(res) {
 			expect(res.status).to.equal(200);
-			var padding = 'a'.repeat(1200);
+			// because node v0.12 doesn't have str.repeat
+			var padding = new Array(1200 + 1).join('a');
 			return res.text().then(function(result) {
 				expect(result).to.not.equal(padding + '中文');
 			});
