@@ -524,6 +524,7 @@ describe('node-fetch', function() {
 		}).then(function(res) {
 			expect(res.method).to.equal('POST');
 			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.body).to.equal('a=1');
 		});
 	});
@@ -546,6 +547,7 @@ describe('node-fetch', function() {
 		}).then(function(res) {
 			expect(res.method).to.equal('POST');
 			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.headers.b).to.equal('2');
 			expect(res.body).to.equal('a=1');
 		});
