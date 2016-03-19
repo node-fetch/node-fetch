@@ -824,7 +824,6 @@ describe('node-fetch', function() {
 
 		expect(h1._headers['a']).to.include('1');
 		expect(h1._headers['a']).to.not.include('2');
-		expect(h1._headers['b']).to.not.include('1');
 
 		expect(h2._headers['a']).to.include('1');
 		expect(h2._headers['a']).to.not.include('2');
