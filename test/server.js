@@ -168,6 +168,17 @@ TestServer.prototype.router = function(req, res) {
 		res.end(convert('中文', 'gbk'));
 	}
 
+	if (p === '/encoding/chunked') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/html');
+		res.setHeader('Transfer-Encoding', 'chunked');
+		var padding = 'a';
+		for (var i = 0; i < 10; i++) {
+			res.write(padding);
+		}
+		res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>', 'Shift_JIS'));
+	}
+
 	if (p === '/redirect/301') {
 		res.statusCode = 301;
 		res.setHeader('Location', '/inspect');

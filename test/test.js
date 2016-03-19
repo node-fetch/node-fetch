@@ -712,6 +712,17 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support chunked encoding, html4 detect', function() {
+		url = base + '/encoding/chunked';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(200);
+			var padding = 'a'.repeat(10);
+			return res.text().then(function(result) {
+				expect(result).to.equal(padding + '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>');
+			});
+		});
+	});
+
 	it('should allow piping response body as stream', function(done) {
 		url = base + '/hello';
 		fetch(url).then(function(res) {
