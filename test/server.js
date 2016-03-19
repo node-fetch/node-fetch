@@ -41,6 +41,12 @@ TestServer.prototype.router = function(req, res) {
 		res.end('text');
 	}
 
+	if (p === '/options') {
+		res.statusCode = 200;
+		res.setHeader('Allow', ['GET', 'HEAD', 'OPTIONS']);
+		res.end('hello world');
+	}
+
 	if (p === '/html') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');

@@ -607,6 +607,19 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow OPTIONS request', function() {
+		url = base + '/options';
+		opts = {
+			method: 'OPTIONS'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(200);
+			expect(res.statusText).to.equal('OK');
+			expect(res.headers.get('allow')).to.equal('GET, HEAD, OPTIONS');
+			expect(res.body).to.be.an.instanceof(stream.Transform);
+		});
+	});
+
 	it('should reject decoding body twice', function() {
 		url = base + '/plain';
 		return fetch(url).then(function(res) {
