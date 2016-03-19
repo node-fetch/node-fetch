@@ -738,25 +738,24 @@ describe('node-fetch', function() {
 
 	it('should allow iterating through all headers', function() {
 		var headers = new Headers({
-			a: 1,
-			b: [2, 3],
+			a: 1
+			, b: [2, 3]
+			, c: [4]
+		});
+		expect(headers).to.have.property('forEach');
+
+		var result = [];
+		headers.forEach(function(val, key) {
+			result.push([key, val]);
 		});
 
-		var myHeaders = [];
-		function callback(value, name) {
-			myHeaders.push([name, value]);
-		}
-
 		expected = [
-			["a", "1"],
-			["b", "2"],
-			["b", "3"]
+			["a", "1"]
+			, ["b", "2"]
+			, ["b", "3"]
+			, ["c", "4"]
 		];
-
-		expect(headers.forEach).to.be.defined;
-
-		headers.forEach(callback, headers);
-		expect(myHeaders).to.be.deep.equal(expected);
+		expect(result).to.be.deep.equal(expected);
 	});
 
 	it('should allow deleting header', function() {
