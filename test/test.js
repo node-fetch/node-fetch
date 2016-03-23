@@ -800,13 +800,26 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should allow cloning a json response, and log it as text response', function() {
+	it('should allow cloning a json response and log it as text response', function() {
 		url = base + '/json';
 		return fetch(url).then(function(res) {
 			var r1 = res.clone();
-			return fetch.Promise.all([r1.text(), res.json()]).then(function(results) {
-				expect(results[0]).to.equal('{"name":"value"}');
-				expect(results[1]).to.deep.equal({name: 'value'});
+			return fetch.Promise.all([res.json(), r1.text()]).then(function(results) {
+				expect(results[0]).to.deep.equal({name: 'value'});
+				expect(results[1]).to.equal('{"name":"value"}');
+			});
+		});
+	});
+
+	it('should allow cloning a json response, and then log it as text response', function() {
+		url = base + '/json';
+		return fetch(url).then(function(res) {
+			var r1 = res.clone();
+			return res.json().then(function(result) {
+				expect(result).to.deep.equal({name: 'value'});
+				return r1.text().then(function(result) {
+					expect(result).to.equal('{"name":"value"}');
+				});
 			});
 		});
 	});
