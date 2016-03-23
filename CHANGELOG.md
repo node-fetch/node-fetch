@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.4.0 (master)
+## v1.4.1 (master)
+
+- Fix: wrapping Request instance with FormData body again should preserve the body as-is
+
+## v1.4.0
 
 - Enhance: Request and Response now have `clone` method (thx to @kirill-konshin for the initial PR)
 - Enhance: Request and Response now have proper string and buffer body support (thx to @kirill-konshin)
