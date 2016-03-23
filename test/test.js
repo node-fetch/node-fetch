@@ -942,15 +942,23 @@ describe('node-fetch', function() {
 
 	it('should support wrapping Request instance', function() {
 		url = base + '/hello';
+
+		var form = new FormData();
+		form.append('a', '1');
+
 		var r1 = new Request(url, {
 			method: 'POST'
 			, follow: 1
+			, body: form
 		});
 		var r2 = new Request(r1, {
 			follow: 2
-		})
+		});
+
 		expect(r2.url).to.equal(url);
 		expect(r2.method).to.equal('POST');
+		// note that we didn't clone the body
+		expect(r2.body).to.equal(form);
 		expect(r1.follow).to.equal(1);
 		expect(r2.follow).to.equal(2);
 	});
@@ -1009,7 +1017,9 @@ describe('node-fetch', function() {
 	});
 
 	it('should support clone() method in Response constructor', function() {
-		var res = new Response('a=1', {
+		var body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+		var res = new Response(body, {
 			headers: {
 				a: '1'
 			}
@@ -1023,6 +1033,8 @@ describe('node-fetch', function() {
 		expect(cl.status).to.equal(346);
 		expect(cl.statusText).to.equal('production');
 		expect(cl.ok).to.be.false;
+		// clone body shouldn't be the same body
+		expect(cl.body).to.not.equal(body);
 		return cl.text().then(function(result) {
 			expect(result).to.equal('a=1');
 		});
@@ -1086,9 +1098,11 @@ describe('node-fetch', function() {
 
 	it('should support clone() method in Request constructor', function() {
 		url = base;
+		var body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
 		var agent = new http.Agent();
 		var req = new Request(url, {
-			body: 'a=1'
+			body: body
 			, method: 'POST'
 			, headers: {
 				b: '2'
@@ -1106,6 +1120,8 @@ describe('node-fetch', function() {
 		expect(cl.method).to.equal('POST');
 		expect(cl.counter).to.equal(3);
 		expect(cl.agent).to.equal(agent);
+		// clone body shouldn't be the same body
+		expect(cl.body).to.not.equal(body);
 		return fetch.Promise.all([cl.text(), req.text()]).then(function(results) {
 			expect(results[0]).to.equal('a=1');
 			expect(results[1]).to.equal('a=1');
