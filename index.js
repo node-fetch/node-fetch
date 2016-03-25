@@ -128,7 +128,7 @@ function Fetch(url, opts) {
 			clearTimeout(reqTimeout);
 
 			// handle redirect
-			if (self.isRedirect(res.statusCode)) {
+			if (self.isRedirect(res.statusCode) && options.follow > 0) {
 				if (options.counter >= options.follow) {
 					reject(new Error('maximum redirect reached at: ' + options.url));
 					return;
