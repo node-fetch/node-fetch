@@ -1159,4 +1159,24 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should throw when maximum redirect count reached', function() {
+		url = base + '/redirect/301';
+		return fetch(url, { follow: 0 }).then(function() {
+			throw new Error("Promise should not resolve");
+		}, function(err) {
+			expect(err.toString()).to.contain('maximum redirect reached');
+		});
+	});
+
+	it('should not throw when maximum redirect count reached and throwOnMaximumRedirect: false', function() {
+		url = base + '/redirect/301';
+		return fetch(url, {
+			follow: 0,
+			throwOnMaximumRedirect: false
+		}).then(function(res) {
+			expect(res.status).to.eql(301);
+			expect(res.headers.get('location')).to.eql('/inspect');
+		});
+	});
+
 });

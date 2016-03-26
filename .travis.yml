@@ -3,5 +3,7 @@ node_js:
   - "0.10"
   - "0.12"
   - "node"
+  - "4"
+  - "5"
 before_install: npm install -g npm
 script: npm run coverage
