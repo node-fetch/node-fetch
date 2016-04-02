@@ -127,8 +127,15 @@ function Fetch(url, opts) {
 		req.on('response', function(res) {
 			clearTimeout(reqTimeout);
 
+			
 			// handle redirect
-			if (self.isRedirect(res.statusCode)) {
+			if (options.redirect !== 'manual' && self.isRedirect(res.statusCode)) {
+				
+				if (options.redirect === 'error'){
+					reject(new TypeError("Failed to fetch"))
+					return
+				}
+				
 				if (options.counter >= options.follow) {
 					reject(new Error('maximum redirect reached at: ' + options.url));
 					return;
