@@ -87,8 +87,8 @@ describe('node-fetch', function() {
 	it('should reject with error on network failure', function() {
 		url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
-														 .and.be.an.instanceOf(Error)
-														 .and.have.property('code', 'ECONNREFUSED');
+			.and.be.an.instanceOf(Error)
+			.and.have.property('code', 'ECONNREFUSED');
 	});
 
 	it('should resolve into response', function() {
@@ -283,8 +283,8 @@ describe('node-fetch', function() {
 			follow: 1
 		}
 		return expect(fetch(url, opts)).to.eventually.be.rejected
-																	 .and.be.an.instanceOf(Error)
-																	 .and.have.property('code', 'ENREDIRECT');
+			.and.be.an.instanceOf(Error)
+			.and.have.property('code', 'ENREDIRECT');
 	});
 
 	it('should allow not following redirect', function() {
@@ -293,8 +293,8 @@ describe('node-fetch', function() {
 			follow: 0
 		}
 		return expect(fetch(url, opts)).to.eventually.be.rejected
-																	 .and.be.an.instanceOf(Error)
-																	 .and.have.property('code', 'ENREDIRECT');
+			.and.be.an.instanceOf(Error)
+			.and.have.property('code', 'ENREDIRECT');
 	});
 
 	it('should follow redirect code 301 and keep existing headers', function() {
@@ -313,8 +313,8 @@ describe('node-fetch', function() {
 	it('should reject broken redirect', function() {
 		url = base + '/error/redirect';
 		return expect(fetch(url)).to.eventually.be.rejected
-														 .and.be.an.instanceOf(Error)
-														 .and.have.property('code', 'ENOLOCATIONHEADER');
+			.and.be.an.instanceOf(Error)
+			.and.have.property('code', 'ENOLOCATIONHEADER');
 	});
 
 	it('should handle client-error response', function() {
@@ -350,15 +350,15 @@ describe('node-fetch', function() {
 	it('should handle network-error response', function() {
 		url = base + '/error/reset';
 		return expect(fetch(url)).to.eventually.be.rejected
-														 .and.be.an.instanceOf(Error)
-														 .and.have.property('code', 'ECONNRESET');
+			.and.be.an.instanceOf(Error)
+			.and.have.property('code', 'ECONNRESET');
 	});
 
 	it('should handle DNS-error response', function() {
 		url = 'http://invalid.commm';
 		return expect(fetch(url)).to.eventually.be.rejected
-														 .and.be.an.instanceOf(Error)
-														 .and.have.property('code', 'ENOTFOUND');
+			.and.be.an.instanceOf(Error)
+			.and.have.property('code', 'ENOTFOUND');
 	});
 
 	it('should reject invalid json response', function() {
@@ -420,8 +420,8 @@ describe('node-fetch', function() {
 		return fetch(url).then(function(res) {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
-															 .and.be.an.instanceOf(Error)
-															 .and.have.property('code', 'Z_DATA_ERROR');
+				.and.be.an.instanceOf(Error)
+				.and.have.property('code', 'Z_DATA_ERROR');
 		});
 	});
 
@@ -446,8 +446,8 @@ describe('node-fetch', function() {
 			timeout: 100
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejected
-																	 .and.be.an.instanceOf(Error)
-																	 .and.have.property('code', 'ETIMEDOUT');
+			.and.be.an.instanceOf(Error)
+			.and.have.property('code', 'ETIMEDOUT');
 	});
 
 	it('should allow custom timeout on response body', function() {
@@ -459,8 +459,8 @@ describe('node-fetch', function() {
 		return fetch(url, opts).then(function(res) {
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejected
-															 .and.be.an.instanceOf(Error)
-															 .and.have.property('code', 'ETIMEDOUT');
+				.and.be.an.instanceOf(Error)
+				.and.have.property('code', 'ETIMEDOUT');
 		});
 	});
 
@@ -650,8 +650,8 @@ describe('node-fetch', function() {
 			return res.text().then(function(result) {
 				expect(res.bodyUsed).to.be.true;
 				return expect(res.text()).to.eventually.be.rejected
-																 .and.be.an.instanceOf(Error)
-																 .and.have.property('code', 'EBODYINUSE');
+					.and.be.an.instanceOf(Error)
+					.and.have.property('code', 'EBODYINUSE');
 			});
 		});
 	});
@@ -665,8 +665,8 @@ describe('node-fetch', function() {
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
-															 .and.be.an.instanceOf(Error)
-															 .and.have.property('code', 'ERANGE');
+				.and.be.an.instanceOf(Error)
+				.and.have.property('code', 'ERANGE');
 		});
 	});
 
@@ -679,8 +679,8 @@ describe('node-fetch', function() {
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
-															 .and.be.an.instanceOf(Error)
-															 .and.have.property('code', 'ERANGE');
+				.and.be.an.instanceOf(Error)
+				.and.have.property('code', 'ERANGE');
 		});
 	});
 
