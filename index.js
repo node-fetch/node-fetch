@@ -16,7 +16,7 @@ var Body = require('./lib/body');
 var Response = require('./lib/response');
 var Headers = require('./lib/headers');
 var Request = require('./lib/request');
-var error = require('./lib/error');
+var FetchError = require('./lib/error');
 
 // commonjs
 module.exports = Fetch;
@@ -115,14 +115,14 @@ function Fetch(url, opts) {
 			req.once('socket', function(socket) {
 				reqTimeout = setTimeout(function() {
 					req.abort();
-					reject(error('network timeout at: ' + options.url, 'ETIMEDOUT'));
+					reject(new FetchError('network timeout at: ' + options.url, 'socket-timeout'));
 				}, options.timeout);
 			});
 		}
 
 		req.on('error', function(err) {
 			clearTimeout(reqTimeout);
-			reject(error('request to ' + options.url + ' failed, reason: ' + err.message, err.code));
+			reject(new FetchError('request to ' + options.url + ' failed, reason: ' + err.message, 'system', err));
 		});
 
 		req.on('response', function(res) {
@@ -131,12 +131,12 @@ function Fetch(url, opts) {
 			// handle redirect
 			if (self.isRedirect(res.statusCode)) {
 				if (options.counter >= options.follow) {
-					reject(error('maximum redirect reached at: ' + options.url, 'ENREDIRECT'));
+					reject(new FetchError('maximum redirect reached at: ' + options.url, 'max-redirect'));
 					return;
 				}
 
 				if (!res.headers.location) {
-					reject(error('redirect location header missing at: ' + options.url, 'ENOLOCATIONHEADER'));
+					reject(new FetchError('redirect location header missing at: ' + options.url, 'invalid-redirect'));
 					return;
 				}
 
