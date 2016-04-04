@@ -20,7 +20,7 @@ var Headers = require('../lib/headers.js');
 var Response = require('../lib/response.js');
 var Request = require('../lib/request.js');
 var Body = require('../lib/body.js');
-var FetchError = require('../lib/error.js');
+var FetchError = require('../lib/fetch-error.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 

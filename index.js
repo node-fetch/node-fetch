@@ -16,7 +16,7 @@ var Body = require('./lib/body');
 var Response = require('./lib/response');
 var Headers = require('./lib/headers');
 var Request = require('./lib/request');
-var FetchError = require('./lib/error');
+var FetchError = require('./lib/fetch-error');
 
 // commonjs
 module.exports = Fetch;
