@@ -665,7 +665,7 @@ describe('node-fetch', function() {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
 				.and.be.an.instanceOf(FetchError)
-				.and.have.property('type', 'content-size');
+				.and.have.property('type', 'max-size');
 		});
 	});
 
@@ -679,7 +679,7 @@ describe('node-fetch', function() {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
 				.and.be.an.instanceOf(FetchError)
-				.and.have.property('type', 'content-size');
+				.and.have.property('type', 'max-size');
 		});
 	});
 
