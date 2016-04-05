@@ -146,18 +146,19 @@ Should be an absolute url, eg `http://example.com/`
 
 ### Options
 
-default values are shown, note that only `method`, `headers` and `body` are allowed in `window.fetch`, others are node.js extensions.
+default values are shown, note that only `method`, `headers`, `redirect` and `body` are allowed in `window.fetch`, others are node.js extensions.
 
 ```
 {
 	method: 'GET'
-	, headers: {}     // request header, format {a:1} or {b:[1,2,3]}
-	, follow: 20      // maximum redirect count, 0 to not follow redirect
-	, timeout: 0      // req/res timeout in ms, 0 to disable, timeout reset on redirect
-	, compress: true  // support gzip/deflate content encoding, false to disable
-	, size: 0         // maximum response body size in bytes, 0 to disable
-	, body: empty     // request body, can be a string or readable stream
-	, agent: null     // http.Agent instance, allows custom proxy, certificate etc.
+	, headers: {}        // request header. format {a:'1'} or {b:['1','2','3']}
+	, redirect: 'follow' // set to 'manual' to extract redirect headers, `error` to reject redirect
+	, follow: 20         // maximum redirect count. 0 to not follow redirect
+	, timeout: 0         // req/res timeout in ms. 0 to disable (os limit still applies), timeout reset on redirect
+	, compress: true     // support gzip/deflate content encoding. false to disable
+	, size: 0            // maximum response body size in bytes. 0 to disable
+	, body: empty        // request body. can be a string, buffer, readable stream
+	, agent: null        // http.Agent instance, allows custom proxy, certificate etc.
 }
 ```
 
