@@ -356,7 +356,7 @@ describe('node-fetch', function() {
 	});
 
 	it('should handle DNS-error response', function() {
-		url = 'http://invalid.commm';
+		url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('code', 'ENOTFOUND');
