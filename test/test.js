@@ -1175,6 +1175,20 @@ describe('node-fetch', function() {
 		expect(body).to.have.property('json');
 	}); 
 
+	it('should create custom FetchError', function() {
+		var systemError = new Error('system');
+		systemError.code = 'ESOMEERROR';
+
+		var err = new FetchError('test message', 'test-error', systemError);
+		expect(err).to.be.an.instanceof(Error);
+		expect(err).to.be.an.instanceof(FetchError);
+		expect(err.name).to.equal('FetchError');
+		expect(err.message).to.equal('test message');
+		expect(err.type).to.equal('test-error');
+		expect(err.code).to.equal('ESOMEERROR');
+		expect(err.errno).to.equal('ESOMEERROR');
+	}); 
+
 	it('should support https request', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
