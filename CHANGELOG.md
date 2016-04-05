@@ -9,6 +9,7 @@ Changelog
 
 - Enhance: rejected promise now use custom `Error` (thx to @pekeler)
 - Enhance: `FetchError` contains `err.type` and `err.code`, allows for better error handling (thx to @pekeler)
+- Enhance: basic support for redirect mode `manual` and `error`, allows for location header extraction (thx to @jimmywarting for the initial PR)
 
 ## v1.4.1
 
