@@ -14,6 +14,8 @@ Known differences
 
 - Similarly, `req.body` can either be a string or a readable stream.
 
+- Also, you can handle rejected fetch requests through checking `err.type` and `err.code`.
+
 - Only support `res.text()` and `res.json()` at the moment, until there are good use-cases for blob.
 
 - There is currently no built-in caching, as server-side caching varies by use-cases.
