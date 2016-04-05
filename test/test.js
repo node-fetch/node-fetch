@@ -448,7 +448,7 @@ describe('node-fetch', function() {
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.have.property('type', 'socket-timeout');
+			.and.have.property('type', 'request-timeout');
 	});
 
 	it('should allow custom timeout on response body', function() {

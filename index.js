@@ -115,7 +115,7 @@ function Fetch(url, opts) {
 			req.once('socket', function(socket) {
 				reqTimeout = setTimeout(function() {
 					req.abort();
-					reject(new FetchError('network timeout at: ' + options.url, 'socket-timeout'));
+					reject(new FetchError('network timeout at: ' + options.url, 'request-timeout'));
 				}, options.timeout);
 			});
 		}
