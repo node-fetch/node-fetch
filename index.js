@@ -129,7 +129,12 @@ function Fetch(url, opts) {
 			clearTimeout(reqTimeout);
 
 			// handle redirect
-			if (self.isRedirect(res.statusCode)) {
+			if (self.isRedirect(res.statusCode) && options.redirect !== 'manual') {
+				if (options.redirect === 'error') {
+					reject(new FetchError('redirect mode is set to error: ' + options.url, 'no-redirect'));
+					return;
+				}
+
 				if (options.counter >= options.follow) {
 					reject(new FetchError('maximum redirect reached at: ' + options.url, 'max-redirect'));
 					return;
@@ -167,6 +172,11 @@ function Fetch(url, opts) {
 				} else if (name == 'deflate' || name == 'x-deflate') {
 					body = body.pipe(zlib.createInflate());
 				}
+			}
+
+			// normalize location header for manual redirect mode
+			if (options.redirect === 'manual') {
+				headers.set('location', resolve_url(options.url, headers.get('location')));
 			}
 
 			// response object

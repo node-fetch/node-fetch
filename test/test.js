@@ -89,7 +89,7 @@ describe('node-fetch', function() {
 		url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'});
+			.and.include({ type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED' });
 	});
 
 	it('should resolve into response', function() {
@@ -296,6 +296,28 @@ describe('node-fetch', function() {
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'max-redirect');
+	});
+
+	it('should support redirect mode, manual flag', function() {
+		url = base + '/redirect/301';
+		opts = {
+			redirect: 'manual'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(base + '/redirect/301');
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.equal(base + '/inspect');
+		});
+	});
+
+	it('should support redirect mode, error flag', function() {
+		url = base + '/redirect/301';
+		opts = {
+			redirect: 'error'
+		};
+		return expect(fetch(url, opts)).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'no-redirect');
 	});
 
 	it('should follow redirect code 301 and keep existing headers', function() {
@@ -1145,6 +1167,7 @@ describe('node-fetch', function() {
 		var req = new Request(url, {
 			body: body
 			, method: 'POST'
+			, redirect: 'manual'
 			, headers: {
 				b: '2'
 			}
@@ -1155,6 +1178,7 @@ describe('node-fetch', function() {
 		var cl = req.clone();
 		expect(cl.url).to.equal(url);
 		expect(cl.method).to.equal('POST');
+		expect(cl.redirect).to.equal('manual');
 		expect(cl.headers.get('b')).to.equal('2');
 		expect(cl.follow).to.equal(3);
 		expect(cl.compress).to.equal(false);
