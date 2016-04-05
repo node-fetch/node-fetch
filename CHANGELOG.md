@@ -5,7 +5,12 @@ Changelog
 
 # 1.x release
 
-## v1.4.1 (master)
+## v1.5.0 (master)
+
+- Enhance: rejected promise now use custom `Error` (thx to @pekeler)
+- Enhance: `FetchError` contains `err.type` and `err.code`, allows for better error handling (thx to @pekeler)
+
+## v1.4.1
 
 - Fix: wrapping Request instance with FormData body again should preserve the body as-is
 
