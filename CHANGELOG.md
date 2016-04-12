@@ -9,7 +9,7 @@ Changelog
 
 - Fix: redirect mode `manual` should work even when there is no redirection or broken redirection
 
-## v1.5.0 (master)
+## v1.5.0
 
 - Enhance: rejected promise now use custom `Error` (thx to @pekeler)
 - Enhance: `FetchError` contains `err.type` and `err.code`, allows for better error handling (thx to @pekeler)
