@@ -175,7 +175,7 @@ function Fetch(url, opts) {
 			}
 
 			// normalize location header for manual redirect mode
-			if (options.redirect === 'manual') {
+			if (options.redirect === 'manual' && headers.has('location')) {
 				headers.set('location', resolve_url(options.url, headers.get('location')));
 			}
 

@@ -5,6 +5,10 @@ Changelog
 
 # 1.x release
 
+## v1.5.1 (master)
+
+- Fix: redirect mode `manual` should work even when there is no redirection or broken redirection
+
 ## v1.5.0 (master)
 
 - Enhance: rejected promise now use custom `Error` (thx to @pekeler)

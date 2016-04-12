@@ -304,7 +304,7 @@ describe('node-fetch', function() {
 			redirect: 'manual'
 		};
 		return fetch(url, opts).then(function(res) {
-			expect(res.url).to.equal(base + '/redirect/301');
+			expect(res.url).to.equal(url);
 			expect(res.status).to.equal(301);
 			expect(res.headers.get('location')).to.equal(base + '/inspect');
 		});
@@ -318,6 +318,18 @@ describe('node-fetch', function() {
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'no-redirect');
+	});
+
+	it('should support redirect mode, manual flag when there is no redirect', function() {
+		url = base + '/hello';
+		opts = {
+			redirect: 'manual'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(url);
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('location')).to.be.null;
+		});
 	});
 
 	it('should follow redirect code 301 and keep existing headers', function() {
@@ -338,6 +350,18 @@ describe('node-fetch', function() {
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'invalid-redirect');
+	});
+
+	it('should not reject broken redirect under manual redirect', function() {
+		url = base + '/error/redirect';
+		opts = {
+			redirect: 'manual'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(url);
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.be.null;
+		});
 	});
 
 	it('should handle client-error response', function() {
