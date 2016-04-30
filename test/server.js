@@ -15,6 +15,9 @@ function TestServer() {
 	this.server.on('error', function(err) {
 		console.log(err.stack);
 	});
+	this.server.on('connection', function(socket) {
+		socket.setTimeout(1500);
+	});
 }
 
 TestServer.prototype.start = function(cb) {

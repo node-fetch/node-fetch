@@ -74,7 +74,7 @@ function Fetch(url, opts) {
 			headers.set('user-agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
 		}
 
-		if (!headers.has('connection')) {
+		if (!headers.has('connection') && !options.agent) {
 			headers.set('connection', 'close');
 		}
 

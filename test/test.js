@@ -950,6 +950,20 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should send request with connection keep-alive if agent is provided', function() {
+		url = base + '/inspect';
+		opts = {
+			agent: new http.Agent({
+				keepAlive: true
+			})
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.headers['connection']).to.equal('keep-alive');
+		});
+	});
+
 	it('should ignore unsupported attributes while reading headers', function() {
 		var FakeHeader = function() {};
 		// prototypes are ignored
