@@ -5,7 +5,11 @@ Changelog
 
 # 1.x release
 
-## v1.5.1 (master)
+## v1.5.2 (master)
+
+- Fix: allow node.js core to handle keep-alive connection pool when passing a custom agent
+
+## v1.5.1
 
 - Fix: redirect mode `manual` should work even when there is no redirection or broken redirection
 
