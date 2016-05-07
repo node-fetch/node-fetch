@@ -11,6 +11,8 @@ var stream = require('stream');
 var resumer = require('resumer');
 var FormData = require('form-data');
 var http = require('http');
+var fs = require('fs');
+var streamEqual = require('stream-equal');
 
 var TestServer = require('./server');
 
@@ -597,6 +599,33 @@ describe('node-fetch', function() {
 			expect(res.headers['content-type']).to.contain('multipart/form-data');
 			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	it('should allow POST request with form-data including a file as body', function() {
+		var form = new FormData();
+		form.append('a', fs.createReadStream(__dirname + '/test.js'));
+
+		url = base + '/multipart';
+		opts = {
+			method: 'POST'
+			, body: form
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-length']).to.be.undefined;
+			expect(res.body).to.match(/^a=(.+?)$/);
+			streamEqual(
+				fs.createReadStream(__dirname + '/test.js'),
+				fs.createReadStream(res.body.match(/^a=(.+?)$/)[1]),
+				function(err, e) {
+					expect(err).to.be.undefined;
+					expect(e).to.be.true;
+				}
+			);
 		});
 	});
 
