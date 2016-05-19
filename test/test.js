@@ -1263,4 +1263,18 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should provide a polyfill', function() {
+
+		// stash setup
+		var fetchPointer = fetch;
+		fetch = undefined;
+
+		require('../polyfill.js');
+		expect(global.fetch).to.be.an.instanceof(Function);
+
+		// restore setup
+		delete global.fetch;
+		fetch = fetchPointer;
+	})
+
 });
