@@ -48,13 +48,7 @@ function Fetch(url, opts) {
 	// wrap http.request into fetch
 	return new Fetch.Promise(function(resolve, reject) {
 		// build request object
-		var options;
-		try {
-			options = new Request(url, opts);
-		} catch (err) {
-			reject(err);
-			return;
-		}
+		var options = new Request(url, opts);
 
 		if (!options.protocol || !options.hostname) {
 			throw new Error('only absolute urls are supported');
