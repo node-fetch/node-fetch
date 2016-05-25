@@ -715,6 +715,38 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow POST request with string body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'POST'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
+	it('should allow DELETE request with string body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'DELETE'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('DELETE');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
 	it('should allow PATCH request', function() {
 		url = base + '/inspect';
 		opts = {

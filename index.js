@@ -87,8 +87,8 @@ function Fetch(url, opts) {
 			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
 		}
 
-		// bring node-fetch closer to browser behavior by setting content-length automatically for POST, PUT, PATCH requests when body is empty or string
-		if (!headers.has('content-length') && options.method.substr(0, 1).toUpperCase() === 'P') {
+		// bring node-fetch closer to browser behavior by setting content-length automatically
+		if (!headers.has('content-length') && /post|put|patch|delete/i.test(options.method)) {
 			if (typeof options.body === 'string') {
 				headers.set('content-length', Buffer.byteLength(options.body));
 			// detect form data input from form-data module, this hack avoid the need to add content-length header manually
