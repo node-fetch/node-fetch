@@ -11,6 +11,7 @@ var stream = require('stream');
 var resumer = require('resumer');
 var FormData = require('form-data');
 var http = require('http');
+var fs = require('fs');
 
 var TestServer = require('./server');
 
@@ -607,10 +608,13 @@ describe('node-fetch', function() {
 	});
 
 	it('should allow POST request with readable stream as body', function() {
+		var body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+
 		url = base + '/inspect';
 		opts = {
 			method: 'POST'
-			, body: resumer().queue('a=1').end()
+			, body: body
 		};
 		return fetch(url, opts).then(function(res) {
 			return res.json();
@@ -638,6 +642,26 @@ describe('node-fetch', function() {
 			expect(res.headers['content-type']).to.contain('multipart/form-data');
 			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	it('should allow POST request with form-data using stream as body', function() {
+		var form = new FormData();
+		form.append('my_field', fs.createReadStream('test/dummy.txt'));
+
+		url = base + '/multipart';
+		opts = {
+			method: 'POST'
+			, body: form
+		};
+
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-length']).to.be.undefined;
+			expect(res.body).to.contain('my_field=');
 		});
 	});
 
