@@ -167,10 +167,13 @@ function Fetch(url, opts) {
 			if (options.compress && headers.has('content-encoding')) {
 				var name = headers.get('content-encoding');
 
-				if (name == 'gzip' || name == 'x-gzip') {
-					body = body.pipe(zlib.createGunzip());
-				} else if (name == 'deflate' || name == 'x-deflate') {
-					body = body.pipe(zlib.createInflate());
+				// no need to pipe no content and not modified response body
+				if (res.statusCode !== 204 && res.statusCode !== 304) {
+					if (name == 'gzip' || name == 'x-gzip') {
+						body = body.pipe(zlib.createGunzip());
+					} else if (name == 'deflate' || name == 'x-deflate') {
+						body = body.pipe(zlib.createInflate());
+					}
 				}
 			}
 

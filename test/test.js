@@ -416,12 +416,53 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should handle empty response', function() {
-		url = base + '/empty';
+	it('should handle no content response', function() {
+		url = base + '/no-content';
 		return fetch(url).then(function(res) {
 			expect(res.status).to.equal(204);
 			expect(res.statusText).to.equal('No Content');
 			expect(res.ok).to.be.true;
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
+	it('should handle no content response with gzip encoding', function() {
+		url = base + '/no-content/gzip';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(204);
+			expect(res.statusText).to.equal('No Content');
+			expect(res.headers.get('content-encoding')).to.equal('gzip');
+			expect(res.ok).to.be.true;
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
+	it('should handle not modified response', function() {
+		url = base + '/not-modified';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(304);
+			expect(res.statusText).to.equal('Not Modified');
+			expect(res.ok).to.be.false;
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
+	it('should handle not modified response with gzip encoding', function() {
+		url = base + '/not-modified/gzip';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(304);
+			expect(res.statusText).to.equal('Not Modified');
+			expect(res.headers.get('content-encoding')).to.equal('gzip');
+			expect(res.ok).to.be.false;
 			return res.text().then(function(result) {
 				expect(result).to.be.a('string');
 				expect(result).to.be.empty;
