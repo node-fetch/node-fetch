@@ -48,12 +48,14 @@ function Fetch(url, opts) {
 	// wrap http.request into fetch
 	return new Fetch.Promise(function(resolve, reject) {
 		// build request object
-		var options;
-		try {
-			options = new Request(url, opts);
-		} catch (err) {
-			reject(err);
-			return;
+		var options = new Request(url, opts);
+
+		if (!options.protocol || !options.hostname) {
+			throw new Error('only absolute urls are supported');
+		}
+
+		if (options.protocol !== 'http:' && options.protocol !== 'https:') {
+			throw new Error('only http(s) protocols are supported');
 		}
 
 		var send;
@@ -87,12 +89,12 @@ function Fetch(url, opts) {
 			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
 		}
 
-		// bring node-fetch closer to browser behavior by setting content-length automatically for POST, PUT, PATCH requests when body is empty or string
-		if (!headers.has('content-length') && options.method.substr(0, 1).toUpperCase() === 'P') {
+		// bring node-fetch closer to browser behavior by setting content-length automatically
+		if (!headers.has('content-length') && /post|put|patch|delete/i.test(options.method)) {
 			if (typeof options.body === 'string') {
 				headers.set('content-length', Buffer.byteLength(options.body));
 			// detect form data input from form-data module, this hack avoid the need to add content-length header manually
-			} else if (options.body && typeof options.body.getLengthSync === 'function') {
+			} else if (options.body && typeof options.body.getLengthSync === 'function' && options.body._lengthRetrievers.length == 0) {
 				headers.set('content-length', options.body.getLengthSync().toString());
 			// this is only necessary for older nodejs releases (before iojs merge)
 			} else if (options.body === undefined || options.body === null) {
@@ -167,10 +169,13 @@ function Fetch(url, opts) {
 			if (options.compress && headers.has('content-encoding')) {
 				var name = headers.get('content-encoding');
 
-				if (name == 'gzip' || name == 'x-gzip') {
-					body = body.pipe(zlib.createGunzip());
-				} else if (name == 'deflate' || name == 'x-deflate') {
-					body = body.pipe(zlib.createInflate());
+				// no need to pipe no content and not modified response body
+				if (res.statusCode !== 204 && res.statusCode !== 304) {
+					if (name == 'gzip' || name == 'x-gzip') {
+						body = body.pipe(zlib.createGunzip());
+					} else if (name == 'deflate' || name == 'x-deflate') {
+						body = body.pipe(zlib.createInflate());
+					}
 				}
 			}
 

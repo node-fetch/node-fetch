@@ -11,6 +11,7 @@ var stream = require('stream');
 var resumer = require('resumer');
 var FormData = require('form-data');
 var http = require('http');
+var fs = require('fs');
 
 var TestServer = require('./server');
 
@@ -416,12 +417,53 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should handle empty response', function() {
-		url = base + '/empty';
+	it('should handle no content response', function() {
+		url = base + '/no-content';
 		return fetch(url).then(function(res) {
 			expect(res.status).to.equal(204);
 			expect(res.statusText).to.equal('No Content');
 			expect(res.ok).to.be.true;
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
+	it('should handle no content response with gzip encoding', function() {
+		url = base + '/no-content/gzip';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(204);
+			expect(res.statusText).to.equal('No Content');
+			expect(res.headers.get('content-encoding')).to.equal('gzip');
+			expect(res.ok).to.be.true;
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
+	it('should handle not modified response', function() {
+		url = base + '/not-modified';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(304);
+			expect(res.statusText).to.equal('Not Modified');
+			expect(res.ok).to.be.false;
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
+	it('should handle not modified response with gzip encoding', function() {
+		url = base + '/not-modified/gzip';
+		return fetch(url).then(function(res) {
+			expect(res.status).to.equal(304);
+			expect(res.statusText).to.equal('Not Modified');
+			expect(res.headers.get('content-encoding')).to.equal('gzip');
+			expect(res.ok).to.be.false;
 			return res.text().then(function(result) {
 				expect(result).to.be.a('string');
 				expect(result).to.be.empty;
@@ -566,10 +608,13 @@ describe('node-fetch', function() {
 	});
 
 	it('should allow POST request with readable stream as body', function() {
+		var body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+
 		url = base + '/inspect';
 		opts = {
 			method: 'POST'
-			, body: resumer().queue('a=1').end()
+			, body: body
 		};
 		return fetch(url, opts).then(function(res) {
 			return res.json();
@@ -597,6 +642,26 @@ describe('node-fetch', function() {
 			expect(res.headers['content-type']).to.contain('multipart/form-data');
 			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	it('should allow POST request with form-data using stream as body', function() {
+		var form = new FormData();
+		form.append('my_field', fs.createReadStream('test/dummy.txt'));
+
+		url = base + '/multipart';
+		opts = {
+			method: 'POST'
+			, body: form
+		};
+
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-length']).to.be.undefined;
+			expect(res.body).to.contain('my_field=');
 		});
 	});
 
@@ -647,6 +712,38 @@ describe('node-fetch', function() {
 			return res.json();
 		}).then(function(res) {
 			expect(res.method).to.equal('DELETE');
+		});
+	});
+
+	it('should allow POST request with string body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'POST'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
+	it('should allow DELETE request with string body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'DELETE'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('DELETE');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('3');
 		});
 	});
 
@@ -893,6 +990,19 @@ describe('node-fetch', function() {
 				expect(result).to.deep.equal({name: 'value'});
 				return r1.text().then(function(result) {
 					expect(result).to.equal('{"name":"value"}');
+				});
+			});
+		});
+	});
+
+	it('should allow cloning a json response, first log as text response, then return json object', function() {
+		url = base + '/json';
+		return fetch(url).then(function(res) {
+			var r1 = res.clone();
+			return r1.text().then(function(result) {
+				expect(result).to.equal('{"name":"value"}');
+				return res.json().then(function(result) {
+					expect(result).to.deep.equal({name: 'value'});
 				});
 			});
 		});
@@ -1196,6 +1306,12 @@ describe('node-fetch', function() {
 			expect(result.a).to.equal(1);
 		});
 	}); 
+
+	it('should support arbitrary url in Request constructor', function() {
+		url = 'anything';
+		var req = new Request(url);
+		expect(req.url).to.equal('anything');
+	});
 
 	it('should support clone() method in Request constructor', function() {
 		url = base;

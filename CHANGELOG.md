@@ -5,7 +5,15 @@ Changelog
 
 # 1.x release
 
-## v1.5.2 (master)
+## v1.5.3 (master)
+
+- Fix: handles 204 and 304 responses when body is empty but content-encoding is gzip/deflate
+- Fix: allow resolving response and cloned response in any order
+- Fix: avoid setting content-length when form-data body use streams
+- Fix: send DELETE request with content-length when body is present
+- Fix: allow any url when calling new Request, but still reject non-http(s) url in fetch
+
+## v1.5.2
 
 - Fix: allow node.js core to handle keep-alive connection pool when passing a custom agent
 

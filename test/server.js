@@ -264,8 +264,25 @@ TestServer.prototype.router = function(req, res) {
 		res.end('invalid json');
 	}
 
-	if (p === '/empty') {
+	if (p === '/no-content') {
 		res.statusCode = 204;
+		res.end();
+	}
+
+	if (p === '/no-content/gzip') {
+		res.statusCode = 204;
+		res.setHeader('Content-Encoding', 'gzip');
+		res.end();
+	}
+
+	if (p === '/not-modified') {
+		res.statusCode = 304;
+		res.end();
+	}
+
+	if (p === '/not-modified/gzip') {
+		res.statusCode = 304;
+		res.setHeader('Content-Encoding', 'gzip');
 		res.end();
 	}
 
