@@ -1307,6 +1307,12 @@ describe('node-fetch', function() {
 		});
 	}); 
 
+	it('should support arbitrary url in Request constructor', function() {
+		url = 'anything';
+		var req = new Request(url);
+		expect(req.url).to.equal('anything');
+	});
+
 	it('should support clone() method in Request constructor', function() {
 		url = base;
 		var body = resumer().queue('a=1').end();

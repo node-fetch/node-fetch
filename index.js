@@ -56,6 +56,14 @@ function Fetch(url, opts) {
 			return;
 		}
 
+		if (!options.protocol || !options.hostname) {
+			throw new Error('only absolute urls are supported');
+		}
+
+		if (options.protocol !== 'http:' && options.protocol !== 'https:') {
+			throw new Error('only http(s) protocols are supported');
+		}
+
 		var send;
 		if (options.protocol === 'https:') {
 			send = https.request;
