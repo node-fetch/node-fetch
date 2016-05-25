@@ -939,6 +939,19 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow cloning a json response, first log as text response, then return json object', function() {
+		url = base + '/json';
+		return fetch(url).then(function(res) {
+			var r1 = res.clone();
+			return r1.text().then(function(result) {
+				expect(result).to.equal('{"name":"value"}');
+				return res.json().then(function(result) {
+					expect(result).to.deep.equal({name: 'value'});
+				});
+			});
+		});
+	});
+
 	it('should not allow cloning a response after its been used', function() {
 		url = base + '/hello';
 		return fetch(url).then(function(res) {
