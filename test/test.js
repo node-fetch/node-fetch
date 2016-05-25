@@ -24,7 +24,29 @@ var FetchError = require('../lib/fetch-error.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
-var url, opts, local, base;
+var url, opts, local, base, polyfill;
+
+// dry-run polyfill to go around Nodejs module caching
+isolateTest(() => {
+	polyfill = require('../polyfill.js')
+})
+
+function isolateTest(test) {
+
+	// stash setup
+	var fetchPointer = fetch;
+	fetch = undefined;
+
+	// run test
+	test();
+
+	// restore setup
+	delete global.fetch;
+	delete global.Request;
+	delete global.Headers;
+	delete global.Response;
+	fetch = fetchPointer;
+}
 
 describe('node-fetch', function() {
 
@@ -1264,17 +1286,28 @@ describe('node-fetch', function() {
 	});
 
 	it('should provide a polyfill', function() {
+		isolateTest(() => {
+			polyfill();
+			expect(global.fetch).to.be.an.instanceof(Function);
+		})
+	})
 
-		// stash setup
-		var fetchPointer = fetch;
-		fetch = undefined;
+	it('should expose other fetch globals', function() {
+		isolateTest(() => {
+			polyfill();
+			expect(global.Request).to.be.an.instanceof(Function);
+			expect(global.Headers).to.be.an.instanceof(Function);
+			expect(global.Response).to.be.an.instanceof(Function);
+		})
+	})
 
-		require('../polyfill.js');
-		expect(global.fetch).to.be.an.instanceof(Function);
-
-		// restore setup
-		delete global.fetch;
-		fetch = fetchPointer;
+	it('should throw an error if globals are polluted', function() {
+		isolateTest(() => {
+			global.fetch = 1;
+			expect(function() {
+				polyfill();
+			}).to.throw(Error);
+		})
 	})
 
 });
