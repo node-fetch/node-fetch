@@ -12,6 +12,7 @@ var https = require('https');
 var zlib = require('zlib');
 var stream = require('stream');
 
+var Inflate = require('./lib/inflate');
 var Body = require('./lib/body');
 var Response = require('./lib/response');
 var Headers = require('./lib/headers');
@@ -174,7 +175,7 @@ function Fetch(url, opts) {
 					if (name == 'gzip' || name == 'x-gzip') {
 						body = body.pipe(zlib.createGunzip());
 					} else if (name == 'deflate' || name == 'x-deflate') {
-						body = body.pipe(zlib.createInflate());
+						body = body.pipe(new Inflate());
 					}
 				}
 			}
