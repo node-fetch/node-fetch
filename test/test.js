@@ -27,7 +27,7 @@ fetch.Promise = fetch.Promise || bluebird;
 var url, opts, local, base, polyfill;
 
 // dry-run polyfill to go around Nodejs module caching
-isolateTest(() => {
+isolateTest(function () {
 	polyfill = require('../polyfill.js')
 })
 
@@ -1286,14 +1286,14 @@ describe('node-fetch', function() {
 	});
 
 	it('should provide a polyfill', function() {
-		isolateTest(() => {
+		isolateTest(function() {
 			polyfill();
 			expect(global.fetch).to.be.an.instanceof(Function);
 		})
 	})
 
 	it('should expose other fetch globals', function() {
-		isolateTest(() => {
+		isolateTest(function() {
 			polyfill();
 			expect(global.Request).to.be.an.instanceof(Function);
 			expect(global.Headers).to.be.an.instanceof(Function);
@@ -1302,7 +1302,7 @@ describe('node-fetch', function() {
 	})
 
 	it('should throw an error if globals are polluted', function() {
-		isolateTest(() => {
+		isolateTest(function() {
 			global.fetch = 1;
 			expect(function() {
 				polyfill();
