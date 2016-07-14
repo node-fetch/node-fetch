@@ -82,6 +82,15 @@ TestServer.prototype.router = function(req, res) {
 		});
 	}
 
+	if (p === '/deflate-raw') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain');
+		res.setHeader('Content-Encoding', 'deflate');
+		zlib.deflateRaw('hello world', function(err, buffer) {
+			res.end(buffer);
+		});
+	}
+
 	if (p === '/sdch') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/plain');
