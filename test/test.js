@@ -1274,6 +1274,32 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should default to 200 in Response constructor', function() {
+		var res = new Response('a=1');
+		expect(res.status).to.equal(200);
+	});
+
+	it('should expect status between 200 and 599 in Response constructor', function() {
+		try {
+			new Response('a=1', {status: 199});
+		} catch (e) {
+			expect(e).to.be.an.instanceof(RangeError);
+			expect(e.message).to.equal('Failed to construct \'Response\': The status provided is outside the range [200, 599]');
+		}
+		try {
+			new Response('a=1', {status: 600});
+		} catch (e) {
+			expect(e).to.be.an.instanceof(RangeError);
+			expect(e.message).to.equal('Failed to construct \'Response\': The status provided is outside the range [200, 599]');
+		}
+		try {
+			new Response('a=1', {status: '200'});
+		} catch (e) {
+			expect(e).to.be.an.instanceof(RangeError);
+			expect(e.message).to.equal('Failed to construct \'Response\': The status provided is outside the range [200, 599]');
+		}
+	});
+
 	it('should support parsing headers in Request constructor', function() {
 		url = base;
 		var req = new Request(url, {
