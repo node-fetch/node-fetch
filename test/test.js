@@ -120,6 +120,36 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should accept plain text response (blob)', function() {
+		url = base + '/plain';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.blob().then(function(result) {
+				expect(res.bodyUsed).to.be.true;
+				expect(Buffer.isBuffer(result)).to.equal(true);
+				expect(result.toString()).to.equal('text');
+			});
+		});
+	});
+
+	it('should accept plain text response (arrayBuffer)', function() {
+		url = base + '/plain';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.arrayBuffer().then(function(result) {
+				expect(res.bodyUsed).to.be.true;
+				expect(Buffer.isBuffer(result)).to.equal(false);
+				expect(new Buffer(result).toString()).to.equal('text');
+				const uarr = new Uint8Array(result);
+				expect(uarr[0]).to.equal(116); // 't'
+				expect(uarr[1]).to.equal(101); // 'e'
+				expect(uarr[2]).to.equal(120); // 'x'
+				expect(uarr[3]).to.equal(116); // 't'
+				expect(uarr[4]).to.equal(undefined);
+			});
+		});
+	});
+
 	it('should accept html response (like plain text)', function() {
 		url = base + '/html';
 		return fetch(url).then(function(res) {
@@ -1347,10 +1377,12 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support text() and json() method in Body constructor', function() {
+	it('should support text(), json(), blob() and arrayBuffer() methods in Body constructor', function() {
 		var body = new Body('a=1');
 		expect(body).to.have.property('text');
 		expect(body).to.have.property('json');
+		expect(body).to.have.property('blob');
+		expect(body).to.have.property('arrayBuffer');
 	}); 
 
 	it('should create custom FetchError', function() {
