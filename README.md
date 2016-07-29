@@ -110,7 +110,7 @@ fetch('http://httpbin.org/post', { method: 'POST', body: form })
 	});
 
 // post with form-data (custom headers)
-
+// IMPORTANT: form.getHeaders does not work in browser
 var FormData = require('form-data');
 var form = new FormData();
 form.append('a', 1);
