@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "encoding": "^0.1.11",
-    "is-stream": "^1.0.1"
+    "is-stream": "^1.0.1",
+    "web-streams-polyfill": "git+https://github.com/gwicke/web-streams-polyfill#spec_performance_improvements"
   }
 }

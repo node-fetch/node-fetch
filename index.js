@@ -17,6 +17,7 @@ var Response = require('./lib/response');
 var Headers = require('./lib/headers');
 var Request = require('./lib/request');
 var FetchError = require('./lib/fetch-error');
+var webStreams = require('./lib/web_streams');
 
 // commonjs
 module.exports = Fetch;
@@ -163,7 +164,7 @@ function Fetch(url, opts) {
 			}
 
 			// handle compression
-			var body = res.pipe(new stream.PassThrough());
+			var body = res;
 			var headers = new Headers(res.headers);
 
 			if (options.compress && headers.has('content-encoding')) {
@@ -178,6 +179,9 @@ function Fetch(url, opts) {
 					}
 				}
 			}
+
+            // Convert to ReadableStream
+            body = webStreams.readable.nodeToWeb(body);
 
 			// normalize location header for manual redirect mode
 			if (options.redirect === 'manual' && headers.has('location')) {
@@ -200,12 +204,16 @@ function Fetch(url, opts) {
 		// accept string or readable stream as body
 		if (typeof options.body === 'string') {
 			req.write(options.body);
-			req.end();
-		} else if (typeof options.body === 'object' && options.body.pipe) {
-			options.body.pipe(req);
-		} else {
-			req.end();
+		} else if (typeof options.body === 'object') {
+            if (options.body.pipe) {
+                // Node stream
+			    return options.body.pipe(req);
+            } else if (options.body.getReader) {
+                const nodeBody = webStreams.readable.webToNode(options.body);
+                return nodeBody.pipe(req);
+            }
 		}
+		req.end();
 	});
 
 };

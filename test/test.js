@@ -1,3 +1,4 @@
+'use strict';
 
 // test tools
 var chai = require('chai');
@@ -98,7 +99,7 @@ describe('node-fetch', function() {
 		return fetch(url).then(function(res) {
 			expect(res).to.be.an.instanceof(Response);
 			expect(res.headers).to.be.an.instanceof(Headers);
-			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.body).to.be.an.instanceof(ReadableStream);
 			expect(res.bodyUsed).to.be.false;
 
 			expect(res.url).to.equal(url);
@@ -800,7 +801,7 @@ describe('node-fetch', function() {
 			expect(res.status).to.equal(200);
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('content-type')).to.equal('text/plain');
-			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.body).to.be.an.instanceof(ReadableStream);
 		});
 	});
 
@@ -813,7 +814,7 @@ describe('node-fetch', function() {
 			expect(res.status).to.equal(200);
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('allow')).to.equal('GET, HEAD, OPTIONS');
-			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.body).to.be.an.instanceof(ReadableStream);
 		});
 	});
 
@@ -954,16 +955,19 @@ describe('node-fetch', function() {
 	it('should allow piping response body as stream', function(done) {
 		url = base + '/hello';
 		fetch(url).then(function(res) {
-			expect(res.body).to.be.an.instanceof(stream.Transform);
-			res.body.on('data', function(chunk) {
-				if (chunk === null) {
-					return;
-				}
-				expect(chunk.toString()).to.equal('world');
-			});
-			res.body.on('end', function() {
-				done();
-			});
+			expect(res.body).to.be.an.instanceof(ReadableStream);
+			const reader = res.body.getReader();
+			return reader.read()
+				.then(res => {
+					expect(res.value.toString()).to.equal('world');
+					return reader.read().then(res => {
+						if (res.done) {
+							done();
+						} else {
+							done(new Error("Expected stream to be done"));
+						}
+					});
+				});
 		});
 	});
 
@@ -972,31 +976,28 @@ describe('node-fetch', function() {
 		return fetch(url).then(function(res) {
 			var counter = 0;
 			var r1 = res.clone();
-			expect(res.body).to.be.an.instanceof(stream.Transform);
-			expect(r1.body).to.be.an.instanceof(stream.Transform);
-			res.body.on('data', function(chunk) {
-				if (chunk === null) {
-					return;
+			expect(res.body).to.be.an.instanceof(ReadableStream);
+			expect(r1.body).to.be.an.instanceof(ReadableStream);
+			function drain(stream) {
+				const reader = stream.getReader();
+				let chunks = [];
+				function pump() {
+					return reader.read()
+					.then(res => {
+						if (res.done) { return chunks; }
+						chunks.push(res.value);
+						return pump();
+					});
 				}
-				expect(chunk.toString()).to.equal('world');
-			});
-			res.body.on('end', function() {
-				counter++;
-				if (counter == 2) {
-					done();
-				}
-			});
-			r1.body.on('data', function(chunk) {
-				if (chunk === null) {
-					return;
-				}
-				expect(chunk.toString()).to.equal('world');
-			});
-			r1.body.on('end', function() {
-				counter++;
-				if (counter == 2) {
-					done();
-				}
+				return pump();
+			}
+			return drain(res.body).then(chunks => {
+				expect(chunks[0].toString()).to.equal('world');
+				return drain(r1.body);
+			})
+			.then(chunks => {
+				expect(chunks[0].toString()).to.equal('world');
+				done();
 			});
 		});
 	});
@@ -1072,7 +1073,7 @@ describe('node-fetch', function() {
 			result.push([key, val]);
 		});
 
-		expected = [
+		const expected = [
 			["a", "1"]
 			, ["b", "2"]
 			, ["b", "3"]
@@ -1259,7 +1260,6 @@ describe('node-fetch', function() {
 
 	it('should support clone() method in Response constructor', function() {
 		var body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
 		var res = new Response(body, {
 			headers: {
 				a: '1'
