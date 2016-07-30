@@ -25,6 +25,7 @@ var Body = require('../lib/body.js');
 var FetchError = require('../lib/fetch-error.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
+var ReadableStream = require('node-web-streams').ReadableStream;
 
 var url, opts, local, base;
 

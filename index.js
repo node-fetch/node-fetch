@@ -17,7 +17,7 @@ var Response = require('./lib/response');
 var Headers = require('./lib/headers');
 var Request = require('./lib/request');
 var FetchError = require('./lib/fetch-error');
-var webStreams = require('./lib/web_streams');
+var webStreams = require('node-web-streams');
 
 // commonjs
 module.exports = Fetch;
@@ -92,8 +92,9 @@ function Fetch(url, opts) {
 
 		// bring node-fetch closer to browser behavior by setting content-length automatically
 		if (!headers.has('content-length') && /post|put|patch|delete/i.test(options.method)) {
-			if (typeof options.body === 'string') {
-				headers.set('content-length', Buffer.byteLength(options.body));
+			if (typeof options._rawBody === 'string' || Buffer.isBuffer(options._rawBody)) {
+	            options._rawBody = new Buffer(options._rawBody);
+				headers.set('content-length', options._rawBody.length);
 			// detect form data input from form-data module, this hack avoid the need to add content-length header manually
 			} else if (options.body && typeof options.body.getLengthSync === 'function' && options.body._lengthRetrievers.length == 0) {
 				headers.set('content-length', options.body.getLengthSync().toString());
@@ -180,8 +181,8 @@ function Fetch(url, opts) {
 				}
 			}
 
-            // Convert to ReadableStream
-            body = webStreams.readable.nodeToWeb(body);
+	        // Convert to ReadableStream
+	        body = webStreams.toWebReadableStream(body);
 
 			// normalize location header for manual redirect mode
 			if (options.redirect === 'manual' && headers.has('location')) {
@@ -201,18 +202,23 @@ function Fetch(url, opts) {
 			resolve(output);
 		});
 
-		// accept string or readable stream as body
-		if (typeof options.body === 'string') {
-			req.write(options.body);
-		} else if (typeof options.body === 'object') {
-            if (options.body.pipe) {
-                // Node stream
-			    return options.body.pipe(req);
-            } else if (options.body.getReader) {
-                const nodeBody = webStreams.readable.webToNode(options.body);
-                return nodeBody.pipe(req);
-            }
-		}
+		// Request body handling
+	    if (options.body !== undefined) {
+	        if (typeof options._rawBody === 'string' || Buffer.isBuffer(options._rawBody)) {
+	            // Fast path for simple strings / buffers, avoid chunked
+	            // encoding.
+	            return req.end(options._rawBody);
+	        } else if (options.body.pipe) {
+	            // Node stream (likely FormData).
+	            return options.body.pipe(req);
+	        } else if (options.body.getReader) {
+	            // ReadableStream
+	            const nodeBody = webStreams.toNodeReadable(options.body);
+	            return nodeBody.pipe(req);
+	        } else {
+	            throw new TypeError('Unexpected Request body type: ' + (typeof options.body));
+	        }
+	    }
 		req.end();
 	});
 
