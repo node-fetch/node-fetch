@@ -49,27 +49,27 @@ function Fetch(url, opts) {
 	// wrap http.request into fetch
 	return new Fetch.Promise(function(resolve, reject) {
 		// build request object
-		var options = new Request(url, opts);
+		const request = new Request(url, opts);
 
-		if (!options.protocol || !options.hostname) {
+		if (!request.protocol || !request.hostname) {
 			throw new Error('only absolute urls are supported');
 		}
 
-		if (options.protocol !== 'http:' && options.protocol !== 'https:') {
+		if (request.protocol !== 'http:' && request.protocol !== 'https:') {
 			throw new Error('only http(s) protocols are supported');
 		}
 
 		var send;
-		if (options.protocol === 'https:') {
+		if (request.protocol === 'https:') {
 			send = https.request;
 		} else {
 			send = http.request;
 		}
 
 		// normalize headers
-		var headers = new Headers(options.headers);
+		var headers = new Headers(request.headers);
 
-		if (options.compress) {
+		if (request.compress) {
 			headers.set('accept-encoding', 'gzip,deflate');
 		}
 
@@ -77,7 +77,7 @@ function Fetch(url, opts) {
 			headers.set('user-agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
 		}
 
-		if (!headers.has('connection') && !options.agent) {
+		if (!headers.has('connection') && !request.agent) {
 			headers.set('connection', 'close');
 		}
 
@@ -86,81 +86,86 @@ function Fetch(url, opts) {
 		}
 
 		// detect form data input from form-data module, this hack avoid the need to pass multipart header manually
-		if (!headers.has('content-type') && options.body && typeof options.body.getBoundary === 'function') {
-			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
+		if (!headers.has('content-type') && request._rawBody
+				&& typeof request._rawBody.getBoundary === 'function') {
+			headers.set('content-type', 'multipart/form-data; boundary=' + request.body.getBoundary());
 		}
 
 		// bring node-fetch closer to browser behavior by setting content-length automatically
-		if (!headers.has('content-length') && /post|put|patch|delete/i.test(options.method)) {
-			if (typeof options._rawBody === 'string' || Buffer.isBuffer(options._rawBody)) {
-	            options._rawBody = new Buffer(options._rawBody);
-				headers.set('content-length', options._rawBody.length);
+		if (!headers.has('content-length') && /post|put|patch|delete/i.test(request.method)) {
+			if (typeof request._rawBody === 'string') {
+	            request._rawBody = new Buffer(request._rawBody);
+			}
+			if (Buffer.isBuffer(request._rawBody)) {
+				headers.set('content-length', request._rawBody.length);
 			// detect form data input from form-data module, this hack avoid the need to add content-length header manually
-			} else if (options.body && typeof options.body.getLengthSync === 'function' && options.body._lengthRetrievers.length == 0) {
-				headers.set('content-length', options.body.getLengthSync().toString());
+			} else if (request._rawBody
+					&& typeof request._rawBody.getLengthSync === 'function'
+					&& request._rawBody._lengthRetrievers.length == 0) {
+				headers.set('content-length', request._rawBody.getLengthSync().toString());
 			// this is only necessary for older nodejs releases (before iojs merge)
-			} else if (options.body === undefined || options.body === null) {
+			} else if (request._rawBody === undefined || request._rawBody === null) {
 				headers.set('content-length', '0');
 			}
 		}
 
-		options.headers = headers.raw();
+		request.headers = headers.raw();
 
 		// http.request only support string as host header, this hack make custom host header possible
-		if (options.headers.host) {
-			options.headers.host = options.headers.host[0];
+		if (request.headers.host) {
+			request.headers.host = request.headers.host[0];
 		}
 
 		// send request
-		var req = send(options);
+		var req = send(request);
 		var reqTimeout;
 
-		if (options.timeout) {
+		if (request.timeout) {
 			req.once('socket', function(socket) {
 				reqTimeout = setTimeout(function() {
 					req.abort();
-					reject(new FetchError('network timeout at: ' + options.url, 'request-timeout'));
-				}, options.timeout);
+					reject(new FetchError('network timeout at: ' + request.url, 'request-timeout'));
+				}, request.timeout);
 			});
 		}
 
 		req.on('error', function(err) {
 			clearTimeout(reqTimeout);
-			reject(new FetchError('request to ' + options.url + ' failed, reason: ' + err.message, 'system', err));
+			reject(new FetchError('request to ' + request.url + ' failed, reason: ' + err.message, 'system', err));
 		});
 
 		req.on('response', function(res) {
 			clearTimeout(reqTimeout);
 
 			// handle redirect
-			if (self.isRedirect(res.statusCode) && options.redirect !== 'manual') {
-				if (options.redirect === 'error') {
-					reject(new FetchError('redirect mode is set to error: ' + options.url, 'no-redirect'));
+			if (self.isRedirect(res.statusCode) && request.redirect !== 'manual') {
+				if (request.redirect === 'error') {
+					reject(new FetchError('redirect mode is set to error: ' + request.url, 'no-redirect'));
 					return;
 				}
 
-				if (options.counter >= options.follow) {
-					reject(new FetchError('maximum redirect reached at: ' + options.url, 'max-redirect'));
+				if (request.counter >= request.follow) {
+					reject(new FetchError('maximum redirect reached at: ' + request.url, 'max-redirect'));
 					return;
 				}
 
 				if (!res.headers.location) {
-					reject(new FetchError('redirect location header missing at: ' + options.url, 'invalid-redirect'));
+					reject(new FetchError('redirect location header missing at: ' + request.url, 'invalid-redirect'));
 					return;
 				}
 
 				// per fetch spec, for POST request with 301/302 response, or any request with 303 response, use GET when following redirect
 				if (res.statusCode === 303
-					|| ((res.statusCode === 301 || res.statusCode === 302) && options.method === 'POST'))
+					|| ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST'))
 				{
-					options.method = 'GET';
-					delete options.body;
-					delete options.headers['content-length'];
+					request.method = 'GET';
+					request.body = undefined;
+					delete request.headers['content-length'];
 				}
 
-				options.counter++;
+				request.counter++;
 
-				resolve(Fetch(resolve_url(options.url, res.headers.location), options));
+				resolve(Fetch(resolve_url(request.url, res.headers.location), request));
 				return;
 			}
 
@@ -168,7 +173,7 @@ function Fetch(url, opts) {
 			var body = res;
 			var headers = new Headers(res.headers);
 
-			if (options.compress && headers.has('content-encoding')) {
+			if (request.compress && headers.has('content-encoding')) {
 				var name = headers.get('content-encoding');
 
 				// no need to pipe no content and not modified response body
@@ -185,38 +190,36 @@ function Fetch(url, opts) {
 	        body = webStreams.toWebReadableStream(body);
 
 			// normalize location header for manual redirect mode
-			if (options.redirect === 'manual' && headers.has('location')) {
-				headers.set('location', resolve_url(options.url, headers.get('location')));
+			if (request.redirect === 'manual' && headers.has('location')) {
+				headers.set('location', resolve_url(request.url, headers.get('location')));
 			}
 
 			// response object
 			var output = new Response(body, {
-				url: options.url
+				url: request.url
 				, status: res.statusCode
 				, statusText: res.statusMessage
 				, headers: headers
-				, size: options.size
-				, timeout: options.timeout
+				, size: request.size
+				, timeout: request.timeout
 			});
 
 			resolve(output);
 		});
 
 		// Request body handling
-	    if (options.body !== undefined) {
-	        if (typeof options._rawBody === 'string' || Buffer.isBuffer(options._rawBody)) {
-	            // Fast path for simple strings / buffers, avoid chunked
-	            // encoding.
-	            return req.end(options._rawBody);
-	        } else if (options.body.pipe) {
+		if (request._rawBody !== undefined && request._rawBody !== null) {
+	        if (Buffer.isBuffer(request._rawBody)) {
+				// Fast path for simple buffers. Avoid stream wrapper &
+				// chunked encoding.
+	            return req.end(request._rawBody);
+	        } else if (request._rawBody.pipe) {
 	            // Node stream (likely FormData).
-	            return options.body.pipe(req);
-	        } else if (options.body.getReader) {
-	            // ReadableStream
-	            const nodeBody = webStreams.toNodeReadable(options.body);
-	            return nodeBody.pipe(req);
+	            return request._rawBody.pipe(req);
 	        } else {
-	            throw new TypeError('Unexpected Request body type: ' + (typeof options.body));
+	            // Standard ReadableStream
+	            const nodeBody = webStreams.toNodeReadable(request.body);
+	            return nodeBody.pipe(req);
 	        }
 	    }
 		req.end();

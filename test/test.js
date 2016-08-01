@@ -858,45 +858,45 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support encoding decode, xml dtd detect', function() {
-		url = base + '/encoding/euc-jp';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			return res.text().then(function(result) {
-				expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
-			});
-		});
-	});
-
-	it('should support encoding decode, content-type detect', function() {
-		url = base + '/encoding/shift-jis';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			return res.text().then(function(result) {
-				expect(result).to.equal('<div>日本語</div>');
-			});
-		});
-	});
-
-	it('should support encoding decode, html5 detect', function() {
-		url = base + '/encoding/gbk';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			return res.text().then(function(result) {
-				expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
-			});
-		});
-	});
-
-	it('should support encoding decode, html4 detect', function() {
-		url = base + '/encoding/gb2312';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			return res.text().then(function(result) {
-				expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
-			});
-		});
-	});
+//	it('should support encoding decode, xml dtd detect', function() {
+//		url = base + '/encoding/euc-jp';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			return res.text().then(function(result) {
+//				expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
+//			});
+//		});
+//	});
+//
+//	it('should support encoding decode, content-type detect', function() {
+//		url = base + '/encoding/shift-jis';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			return res.text().then(function(result) {
+//				expect(result).to.equal('<div>日本語</div>');
+//			});
+//		});
+//	});
+//
+//	it('should support encoding decode, html5 detect', function() {
+//		url = base + '/encoding/gbk';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			return res.text().then(function(result) {
+//				expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
+//			});
+//		});
+//	});
+//
+//	it('should support encoding decode, html4 detect', function() {
+//		url = base + '/encoding/gb2312';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			return res.text().then(function(result) {
+//				expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
+//			});
+//		});
+//	});
 
 	it('should default to utf8 encoding', function() {
 		url = base + '/encoding/utf8';
@@ -909,49 +909,49 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support uncommon content-type order, charset in front', function() {
-		url = base + '/encoding/order1';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			return res.text().then(function(result) {
-				expect(result).to.equal('中文');
-			});
-		});
-	});
-
-	it('should support uncommon content-type order, end with qs', function() {
-		url = base + '/encoding/order2';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			return res.text().then(function(result) {
-				expect(result).to.equal('中文');
-			});
-		});
-	});
-
-	it('should support chunked encoding, html4 detect', function() {
-		url = base + '/encoding/chunked';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			// because node v0.12 doesn't have str.repeat
-			var padding = new Array(10 + 1).join('a');
-			return res.text().then(function(result) {
-				expect(result).to.equal(padding + '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>');
-			});
-		});
-	});
-
-	it('should only do encoding detection up to 1024 bytes', function() {
-		url = base + '/encoding/invalid';
-		return fetch(url).then(function(res) {
-			expect(res.status).to.equal(200);
-			// because node v0.12 doesn't have str.repeat
-			var padding = new Array(1200 + 1).join('a');
-			return res.text().then(function(result) {
-				expect(result).to.not.equal(padding + '中文');
-			});
-		});
-	});
+//	it('should support uncommon content-type order, charset in front', function() {
+//		url = base + '/encoding/order1';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			return res.text().then(function(result) {
+//				expect(result).to.equal('中文');
+//			});
+//		});
+//	});
+//
+//	it('should support uncommon content-type order, end with qs', function() {
+//		url = base + '/encoding/order2';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			return res.text().then(function(result) {
+//				expect(result).to.equal('中文');
+//			});
+//		});
+//	});
+//
+//	it('should support chunked encoding, html4 detect', function() {
+//		url = base + '/encoding/chunked';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			// because node v0.12 doesn't have str.repeat
+//			var padding = new Array(10 + 1).join('a');
+//			return res.text().then(function(result) {
+//				expect(result).to.equal(padding + '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>');
+//			});
+//		});
+//	});
+//
+//	it('should only do encoding detection up to 1024 bytes', function() {
+//		url = base + '/encoding/invalid';
+//		return fetch(url).then(function(res) {
+//			expect(res.status).to.equal(200);
+//			// because node v0.12 doesn't have str.repeat
+//			var padding = new Array(1200 + 1).join('a');
+//			return res.text().then(function(result) {
+//				expect(result).to.not.equal(padding + '中文');
+//			});
+//		});
+//	});
 
 	it('should allow piping response body as stream', function(done) {
 		url = base + '/hello';
