@@ -162,45 +162,79 @@ function Fetch(url, opts) {
 				return;
 			}
 
-			// handle compression
-			var body = res.pipe(new stream.PassThrough());
-			var headers = new Headers(res.headers);
-
-			if (options.compress && headers.has('content-encoding')) {
-				var name = headers.get('content-encoding');
-
-				// no need to pipe no content and not modified response body
-				if (res.statusCode !== 204 && res.statusCode !== 304) {
-					if (name == 'gzip' || name == 'x-gzip') {
-						body = body.pipe(zlib.createGunzip());
-					} else if (name == 'deflate' || name == 'x-deflate') {
-						body = body.pipe(zlib.createInflate());
-					}
-				}
-			}
-
 			// normalize location header for manual redirect mode
+			var headers = new Headers(res.headers);
 			if (options.redirect === 'manual' && headers.has('location')) {
 				headers.set('location', resolve_url(options.url, headers.get('location')));
 			}
 
-			// response object
-			var output = new Response(body, {
+			// prepare response
+			var body = res.pipe(new stream.PassThrough());
+			var response_options = {
 				url: options.url
 				, status: res.statusCode
 				, statusText: res.statusMessage
 				, headers: headers
 				, size: options.size
 				, timeout: options.timeout
-			});
+			};
 
+			// response object
+			var output;
+
+			// in following scenarios we ignore compression support
+			// 1. compression support is disabled
+			// 2. HEAD request
+			// 3. no content-encoding header
+			// 4. no content response (204)
+			// 5. content not modified response (304)
+			if (!options.compress || options.method === 'HEAD' || !headers.has('content-encoding') || res.statusCode === 204 || res.statusCode === 304) {
+				output = new Response(body, response_options);
+				resolve(output);
+				return;
+			}
+
+			// otherwise, check for gzip or deflate
+			var name = headers.get('content-encoding');
+
+			// for gzip
+			if (name == 'gzip' || name == 'x-gzip') {
+				body = body.pipe(zlib.createGunzip());
+				output = new Response(body, response_options);
+				resolve(output);
+				return;
+
+			// for deflate
+			} else if (name == 'deflate' || name == 'x-deflate') {
+				// handle the infamous raw deflate response from old servers
+				// a hack for old IIS and Apache servers
+				var raw = res.pipe(new stream.PassThrough());
+				raw.once('data', function(chunk) {
+					// see http://stackoverflow.com/questions/37519828
+					if ((chunk[0] & 0x0F) === 0x08) {
+						body = body.pipe(zlib.createInflate());
+					} else {
+						body = body.pipe(zlib.createInflateRaw());
+					}
+					output = new Response(body, response_options);
+					resolve(output);
+				});
+				return;
+			}
+
+			// otherwise, use response as-is
+			output = new Response(body, response_options);
 			resolve(output);
+			return;
 		});
 
-		// accept string or readable stream as body
+		// accept string, buffer or readable stream as body
 		if (typeof options.body === 'string') {
 			req.write(options.body);
 			req.end();
+		} else if (options.body instanceof Buffer) {
+			req.write(options.body);
+			req.end()
 		} else if (typeof options.body === 'object' && options.body.pipe) {
 			options.body.pipe(req);
 		} else {

@@ -11,11 +11,9 @@ A light-weight module that brings `window.fetch` to Node.js
 
 # Motivation
 
-I really like the notion of Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch): it bridges the API gap between client-side and server-side http requests, so developers have less to worry about.
+Instead of implementing `XMLHttpRequest` in Node.js to run browser-specific [Fetch polyfill](https://github.com/github/fetch), why not go from native `http` to `Fetch` API directly? Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js runtime.
 
-Instead of implementing `XMLHttpRequest` in node to run browser-specific [fetch polyfill](https://github.com/github/fetch), why not go from node's `http` to `fetch` API directly? Node has native stream support, browserify build targets (browsers) don't, so underneath they are going to be vastly different anyway.
-
-Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js runtime.
+See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) for isomorphic usage (exports `node-fetch` for server-side, `whatwg-fetch` for client-side).
 
 
 # Features
@@ -24,8 +22,8 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js 
 - Make conscious trade-off when following [whatwg fetch spec](https://fetch.spec.whatwg.org/) and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known difference.
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native stream for body, on both request and response.
-- Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to utf-8 automatically.
-- Useful extensions such as timeout, redirect limit, response size limit, explicit reject errors.
+- Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
+- Useful extensions such as timeout, redirect limit, response size limit, explicit errors for troubleshooting.
 
 
 # Difference from client-side fetch
@@ -45,7 +43,7 @@ Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js 
 ```javascript
 var fetch = require('node-fetch');
 
-// If you are not on node v0.12, set a Promise library first, eg.
+// if you are on node v0.10, set a Promise library first, eg.
 // fetch.Promise = require('bluebird');
 
 // plain text or html
@@ -65,6 +63,8 @@ fetch('https://api.github.com/users/github')
 	}).then(function(json) {
 		console.log(json);
 	});
+
+// since v1.6.0, there is also res.buffer() for convenience
 
 // meta
 
@@ -110,6 +110,7 @@ fetch('http://httpbin.org/post', { method: 'POST', body: form })
 	});
 
 // post with form-data (custom headers)
+// note that getHeaders() is non-standard api
 
 var FormData = require('form-data');
 var form = new FormData();
@@ -121,7 +122,7 @@ fetch('http://httpbin.org/post', { method: 'POST', body: form, headers: form.get
 		console.log(json);
 	});
 
-// node 0.11+, yield with co
+// node 0.12+, yield with co
 
 var co = require('co');
 co(function *() {

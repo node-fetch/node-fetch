@@ -12,10 +12,10 @@ Known differences
 
 - For convenience, `res.body` is a transform stream, so decoding can be handled independently.
 
-- Similarly, `req.body` can either be a string or a readable stream.
+- Similarly, `req.body` can either be a string, a buffer or a readable stream.
 
 - Also, you can handle rejected fetch requests through checking `err.type` and `err.code`.
 
-- Only support `res.text()` and `res.json()` at the moment, until there are good use-cases for blob.
+- Only support `res.text()`, `res.json()`, `res.buffer()` at the moment, until there are good use-cases for blob/arrayBuffer.
 
 - There is currently no built-in caching, as server-side caching varies by use-cases.

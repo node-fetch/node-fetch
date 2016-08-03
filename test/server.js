@@ -82,6 +82,15 @@ TestServer.prototype.router = function(req, res) {
 		});
 	}
 
+	if (p === '/deflate-raw') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/plain');
+		res.setHeader('Content-Encoding', 'deflate');
+		zlib.deflateRaw('hello world', function(err, buffer) {
+			res.end(buffer);
+		});
+	}
+
 	if (p === '/sdch') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/plain');
@@ -246,6 +255,12 @@ TestServer.prototype.router = function(req, res) {
 		res.statusCode = 400;
 		res.setHeader('Content-Type', 'text/plain');
 		res.end('client error');
+	}
+
+	if (p === '/error/404') {
+		res.statusCode = 404;
+		res.setHeader('Content-Encoding', 'gzip');
+		res.end();
 	}
 
 	if (p === '/error/500') {

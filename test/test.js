@@ -493,6 +493,17 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should decompress deflate raw response from old apache server', function() {
+		url = base + '/deflate-raw';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.equal('hello world');
+			});
+		});
+	});
+
 	it('should skip decompression if unsupported', function() {
 		url = base + '/sdch';
 		return fetch(url).then(function(res) {
@@ -604,6 +615,22 @@ describe('node-fetch', function() {
 			expect(res.body).to.equal('a=1');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
 			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
+	it('should allow POST request with buffer body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'POST'
+			, body: new Buffer('a=1', 'utf-8')
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.equal('chunked');
+			expect(res.headers['content-length']).to.be.undefined;
 		});
 	});
 
@@ -771,6 +798,23 @@ describe('node-fetch', function() {
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.body).to.be.an.instanceof(stream.Transform);
+			return res.text();
+		}).then(function(text) {
+			expect(text).to.equal('');
+		});
+	});
+
+	it('should allow HEAD request with content-encoding header', function() {
+		url = base + '/error/404';
+		opts = {
+			method: 'HEAD'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(404);
+			expect(res.headers.get('content-encoding')).to.equal('gzip');
+			return res.text();
+		}).then(function(text) {
+			expect(text).to.equal('');
 		});
 	});
 
@@ -1227,6 +1271,13 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support buffer() method in Response constructor', function() {
+		var res = new Response('a=1');
+		return res.buffer().then(function(result) {
+			expect(result.toString()).to.equal('a=1');
+		});
+	});
+
 	it('should support clone() method in Response constructor', function() {
 		var body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
@@ -1307,6 +1358,17 @@ describe('node-fetch', function() {
 		});
 	}); 
 
+	it('should support buffer() method in Request constructor', function() {
+		url = base;
+		var req = new Request(url, {
+			body: 'a=1'
+		});
+		expect(req.url).to.equal(url);
+		return req.buffer().then(function(result) {
+			expect(result.toString()).to.equal('a=1');
+		});
+	}); 
+
 	it('should support arbitrary url in Request constructor', function() {
 		url = 'anything';
 		var req = new Request(url);
@@ -1347,10 +1409,11 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support text() and json() method in Body constructor', function() {
+	it('should support text(), json() and buffer() method in Body constructor', function() {
 		var body = new Body('a=1');
 		expect(body).to.have.property('text');
 		expect(body).to.have.property('json');
+		expect(body).to.have.property('buffer');
 	}); 
 
 	it('should create custom FetchError', function() {
