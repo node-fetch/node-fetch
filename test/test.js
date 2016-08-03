@@ -607,6 +607,22 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow POST request with buffer body', function() {
+		url = base + '/inspect';
+		opts = {
+			method: 'POST'
+			, body: new Buffer('a=1', 'utf-8')
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.equal('chunked');
+			expect(res.headers['content-length']).to.be.undefined;
+		});
+	});
+
 	it('should allow POST request with readable stream as body', function() {
 		var body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
