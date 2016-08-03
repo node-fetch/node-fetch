@@ -248,6 +248,12 @@ TestServer.prototype.router = function(req, res) {
 		res.end('client error');
 	}
 
+	if (p === '/error/404') {
+		res.statusCode = 404;
+		res.setHeader('Content-Encoding', 'gzip');
+		res.end();
+	}
+
 	if (p === '/error/500') {
 		res.statusCode = 500;
 		res.setHeader('Content-Type', 'text/plain');

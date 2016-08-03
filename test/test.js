@@ -771,6 +771,23 @@ describe('node-fetch', function() {
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.body).to.be.an.instanceof(stream.Transform);
+			return res.text();
+		}).then(function(text) {
+			expect(text).to.equal('');
+		});
+	});
+
+	it('should allow HEAD request with content-encoding header', function() {
+		url = base + '/error/404';
+		opts = {
+			method: 'HEAD'
+		};
+		return fetch(url, opts).then(function(res) {
+			expect(res.status).to.equal(404);
+			expect(res.headers.get('content-encoding')).to.equal('gzip');
+			return res.text();
+		}).then(function(text) {
+			expect(text).to.equal('');
 		});
 	});
 

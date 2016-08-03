@@ -166,7 +166,8 @@ function Fetch(url, opts) {
 			var body = res.pipe(new stream.PassThrough());
 			var headers = new Headers(res.headers);
 
-			if (options.compress && headers.has('content-encoding')) {
+			// HEAD request is ignored
+			if (options.compress && options.method !== 'HEAD' && headers.has('content-encoding')) {
 				var name = headers.get('content-encoding');
 
 				// no need to pipe no content and not modified response body
