@@ -5,7 +5,16 @@ Changelog
 
 # 1.x release
 
-## v1.5.3 (master)
+## v1.6.0 (master)
+
+- Enhance: added res.buffer() api for convenience, it returns body as a Node.js buffer
+- Enhance: better old server support by handling raw deflate response
+- Enhance: skip encoding detection for non-HTML/XML response
+- Enhance: minor document update
+- Fix: HEAD request doesn't need decompression, as body is empty
+- Fix: req.body now accepts a Node.js buffer
+
+## v1.5.3
 
 - Fix: handles 204 and 304 responses when body is empty but content-encoding is gzip/deflate
 - Fix: allow resolving response and cloned response in any order
