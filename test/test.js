@@ -1052,6 +1052,32 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow cloning a json response, first log as text response, then return json object, when response is larger than Stream Buffer', function() {
+		url = base + '/json/large';
+		return fetch(url).then(function(res) {
+			var r1 = res.clone();
+			return r1.text().then(function(result) {
+				expect(result).to.not.equal(null);
+				return res.json().then(function(result) {
+					expect(result).to.not.equal(null);
+				});
+			});
+		});
+	});
+
+	it('should allow cloning a json response, first log as text response, then return json object, when gzipped response is larger than Stream Buffer', function() {
+		url = base + '/json/large/gzip';
+		return fetch(url).then(function(res) {
+			var r1 = res.clone();
+			return r1.text().then(function(result) {
+				expect(result).to.not.equal(null);
+				return res.json().then(function(result) {
+					expect(result).to.not.equal(null);
+				});
+			});
+		});
+	});
+
 	it('should not allow cloning a response after its been used', function() {
 		url = base + '/hello';
 		return fetch(url).then(function(res) {

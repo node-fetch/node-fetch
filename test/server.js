@@ -5,6 +5,8 @@ var zlib = require('zlib');
 var stream = require('stream');
 var convert = require('encoding').convert;
 var Multipart = require('parted').multipart;
+var fs = require('fs');
+var path = require('path');
 
 module.exports = TestServer;
 
@@ -62,6 +64,24 @@ TestServer.prototype.router = function(req, res) {
 		res.end(JSON.stringify({
 			name: 'value'
 		}));
+	}
+
+	if (p === '/json/large') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/json');
+		var content = fs.readFileSync(path.resolve(__dirname, './dummy-large.json'), 'utf-8');
+		res.end(content);
+	}
+
+
+	if (p === '/json/large/gzip') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/json');
+		res.setHeader('Content-Encoding', 'gzip');
+		var content = fs.readFileSync(path.resolve(__dirname, './dummy-large.json'), 'utf-8');
+		zlib.gzip(content, function(err, buffer) {
+			res.end(buffer);
+		});
 	}
 
 	if (p === '/gzip') {
