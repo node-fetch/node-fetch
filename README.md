@@ -11,20 +11,28 @@ A light-weight module that brings `window.fetch` to Node.js
 
 # Motivation
 
-I really like the notion of Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch): it bridges the API gap between client-side and server-side http requests, so developers have less to worry about.
+I really like the notion of Matt Andrews'
+[isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch): it
+bridges the API gap between client-side and server-side http requests, so
+developers have less to worry about.
 
-Instead of implementing `XMLHttpRequest` in node to run browser-specific [fetch polyfill](https://github.com/github/fetch), why not go from node's `http` to `fetch` API directly? Node has native stream support, browserify build targets (browsers) don't, so underneath they are going to be vastly different anyway.
+Instead of implementing `XMLHttpRequest` in node to run browser-specific
+[fetch polyfill](https://github.com/github/fetch), why not go from node's
+`http` to `fetch` API directly? Node has native stream support, browserify
+build targets (browsers) don't, so underneath they are going to be vastly
+different anyway.
 
-Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js runtime.
+Hence `node-fetch`, minimal code for a `window.fetch` compatible API on
+Node.js runtime.
 
 
 # Features
 
 - Stay consistent with `window.fetch` API.
 - Make conscious trade-off when following [whatwg fetch spec](https://fetch.spec.whatwg.org/) and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known difference.
-- Use native promise, but allow substituting it with [insert your favorite promise library].
-- Use native stream for body, on both request and response.
-- Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to utf-8 automatically.
+- Use native promise, but allow substituting it with [insert your favorite
+- promise library].
+- Use WhatWG `ReadableStream` for streaming bodies, on both request and response.
 - Useful extensions such as timeout, redirect limit, response size limit, explicit reject errors.
 
 
