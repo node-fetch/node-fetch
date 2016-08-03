@@ -1260,6 +1260,13 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should support buffer() method in Response constructor', function() {
+		var res = new Response('a=1');
+		return res.buffer().then(function(result) {
+			expect(result.toString()).to.equal('a=1');
+		});
+	});
+
 	it('should support clone() method in Response constructor', function() {
 		var body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
@@ -1340,6 +1347,17 @@ describe('node-fetch', function() {
 		});
 	}); 
 
+	it('should support buffer() method in Request constructor', function() {
+		url = base;
+		var req = new Request(url, {
+			body: 'a=1'
+		});
+		expect(req.url).to.equal(url);
+		return req.buffer().then(function(result) {
+			expect(result.toString()).to.equal('a=1');
+		});
+	}); 
+
 	it('should support arbitrary url in Request constructor', function() {
 		url = 'anything';
 		var req = new Request(url);
@@ -1380,10 +1398,11 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should support text() and json() method in Body constructor', function() {
+	it('should support text(), json() and buffer() method in Body constructor', function() {
 		var body = new Body('a=1');
 		expect(body).to.have.property('text');
 		expect(body).to.have.property('json');
+		expect(body).to.have.property('buffer');
 	}); 
 
 	it('should create custom FetchError', function() {
