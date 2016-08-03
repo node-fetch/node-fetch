@@ -493,6 +493,17 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should decompress deflate raw response from old apache server', function() {
+		url = base + '/deflate-raw';
+		return fetch(url).then(function(res) {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.text().then(function(result) {
+				expect(result).to.be.a('string');
+				expect(result).to.equal('hello world');
+			});
+		});
+	});
+
 	it('should skip decompression if unsupported', function() {
 		url = base + '/sdch';
 		return fetch(url).then(function(res) {
