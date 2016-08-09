@@ -697,7 +697,7 @@ describe('node-fetch', function() {
 		form.append('a','1');
 
 		var headers = form.getHeaders();
-		headers['b'] = '2';
+		headers['B'] = '2';
 
 		url = base + '/multipart';
 		opts = {
