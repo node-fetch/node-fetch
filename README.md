@@ -64,23 +64,25 @@ fetch('https://api.github.com/users/github')
 		console.log(json);
 	});
 
-// Binary
+// stream
+// the node.js way is to use stream when possible
 
-// The perfered way is to use the stream's
-// when working with larger binaries
-fetch('some.png')
+fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
 	.then(function(res) {
-		var dest = fs.createWriteStream('./img/some.png');
+		var dest = fs.createWriteStream('./octocat.png');
 		res.body.pipe(dest);
-	})
+	});
 
-// When working with smaller binaries like
-// with protobuf it can be good to use .buffer()
-fetch('http://example.com/api/proto')
+// buffer
+// if you prefer to cache binary data in full, use buffer()
+// note that buffer() is a node-fetch only API
+
+var fileType = require('file-type');
+fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
 	.then(function(res) {
 		return res.buffer();
 	}).then(function(buffer) {
-		console.log(buffer);
+		fileType(buffer);
 	});
 
 // meta
@@ -127,7 +129,7 @@ fetch('http://httpbin.org/post', { method: 'POST', body: form })
 	});
 
 // post with form-data (custom headers)
-// note that getHeaders() is non-standard api
+// note that getHeaders() is non-standard API
 
 var FormData = require('form-data');
 var form = new FormData();
@@ -170,9 +172,9 @@ default values are shown, note that only `method`, `headers`, `redirect` and `bo
 {
 	method: 'GET'
 	, headers: {}        // request header. format {a:'1'} or {b:['1','2','3']}
-	, redirect: 'follow' // set to 'manual' to extract redirect headers, `error` to reject redirect
+	, redirect: 'follow' // set to `manual` to extract redirect headers, `error` to reject redirect
 	, follow: 20         // maximum redirect count. 0 to not follow redirect
-	, timeout: 0         // req/res timeout in ms. 0 to disable (os limit still applies), timeout reset on redirect
+	, timeout: 0         // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
 	, compress: true     // support gzip/deflate content encoding. false to disable
 	, size: 0            // maximum response body size in bytes. 0 to disable
 	, body: empty        // request body. can be a string, buffer, readable stream
