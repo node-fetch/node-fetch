@@ -1015,6 +1015,15 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow cloning a response, when stream is Gunzip', function (done) {
+		url = base + '/encoding/chunked/gzip';
+		fetch(url).then(function(res) {
+			res.clone().text().then(function (text) {
+				done();
+			});
+		});
+	});
+
 	it('should allow cloning a json response and log it as text response', function() {
 		url = base + '/json';
 		return fetch(url).then(function(res) {
