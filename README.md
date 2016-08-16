@@ -64,7 +64,24 @@ fetch('https://api.github.com/users/github')
 		console.log(json);
 	});
 
-// since v1.6.0, there is also res.buffer() for convenience
+// Binary
+
+// The perfered way is to use the stream's
+// when working with larger binaries
+fetch('some.png')
+	.then(function(res) {
+		var dest = fs.createWriteStream('./img/some.png');
+		res.body.pipe(dest);
+	})
+
+// When working with smaller binaries like
+// with protobuf it can be good to use .buffer()
+fetch('http://example.com/api/proto')
+	.then(function(res) {
+		return res.buffer();
+	}).then(function(buffer) {
+		console.log(buffer);
+	});
 
 // meta
 
