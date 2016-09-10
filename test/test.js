@@ -1375,6 +1375,23 @@ describe('node-fetch', function() {
 		expect(req.url).to.equal('anything');
 	});
 
+	it('should initialize counter to 0 when follow specified, counter not specified', function() {
+		var req = new Request( base, {
+			follow: 20
+		});
+		expect(req.follow).to.equal(20);
+		expect(req.counter).to.equal(0);
+	});
+
+	it('should initialize counter to 0 when follow specified, counter specified as zero', function() {
+		var req = new Request( base, {
+			follow: 20,
+			counter: 0
+		});
+		expect(req.follow).to.equal(20);
+		expect(req.counter).to.equal(0);
+	});
+
 	it('should support clone() method in Request constructor', function() {
 		url = base;
 		var body = resumer().queue('a=1').end();
@@ -1399,7 +1416,7 @@ describe('node-fetch', function() {
 		expect(cl.follow).to.equal(3);
 		expect(cl.compress).to.equal(false);
 		expect(cl.method).to.equal('POST');
-		expect(cl.counter).to.equal(3);
+		expect(cl.counter).to.equal(0);
 		expect(cl.agent).to.equal(agent);
 		// clone body shouldn't be the same body
 		expect(cl.body).to.not.equal(body);
