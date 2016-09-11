@@ -5,20 +5,25 @@ Changelog
 
 # 1.x release
 
-## v1.6.0 (master)
+## v1.6.1 (master)
 
-- Enhance: added res.buffer() api for convenience, it returns body as a Node.js buffer
+- Fix: `counter` value is incorrectly set to `follow` value when wrapping Request instance
+- Fix: readme update
+
+## v1.6.0
+
+- Enhance: added `res.buffer()` api for convenience, it returns body as a Node.js buffer
 - Enhance: better old server support by handling raw deflate response
 - Enhance: skip encoding detection for non-HTML/XML response
 - Enhance: minor document update
 - Fix: HEAD request doesn't need decompression, as body is empty
-- Fix: req.body now accepts a Node.js buffer
+- Fix: `req.body` now accepts a Node.js buffer
 
 ## v1.5.3
 
 - Fix: handles 204 and 304 responses when body is empty but content-encoding is gzip/deflate
 - Fix: allow resolving response and cloned response in any order
-- Fix: avoid setting content-length when form-data body use streams
+- Fix: avoid setting `content-length` when `form-data` body use streams
 - Fix: send DELETE request with content-length when body is present
 - Fix: allow any url when calling new Request, but still reject non-http(s) url in fetch
 
@@ -67,7 +72,7 @@ Changelog
 
 ## v1.3.0
 
-- Enhance: now fetch.Request is exposed as well
+- Enhance: now `fetch.Request` is exposed as well
 
 ## v1.2.1
 
@@ -96,7 +101,7 @@ Changelog
 
 ## v1.0.5
 
-- Fix: when follow = 0, fetch should not follow redirect
+- Fix: when `follow = 0`, fetch should not follow redirect
 - Enhance: update tests for better coverage
 - Enhance: code formatting
 - Enhance: clean up doc
