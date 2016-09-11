@@ -7,6 +7,7 @@ Changelog
 
 ## v1.6.1 (master)
 
+- Fix: if `res.body` is a non-stream non-formdata object, we will call `body.toString` and send it as a string
 - Fix: `counter` value is incorrectly set to `follow` value when wrapping Request instance
 - Fix: documentation update
 
