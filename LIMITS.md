@@ -4,9 +4,9 @@ Known differences
 
 *As of 1.x release*
 
-- Topics such as cross-origin, content security policy, mixed content, service workers are ignored, given our server-side context.
+- Topics such as Cross-Origin, Content Security Policy, Mixed Content, Service Workers are ignored, given our server-side context.
 
-- Url input must be an absolute url, using either `http` or `https` as scheme.
+- URL input must be an absolute URL, using either `http` or `https` as scheme.
 
 - On the upside, there are no forbidden headers, and `res.url` contains the final url when following redirects.
 
@@ -20,4 +20,8 @@ Known differences
 
 - There is currently no built-in caching, as server-side caching varies by use-cases.
 
-- Current implementation lacks server-side cookie store, you will need to extract POST `set-cookie` headers manually.
+- Current implementation lacks server-side cookie store, you will need to extract `Set-Cookie` headers manually.
+
+- If you are using `res.clone()` and writing an isomorphic app, note that stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers).
+
+- ES6 features such as `headers.entries()` are missing at the moment, but you can use `headers.raw()` to retrieve the raw headers object.
