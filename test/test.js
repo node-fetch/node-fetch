@@ -1165,7 +1165,7 @@ describe('node-fetch', function() {
 		res.j = NaN;
 		res.k = true;
 		res.l = false;
-		res.m = Buffer.alloc(10);
+		res.m = new Buffer('test');
 
 		var h1 = new Headers(res);
 
