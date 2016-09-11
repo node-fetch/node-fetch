@@ -1355,6 +1355,11 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should default to 200 as status code', function() {
+		var res = new Response(null);
+		expect(res.status).to.equal(200);
+	});
+
 	it('should support parsing headers in Request constructor', function() {
 		url = base;
 		var req = new Request(url, {
