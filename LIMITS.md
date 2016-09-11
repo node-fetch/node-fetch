@@ -19,3 +19,5 @@ Known differences
 - Only support `res.text()`, `res.json()`, `res.buffer()` at the moment, until there are good use-cases for blob/arrayBuffer.
 
 - There is currently no built-in caching, as server-side caching varies by use-cases.
+
+- Current implementation lacks server-side cookie store, you will need to extract POST `set-cookie` headers manually.

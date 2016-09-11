@@ -8,7 +8,7 @@ Changelog
 ## v1.6.1 (master)
 
 - Fix: `counter` value is incorrectly set to `follow` value when wrapping Request instance
-- Fix: readme update
+- Fix: documentation update
 
 ## v1.6.0
 
