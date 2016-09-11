@@ -229,6 +229,7 @@ function Fetch(url, opts) {
 		});
 
 		// accept string, buffer or readable stream as body
+		// per spec we will call tostring on non-stream objects
 		if (typeof options.body === 'string') {
 			req.write(options.body);
 			req.end();
@@ -237,6 +238,9 @@ function Fetch(url, opts) {
 			req.end()
 		} else if (typeof options.body === 'object' && options.body.pipe) {
 			options.body.pipe(req);
+		} else if (typeof options.body === 'object') {
+			req.write(options.body.toString());
+			req.end();
 		} else {
 			req.end();
 		}

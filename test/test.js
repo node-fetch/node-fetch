@@ -727,6 +727,21 @@ describe('node-fetch', function() {
 		});
 	});
 
+	it('should allow POST request with object body', function() {
+		url = base + '/inspect';
+		// note that fetch simply calls tostring on an object
+		opts = {
+			method: 'POST'
+			, body: { a:1 }
+		};
+		return fetch(url, opts).then(function(res) {
+			return res.json();
+		}).then(function(res) {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('[object Object]');
+		});
+	});
+
 	it('should allow PUT request', function() {
 		url = base + '/inspect';
 		opts = {
