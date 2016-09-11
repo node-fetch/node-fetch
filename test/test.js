@@ -1150,6 +1150,7 @@ describe('node-fetch', function() {
 		res.j = NaN;
 		res.k = true;
 		res.l = false;
+		res.m = Buffer.alloc(10);
 
 		var h1 = new Headers(res);
 
@@ -1169,6 +1170,7 @@ describe('node-fetch', function() {
 		expect(h1._headers['j']).to.be.undefined;
 		expect(h1._headers['k']).to.be.undefined;
 		expect(h1._headers['l']).to.be.undefined;
+		expect(h1._headers['m']).to.be.undefined;
 
 		expect(h1._headers['z']).to.be.undefined;
 	});
