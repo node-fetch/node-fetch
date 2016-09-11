@@ -279,7 +279,7 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should obey maximum redirect', function() {
+	it('should obey maximum redirect, reject case', function() {
 		url = base + '/redirect/chain';
 		opts = {
 			follow: 1
@@ -287,6 +287,17 @@ describe('node-fetch', function() {
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'max-redirect');
+	});
+
+	it('should obey redirect chain, resolve case', function() {
+		url = base + '/redirect/chain';
+		opts = {
+			follow: 2
+		}
+		return fetch(url, opts).then(function(res) {
+			expect(res.url).to.equal(base + '/inspect');
+			expect(res.status).to.equal(200);
+		});
 	});
 
 	it('should allow not following redirect', function() {
@@ -1216,6 +1227,8 @@ describe('node-fetch', function() {
 		expect(r2.body).to.equal(form);
 		expect(r1.follow).to.equal(1);
 		expect(r2.follow).to.equal(2);
+		expect(r1.counter).to.equal(0);
+		expect(r2.counter).to.equal(0);
 	});
 
 	it('should support overwrite Request instance', function() {
@@ -1399,7 +1412,7 @@ describe('node-fetch', function() {
 		expect(cl.follow).to.equal(3);
 		expect(cl.compress).to.equal(false);
 		expect(cl.method).to.equal('POST');
-		expect(cl.counter).to.equal(3);
+		expect(cl.counter).to.equal(0);
 		expect(cl.agent).to.equal(agent);
 		// clone body shouldn't be the same body
 		expect(cl.body).to.not.equal(body);
