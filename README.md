@@ -64,6 +64,15 @@ fetch('https://api.github.com/users/github')
 		console.log(json);
 	});
 
+// catching network error
+// 3xx-5xx responses are NOT network errors, and should be handled in then()
+// you only need one catch() at the end of your promise chain
+
+fetch('http://domain.invalid/')
+	.catch(function(err) {
+		console.log(err);
+	});
+
 // stream
 // the node.js way is to use stream when possible
 
