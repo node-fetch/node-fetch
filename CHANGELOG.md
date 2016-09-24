@@ -7,6 +7,7 @@ Changelog
 
 ## v1.6.2
 
+- Enhance: minor document update
 - Fix: response.json() returns empty object on 204 no-content response instead of throwing a syntax error
 
 ## v1.6.1
