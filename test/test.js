@@ -1,3 +1,4 @@
+
 // test tools
 var chai = require('chai');
 var cap = require('chai-as-promised');
@@ -1391,7 +1392,6 @@ describe('node-fetch', function() {
 		});
 	});
 
-
 	it('should support json() method in Request constructor', function() {
 		url = base;
 		var req = new Request(url, {
@@ -1402,7 +1402,6 @@ describe('node-fetch', function() {
 			expect(result.a).to.equal(1);
 		});
 	});
-
 
 	it('should support buffer() method in Request constructor', function() {
 		url = base;
@@ -1462,7 +1461,6 @@ describe('node-fetch', function() {
 		expect(body).to.have.property('buffer');
 	});
 
-
 	it('should create custom FetchError', function() {
 		var systemError = new Error('system');
 		systemError.code = 'ESOMEERROR';
@@ -1476,7 +1474,6 @@ describe('node-fetch', function() {
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
 	});
-
 
 	it('should support https request', function() {
 		this.timeout(5000);
