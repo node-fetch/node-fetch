@@ -1415,7 +1415,6 @@ describe('node-fetch', function() {
 		});
 	});
 
-
 	it('should support arbitrary url in Request constructor', function() {
 		url = 'anything';
 		var req = new Request(url);
