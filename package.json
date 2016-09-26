@@ -28,7 +28,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "coveralls": "^2.11.2",
-    "form-data": "^1.0.0-rc1",
+    "form-data": "^1.0.0",
     "istanbul": "^0.4.2",
     "mocha": "^2.1.0",
     "parted": "^0.1.1",
