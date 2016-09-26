@@ -5,6 +5,10 @@ Changelog
 
 # 1.x release
 
+## v1.6.3
+
+- Fix: support `form-data` 2.x releases (requires `form-data` >= 2.1.0)
+
 ## v1.6.2
 
 - Enhance: minor document update
