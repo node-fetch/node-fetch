@@ -7,6 +7,7 @@ Changelog
 
 ## v1.6.3
 
+- Enhance: error handling document to explain `FetchError` design
 - Fix: support `form-data` 2.x releases (requires `form-data` >= 2.1.0)
 
 ## v1.6.2
