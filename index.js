@@ -94,8 +94,14 @@ function Fetch(url, opts) {
 			if (typeof options.body === 'string') {
 				headers.set('content-length', Buffer.byteLength(options.body));
 			// detect form data input from form-data module, this hack avoid the need to add content-length header manually
-			} else if (options.body && typeof options.body.getLengthSync === 'function' && options.body._lengthRetrievers.length == 0) {
-				headers.set('content-length', options.body.getLengthSync().toString());
+			} else if (options.body && typeof options.body.getLengthSync === 'function') {
+				// for form-data 1.x
+				if (options.body._lengthRetrievers && options.body._lengthRetrievers.length == 0) {
+					headers.set('content-length', options.body.getLengthSync().toString());
+				// for form-data 2.x
+				} else if (options.body.hasKnownLength && options.body.hasKnownLength()) {
+					headers.set('content-length', options.body.getLengthSync().toString());
+				}
 			// this is only necessary for older nodejs releases (before iojs merge)
 			} else if (options.body === undefined || options.body === null) {
 				headers.set('content-length', '0');

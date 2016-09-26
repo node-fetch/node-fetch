@@ -23,7 +23,7 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native stream for body, on both request and response.
 - Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
-- Useful extensions such as timeout, redirect limit, response size limit, explicit errors for troubleshooting.
+- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors](https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md) for troubleshooting.
 
 
 # Difference from client-side fetch
