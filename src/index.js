@@ -12,11 +12,11 @@ var https = require('https');
 var zlib = require('zlib');
 var stream = require('stream');
 
-var Body = require('./lib/body');
-var Response = require('./lib/response');
-var Headers = require('./lib/headers');
-var Request = require('./lib/request');
-var FetchError = require('./lib/fetch-error');
+var Body = require('./body');
+var Response = require('./response');
+var Headers = require('./headers');
+var Request = require('./request');
+var FetchError = require('./fetch-error');
 
 // commonjs
 module.exports = Fetch;

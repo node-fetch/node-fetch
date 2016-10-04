@@ -16,12 +16,12 @@ var fs = require('fs');
 var TestServer = require('./server');
 
 // test subjects
-var fetch = require('../index.js');
-var Headers = require('../lib/headers.js');
-var Response = require('../lib/response.js');
-var Request = require('../lib/request.js');
-var Body = require('../lib/body.js');
-var FetchError = require('../lib/fetch-error.js');
+var fetch = require('../src/index.js');
+var Headers = require('../src/headers.js');
+var Response = require('../src/response.js');
+var Request = require('../src/request.js');
+var Body = require('../src/body.js');
+var FetchError = require('../src/fetch-error.js');
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
@@ -1122,7 +1122,7 @@ describe('node-fetch', function() {
 			result.push([key, val]);
 		});
 
-		expected = [
+		var expected = [
 			["a", "1"]
 			, ["b", "2"]
 			, ["b", "3"]
