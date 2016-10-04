@@ -129,14 +129,14 @@ fetch('http://httpbin.org/post', { method: 'POST', body: stream })
 
 var body = { a: 1 };
 fetch('http://httpbin.org/post', { 
-        method: 'POST',
-        body:    JSON.stringify(body),
-        headers: { 'Content-Type': 'application/json' },
-    }).then(function(res) {
-        return res.json();
-    }).then(function(json) {
-        console.log(json);
-    });
+		method: 'POST',
+		body:    JSON.stringify(body),
+		headers: { 'Content-Type': 'application/json' },
+	}).then(function(res) {
+		return res.json();
+	}).then(function(json) {
+		console.log(json);
+	});
 
 // post with form-data (detect multipart)
 
