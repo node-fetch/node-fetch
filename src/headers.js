@@ -135,4 +135,74 @@ export default class Headers {
 	raw() {
 		return this[MAP];
 	}
+
+	/**
+	 * Get an iterator on keys.
+	 *
+	 * @return  Iterator
+	 */
+	keys() {
+		const keys = [];
+		this.forEach((_, name) => keys.push(name));
+		return new Iterator(keys);
+	}
+
+	/**
+	 * Get an iterator on values.
+	 *
+	 * @return  Iterator
+	 */
+	values() {
+		const values = [];
+		this.forEach(value => values.push(value));
+		return new Iterator(values);
+	}
+
+	/**
+	 * Get an iterator on entries.
+	 *
+	 * @return  Iterator
+	 */
+	entries() {
+		const entries = [];
+		this.forEach((value, name) => entries.push([name, value]));
+		return new Iterator(entries);
+	}
+
+	/**
+	 * Get an iterator on entries.
+	 *
+	 * This is the default iterator of the Headers object.
+	 *
+	 * @return  Iterator
+	 */
+	[Symbol.iterator]() {
+		return this.entries();
+	}
+}
+
+const ITEMS = Symbol('items');
+class Iterator {
+	constructor(items) {
+		this[ITEMS] = items;
+	}
+
+	next() {
+		if (!this[ITEMS].length) {
+			return {
+				value: undefined,
+				done: true
+			};
+		}
+
+		return {
+			value: this[ITEMS].shift(),
+			done: false
+		};
+
+	}
+
+	[Symbol.iterator]() {
+		return this;
+	}
 }

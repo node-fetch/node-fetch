@@ -1131,6 +1131,65 @@ describe('node-fetch', function() {
 		expect(result).to.deep.equal(expected);
 	});
 
+	it('should allow iterating through all headers', function() {
+		var headers = new Headers({
+			a: 1
+			, b: [2, 3]
+			, c: [4]
+		});
+		expect(headers).to.have.property(Symbol.iterator);
+		expect(headers).to.have.property('keys');
+		expect(headers).to.have.property('values');
+		expect(headers).to.have.property('entries');
+
+		var result, expected;
+
+		result = [];
+		for (let [key, val] of headers) {
+			result.push([key, val]);
+		}
+
+		expected = [
+			["a", "1"]
+			, ["b", "2"]
+			, ["b", "3"]
+			, ["c", "4"]
+		];
+		expect(result).to.deep.equal(expected);
+
+		result = [];
+		for (let [key, val] of headers.entries()) {
+			result.push([key, val]);
+		}
+		expect(result).to.deep.equal(expected);
+
+		result = [];
+		for (let key of headers.keys()) {
+			result.push(key);
+		}
+
+		expected = [
+			"a"
+			, "b"
+			, "b"
+			, "c"
+		];
+		expect(result).to.deep.equal(expected);
+
+		result = [];
+		for (let key of headers.values()) {
+			result.push(key);
+		}
+
+		expected = [
+			"1"
+			, "2"
+			, "3"
+			, "4"
+		];
+		expect(result).to.deep.equal(expected);
+	});
+
 	it('should allow deleting header', function() {
 		url = base + '/cookie';
 		return fetch(url).then(function(res) {
