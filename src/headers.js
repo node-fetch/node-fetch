@@ -5,6 +5,8 @@
  * Headers class offers convenient helpers
  */
 
+export const MAP = Symbol('map');
+
 export default class Headers {
 	/**
 	 * Headers class
@@ -13,7 +15,7 @@ export default class Headers {
 	 * @return  Void
 	 */
 	constructor(headers) {
-		this._headers = {};
+		this[MAP] = {};
 
 		// Headers
 		if (headers instanceof Headers) {
@@ -45,7 +47,7 @@ export default class Headers {
 	 * @return  Mixed
 	 */
 	get(name) {
-		const list = this._headers[name.toLowerCase()];
+		const list = this[MAP][name.toLowerCase()];
 		return list ? list[0] : null;
 	}
 
@@ -60,7 +62,7 @@ export default class Headers {
 			return [];
 		}
 
-		return this._headers[name.toLowerCase()];
+		return this[MAP][name.toLowerCase()];
 	}
 
 	/**
@@ -71,8 +73,8 @@ export default class Headers {
 	 * @return  Void
 	 */
 	forEach(callback, thisArg) {
-		Object.getOwnPropertyNames(this._headers).forEach(name => {
-			this._headers[name].forEach(value => {
+		Object.getOwnPropertyNames(this[MAP]).forEach(name => {
+			this[MAP][name].forEach(value => {
 				callback.call(thisArg, value, name, this);
 			});
 		});
@@ -86,7 +88,7 @@ export default class Headers {
 	 * @return  Void
 	 */
 	set(name, value) {
-		this._headers[name.toLowerCase()] = [value];
+		this[MAP][name.toLowerCase()] = [value];
 	}
 
 	/**
@@ -102,7 +104,7 @@ export default class Headers {
 			return;
 		}
 
-		this._headers[name.toLowerCase()].push(value);
+		this[MAP][name.toLowerCase()].push(value);
 	}
 
 	/**
@@ -112,7 +114,7 @@ export default class Headers {
 	 * @return  Boolean
 	 */
 	has(name) {
-		return this._headers.hasOwnProperty(name.toLowerCase());
+		return this[MAP].hasOwnProperty(name.toLowerCase());
 	}
 
 	/**
@@ -122,7 +124,7 @@ export default class Headers {
 	 * @return  Void
 	 */
 	delete(name) {
-		delete this._headers[name.toLowerCase()];
+		delete this[MAP][name.toLowerCase()];
 	};
 
 	/**
@@ -131,6 +133,6 @@ export default class Headers {
 	 * @return  Object
 	 */
 	raw() {
-		return this._headers;
+		return this[MAP];
 	}
 }
