@@ -5,50 +5,38 @@
  * a request API compatible with window.fetch
  */
 
-var parse_url = require('url').parse;
-var resolve_url = require('url').resolve;
-var http = require('http');
-var https = require('https');
-var zlib = require('zlib');
-var stream = require('stream');
+import {resolve as resolve_url} from 'url';
+import * as http from 'http';
+import * as https from 'https';
+import * as zlib from 'zlib';
+import {PassThrough} from 'stream';
 
-var Body = require('./body');
-var Response = require('./response');
+import Body from './body';
+import Response from './response';
 import Headers from './headers';
-var Request = require('./request');
-var FetchError = require('./fetch-error');
-
-// commonjs
-module.exports = Fetch;
-// es6 default export compatibility
-module.exports.default = module.exports;
+import Request from './request';
+import FetchError from './fetch-error';
 
 /**
- * Fetch class
+ * Fetch function
  *
  * @param   Mixed    url   Absolute url or Request instance
  * @param   Object   opts  Fetch options
  * @return  Promise
  */
-function Fetch(url, opts) {
-
-	// allow call as function
-	if (!(this instanceof Fetch))
-		return new Fetch(url, opts);
+function fetch(url, opts) {
 
 	// allow custom promise
-	if (!Fetch.Promise) {
-		throw new Error('native promise missing, set Fetch.Promise to your favorite alternative');
+	if (!fetch.Promise) {
+		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
 	}
 
-	Body.Promise = Fetch.Promise;
-
-	var self = this;
+	Body.Promise = fetch.Promise;
 
 	// wrap http.request into fetch
-	return new Fetch.Promise(function(resolve, reject) {
+	return new fetch.Promise((resolve, reject) => {
 		// build request object
-		var options = new Request(url, opts);
+		const options = new Request(url, opts);
 
 		if (!options.protocol || !options.hostname) {
 			throw new Error('only absolute urls are supported');
@@ -58,15 +46,10 @@ function Fetch(url, opts) {
 			throw new Error('only http(s) protocols are supported');
 		}
 
-		var send;
-		if (options.protocol === 'https:') {
-			send = https.request;
-		} else {
-			send = http.request;
-		}
+		const send = (options.protocol === 'https:' ? https : http).request;
 
 		// normalize headers
-		var headers = new Headers(options.headers);
+		const headers = new Headers(options.headers);
 
 		if (options.compress) {
 			headers.set('accept-encoding', 'gzip,deflate');
@@ -86,7 +69,7 @@ function Fetch(url, opts) {
 
 		// detect form data input from form-data module, this hack avoid the need to pass multipart header manually
 		if (!headers.has('content-type') && options.body && typeof options.body.getBoundary === 'function') {
-			headers.set('content-type', 'multipart/form-data; boundary=' + options.body.getBoundary());
+			headers.set('content-type', `multipart/form-data; boundary=${options.body.getBoundary()}`);
 		}
 
 		// bring node-fetch closer to browser behavior by setting content-length automatically
@@ -116,40 +99,40 @@ function Fetch(url, opts) {
 		}
 
 		// send request
-		var req = send(options);
-		var reqTimeout;
+		const req = send(options);
+		let reqTimeout;
 
 		if (options.timeout) {
-			req.once('socket', function(socket) {
-				reqTimeout = setTimeout(function() {
+			req.once('socket', socket => {
+				reqTimeout = setTimeout(() => {
 					req.abort();
-					reject(new FetchError('network timeout at: ' + options.url, 'request-timeout'));
+					reject(new FetchError(`network timeout at: ${options.url}`, 'request-timeout'));
 				}, options.timeout);
 			});
 		}
 
-		req.on('error', function(err) {
+		req.on('error', err => {
 			clearTimeout(reqTimeout);
-			reject(new FetchError('request to ' + options.url + ' failed, reason: ' + err.message, 'system', err));
+			reject(new FetchError(`request to ${options.url} failed, reason: ${err.message}`, 'system', err));
 		});
 
-		req.on('response', function(res) {
+		req.on('response', res => {
 			clearTimeout(reqTimeout);
 
 			// handle redirect
-			if (self.isRedirect(res.statusCode) && options.redirect !== 'manual') {
+			if (fetch.isRedirect(res.statusCode) && options.redirect !== 'manual') {
 				if (options.redirect === 'error') {
-					reject(new FetchError('redirect mode is set to error: ' + options.url, 'no-redirect'));
+					reject(new FetchError(`redirect mode is set to error: ${options.url}`, 'no-redirect'));
 					return;
 				}
 
 				if (options.counter >= options.follow) {
-					reject(new FetchError('maximum redirect reached at: ' + options.url, 'max-redirect'));
+					reject(new FetchError(`maximum redirect reached at: ${options.url}`, 'max-redirect'));
 					return;
 				}
 
 				if (!res.headers.location) {
-					reject(new FetchError('redirect location header missing at: ' + options.url, 'invalid-redirect'));
+					reject(new FetchError(`redirect location header missing at: ${options.url}`, 'invalid-redirect'));
 					return;
 				}
 
@@ -164,19 +147,19 @@ function Fetch(url, opts) {
 
 				options.counter++;
 
-				resolve(Fetch(resolve_url(options.url, res.headers.location), options));
+				resolve(fetch(resolve_url(options.url, res.headers.location), options));
 				return;
 			}
 
 			// normalize location header for manual redirect mode
-			var headers = new Headers(res.headers);
+			const headers = new Headers(res.headers);
 			if (options.redirect === 'manual' && headers.has('location')) {
 				headers.set('location', resolve_url(options.url, headers.get('location')));
 			}
 
 			// prepare response
-			var body = res.pipe(new stream.PassThrough());
-			var response_options = {
+			let body = res.pipe(new PassThrough());
+			const response_options = {
 				url: options.url
 				, status: res.statusCode
 				, statusText: res.statusMessage
@@ -186,7 +169,7 @@ function Fetch(url, opts) {
 			};
 
 			// response object
-			var output;
+			let output;
 
 			// in following scenarios we ignore compression support
 			// 1. compression support is disabled
@@ -201,7 +184,7 @@ function Fetch(url, opts) {
 			}
 
 			// otherwise, check for gzip or deflate
-			var name = headers.get('content-encoding');
+			let name = headers.get('content-encoding');
 
 			// for gzip
 			if (name == 'gzip' || name == 'x-gzip') {
@@ -214,8 +197,8 @@ function Fetch(url, opts) {
 			} else if (name == 'deflate' || name == 'x-deflate') {
 				// handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				var raw = res.pipe(new stream.PassThrough());
-				raw.once('data', function(chunk) {
+				const raw = res.pipe(new PassThrough());
+				raw.once('data', chunk => {
 					// see http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
 						body = body.pipe(zlib.createInflate());
@@ -254,18 +237,18 @@ function Fetch(url, opts) {
 
 };
 
+module.exports = fetch;
+
 /**
  * Redirect code matching
  *
  * @param   Number   code  Status code
  * @return  Boolean
  */
-Fetch.prototype.isRedirect = function(code) {
-	return code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
-}
+fetch.isRedirect = code => code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
 
 // expose Promise
-Fetch.Promise = global.Promise;
-Fetch.Response = Response;
-Fetch.Headers = Headers;
-Fetch.Request = Request;
+fetch.Promise = global.Promise;
+fetch.Response = Response;
+fetch.Headers = Headers;
+fetch.Request = Request;
