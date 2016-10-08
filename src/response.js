@@ -6,7 +6,7 @@
  */
 
 var http = require('http');
-var Headers = require('./headers');
+import Headers from './headers';
 var Body = require('./body');
 
 module.exports = Response;

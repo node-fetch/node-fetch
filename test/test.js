@@ -17,7 +17,7 @@ var TestServer = require('./server');
 
 // test subjects
 var fetch = require('../src/index.js');
-var Headers = require('../src/headers.js');
+import Headers from '../src/headers.js';
 var Response = require('../src/response.js');
 var Request = require('../src/request.js');
 var Body = require('../src/body.js');

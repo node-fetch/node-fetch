@@ -14,7 +14,7 @@ var stream = require('stream');
 
 var Body = require('./body');
 var Response = require('./response');
-var Headers = require('./headers');
+import Headers from './headers';
 var Request = require('./request');
 var FetchError = require('./fetch-error');
 

@@ -6,7 +6,7 @@
  */
 
 var parse_url = require('url').parse;
-var Headers = require('./headers');
+import Headers from './headers';
 var Body = require('./body');
 
 module.exports = Request;
