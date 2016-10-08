@@ -189,7 +189,7 @@ Should be an absolute url, eg `http://example.com/`
 
 ### Options
 
-default values are shown, note that only `method`, `headers`, `redirect` and `body` are allowed in `window.fetch`, others are node.js extensions.
+Note that only `method`, `headers`, `redirect` and `body` are allowed in `window.fetch`. Other options are node.js extensions. The default values are shown after each option key.
 
 ```
 {
