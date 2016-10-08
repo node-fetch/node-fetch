@@ -179,6 +179,13 @@ export default class Headers {
 	[Symbol.iterator]() {
 		return this.entries();
 	}
+
+	/**
+	 * Tag used by `Object.prototype.toString()`.
+	 */
+	get [Symbol.toStringTag]() {
+		return 'Headers';
+	}
 }
 
 const ITEMS = Symbol('items');
