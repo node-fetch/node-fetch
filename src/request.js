@@ -5,7 +5,7 @@
  * Request class contains server only options
  */
 
-import { parse as parse_url } from 'url';
+import { format as format_url, parse as parse_url } from 'url';
 import Headers from './headers.js';
 import Body, { clone } from './body';
 
@@ -18,16 +18,14 @@ import Body, { clone } from './body';
  */
 export default class Request extends Body {
 	constructor(input, init = {}) {
-		let url, url_parsed;
+		let parsedURL;
 
 		// normalize input
 		if (!(input instanceof Request)) {
-			url = input;
-			url_parsed = parse_url(url);
+			parsedURL = parse_url(input);
 			input = {};
 		} else {
-			url = input.url;
-			url_parsed = parse_url(url);
+			parsedURL = parse_url(input.url);
 		}
 
 		super(init.body || clone(input), {
@@ -39,7 +37,6 @@ export default class Request extends Body {
 		this.method = init.method || input.method || 'GET';
 		this.redirect = init.redirect || input.redirect || 'follow';
 		this.headers = new Headers(init.headers || input.headers || {});
-		this.url = url;
 
 		// server only options
 		this.follow = init.follow !== undefined ?
@@ -52,11 +49,11 @@ export default class Request extends Body {
 		this.agent = init.agent || input.agent;
 
 		// server request options
-		this.protocol = url_parsed.protocol;
-		this.hostname = url_parsed.hostname;
-		this.port = url_parsed.port;
-		this.path = url_parsed.path;
-		this.auth = url_parsed.auth;
+		Object.assign(this, parsedURL);
+	}
+
+	get url() {
+		return format_url(this);
 	}
 
 	/**

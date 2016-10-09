@@ -32,7 +32,7 @@ describe('node-fetch', () => {
 
 	before(done => {
 		local = new TestServer();
-		base = 'http://' + local.hostname + ':' + local.port;
+		base = `http://${local.hostname}:${local.port}/`;
 		local.start(done);
 	});
 
@@ -95,7 +95,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should resolve into response', function() {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 		return fetch(url).then(res => {
 			expect(res).to.be.an.instanceof(Response);
 			expect(res.headers).to.be.an.instanceof(Headers);
@@ -110,7 +110,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should accept plain text response', function() {
-		url = `${base}/plain`;
+		url = `${base}plain`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return res.text().then(result => {
@@ -122,7 +122,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should accept html response (like plain text)', function() {
-		url = `${base}/html`;
+		url = `${base}html`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/html');
 			return res.text().then(result => {
@@ -134,7 +134,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should accept json response', function() {
-		url = `${base}/json`;
+		url = `${base}json`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('application/json');
 			return res.json().then(result => {
@@ -146,7 +146,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should send request with custom headers', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			headers: { 'x-custom-header': 'abc' }
 		};
@@ -158,7 +158,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should accept headers instance', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			headers: new Headers({ 'x-custom-header': 'abc' })
 		};
@@ -170,7 +170,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should accept custom host header', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			headers: {
 				host: 'example.com'
@@ -184,62 +184,62 @@ describe('node-fetch', () => {
 	});
 
 	it('should follow redirect code 301', function() {
-		url = `${base}/redirect/301`;
+		url = `${base}redirect/301`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 		});
 	});
 
 	it('should follow redirect code 302', function() {
-		url = `${base}/redirect/302`;
+		url = `${base}redirect/302`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 		});
 	});
 
 	it('should follow redirect code 303', function() {
-		url = `${base}/redirect/303`;
+		url = `${base}redirect/303`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 		});
 	});
 
 	it('should follow redirect code 307', function() {
-		url = `${base}/redirect/307`;
+		url = `${base}redirect/307`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 		});
 	});
 
 	it('should follow redirect code 308', function() {
-		url = `${base}/redirect/308`;
+		url = `${base}redirect/308`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 		});
 	});
 
 	it('should follow redirect chain', function() {
-		url = `${base}/redirect/chain`;
+		url = `${base}redirect/chain`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 		});
 	});
 
 	it('should follow POST request redirect code 301 with GET', function() {
-		url = `${base}/redirect/301`;
+		url = `${base}redirect/301`;
 		opts = {
 			method: 'POST'
 			, body: 'a=1'
 		};
 		return fetch(url, opts).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(result => {
 				expect(result.method).to.equal('GET');
@@ -249,13 +249,13 @@ describe('node-fetch', () => {
 	});
 
 	it('should follow POST request redirect code 302 with GET', function() {
-		url = `${base}/redirect/302`;
+		url = `${base}redirect/302`;
 		opts = {
 			method: 'POST'
 			, body: 'a=1'
 		};
 		return fetch(url, opts).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(result => {
 				expect(result.method).to.equal('GET');
@@ -265,13 +265,13 @@ describe('node-fetch', () => {
 	});
 
 	it('should follow redirect code 303 with GET', function() {
-		url = `${base}/redirect/303`;
+		url = `${base}redirect/303`;
 		opts = {
 			method: 'PUT'
 			, body: 'a=1'
 		};
 		return fetch(url, opts).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(result => {
 				expect(result.method).to.equal('GET');
@@ -281,7 +281,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should obey maximum redirect, reject case', function() {
-		url = `${base}/redirect/chain`;
+		url = `${base}redirect/chain`;
 		opts = {
 			follow: 1
 		}
@@ -291,18 +291,18 @@ describe('node-fetch', () => {
 	});
 
 	it('should obey redirect chain, resolve case', function() {
-		url = `${base}/redirect/chain`;
+		url = `${base}redirect/chain`;
 		opts = {
 			follow: 2
 		}
 		return fetch(url, opts).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 		});
 	});
 
 	it('should allow not following redirect', function() {
-		url = `${base}/redirect/301`;
+		url = `${base}redirect/301`;
 		opts = {
 			follow: 0
 		}
@@ -312,19 +312,19 @@ describe('node-fetch', () => {
 	});
 
 	it('should support redirect mode, manual flag', function() {
-		url = `${base}/redirect/301`;
+		url = `${base}redirect/301`;
 		opts = {
 			redirect: 'manual'
 		};
 		return fetch(url, opts).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.status).to.equal(301);
-			expect(res.headers.get('location')).to.equal(`${base}/inspect`);
+			expect(res.headers.get('location')).to.equal(`${base}inspect`);
 		});
 	});
 
 	it('should support redirect mode, error flag', function() {
-		url = `${base}/redirect/301`;
+		url = `${base}redirect/301`;
 		opts = {
 			redirect: 'error'
 		};
@@ -334,7 +334,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support redirect mode, manual flag when there is no redirect', function() {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 		opts = {
 			redirect: 'manual'
 		};
@@ -346,12 +346,12 @@ describe('node-fetch', () => {
 	});
 
 	it('should follow redirect code 301 and keep existing headers', function() {
-		url = `${base}/redirect/301`;
+		url = `${base}redirect/301`;
 		opts = {
 			headers: new Headers({ 'x-custom-header': 'abc' })
 		};
 		return fetch(url, opts).then(res => {
-			expect(res.url).to.equal(`${base}/inspect`);
+			expect(res.url).to.equal(`${base}inspect`);
 			return res.json();
 		}).then(res => {
 			expect(res.headers['x-custom-header']).to.equal('abc');
@@ -359,14 +359,14 @@ describe('node-fetch', () => {
 	});
 
 	it('should reject broken redirect', function() {
-		url = `${base}/error/redirect`;
+		url = `${base}error/redirect`;
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'invalid-redirect');
 	});
 
 	it('should not reject broken redirect under manual redirect', function() {
-		url = `${base}/error/redirect`;
+		url = `${base}error/redirect`;
 		opts = {
 			redirect: 'manual'
 		};
@@ -378,7 +378,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle client-error response', function() {
-		url = `${base}/error/400`;
+		url = `${base}error/400`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.status).to.equal(400);
@@ -393,7 +393,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle server-error response', function() {
-		url = `${base}/error/500`;
+		url = `${base}error/500`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			expect(res.status).to.equal(500);
@@ -408,7 +408,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle network-error response', function() {
-		url = `${base}/error/reset`;
+		url = `${base}error/reset`;
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('code', 'ECONNRESET');
@@ -422,7 +422,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should reject invalid json response', function() {
-		url = `${base}/error/json`;
+		url = `${base}error/json`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('application/json');
 			return expect(res.json()).to.eventually.be.rejectedWith(Error);
@@ -430,7 +430,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle no content response', function() {
-		url = `${base}/no-content`;
+		url = `${base}no-content`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(204);
 			expect(res.statusText).to.equal('No Content');
@@ -443,7 +443,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should return empty object on no-content response', function() {
-		url = `${base}/no-content`;
+		url = `${base}no-content`;
 		return fetch(url).then(res => {
 			return res.json().then(result => {
 				expect(result).to.be.an('object');
@@ -453,7 +453,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle no content response with gzip encoding', function() {
-		url = `${base}/no-content/gzip`;
+		url = `${base}no-content/gzip`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(204);
 			expect(res.statusText).to.equal('No Content');
@@ -467,7 +467,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle not modified response', function() {
-		url = `${base}/not-modified`;
+		url = `${base}not-modified`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(304);
 			expect(res.statusText).to.equal('Not Modified');
@@ -480,7 +480,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle not modified response with gzip encoding', function() {
-		url = `${base}/not-modified/gzip`;
+		url = `${base}not-modified/gzip`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(304);
 			expect(res.statusText).to.equal('Not Modified');
@@ -494,7 +494,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should decompress gzip response', function() {
-		url = `${base}/gzip`;
+		url = `${base}gzip`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return res.text().then(result => {
@@ -505,7 +505,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should decompress deflate response', function() {
-		url = `${base}/deflate`;
+		url = `${base}deflate`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return res.text().then(result => {
@@ -516,7 +516,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should decompress deflate raw response from old apache server', function() {
-		url = `${base}/deflate-raw`;
+		url = `${base}deflate-raw`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return res.text().then(result => {
@@ -527,7 +527,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should skip decompression if unsupported', function() {
-		url = `${base}/sdch`;
+		url = `${base}sdch`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return res.text().then(result => {
@@ -538,7 +538,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should reject if response compression is invalid', function() {
-		url = `${base}/invalid-content-encoding`;
+		url = `${base}invalid-content-encoding`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
@@ -548,7 +548,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow disabling auto decompression', function() {
-		url = `${base}/gzip`;
+		url = `${base}gzip`;
 		opts = {
 			compress: false
 		};
@@ -563,7 +563,7 @@ describe('node-fetch', () => {
 
 	it('should allow custom timeout', function() {
 		this.timeout(500);
-		url = `${base}/timeout`;
+		url = `${base}timeout`;
 		opts = {
 			timeout: 100
 		};
@@ -574,7 +574,7 @@ describe('node-fetch', () => {
 
 	it('should allow custom timeout on response body', function() {
 		this.timeout(500);
-		url = `${base}/slow`;
+		url = `${base}slow`;
 		opts = {
 			timeout: 100
 		};
@@ -588,7 +588,7 @@ describe('node-fetch', () => {
 
 	it('should clear internal timeout on fetch response', function (done) {
 		this.timeout(1000);
-		spawn('node', ['-e', `require('./')('${base}/hello', { timeout: 5000 })`])
+		spawn('node', ['-e', `require('./')('${base}hello', { timeout: 5000 })`])
 			.on('exit', () => {
 				done();
 			});
@@ -596,7 +596,7 @@ describe('node-fetch', () => {
 
 	it('should clear internal timeout on fetch redirect', function (done) {
 		this.timeout(1000);
-		spawn('node', ['-e', `require('./')('${base}/redirect/301', { timeout: 5000 })`])
+		spawn('node', ['-e', `require('./')('${base}redirect/301', { timeout: 5000 })`])
 			.on('exit', () => {
 				done();
 			});
@@ -604,14 +604,14 @@ describe('node-fetch', () => {
 
 	it('should clear internal timeout on fetch error', function (done) {
 		this.timeout(1000);
-		spawn('node', ['-e', `require('./')('${base}/error/reset', { timeout: 5000 })`])
+		spawn('node', ['-e', `require('./')('${base}error/reset', { timeout: 5000 })`])
 			.on('exit', () => {
 				done();
 			});
 	});
 
 	it('should allow POST request', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'POST'
 		};
@@ -625,7 +625,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with string body', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'POST'
 			, body: 'a=1'
@@ -641,7 +641,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with buffer body', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'POST'
 			, body: new Buffer('a=1', 'utf-8')
@@ -660,7 +660,7 @@ describe('node-fetch', () => {
 		let body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
 
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'POST'
 			, body
@@ -679,7 +679,7 @@ describe('node-fetch', () => {
 		const form = new FormData();
 		form.append('a','1');
 
-		url = `${base}/multipart`;
+		url = `${base}multipart`;
 		opts = {
 			method: 'POST'
 			, body: form
@@ -698,7 +698,7 @@ describe('node-fetch', () => {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream('test/dummy.txt'));
 
-		url = `${base}/multipart`;
+		url = `${base}multipart`;
 		opts = {
 			method: 'POST'
 			, body: form
@@ -721,7 +721,7 @@ describe('node-fetch', () => {
 		const headers = form.getHeaders();
 		headers['b'] = '2';
 
-		url = `${base}/multipart`;
+		url = `${base}multipart`;
 		opts = {
 			method: 'POST'
 			, body: form
@@ -739,7 +739,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with object body', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		// note that fetch simply calls tostring on an object
 		opts = {
 			method: 'POST'
@@ -754,7 +754,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow PUT request', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'PUT'
 			, body: 'a=1'
@@ -768,7 +768,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow DELETE request', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'DELETE'
 		};
@@ -780,7 +780,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with string body', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'POST'
 			, body: 'a=1'
@@ -796,7 +796,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow DELETE request with string body', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'DELETE'
 			, body: 'a=1'
@@ -812,7 +812,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow PATCH request', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			method: 'PATCH'
 			, body: 'a=1'
@@ -826,7 +826,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow HEAD request', function() {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 		opts = {
 			method: 'HEAD'
 		};
@@ -842,7 +842,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow HEAD request with content-encoding header', function() {
-		url = `${base}/error/404`;
+		url = `${base}error/404`;
 		opts = {
 			method: 'HEAD'
 		};
@@ -856,7 +856,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow OPTIONS request', function() {
-		url = `${base}/options`;
+		url = `${base}options`;
 		opts = {
 			method: 'OPTIONS'
 		};
@@ -869,7 +869,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should reject decoding body twice', function() {
-		url = `${base}/plain`;
+		url = `${base}plain`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return res.text().then(result => {
@@ -880,7 +880,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support maximum response size, multiple chunk', function() {
-		url = `${base}/size/chunk`;
+		url = `${base}size/chunk`;
 		opts = {
 			size: 5
 		};
@@ -894,7 +894,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support maximum response size, single chunk', function() {
-		url = `${base}/size/long`;
+		url = `${base}size/long`;
 		opts = {
 			size: 5
 		};
@@ -908,7 +908,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support encoding decode, xml dtd detect', function() {
-		url = `${base}/encoding/euc-jp`;
+		url = `${base}encoding/euc-jp`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			return res.text().then(result => {
@@ -918,7 +918,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support encoding decode, content-type detect', function() {
-		url = `${base}/encoding/shift-jis`;
+		url = `${base}encoding/shift-jis`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			return res.text().then(result => {
@@ -928,7 +928,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support encoding decode, html5 detect', function() {
-		url = `${base}/encoding/gbk`;
+		url = `${base}encoding/gbk`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			return res.text().then(result => {
@@ -938,7 +938,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support encoding decode, html4 detect', function() {
-		url = `${base}/encoding/gb2312`;
+		url = `${base}encoding/gb2312`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			return res.text().then(result => {
@@ -948,7 +948,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should default to utf8 encoding', function() {
-		url = `${base}/encoding/utf8`;
+		url = `${base}encoding/utf8`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('content-type')).to.be.null;
@@ -959,7 +959,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support uncommon content-type order, charset in front', function() {
-		url = `${base}/encoding/order1`;
+		url = `${base}encoding/order1`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			return res.text().then(result => {
@@ -969,7 +969,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support uncommon content-type order, end with qs', function() {
-		url = `${base}/encoding/order2`;
+		url = `${base}encoding/order2`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			return res.text().then(result => {
@@ -979,7 +979,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support chunked encoding, html4 detect', function() {
-		url = `${base}/encoding/chunked`;
+		url = `${base}encoding/chunked`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			const padding = 'a'.repeat(10);
@@ -990,7 +990,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should only do encoding detection up to 1024 bytes', function() {
-		url = `${base}/encoding/invalid`;
+		url = `${base}encoding/invalid`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			const padding = 'a'.repeat(1200);
@@ -1001,7 +1001,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow piping response body as stream', function(done) {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 		fetch(url).then(res => {
 			expect(res.body).to.be.an.instanceof(stream.Transform);
 			res.body.on('data', chunk => {
@@ -1017,7 +1017,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow cloning a response, and use both as stream', function(done) {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 		return fetch(url).then(res => {
 			let counter = 0;
 			const r1 = res.clone();
@@ -1051,7 +1051,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow cloning a json response and log it as text response', function() {
-		url = `${base}/json`;
+		url = `${base}json`;
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return fetch.Promise.all([res.json(), r1.text()]).then(results => {
@@ -1062,7 +1062,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow cloning a json response, and then log it as text response', function() {
-		url = `${base}/json`;
+		url = `${base}json`;
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return res.json().then(result => {
@@ -1075,7 +1075,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow cloning a json response, first log as text response, then return json object', function() {
-		url = `${base}/json`;
+		url = `${base}json`;
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return r1.text().then(result => {
@@ -1088,7 +1088,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should not allow cloning a response after its been used', function() {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 		return fetch(url).then(res =>
 			res.text().then(result => {
 				expect(() => {
@@ -1099,7 +1099,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow get all responses of a header', function() {
-		url = `${base}/cookie`;
+		url = `${base}cookie`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('set-cookie')).to.equal('a=1');
 			expect(res.headers.get('Set-Cookie')).to.equal('a=1');
@@ -1190,7 +1190,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow deleting header', function() {
-		url = `${base}/cookie`;
+		url = `${base}cookie`;
 		return fetch(url).then(res => {
 			res.headers.delete('set-cookie');
 			expect(res.headers.get('set-cookie')).to.be.null;
@@ -1199,7 +1199,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should send request with connection keep-alive if agent is provided', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		opts = {
 			agent: new http.Agent({
 				keepAlive: true
@@ -1286,7 +1286,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support fetch with Request instance', function() {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 		const req = new Request(url);
 		return fetch(req).then(res => {
 			expect(res.url).to.equal(url);
@@ -1296,7 +1296,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support wrapping Request instance', function() {
-		url = `${base}/hello`;
+		url = `${base}hello`;
 
 		const form = new FormData();
 		form.append('a', '1');
@@ -1321,7 +1321,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support overwrite Request instance', function() {
-		url = `${base}/inspect`;
+		url = `${base}inspect`;
 		const req = new Request(url, {
 			method: 'POST'
 			, headers: {
