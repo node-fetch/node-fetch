@@ -17,7 +17,7 @@ import Body, { clone } from './body';
  * @return  Void
  */
 export default class Response extends Body {
-	constructor(body, opts = {}) {
+	constructor(body = null, opts = {}) {
 		super(body, opts);
 
 		this.url = opts.url;

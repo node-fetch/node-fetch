@@ -79,6 +79,11 @@ export default class Body {
 
 		this[DISTURBED] = true;
 
+		// body is null
+		if (!this.body) {
+			return Body.Promise.resolve(new Buffer(0));
+		}
+
 		// body is string
 		if (typeof this.body === 'string') {
 			return Body.Promise.resolve(convertBody([new Buffer(this.body)], this.headers));
