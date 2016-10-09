@@ -17,7 +17,7 @@ var TestServer = require('./server');
 
 // test subjects
 var fetch = require('../src/index.js');
-var Headers = require('../src/headers.js');
+import Headers from '../src/headers.js';
 var Response = require('../src/response.js');
 var Request = require('../src/request.js');
 var Body = require('../src/body.js');
@@ -1131,6 +1131,65 @@ describe('node-fetch', function() {
 		expect(result).to.deep.equal(expected);
 	});
 
+	it('should allow iterating through all headers', function() {
+		var headers = new Headers({
+			a: 1
+			, b: [2, 3]
+			, c: [4]
+		});
+		expect(headers).to.have.property(Symbol.iterator);
+		expect(headers).to.have.property('keys');
+		expect(headers).to.have.property('values');
+		expect(headers).to.have.property('entries');
+
+		var result, expected;
+
+		result = [];
+		for (let [key, val] of headers) {
+			result.push([key, val]);
+		}
+
+		expected = [
+			["a", "1"]
+			, ["b", "2"]
+			, ["b", "3"]
+			, ["c", "4"]
+		];
+		expect(result).to.deep.equal(expected);
+
+		result = [];
+		for (let [key, val] of headers.entries()) {
+			result.push([key, val]);
+		}
+		expect(result).to.deep.equal(expected);
+
+		result = [];
+		for (let key of headers.keys()) {
+			result.push(key);
+		}
+
+		expected = [
+			"a"
+			, "b"
+			, "b"
+			, "c"
+		];
+		expect(result).to.deep.equal(expected);
+
+		result = [];
+		for (let key of headers.values()) {
+			result.push(key);
+		}
+
+		expected = [
+			"1"
+			, "2"
+			, "3"
+			, "4"
+		];
+		expect(result).to.deep.equal(expected);
+	});
+
 	it('should allow deleting header', function() {
 		url = base + '/cookie';
 		return fetch(url).then(function(res) {
@@ -1178,49 +1237,53 @@ describe('node-fetch', function() {
 		res.m = new Buffer('test');
 
 		var h1 = new Headers(res);
+		var h1Raw = h1.raw();
 
-		expect(h1._headers['a']).to.include('string');
-		expect(h1._headers['b']).to.include('1');
-		expect(h1._headers['b']).to.include('2');
-		expect(h1._headers['c']).to.include('');
-		expect(h1._headers['d']).to.be.undefined;
+		expect(h1Raw['a']).to.include('string');
+		expect(h1Raw['b']).to.include('1');
+		expect(h1Raw['b']).to.include('2');
+		expect(h1Raw['c']).to.include('');
+		expect(h1Raw['d']).to.be.undefined;
 
-		expect(h1._headers['e']).to.include('1');
-		expect(h1._headers['f']).to.include('1');
-		expect(h1._headers['f']).to.include('2');
+		expect(h1Raw['e']).to.include('1');
+		expect(h1Raw['f']).to.include('1');
+		expect(h1Raw['f']).to.include('2');
 
-		expect(h1._headers['g']).to.be.undefined;
-		expect(h1._headers['h']).to.be.undefined;
-		expect(h1._headers['i']).to.be.undefined;
-		expect(h1._headers['j']).to.be.undefined;
-		expect(h1._headers['k']).to.be.undefined;
-		expect(h1._headers['l']).to.be.undefined;
-		expect(h1._headers['m']).to.be.undefined;
+		expect(h1Raw['g']).to.be.undefined;
+		expect(h1Raw['h']).to.be.undefined;
+		expect(h1Raw['i']).to.be.undefined;
+		expect(h1Raw['j']).to.be.undefined;
+		expect(h1Raw['k']).to.be.undefined;
+		expect(h1Raw['l']).to.be.undefined;
+		expect(h1Raw['m']).to.be.undefined;
 
-		expect(h1._headers['z']).to.be.undefined;
+		expect(h1Raw['z']).to.be.undefined;
 	});
 
 	it('should wrap headers', function() {
 		var h1 = new Headers({
 			a: '1'
 		});
+		var h1Raw = h1.raw();
 
 		var h2 = new Headers(h1);
 		h2.set('b', '1');
+		var h2Raw = h2.raw();
 
 		var h3 = new Headers(h2);
 		h3.append('a', '2');
+		var h3Raw = h3.raw();
 
-		expect(h1._headers['a']).to.include('1');
-		expect(h1._headers['a']).to.not.include('2');
+		expect(h1Raw['a']).to.include('1');
+		expect(h1Raw['a']).to.not.include('2');
 
-		expect(h2._headers['a']).to.include('1');
-		expect(h2._headers['a']).to.not.include('2');
-		expect(h2._headers['b']).to.include('1');
+		expect(h2Raw['a']).to.include('1');
+		expect(h2Raw['a']).to.not.include('2');
+		expect(h2Raw['b']).to.include('1');
 
-		expect(h3._headers['a']).to.include('1');
-		expect(h3._headers['a']).to.include('2');
-		expect(h3._headers['b']).to.include('1');
+		expect(h3Raw['a']).to.include('1');
+		expect(h3Raw['a']).to.include('2');
+		expect(h3Raw['b']).to.include('1');
 	});
 
 	it('should support fetch with Request instance', function() {
