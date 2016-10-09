@@ -11,11 +11,7 @@ import {PassThrough} from 'stream';
 import FetchError from './fetch-error.js';
 
 const DISTURBED = Symbol('disturbed');
-const BYTES = Symbol('bytes');
-const RAW = Symbol('raw');
-const ABORT = Symbol('abort');
-const CONVERT = Symbol('convert');
-const DECODE = Symbol('decode');
+const CONSUME_BODY = Symbol('consumeBody');
 
 /**
  * Body class
@@ -32,10 +28,7 @@ export default class Body {
 		this.body = body;
 		this[DISTURBED] = false;
 		this.size = size;
-		this[BYTES] = 0;
 		this.timeout = timeout;
-		this[RAW] = [];
-		this[ABORT] = false;
 	}
 
 	get bodyUsed() {
@@ -53,7 +46,7 @@ export default class Body {
 			return Body.Promise.resolve({});
 		}
 
-		return this[DECODE]().then(buffer => JSON.parse(buffer.toString()));
+		return this[CONSUME_BODY]().then(buffer => JSON.parse(buffer.toString()));
 	}
 
 	/**
@@ -62,7 +55,7 @@ export default class Body {
 	 * @return  Promise
 	 */
 	text() {
-		return this[DECODE]().then(buffer => buffer.toString());
+		return this[CONSUME_BODY]().then(buffer => buffer.toString());
 	}
 
 	/**
@@ -71,7 +64,7 @@ export default class Body {
 	 * @return  Promise
 	 */
 	buffer() {
-		return this[DECODE]();
+		return this[CONSUME_BODY]();
 	}
 
 	/**
@@ -79,144 +72,143 @@ export default class Body {
 	 *
 	 * @return  Promise
 	 */
-	[DECODE]() {
+	[CONSUME_BODY]() {
 		if (this[DISTURBED]) {
 			return Body.Promise.reject(new Error(`body used already for: ${this.url}`));
 		}
 
 		this[DISTURBED] = true;
-		this[BYTES] = 0;
-		this[ABORT] = false;
-		this[RAW] = [];
+
+		// body is string
+		if (typeof this.body === 'string') {
+			return Body.Promise.resolve(convertBody([new Buffer(this.body)], this.headers));
+		}
+
+		// body is buffer
+		if (Buffer.isBuffer(this.body)) {
+			return Body.Promise.resolve(convertBody([this.body], this.headers));
+		}
+
+		// body is stream
+		// get ready to actually consume the body
+		let accum = [];
+		let accumBytes = 0;
+		let abort = false;
 
 		return new Body.Promise((resolve, reject) => {
 			let resTimeout;
 
-			// body is string
-			if (typeof this.body === 'string') {
-				this[BYTES] = this.body.length;
-				this[RAW] = [new Buffer(this.body)];
-				return resolve(this[CONVERT]());
-			}
-
-			// body is buffer
-			if (this.body instanceof Buffer) {
-				this[BYTES] = this.body.length;
-				this[RAW] = [this.body];
-				return resolve(this[CONVERT]());
-			}
-
 			// allow timeout on slow response body
 			if (this.timeout) {
 				resTimeout = setTimeout(() => {
-					this[ABORT] = true;
-					reject(new FetchError('response timeout at ' + this.url + ' over limit: ' + this.timeout, 'body-timeout'));
+					abort = true;
+					reject(new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout'));
 				}, this.timeout);
 			}
 
 			// handle stream error, such as incorrect content-encoding
 			this.body.on('error', err => {
-				reject(new FetchError('invalid response body at: ' + this.url + ' reason: ' + err.message, 'system', err));
+				reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
 			});
 
-			// body is stream
 			this.body.on('data', chunk => {
-				if (this[ABORT] || chunk === null) {
+				if (abort || chunk === null) {
 					return;
 				}
 
-				if (this.size && this[BYTES] + chunk.length > this.size) {
-					this[ABORT] = true;
+				if (this.size && accumBytes + chunk.length > this.size) {
+					abort = true;
 					reject(new FetchError(`content size at ${this.url} over limit: ${this.size}`, 'max-size'));
 					return;
 				}
 
-				this[BYTES] += chunk.length;
-				this[RAW].push(chunk);
+				accumBytes += chunk.length;
+				accum.push(chunk);
 			});
 
 			this.body.on('end', () => {
-				if (this[ABORT]) {
+				if (abort) {
 					return;
 				}
 
 				clearTimeout(resTimeout);
-				resolve(this[CONVERT]());
+				resolve(convertBody(accum, this.headers));
 			});
 		});
 	}
 
-	/**
-	 * Detect buffer encoding and convert to target encoding
-	 * ref: http://www.w3.org/TR/2011/WD-html5-20110113/parsing.html#determining-the-character-encoding
-	 *
-	 * @param   String  encoding  Target encoding
-	 * @return  String
-	 */
-	[CONVERT](encoding = 'utf-8') {
-		const ct = this.headers.get('content-type');
-		let charset = 'utf-8';
-		let res, str;
+}
 
-		// header
-		if (ct) {
-			// skip encoding detection altogether if not html/xml/plain text
-			if (!/text\/html|text\/plain|\+xml|\/xml/i.test(ct)) {
-				return Buffer.concat(this[RAW]);
-			}
+/**
+ * Detect buffer encoding and convert to target encoding
+ * ref: http://www.w3.org/TR/2011/WD-html5-20110113/parsing.html#determining-the-character-encoding
+ *
+ * @param   Array<Buffer>   arrayOfBuffers  Array of buffers
+ * @param   String  encoding  Target encoding
+ * @return  String
+ */
+function convertBody(arrayOfBuffers, headers) {
+	const ct = headers.get('content-type');
+	let charset = 'utf-8';
+	let res, str;
 
-			res = /charset=([^;]*)/i.exec(ct);
+	// header
+	if (ct) {
+		// skip encoding detection altogether if not html/xml/plain text
+		if (!/text\/html|text\/plain|\+xml|\/xml/i.test(ct)) {
+			return Buffer.concat(arrayOfBuffers);
 		}
 
-		// no charset in content type, peek at response body for at most 1024 bytes
-		if (!res && this[RAW].length > 0) {
-			for (let i = 0; i < this[RAW].length; i++) {
-				str += this[RAW][i].toString()
-				if (str.length > 1024) {
-					break;
-				}
-			}
-			str = str.substr(0, 1024);
-		}
-
-		// html5
-		if (!res && str) {
-			res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
-		}
-
-		// html4
-		if (!res && str) {
-			res = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(str);
-
-			if (res) {
-				res = /charset=(.*)/i.exec(res.pop());
-			}
-		}
-
-		// xml
-		if (!res && str) {
-			res = /<\?xml.+?encoding=(['"])(.+?)\1/i.exec(str);
-		}
-
-		// found charset
-		if (res) {
-			charset = res.pop();
-
-			// prevent decode issues when sites use incorrect encoding
-			// ref: https://hsivonen.fi/encoding-menu/
-			if (charset === 'gb2312' || charset === 'gbk') {
-				charset = 'gb18030';
-			}
-		}
-
-		// turn raw buffers into a single utf-8 buffer
-		return convert(
-			Buffer.concat(this[RAW])
-			, encoding
-			, charset
-		);
+		res = /charset=([^;]*)/i.exec(ct);
 	}
 
+	// no charset in content type, peek at response body for at most 1024 bytes
+	if (!res && arrayOfBuffers.length > 0) {
+		for (let i = 0; i < arrayOfBuffers.length; i++) {
+			str += arrayOfBuffers[i].toString()
+			if (str.length > 1024) {
+				break;
+			}
+		}
+		str = str.substr(0, 1024);
+	}
+
+	// html5
+	if (!res && str) {
+		res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
+	}
+
+	// html4
+	if (!res && str) {
+		res = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(str);
+
+		if (res) {
+			res = /charset=(.*)/i.exec(res.pop());
+		}
+	}
+
+	// xml
+	if (!res && str) {
+		res = /<\?xml.+?encoding=(['"])(.+?)\1/i.exec(str);
+	}
+
+	// found charset
+	if (res) {
+		charset = res.pop();
+
+		// prevent decode issues when sites use incorrect encoding
+		// ref: https://hsivonen.fi/encoding-menu/
+		if (charset === 'gb2312' || charset === 'gbk') {
+			charset = 'gb18030';
+		}
+	}
+
+	// turn raw buffers into a single utf-8 buffer
+	return convert(
+		Buffer.concat(arrayOfBuffers)
+		, 'utf-8'
+		, charset
+	);
 }
 
 /**
