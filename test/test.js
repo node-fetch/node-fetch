@@ -1451,6 +1451,19 @@ describe('node-fetch', () => {
 		expect(req.headers.get('a')).to.equal('1');
 	});
 
+	it('should support arrayBuffer() method in Request constructor', function() {
+		url = base;
+		var req = new Request(url, {
+			body: 'a=1'
+		});
+		expect(req.url).to.equal(url);
+		return req.arrayBuffer().then(function(result) {
+			expect(result).to.be.an.instanceOf(ArrayBuffer);
+			const str = String.fromCharCode.apply(null, new Uint8Array(result));
+			expect(str).to.equal('a=1');
+		});
+	});
+
 	it('should support text() method in Request constructor', function() {
 		url = base;
 		const req = new Request(url, {
@@ -1524,8 +1537,9 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support text(), json() and buffer() method in Body constructor', function() {
+	it('should support arrayBuffer(), text(), json() and buffer() method in Body constructor', function() {
 		const body = new Body('a=1');
+		expect(body).to.have.property('arrayBuffer');
 		expect(body).to.have.property('text');
 		expect(body).to.have.property('json');
 		expect(body).to.have.property('buffer');

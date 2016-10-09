@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",
+    "buffer-to-arraybuffer": "0.0.4",
     "encoding": "^0.1.11",
     "is-stream": "^1.0.1"
   },

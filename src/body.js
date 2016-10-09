@@ -7,6 +7,7 @@
 
 import {convert} from 'encoding';
 import bodyStream from 'is-stream';
+import toArrayBuffer from 'buffer-to-arraybuffer';
 import {PassThrough} from 'stream';
 import FetchError from './fetch-error.js';
 
@@ -33,6 +34,15 @@ export default class Body {
 
 	get bodyUsed() {
 		return this[DISTURBED];
+	}
+
+	/**
+	 * Decode response as ArrayBuffer
+	 *
+	 * @return  Promise
+	 */
+	arrayBuffer() {
+		return this[CONSUME_BODY]().then(buf => toArrayBuffer(buf));
 	}
 
 	/**
