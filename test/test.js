@@ -1427,6 +1427,14 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should default to null as body', function() {
+		const res = new Response();
+		expect(res.body).to.equal(null);
+		return res.text().then(result => {
+			expect(result).to.equal('');
+		});
+	});
+
 	it('should default to 200 as status code', function() {
 		const res = new Response(null);
 		expect(res.status).to.equal(200);
