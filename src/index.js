@@ -152,7 +152,16 @@ function fetch(url, opts) {
 			}
 
 			// normalize location header for manual redirect mode
-			const headers = new Headers(res.headers);
+			const headers = new Headers();
+			for (const name of Object.keys(res.headers)) {
+				if (Array.isArray(res.headers[name])) {
+					for (const val of res.headers[name]) {
+						headers.append(name, val);
+					}
+				} else {
+					headers.append(name, res.headers[name]);
+				}
+			}
 			if (options.redirect === 'manual' && headers.has('location')) {
 				headers.set('location', resolve_url(options.url, headers.get('location')));
 			}
