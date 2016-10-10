@@ -17,7 +17,18 @@ export default class Headers {
 	constructor(headers) {
 		this[MAP] = {};
 
-		// Headers
+		if (Array.isArray(headers)) {
+			// array of tuples
+			for (let el of headers) {
+				if (!Array.isArray(el) || el.length !== 2) {
+					throw new TypeError('Header pairs must contain exactly two items');
+				}
+				this.append(el[0], el[1]);
+			}
+			return;
+		}
+
+               // Headers
 		if (headers instanceof Headers) {
 			headers = headers.raw();
 		}

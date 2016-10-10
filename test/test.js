@@ -1296,6 +1296,21 @@ describe('node-fetch', () => {
 		expect(h3Raw['b']).to.include('1');
 	});
 
+	it('should accept headers as an array of tuples', function() {
+		const headers = new Headers([
+			['a', '1'],
+			['b', '2'],
+			['a', '3']
+		]);
+		expect(headers.getAll('a')).to.deep.equal(['1', '3']);
+		expect(headers.getAll('b')).to.deep.equal(['2']);
+	});
+
+	it('should throw a TypeError if non-tuple exists in a headers initializer', function() {
+		expect(() => new Headers([ ['b', '2', 'huh?'] ])).to.throw(TypeError);
+		expect(() => new Headers([ 'b2' ])).to.throw(TypeError);
+	});
+
 	it('should support fetch with Request instance', function() {
 		url = `${base}hello`;
 		const req = new Request(url);
