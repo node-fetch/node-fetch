@@ -171,6 +171,11 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should support proper toString output for Headers instance', function() {
+		const headers = new Headers();
+		expect(headers.toString()).to.equal('[object Headers]');
+	});
+
 	it('should accept custom host header', function() {
 		url = `${base}inspect`;
 		opts = {
@@ -1300,6 +1305,11 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should support proper toString output for Request instance', function() {
+		const req = new Request(base);
+		expect(req.toString()).to.equal('[object Request]');
+	});
+
 	it('should support wrapping Request instance', function() {
 		url = `${base}hello`;
 
@@ -1353,6 +1363,11 @@ describe('node-fetch', () => {
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
+	});
+
+	it('should support proper toString output for Response instance', function() {
+		const res = new Response();
+		expect(res.toString()).to.equal('[object Response]');
 	});
 
 	it('should support parsing headers in Response constructor', function() {
