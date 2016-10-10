@@ -1208,6 +1208,22 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should reject illegal header', function() {
+		const headers = new Headers();
+		expect(() => new Headers({ 'He y': 'ok' })).to.throw(TypeError);
+		expect(() => new Headers({ 'Hé-y': 'ok' })).to.throw(TypeError);
+		expect(() => new Headers({ 'He-y': 'ăk' })).to.throw(TypeError);
+		expect(() => headers.append('Hé-y', 'ok')) .to.throw(TypeError);
+		expect(() => headers.delete('Hé-y'))       .to.throw(TypeError);
+		expect(() => headers.get('Hé-y'))          .to.throw(TypeError);
+		expect(() => headers.getAll('Hé-y'))       .to.throw(TypeError);
+		expect(() => headers.has('Hé-y'))          .to.throw(TypeError);
+		expect(() => headers.set('Hé-y', 'ok'))    .to.throw(TypeError);
+
+		// 'o k' is valid value but invalid name
+		new Headers({ 'He-y': 'o k' });
+	});
+
 	it('should send request with connection keep-alive if agent is provided', function() {
 		url = `${base}inspect`;
 		opts = {
