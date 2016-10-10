@@ -5,8 +5,25 @@
  * Headers class offers convenient helpers
  */
 
-export const MAP = Symbol('map');
+import { _checkIsHttpToken, _checkInvalidHeaderChar } from './common.js';
 
+function sanitizeName(name) {
+	name += '';
+	if (!_checkIsHttpToken(name)) {
+		throw new TypeError(`${name} is not a legal HTTP header name`);
+	}
+	return name.toLowerCase();
+}
+
+function sanitizeValue(value) {
+	value += '';
+	if (_checkInvalidHeaderChar(value)) {
+		throw new TypeError(`${value} is not a legal HTTP header value`);
+	}
+	return value;
+}
+
+export const MAP = Symbol('map');
 export default class Headers {
 	/**
 	 * Headers class
@@ -50,7 +67,7 @@ export default class Headers {
 	 * @return  Mixed
 	 */
 	get(name) {
-		const list = this[MAP][name.toLowerCase()];
+		const list = this[MAP][sanitizeName(name)];
 		return list ? list[0] : null;
 	}
 
@@ -65,7 +82,7 @@ export default class Headers {
 			return [];
 		}
 
-		return this[MAP][name.toLowerCase()];
+		return this[MAP][sanitizeName(name)];
 	}
 
 	/**
@@ -91,10 +108,7 @@ export default class Headers {
 	 * @return  Void
 	 */
 	set(name, value) {
-		name += '';
-		value += '';
-
-		this[MAP][name.toLowerCase()] = [value];
+		this[MAP][sanitizeName(name)] = [sanitizeValue(value)];
 	}
 
 	/**
@@ -105,15 +119,12 @@ export default class Headers {
 	 * @return  Void
 	 */
 	append(name, value) {
-		name += '';
-		value += '';
-
 		if (!this.has(name)) {
 			this.set(name, value);
 			return;
 		}
 
-		this[MAP][name.toLowerCase()].push(value);
+		this[MAP][sanitizeName(name)].push(sanitizeValue(value));
 	}
 
 	/**
@@ -123,7 +134,7 @@ export default class Headers {
 	 * @return  Boolean
 	 */
 	has(name) {
-		return this[MAP].hasOwnProperty(name.toLowerCase());
+		return this[MAP].hasOwnProperty(sanitizeName(name));
 	}
 
 	/**
@@ -133,7 +144,7 @@ export default class Headers {
 	 * @return  Void
 	 */
 	delete(name) {
-		delete this[MAP][name.toLowerCase()];
+		delete this[MAP][sanitizeName(name)];
 	};
 
 	/**
