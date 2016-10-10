@@ -1,7 +1,8 @@
 
 // test tools
 import chai from 'chai';
-import cap from 'chai-as-promised';
+import chaiPromised from 'chai-as-promised';
+import chaiIterator from 'chai-iterator';
 import bluebird from 'bluebird';
 import then from 'promise';
 import {spawn} from 'child_process';
@@ -11,7 +12,8 @@ import FormData from 'form-data';
 import * as http from 'http';
 import * as fs from 'fs';
 
-chai.use(cap);
+chai.use(chaiPromised);
+chai.use(chaiIterator);
 const expect = chai.expect;
 
 import TestServer from './server';
@@ -1108,7 +1110,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow iterating through all headers', function() {
+	it('should allow iterating through all headers with forEach', function() {
 		const headers = new Headers({
 			a: 1
 			, b: [2, 3]
@@ -1130,63 +1132,66 @@ describe('node-fetch', () => {
 		expect(result).to.deep.equal(expected);
 	});
 
-	it('should allow iterating through all headers', function() {
+	it('should allow iterating through all headers with for-of loop', function() {
 		const headers = new Headers({
-			a: 1
-			, b: [2, 3]
-			, c: [4]
+			a: '1'
+			, b: '2'
+			, c: '4'
 		});
-		expect(headers).to.have.property(Symbol.iterator);
-		expect(headers).to.have.property('keys');
-		expect(headers).to.have.property('values');
-		expect(headers).to.have.property('entries');
+		headers.append('b', '3');
+		expect(headers).to.be.iterable;
 
-		let result, expected;
-
-		result = [];
-		for (let [key, val] of headers) {
-			result.push([key, val]);
+		const result = [];
+		for (let pair of headers) {
+			result.push(pair);
 		}
-
-		expected = [
+		expect(result).to.deep.equal([
 			["a", "1"]
 			, ["b", "2"]
 			, ["b", "3"]
 			, ["c", "4"]
-		];
-		expect(result).to.deep.equal(expected);
+		]);
+	});
 
-		result = [];
-		for (let [key, val] of headers.entries()) {
-			result.push([key, val]);
-		}
-		expect(result).to.deep.equal(expected);
+	it('should allow iterating through all headers with entries()', function() {
+		const headers = new Headers({
+			a: '1'
+			, b: '2'
+			, c: '4'
+		});
+		headers.append('b', '3');
 
-		result = [];
-		for (let key of headers.keys()) {
-			result.push(key);
-		}
+		expect(headers.entries()).to.be.iterable
+			.and.to.deep.iterate.over([
+				["a", "1"]
+				, ["b", "2"]
+				, ["b", "3"]
+				, ["c", "4"]
+			]);
+	});
 
-		expected = [
-			"a"
-			, "b"
-			, "b"
-			, "c"
-		];
-		expect(result).to.deep.equal(expected);
+	it('should allow iterating through all headers with keys()', function() {
+		const headers = new Headers({
+			a: '1'
+			, b: '2'
+			, c: '4'
+		});
+		headers.append('b', '3');
 
-		result = [];
-		for (let key of headers.values()) {
-			result.push(key);
-		}
+		expect(headers.keys()).to.be.iterable
+			.and.to.iterate.over(['a', 'b', 'b', 'c']);
+	});
 
-		expected = [
-			"1"
-			, "2"
-			, "3"
-			, "4"
-		];
-		expect(result).to.deep.equal(expected);
+	it('should allow iterating through all headers with values()', function() {
+		const headers = new Headers({
+			a: '1'
+			, b: '2'
+			, c: '4'
+		});
+		headers.append('b', '3');
+
+		expect(headers.values()).to.be.iterable
+			.and.to.iterate.over(['1', '2', '3', '4']);
 	});
 
 	it('should allow deleting header', function() {

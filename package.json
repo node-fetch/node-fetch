@@ -35,6 +35,7 @@
     "bluebird": "^3.3.4",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
+    "chai-iterator": "^1.1.1",
     "coveralls": "^2.11.2",
     "cross-env": "2.0.1",
     "form-data": ">=1.0.0",
