@@ -5,8 +5,6 @@
  * FetchError interface for operational errors
  */
 
-module.exports = FetchError;
-
 /**
  * Create FetchError instance
  *
@@ -15,7 +13,7 @@ module.exports = FetchError;
  * @param   String      systemError  For Node.js system error
  * @return  FetchError
  */
-function FetchError(message, type, systemError) {
+export default function FetchError(message, type, systemError) {
 
 	// hide custom error implementation details from end-users
 	Error.captureStackTrace(this, this.constructor);
