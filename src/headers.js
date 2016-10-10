@@ -17,7 +17,15 @@ export default class Headers {
 	constructor(headers) {
 		this[MAP] = {};
 
-		if (Array.isArray(headers)) {
+		// Headers
+		if (headers instanceof Headers) {
+		  let init = headers.raw();
+		  for (let name of Object.keys(init)) {
+		    for (let value of init[name]) {
+		      this.append(name, value);
+		    }
+		  }
+		} else if (Array.isArray(headers)) {
 			// array of tuples
 			for (let el of headers) {
 				if (!Array.isArray(el) || el.length !== 2) {
@@ -25,28 +33,12 @@ export default class Headers {
 				}
 				this.append(el[0], el[1]);
 			}
-			return;
-		}
-
-               // Headers
-		if (headers instanceof Headers) {
-			headers = headers.raw();
-		}
-
-		// plain object
-		for (const prop in headers) {
-			if (!headers.hasOwnProperty(prop)) {
-				continue;
-			}
-
-			if (typeof headers[prop] === 'string') {
-				this.set(prop, headers[prop]);
-			} else if (typeof headers[prop] === 'number' && !isNaN(headers[prop])) {
-				this.set(prop, headers[prop].toString());
-			} else if (headers[prop] instanceof Array) {
-				headers[prop].forEach(item => {
-					this.append(prop, item.toString());
-				});
+		} else if (typeof headers === 'object') {
+			// plain object
+			for (const prop of Object.keys(headers)) {
+				// We don't worry about converting prop to ByteString here as append()
+				// will handle it.
+				this.append(prop, headers[prop]);
 			}
 		}
 	}
@@ -99,6 +91,9 @@ export default class Headers {
 	 * @return  Void
 	 */
 	set(name, value) {
+		name += '';
+		value += '';
+
 		this[MAP][name.toLowerCase()] = [value];
 	}
 
@@ -110,6 +105,9 @@ export default class Headers {
 	 * @return  Void
 	 */
 	append(name, value) {
+		name += '';
+		value += '';
+
 		if (!this.has(name)) {
 			this.set(name, value);
 			return;
