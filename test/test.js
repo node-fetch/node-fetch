@@ -28,18 +28,26 @@ import FetchError from '../src/fetch-error.js';
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
-let url, opts, local, base;
+const local = new TestServer();
+const base = `http://${local.hostname}:${local.port}/`;
+let url, opts;
 
-describe('node-fetch', () => {
+before(done => {
+	local.start(done);
+});
 
-	before(done => {
-		local = new TestServer();
-		base = `http://${local.hostname}:${local.port}/`;
-		local.start(done);
-	});
+after(done => {
+	local.stop(done);
+});
 
-	after(done => {
-		local.stop(done);
+(runner => {
+	runner(false);
+	runner(true);
+})(defaultFollowSpec => {
+
+describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
+	before(() => {
+		fetch.FOLLOW_SPEC = Headers.FOLLOW_SPEC = defaultFollowSpec;
 	});
 
 	it('should return a promise', function() {
@@ -1109,8 +1117,9 @@ describe('node-fetch', () => {
 	it('should allow get all responses of a header', function() {
 		url = `${base}cookie`;
 		return fetch(url).then(res => {
-			expect(res.headers.get('set-cookie')).to.equal('a=1');
-			expect(res.headers.get('Set-Cookie')).to.equal('a=1');
+			const expected = fetch.FOLLOW_SPEC ? 'a=1,b=1' : 'a=1';
+			expect(res.headers.get('set-cookie')).to.equal(expected);
+			expect(res.headers.get('Set-Cookie')).to.equal(expected);
 			expect(res.headers.getAll('set-cookie')).to.deep.equal(['a=1', 'b=1']);
 			expect(res.headers.getAll('Set-Cookie')).to.deep.equal(['a=1', 'b=1']);
 		});
@@ -1138,11 +1147,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow iterating through all headers with for-of loop', function() {
-		const headers = new Headers({
-			a: '1'
-			, b: '2'
-			, c: '4'
-		});
+		const headers = new Headers([
+			['b', '2'],
+			['c', '4'],
+			['a', '1']
+		]);
 		headers.append('b', '3');
 		expect(headers).to.be.iterable;
 
@@ -1150,53 +1159,81 @@ describe('node-fetch', () => {
 		for (let pair of headers) {
 			result.push(pair);
 		}
-		expect(result).to.deep.equal([
-			["a", "1"]
-			, ["b", "2"]
-			, ["b", "3"]
-			, ["c", "4"]
+		expect(result).to.deep.equal(Headers.FOLLOW_SPEC ? [
+			['a', '1'],
+			['b', '2,3'],
+			['c', '4']
+		] : [
+		  ['b', '2'],
+			['b', '3'],
+			['c', '4'],
+			['a', '1'],
 		]);
 	});
 
 	it('should allow iterating through all headers with entries()', function() {
-		const headers = new Headers({
-			a: '1'
-			, b: '2'
-			, c: '4'
-		});
+		const headers = new Headers([
+			['b', '2'],
+			['c', '4'],
+			['a', '1']
+		]);
 		headers.append('b', '3');
 
 		expect(headers.entries()).to.be.iterable
-			.and.to.deep.iterate.over([
-				["a", "1"]
-				, ["b", "2"]
-				, ["b", "3"]
-				, ["c", "4"]
+			.and.to.deep.iterate.over(Headers.FOLLOW_SPEC ? [
+				['a', '1'],
+				['b', '2,3'],
+				['c', '4']
+			] : [
+				['b', '2'],
+				['b', '3'],
+				['c', '4'],
+				['a', '1'],
 			]);
 	});
 
 	it('should allow iterating through all headers with keys()', function() {
-		const headers = new Headers({
-			a: '1'
-			, b: '2'
-			, c: '4'
-		});
+		const headers = new Headers([
+			['b', '2'],
+			['c', '4'],
+			['a', '1']
+		]);
 		headers.append('b', '3');
 
 		expect(headers.keys()).to.be.iterable
-			.and.to.iterate.over(['a', 'b', 'b', 'c']);
+			.and.to.iterate.over(Headers.FOLLOW_SPEC ? ['a', 'b', 'c'] : ['b', 'b', 'c', 'a']);
 	});
 
 	it('should allow iterating through all headers with values()', function() {
-		const headers = new Headers({
-			a: '1'
-			, b: '2'
-			, c: '4'
-		});
+		const headers = new Headers([
+			['b', '2'],
+			['c', '4'],
+			['a', '1']
+		]);
 		headers.append('b', '3');
 
 		expect(headers.values()).to.be.iterable
-			.and.to.iterate.over(['1', '2', '3', '4']);
+			.and.to.iterate.over(Headers.FOLLOW_SPEC ? ['1', '2,3', '4'] : ['2', '3', '4', '1']);
+	});
+
+	it('should only apply FOLLOW_SPEC when it is requested', function () {
+		Headers.FOLLOW_SPEC = true;
+
+		const src = [
+			['b', '2'],
+			['b', '3']
+		];
+
+		let headers = new Headers(src);
+		expect(headers.get('b')).to.equal('2,3');
+
+		Headers.FOLLOW_SPEC = false;
+		expect(headers.get('b')).to.equal('2,3');
+
+		headers = new Headers(src);
+		expect(headers.get('b')).to.equal('2');
+
+		Headers.FOLLOW_SPEC = defaultFollowSpec;
 	});
 
 	it('should allow deleting header', function() {
@@ -1610,5 +1647,7 @@ describe('node-fetch', () => {
 			expect(res.ok).to.be.true;
 		});
 	});
+
+});
 
 });

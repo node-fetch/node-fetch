@@ -32,6 +32,7 @@ function fetch(url, opts) {
 	}
 
 	Body.Promise = fetch.Promise;
+	Headers.FOLLOW_SPEC = fetch.FOLLOW_SPEC;
 
 	// wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {
@@ -258,6 +259,15 @@ fetch.isRedirect = code => code === 301 || code === 302 || code === 303 || code 
 
 // expose Promise
 fetch.Promise = global.Promise;
+/**
+ * Option to make newly constructed Headers objects conformant to the
+ * **latest** version of the Fetch Standard. Note, that most other
+ * implementations of fetch() have not yet been updated to the latest
+ * version, so enabling this option almost certainly breaks any isomorphic
+ * attempt. Also, changing this variable will only affect new Headers
+ * objects; existing objects are not affected.
+ */
+fetch.FOLLOW_SPEC = false;
 fetch.Response = Response;
 fetch.Headers = Headers;
 fetch.Request = Request;
