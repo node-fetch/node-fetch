@@ -24,6 +24,7 @@ function sanitizeValue(value) {
 }
 
 export const MAP = Symbol('map');
+const FOLLOW_SPEC = Symbol('followSpec');
 export default class Headers {
 	/**
 	 * Headers class
@@ -33,6 +34,7 @@ export default class Headers {
 	 */
 	constructor(headers) {
 		this[MAP] = {};
+		this[FOLLOW_SPEC] = Headers.FOLLOW_SPEC;
 
 		// Headers
 		if (headers instanceof Headers) {
@@ -68,7 +70,11 @@ export default class Headers {
 	 */
 	get(name) {
 		const list = this[MAP][sanitizeName(name)];
-		return list ? list[0] : null;
+		if (!list) {
+			return null;
+		}
+
+		return this[FOLLOW_SPEC] ? list.join(',') : list[0];
 	}
 
 	/**
@@ -162,8 +168,12 @@ export default class Headers {
 	 * @return  Iterator
 	 */
 	keys() {
-		const keys = [];
-		this.forEach((_, name) => keys.push(name));
+		let keys = [];
+		if (this[FOLLOW_SPEC]) {
+			keys = Object.keys(this[MAP]).sort();
+		} else {
+			this.forEach((_, name) => keys.push(name));
+		};
 		return new Iterator(keys);
 	}
 
@@ -172,10 +182,16 @@ export default class Headers {
 	 *
 	 * @return  Iterator
 	 */
-	values() {
-		const values = [];
-		this.forEach(value => values.push(value));
-		return new Iterator(values);
+	*values() {
+		if (this[FOLLOW_SPEC]) {
+			for (const name of this.keys()) {
+				yield this.get(name);
+			}
+		} else {
+			const values = [];
+			this.forEach(value => values.push(value));
+			yield* new Iterator(values);
+		}
 	}
 
 	/**
@@ -183,10 +199,16 @@ export default class Headers {
 	 *
 	 * @return  Iterator
 	 */
-	entries() {
-		const entries = [];
-		this.forEach((value, name) => entries.push([name, value]));
-		return new Iterator(entries);
+	*entries() {
+		if (this[FOLLOW_SPEC]) {
+			for (const name of this.keys()) {
+				yield [name, this.get(name)];
+			}
+		} else {
+			const entries = [];
+			this.forEach((value, name) => entries.push([name, value]));
+			yield* new Iterator(entries);
+		}
 	}
 
 	/**
@@ -207,6 +229,8 @@ export default class Headers {
 		return 'Headers';
 	}
 }
+
+Headers.FOLLOW_SPEC = false;
 
 const ITEMS = Symbol('items');
 class Iterator {
