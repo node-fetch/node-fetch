@@ -923,11 +923,21 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		});
 	});
 
-	it('should support encoding decode, xml dtd detect', function() {
+	it('should only use UTF-8 decoding with text()', function() {
 		url = `${base}encoding/euc-jp`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			return res.text().then(result => {
+				expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>\ufffd\ufffd\ufffd\u0738\ufffd</title>');
+			});
+		});
+	});
+
+	it('should support encoding decode, xml dtd detect', function() {
+		url = `${base}encoding/euc-jp`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			return res.textConverted().then(result => {
 				expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
 			});
 		});
@@ -937,7 +947,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = `${base}encoding/shift-jis`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.equal('<div>日本語</div>');
 			});
 		});
@@ -947,7 +957,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = `${base}encoding/gbk`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
 			});
 		});
@@ -957,7 +967,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = `${base}encoding/gb2312`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
 			});
 		});
@@ -968,7 +978,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('content-type')).to.be.null;
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.equal('中文');
 			});
 		});
@@ -978,7 +988,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = `${base}encoding/order1`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.equal('中文');
 			});
 		});
@@ -988,7 +998,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = `${base}encoding/order2`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.equal('中文');
 			});
 		});
@@ -999,7 +1009,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			const padding = 'a'.repeat(10);
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
 			});
 		});
@@ -1010,7 +1020,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			const padding = 'a'.repeat(1200);
-			return res.text().then(result => {
+			return res.textConverted().then(result => {
 				expect(result).to.not.equal(`${padding}中文`);
 			});
 		});
