@@ -9,6 +9,7 @@ import {spawn} from 'child_process';
 import * as stream from 'stream';
 import resumer from 'resumer';
 import FormData from 'form-data';
+import {parse as parseURL} from 'url';
 import * as http from 'http';
 import * as fs from 'fs';
 
@@ -1375,6 +1376,17 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support fetch with Request instance', function() {
 		url = `${base}hello`;
 		const req = new Request(url);
+		return fetch(req).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	it('should support fetch with Node.js URL object', function() {
+		url = `${base}hello`;
+		const urlObj = parseURL(url);
+		const req = new Request(urlObj);
 		return fetch(req).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.ok).to.be.true;
