@@ -22,7 +22,15 @@ export default class Request extends Body {
 
 		// normalize input
 		if (!(input instanceof Request)) {
-			parsedURL = parse_url(input);
+			if (input && input.href) {
+				// in order to support Node.js' Url objects; though WHATWG's URL objects
+				// will fall into this branch also (since their `toString()` will return
+				// `href` property anyway)
+				parsedURL = parse_url(input.href);
+			} else {
+				// coerce input to a string before attempting to parse
+				parsedURL = parse_url(input + '');
+			}
 			input = {};
 		} else {
 			parsedURL = parse_url(input.url);

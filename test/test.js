@@ -29,6 +29,12 @@ import FetchError from '../src/fetch-error.js';
 // test with native promise on node 0.11, and bluebird for node 0.10
 fetch.Promise = fetch.Promise || bluebird;
 
+let URL;
+// whatwg-url doesn't support old Node.js, so make it optional
+try {
+	URL = require('whatwg-url').URL;
+} catch (err) {}
+
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
 let url, opts;
@@ -1386,6 +1392,17 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support fetch with Node.js URL object', function() {
 		url = `${base}hello`;
 		const urlObj = parseURL(url);
+		const req = new Request(urlObj);
+		return fetch(req).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	(URL ? it : it.skip)('should support fetch with WHATWG URL object', function() {
+		url = `${base}hello`;
+		const urlObj = new URL(url);
 		const req = new Request(urlObj);
 		return fetch(req).then(res => {
 			expect(res.url).to.equal(url);
