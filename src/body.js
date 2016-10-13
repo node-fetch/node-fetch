@@ -78,6 +78,16 @@ export default class Body {
 	}
 
 	/**
+	 * Decode response as text, while automatically detecting the encoding and
+	 * trying to decode to UTF-8 (non-spec api)
+	 *
+	 * @return  Promise
+	 */
+	textConverted() {
+		return this[CONSUME_BODY]().then(buffer => convertBody(buffer, this.headers));
+	}
+
+	/**
 	 * Decode buffers into utf-8 string
 	 *
 	 * @return  Promise
@@ -96,12 +106,12 @@ export default class Body {
 
 		// body is string
 		if (typeof this.body === 'string') {
-			return Body.Promise.resolve(convertBody([new Buffer(this.body)], this.headers));
+			return Body.Promise.resolve(new Buffer(this.body));
 		}
 
 		// body is buffer
 		if (Buffer.isBuffer(this.body)) {
-			return Body.Promise.resolve(convertBody([this.body], this.headers));
+			return Body.Promise.resolve(this.body);
 		}
 
 		// body is stream
@@ -147,7 +157,7 @@ export default class Body {
 				}
 
 				clearTimeout(resTimeout);
-				resolve(convertBody(accum, this.headers));
+				resolve(Buffer.concat(accum));
 			});
 		});
 	}
@@ -158,11 +168,11 @@ export default class Body {
  * Detect buffer encoding and convert to target encoding
  * ref: http://www.w3.org/TR/2011/WD-html5-20110113/parsing.html#determining-the-character-encoding
  *
- * @param   Array<Buffer>   arrayOfBuffers  Array of buffers
+ * @param   Buffer  buffer    Incoming buffer
  * @param   String  encoding  Target encoding
  * @return  String
  */
-function convertBody(arrayOfBuffers, headers) {
+function convertBody(buffer, headers) {
 	const ct = headers.get('content-type');
 	let charset = 'utf-8';
 	let res, str;
@@ -171,22 +181,14 @@ function convertBody(arrayOfBuffers, headers) {
 	if (ct) {
 		// skip encoding detection altogether if not html/xml/plain text
 		if (!/text\/html|text\/plain|\+xml|\/xml/i.test(ct)) {
-			return Buffer.concat(arrayOfBuffers);
+			return buffer;
 		}
 
 		res = /charset=([^;]*)/i.exec(ct);
 	}
 
 	// no charset in content type, peek at response body for at most 1024 bytes
-	if (!res && arrayOfBuffers.length > 0) {
-		for (let i = 0; i < arrayOfBuffers.length; i++) {
-			str += arrayOfBuffers[i].toString()
-			if (str.length > 1024) {
-				break;
-			}
-		}
-		str = str.substr(0, 1024);
-	}
+	str = buffer.slice(0, 1024).toString();
 
 	// html5
 	if (!res && str) {
@@ -220,10 +222,10 @@ function convertBody(arrayOfBuffers, headers) {
 
 	// turn raw buffers into a single utf-8 buffer
 	return convert(
-		Buffer.concat(arrayOfBuffers)
-		, 'utf-8'
+		buffer
+		, 'UTF-8'
 		, charset
-	);
+	).toString();
 }
 
 /**
