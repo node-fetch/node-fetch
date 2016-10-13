@@ -5,6 +5,7 @@
  * Headers class offers convenient helpers
  */
 
+import getIterator from 'babel-runtime/core-js/get-iterator';
 import { _checkIsHttpToken, _checkInvalidHeaderChar } from './common.js';
 
 function sanitizeName(name) {
@@ -174,7 +175,7 @@ export default class Headers {
 		} else {
 			this.forEach((_, name) => keys.push(name));
 		};
-		return new Iterator(keys);
+		return getIterator(keys);
 	}
 
 	/**
@@ -190,7 +191,7 @@ export default class Headers {
 		} else {
 			const values = [];
 			this.forEach(value => values.push(value));
-			yield* new Iterator(values);
+			yield* getIterator(values);
 		}
 	}
 
@@ -207,7 +208,7 @@ export default class Headers {
 		} else {
 			const entries = [];
 			this.forEach((value, name) => entries.push([name, value]));
-			yield* new Iterator(entries);
+			yield* getIterator(entries);
 		}
 	}
 
@@ -231,29 +232,3 @@ export default class Headers {
 }
 
 Headers.FOLLOW_SPEC = false;
-
-const ITEMS = Symbol('items');
-class Iterator {
-	constructor(items) {
-		this[ITEMS] = items;
-	}
-
-	next() {
-		if (!this[ITEMS].length) {
-			return {
-				value: undefined,
-				done: true
-			};
-		}
-
-		return {
-			value: this[ITEMS].shift(),
-			done: false
-		};
-
-	}
-
-	[Symbol.iterator]() {
-		return this;
-	}
-}
