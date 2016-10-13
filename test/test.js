@@ -74,6 +74,12 @@ describe('node-fetch', () => {
 		expect(fetch.Request).to.equal(Request);
 	});
 
+	it('should support proper toString output for Headers, Response and Request objects', function() {
+		expect(new Headers().toString()).to.equal('[object Headers]');
+		expect(new Response().toString()).to.equal('[object Response]');
+		expect(new Request(base).toString()).to.equal('[object Request]');
+	});
+
 	it('should reject with error if url is protocol relative', function() {
 		url = '//example.com/';
 		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
@@ -169,11 +175,6 @@ describe('node-fetch', () => {
 		}).then(res => {
 			expect(res.headers['x-custom-header']).to.equal('abc');
 		});
-	});
-
-	it('should support proper toString output for Headers instance', function() {
-		const headers = new Headers();
-		expect(headers.toString()).to.equal('[object Headers]');
 	});
 
 	it('should accept custom host header', function() {
@@ -1305,11 +1306,6 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support proper toString output for Request instance', function() {
-		const req = new Request(base);
-		expect(req.toString()).to.equal('[object Request]');
-	});
-
 	it('should support wrapping Request instance', function() {
 		url = `${base}hello`;
 
@@ -1363,11 +1359,6 @@ describe('node-fetch', () => {
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
-	});
-
-	it('should support proper toString output for Response instance', function() {
-		const res = new Response();
-		expect(res.toString()).to.equal('[object Response]');
 	});
 
 	it('should support parsing headers in Response constructor', function() {
