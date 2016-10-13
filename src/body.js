@@ -179,11 +179,6 @@ function convertBody(buffer, headers) {
 
 	// header
 	if (ct) {
-		// skip encoding detection altogether if not html/xml/plain text
-		if (!/text\/html|text\/plain|\+xml|\/xml/i.test(ct)) {
-			return buffer;
-		}
-
 		res = /charset=([^;]*)/i.exec(ct);
 	}
 
