@@ -31,8 +31,5 @@ node_modules
 # OS files
 .DS_Store
 
-# Coveralls token files
-.coveralls.yml
-
 # Babel-compiled files
 lib

@@ -206,5 +206,5 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 [npm-url]: https://www.npmjs.com/package/node-fetch
 [travis-image]: https://img.shields.io/travis/bitinn/node-fetch.svg?style=flat-square
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
-[coveralls-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
-[coveralls-url]: https://codecov.io/gh/bitinn/node-fetch
+[codecov-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
+[codecov-url]: https://codecov.io/gh/bitinn/node-fetch
