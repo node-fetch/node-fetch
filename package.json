@@ -43,7 +43,8 @@
     "nyc": "^8.3.0",
     "parted": "^0.1.1",
     "promise": "^7.1.1",
-    "resumer": "0.0.0"
+    "resumer": "0.0.0",
+    "whatwg-url": "^3.0.0"
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",
@@ -53,7 +54,12 @@
   },
   "babel": {
     "presets": [
-      ["es2015", {"loose": true}]
+      [
+        "es2015",
+        {
+          "loose": true
+        }
+      ]
     ],
     "plugins": [
       "transform-runtime"
