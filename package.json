@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha test/test.js",
     "report": "istanbul cover _mocha -- -R spec test/test.js",
-    "coverage": "istanbul cover _mocha --report lcovonly -- -R spec test/test.js && cat ./coverage/lcov.info | coveralls"
+    "coverage": "istanbul cover _mocha --report lcovonly -- -R spec test/test.js && codecov -f coverage/coverage.json"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "bluebird": "^3.3.4",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
-    "coveralls": "^2.11.2",
+    "codecov": "^1.0.1",
     "form-data": ">=1.0.0",
     "istanbul": "^0.4.2",
     "mocha": "^2.1.0",
