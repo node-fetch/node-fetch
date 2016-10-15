@@ -9,6 +9,7 @@ import {convert} from 'encoding';
 import bodyStream from 'is-stream';
 import toArrayBuffer from 'buffer-to-arraybuffer';
 import {PassThrough} from 'stream';
+import Blob, {BUFFER} from './blob.js';
 import FetchError from './fetch-error.js';
 
 const DISTURBED = Symbol('disturbed');
@@ -26,6 +27,9 @@ export default class Body {
 		size = 0,
 		timeout = 0
 	} = {}) {
+		if (body instanceof Blob) {
+			body = body[BUFFER];
+		}
 		this.body = body;
 		this[DISTURBED] = false;
 		this.size = size;
@@ -43,6 +47,24 @@ export default class Body {
 	 */
 	arrayBuffer() {
 		return this[CONSUME_BODY]().then(buf => toArrayBuffer(buf));
+	}
+
+	/**
+	 * Return raw response as Blob
+	 *
+	 * @return Promise
+	 */
+	blob() {
+		let ct = this.headers && this.headers.get('content-type') || '';
+		return this[CONSUME_BODY]().then(buf => Object.assign(
+			// Prevent copying
+			new Blob([], {
+				type: ct.toLowerCase()
+			}),
+			{
+				[BUFFER]: buf
+			}
+		));
 	}
 
 	/**
