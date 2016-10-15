@@ -1,5 +1,3 @@
 parsers:
   javascript:
     enable_partials: yes
-codecov:
-  branch: v2
