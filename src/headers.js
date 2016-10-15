@@ -34,7 +34,7 @@ export default class Headers {
 	 * @return  Void
 	 */
 	constructor(headers) {
-		this[MAP] = {};
+		this[MAP] = Object.create(null);
 		this[FOLLOW_SPEC] = Headers.FOLLOW_SPEC;
 
 		// Headers
@@ -100,11 +100,11 @@ export default class Headers {
 	 * @return  Void
 	 */
 	forEach(callback, thisArg) {
-		Object.getOwnPropertyNames(this[MAP]).forEach(name => {
+		for (let name in this[MAP]) {
 			this[MAP][name].forEach(value => {
 				callback.call(thisArg, value, name, this);
 			});
-		});
+		}
 	}
 
 	/**
@@ -141,7 +141,7 @@ export default class Headers {
 	 * @return  Boolean
 	 */
 	has(name) {
-		return this[MAP].hasOwnProperty(sanitizeName(name));
+		return !!this[MAP][sanitizeName(name)];
 	}
 
 	/**
