@@ -13,20 +13,22 @@
  * @param   String      systemError  For Node.js system error
  * @return  FetchError
  */
-export default function FetchError(message, type, systemError) {
+class FetchError extends Error {
+	constructor(message, type, systemError) {
+		super();
+		
+		// hide custom error implementation details from end-users
+		Error.captureStackTrace(this, this.constructor);
 
-	// hide custom error implementation details from end-users
-	Error.captureStackTrace(this, this.constructor);
+		this.name = this.constructor.name;
+		this.message = message;
+		this.type = type;
 
-	this.name = this.constructor.name;
-	this.message = message;
-	this.type = type;
-
-	// when err.type is `system`, err.code contains system error code
-	if (systemError) {
-		this.code = this.errno = systemError.code;
+		// when err.type is `system`, err.code contains system error code
+		if (systemError) {
+			this.code = this.errno = systemError.code;
+		}
 	}
-
 }
 
-require('util').inherits(FetchError, Error);
+export default FetchError;
