@@ -15,13 +15,12 @@
  */
 class FetchError extends Error {
 	constructor(message, type, systemError) {
-		super();
+		super(message);
 		
 		// hide custom error implementation details from end-users
 		Error.captureStackTrace(this, this.constructor);
 
 		this.name = this.constructor.name;
-		this.message = message;
 		this.type = type;
 
 		// when err.type is `system`, err.code contains system error code
