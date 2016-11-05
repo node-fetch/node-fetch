@@ -329,3 +329,10 @@ export default class TestServer {
 		}
 	}
 }
+
+if (require.main === module) {
+	const server = new TestServer;
+	server.start(() => {
+		console.log(`Server started listening at port ${server.port}`);
+	});
+}
