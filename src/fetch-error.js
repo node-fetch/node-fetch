@@ -14,11 +14,11 @@
  * @return  FetchError
  */
 export default function FetchError(message, type, systemError) {
+	Error.call(this, message);
 
 	// hide custom error implementation details from end-users
 	Error.captureStackTrace(this, this.constructor);
 
-	this.name = this.constructor.name;
 	this.message = message;
 	this.type = type;
 
@@ -29,4 +29,5 @@ export default function FetchError(message, type, systemError) {
 
 }
 
-require('util').inherits(FetchError, Error);
+FetchError.prototype = Object.create(Error.prototype);
+FetchError.prototype.name = 'FetchError';
