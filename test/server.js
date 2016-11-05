@@ -1,4 +1,4 @@
-import 'babel-polyfill';
+import repeat from 'babel-runtime/core-js/string/repeat';
 import * as http from 'http';
 import { parse } from 'url';
 import * as zlib from 'zlib';
@@ -188,8 +188,7 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/html');
 			res.setHeader('Transfer-Encoding', 'chunked');
-			const padding = 'a';
-			res.write(padding.repeat(10));
+			res.write(repeat('a', 10));
 			res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>', 'Shift_JIS'));
 		}
 
@@ -197,8 +196,7 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/html');
 			res.setHeader('Transfer-Encoding', 'chunked');
-			const padding = 'a'.repeat(120);
-			res.write(padding.repeat(10));
+			res.write(repeat('a', 1200));
 			res.end(convert('中文', 'gbk'));
 		}
 

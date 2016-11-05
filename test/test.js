@@ -1,5 +1,6 @@
 
 // test tools
+import repeat from 'babel-runtime/core-js/string/repeat';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
@@ -34,6 +35,11 @@ let URL;
 try {
 	URL = require('whatwg-url').URL;
 } catch (err) {}
+
+const supportToString = ({
+	[Symbol.toStringTag]: 'z'
+}).toString() === '[object z]';
+const supportIterator = !!(global.Symbol && global.Symbol.iterator);
 
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
@@ -89,7 +95,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		expect(fetch.Request).to.equal(Request);
 	});
 
-	it('should support proper toString output for Headers, Response and Request objects', function() {
+	(supportToString ? it : it.skip)('should support proper toString output for Headers, Response and Request objects', function() {
 		expect(new Headers().toString()).to.equal('[object Headers]');
 		expect(new Response().toString()).to.equal('[object Response]');
 		expect(new Request(base).toString()).to.equal('[object Request]');
@@ -1015,7 +1021,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = `${base}encoding/chunked`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			const padding = 'a'.repeat(10);
+			const padding = repeat('a', 10);
 			return res.textConverted().then(result => {
 				expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
 			});
@@ -1026,7 +1032,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = `${base}encoding/invalid`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			const padding = 'a'.repeat(1200);
+			const padding = repeat('a', 1200);
 			return res.textConverted().then(result => {
 				expect(result).to.not.equal(`${padding}中文`);
 			});
@@ -1170,7 +1176,9 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			['a', '1']
 		]);
 		headers.append('b', '3');
-		expect(headers).to.be.iterable;
+		if (supportIterator) {
+			expect(headers).to.be.iterable;
+		}
 
 		const result = [];
 		for (let pair of headers) {
@@ -1181,14 +1189,14 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			['b', '2,3'],
 			['c', '4']
 		] : [
-		  ['b', '2'],
+			['b', '2'],
 			['b', '3'],
 			['c', '4'],
 			['a', '1'],
 		]);
 	});
 
-	it('should allow iterating through all headers with entries()', function() {
+	(supportIterator ? it : it.skip)('should allow iterating through all headers with entries()', function() {
 		const headers = new Headers([
 			['b', '2'],
 			['c', '4'],
@@ -1209,7 +1217,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			]);
 	});
 
-	it('should allow iterating through all headers with keys()', function() {
+	(supportIterator ? it : it.skip)('should allow iterating through all headers with keys()', function() {
 		const headers = new Headers([
 			['b', '2'],
 			['c', '4'],
@@ -1221,7 +1229,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			.and.to.iterate.over(Headers.FOLLOW_SPEC ? ['a', 'b', 'c'] : ['b', 'b', 'c', 'a']);
 	});
 
-	it('should allow iterating through all headers with values()', function() {
+	(supportIterator ? it : it.skip)('should allow iterating through all headers with values()', function() {
 		const headers = new Headers([
 			['b', '2'],
 			['c', '4'],
