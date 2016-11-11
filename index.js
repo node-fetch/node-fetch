@@ -5,7 +5,6 @@
  * a request API compatible with window.fetch
  */
 
-var parse_url = require('url').parse;
 var resolve_url = require('url').resolve;
 var http = require('http');
 var https = require('https');
