@@ -9,7 +9,6 @@ var parse_url = require('url').parse;
 var resolve_url = require('url').resolve;
 var http = require('http');
 var https = require('https');
-var zlib = require('zlib');
 var stream = require('stream');
 
 var Body = require('./lib/body');
@@ -183,55 +182,21 @@ function Fetch(url, opts) {
 				, headers: headers
 				, size: options.size
 				, timeout: options.timeout
+
+				// in following scenarios we ignore compression support
+				// 1. compression support is disabled
+				// 2. HEAD request
+				// 3. no content-encoding header
+				// 4. no content response (204)
+				// 5. content not modified response (304)
+				, isCompressed: options.compress &&
+						options.method !== 'HEAD' &&
+						headers.has('content-encoding') &&
+						res.statusCode !== 204 &&
+						res.statusCode !== 304
 			};
 
-			// response object
-			var output;
-
-			// in following scenarios we ignore compression support
-			// 1. compression support is disabled
-			// 2. HEAD request
-			// 3. no content-encoding header
-			// 4. no content response (204)
-			// 5. content not modified response (304)
-			if (!options.compress || options.method === 'HEAD' || !headers.has('content-encoding') || res.statusCode === 204 || res.statusCode === 304) {
-				output = new Response(body, response_options);
-				resolve(output);
-				return;
-			}
-
-			// otherwise, check for gzip or deflate
-			var name = headers.get('content-encoding');
-
-			// for gzip
-			if (name == 'gzip' || name == 'x-gzip') {
-				body = body.pipe(zlib.createGunzip());
-				output = new Response(body, response_options);
-				resolve(output);
-				return;
-
-			// for deflate
-			} else if (name == 'deflate' || name == 'x-deflate') {
-				// handle the infamous raw deflate response from old servers
-				// a hack for old IIS and Apache servers
-				var raw = res.pipe(new stream.PassThrough());
-				raw.once('data', function(chunk) {
-					// see http://stackoverflow.com/questions/37519828
-					if ((chunk[0] & 0x0F) === 0x08) {
-						body = body.pipe(zlib.createInflate());
-					} else {
-						body = body.pipe(zlib.createInflateRaw());
-					}
-					output = new Response(body, response_options);
-					resolve(output);
-				});
-				return;
-			}
-
-			// otherwise, use response as-is
-			output = new Response(body, response_options);
-			resolve(output);
-			return;
+			resolve(new Response(body, response_options));
 		});
 
 		// accept string, buffer or readable stream as body
