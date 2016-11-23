@@ -1488,3 +1488,43 @@ describe('node-fetch', function() {
 	});
 
 });
+
+describe('Headers', function() {
+ it('should be an iterator', function() {
+		var h = new Headers();
+		h.append('Content-Type', 'text/xml');
+
+		for (var pair of h) {
+			chai.expect(pair[0]).to.equal('content-type');
+			chai.expect(pair[1]).to.equal('text/xml');
+		}
+ });
+
+ it('should have an iterator on entries', function() {
+		var h = new Headers();
+		h.append('Content-Type', 'text/xml');
+
+		for (var pair of h.entries()) {
+			chai.expect(pair[0]).to.equal('content-type');
+			chai.expect(pair[1]).to.equal('text/xml');
+		}
+ });
+
+ it('should have an iterator on keys', function() {
+		var h = new Headers();
+		h.append('Content-Type', 'text/xml');
+
+		for (var pair of h.keys()) {
+			chai.expect(pair).to.equal('content-type');
+		}
+ });
+
+ it('should have an iterator on values', function() {
+		var h = new Headers();
+		h.append('Content-Type', 'text/xml');
+
+		for (var pair of h.values()) {
+			chai.expect(pair).to.equal('text/xml');
+		}
+ });
+});
