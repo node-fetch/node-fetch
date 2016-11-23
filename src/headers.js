@@ -6,11 +6,11 @@
  */
 
 import getIterator from 'babel-runtime/core-js/get-iterator';
-import { _checkIsHttpToken, _checkInvalidHeaderChar } from './common.js';
+import { checkIsHttpToken, checkInvalidHeaderChar } from './common.js';
 
 function sanitizeName(name) {
 	name += '';
-	if (!_checkIsHttpToken(name)) {
+	if (!checkIsHttpToken(name)) {
 		throw new TypeError(`${name} is not a legal HTTP header name`);
 	}
 	return name.toLowerCase();
@@ -18,7 +18,7 @@ function sanitizeName(name) {
 
 function sanitizeValue(value) {
 	value += '';
-	if (_checkInvalidHeaderChar(value)) {
+	if (checkInvalidHeaderChar(value)) {
 		throw new TypeError(`${value} is not a legal HTTP header value`);
 	}
 	return value;

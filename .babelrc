@@ -1,0 +1,25 @@
+{
+  "plugins": [
+    "transform-runtime"
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        [ "es2015", { "loose": true } ]
+      ]
+    },
+    "coverage": {
+      "presets": [
+        [ "es2015", { "loose": true } ]
+      ],
+      "plugins": [
+        "istanbul"
+      ]
+    },
+    "rollup": {
+      "presets": [
+        [ "es2015", { "loose": true, "modules": false } ]
+      ]
+    }
+  }
+}
