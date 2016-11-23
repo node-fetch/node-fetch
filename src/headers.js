@@ -285,6 +285,13 @@ const HeadersIteratorPrototype = Object.setPrototypeOf({
 	Object.getPrototypeOf([][Symbol.iterator]())
 ));
 
+// On Node.js v0.12 the %IteratorPrototype% object is broken
+if (typeof HeadersIteratorPrototype[Symbol.iterator] !== 'function') {
+	HeadersIteratorPrototype[Symbol.iterator] = function () {
+		return this;
+	};
+}
+
 Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
 	value: 'HeadersIterator',
 	writable: false,
