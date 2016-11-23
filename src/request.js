@@ -58,6 +58,13 @@ export default class Request extends Body {
 
 		// server request options
 		Object.assign(this, parsedURL);
+
+		Object.defineProperty(this, Symbol.toStringTag, {
+			value: 'Request',
+			writable: false,
+			enumerable: false,
+			configurable: true
+		});
 	}
 
 	get url() {
@@ -72,11 +79,11 @@ export default class Request extends Body {
 	clone() {
 		return new Request(this);
 	}
-
-	/**
-	 * Tag used by `Object.prototype.toString()`.
-	 */
-	get [Symbol.toStringTag]() {
-		return 'Request';
-	}
 }
+
+Object.defineProperty(Request.prototype, Symbol.toStringTag, {
+	value: 'RequestPrototype',
+	writable: false,
+	enumerable: false,
+	configurable: true
+});

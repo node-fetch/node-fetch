@@ -24,6 +24,13 @@ export default class Response extends Body {
 		this.status = opts.status || 200;
 		this.statusText = opts.statusText || STATUS_CODES[this.status];
 		this.headers = new Headers(opts.headers);
+
+		Object.defineProperty(this, Symbol.toStringTag, {
+			value: 'Response',
+			writable: false,
+			enumerable: false,
+			configurable: true
+		});
 	}
 
 	/**
@@ -49,11 +56,11 @@ export default class Response extends Body {
 		});
 
 	}
-
-	/**
-	 * Tag used by `Object.prototype.toString()`.
-	 */
-	get [Symbol.toStringTag]() {
-		return 'Response';
-	}
 }
+
+Object.defineProperty(Response.prototype, Symbol.toStringTag, {
+	value: 'ResponsePrototype',
+	writable: false,
+	enumerable: false,
+	configurable: true
+});

@@ -61,6 +61,13 @@ export default class Headers {
 				this.append(prop, headers[prop]);
 			}
 		}
+
+		Object.defineProperty(this, Symbol.toStringTag, {
+			value: 'Headers',
+			writable: false,
+			enumerable: false,
+			configurable: true
+		});
 	}
 
 	/**
@@ -222,13 +229,13 @@ export default class Headers {
 	[Symbol.iterator]() {
 		return this.entries();
 	}
-
-	/**
-	 * Tag used by `Object.prototype.toString()`.
-	 */
-	get [Symbol.toStringTag]() {
-		return 'Headers';
-	}
 }
+
+Object.defineProperty(Headers.prototype, Symbol.toStringTag, {
+	value: 'HeadersPrototype',
+	writable: false,
+	enumerable: false,
+	configurable: true
+});
 
 Headers.FOLLOW_SPEC = false;
