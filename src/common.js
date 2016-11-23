@@ -47,7 +47,7 @@ function isValidTokenChar(ch) {
   return false;
 }
 /* istanbul ignore next */
-export function checkIsHttpToken(val) {
+function checkIsHttpToken(val) {
   if (typeof val !== 'string' || val.length === 0)
     return false;
   if (!isValidTokenChar(val.charCodeAt(0)))
@@ -71,6 +71,7 @@ export function checkIsHttpToken(val) {
   }
   return true;
 }
+export { checkIsHttpToken };
 
 /**
  * True if val contains an invalid field-vchar
@@ -83,7 +84,7 @@ export function checkIsHttpToken(val) {
  * code size does not exceed v8's default max_inlined_source_size setting.
  **/
 /* istanbul ignore next */
-export function checkInvalidHeaderChar(val) {
+function checkInvalidHeaderChar(val) {
   val += '';
   if (val.length < 1)
     return false;
@@ -107,3 +108,4 @@ export function checkInvalidHeaderChar(val) {
   }
   return false;
 }
+export { checkInvalidHeaderChar };
