@@ -1132,11 +1132,12 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	});
 
 	it('should allow iterating through all headers with forEach', function() {
-		const headers = new Headers({
-			a: 1
-			, b: [2, 3]
-			, c: [4]
-		});
+		const headers = new Headers([
+			['b', '2'],
+			['c', '4'],
+			['b', '3'],
+			['a', '1']
+		]);
 		expect(headers).to.have.property('forEach');
 
 		const result = [];
@@ -1144,10 +1145,15 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			result.push([key, val]);
 		});
 
-		const expected = [
+		const expected = Headers.FOLLOW_SPEC ? [
 			["a", "1"]
 			, ["b", "2,3"]
 			, ["c", "4"]
+		] : [
+			["b", "2"]
+			, ["b", "3"]
+			, ["c", "4"]
+			, ["a", "1"]
 		];
 		expect(result).to.deep.equal(expected);
 	});

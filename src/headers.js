@@ -5,7 +5,6 @@
  * Headers class offers convenient helpers
  */
 
-import getIterator from 'babel-runtime/core-js/get-iterator';
 import { checkIsHttpToken, checkInvalidHeaderChar } from './common.js';
 
 function sanitizeName(name) {
@@ -106,11 +105,14 @@ export default class Headers {
 	 * @param   Boolean   thisArg   `this` context for callback function
 	 * @return  Void
 	 */
-	forEach(callback, thisArg) {
-		for (let name in this[MAP]) {
-			this[MAP][name].forEach(value => {
-				callback.call(thisArg, value, name, this);
-			});
+	forEach(callback, thisArg = undefined) {
+		let pairs = getHeaderPairs(this);
+		let i = 0;
+		while (i < pairs.length) {
+			const [name, value] = pairs[i];
+			callback.call(thisArg, value, name, this);
+			pairs = getHeaderPairs(this);
+			i++;
 		}
 	}
 
@@ -176,13 +178,7 @@ export default class Headers {
 	 * @return  Iterator
 	 */
 	keys() {
-		let keys = [];
-		if (this[FOLLOW_SPEC]) {
-			keys = Object.keys(this[MAP]).sort();
-		} else {
-			this.forEach((_, name) => keys.push(name));
-		};
-		return getIterator(keys);
+		return createHeadersIterator(this, 'key');
 	}
 
 	/**
@@ -190,33 +186,8 @@ export default class Headers {
 	 *
 	 * @return  Iterator
 	 */
-	*values() {
-		if (this[FOLLOW_SPEC]) {
-			for (const name of this.keys()) {
-				yield this.get(name);
-			}
-		} else {
-			const values = [];
-			this.forEach(value => values.push(value));
-			yield* getIterator(values);
-		}
-	}
-
-	/**
-	 * Get an iterator on entries.
-	 *
-	 * @return  Iterator
-	 */
-	*entries() {
-		if (this[FOLLOW_SPEC]) {
-			for (const name of this.keys()) {
-				yield [name, this.get(name)];
-			}
-		} else {
-			const entries = [];
-			this.forEach((value, name) => entries.push([name, value]));
-			yield* getIterator(entries);
-		}
+	values() {
+		return createHeadersIterator(this, 'value');
 	}
 
 	/**
@@ -227,12 +198,95 @@ export default class Headers {
 	 * @return  Iterator
 	 */
 	[Symbol.iterator]() {
-		return this.entries();
+		return createHeadersIterator(this, 'key+value');
 	}
 }
+Headers.prototype.entries = Headers.prototype[Symbol.iterator];
 
 Object.defineProperty(Headers.prototype, Symbol.toStringTag, {
 	value: 'HeadersPrototype',
+	writable: false,
+	enumerable: false,
+	configurable: true
+});
+
+function getHeaderPairs(headers, kind) {
+	if (headers[FOLLOW_SPEC]) {
+		const keys = Object.keys(headers[MAP]).sort();
+		return keys.map(
+			kind === 'key' ?
+				k => [k] :
+				k => [k, headers.get(k)]
+		);
+	}
+
+	const values = [];
+
+	for (let name in headers[MAP]) {
+		for (let value of headers[MAP][name]) {
+			values.push([name, value]);
+		}
+	}
+
+	return values;
+}
+
+const INTERNAL = Symbol('internal');
+
+function createHeadersIterator(target, kind) {
+	const iterator = Object.create(HeadersIteratorPrototype);
+	iterator[INTERNAL] = {
+		target,
+		kind,
+		index: 0
+	};
+	return iterator;
+}
+
+const HeadersIteratorPrototype = Object.setPrototypeOf({
+	next() {
+		if (!this ||
+			Object.getPrototypeOf(this) !== HeadersIteratorPrototype) {
+			throw new TypeError('Value of `this` is not a HeadersIterator');
+		}
+
+		const {
+			target,
+			kind,
+			index
+		} = this[INTERNAL];
+		const values = getHeaderPairs(target, kind);
+		const len = values.length;
+		if (index >= len) {
+			return {
+				value: undefined,
+				done: true
+			};
+		}
+
+		const pair = values[index];
+		this[INTERNAL].index = index + 1;
+
+		let result;
+		if (kind === 'key') {
+			result = pair[0];
+		} else if (kind === 'value') {
+			result = pair[1];
+		} else {
+			result = pair;
+		}
+
+		return {
+			value: result,
+			done: false
+		};
+	}
+}, Object.getPrototypeOf(
+	Object.getPrototypeOf([][Symbol.iterator]())
+));
+
+Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
+	value: 'HeadersIterator',
 	writable: false,
 	enumerable: false,
 	configurable: true
