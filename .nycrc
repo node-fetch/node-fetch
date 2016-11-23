@@ -1,7 +1,4 @@
 {
-  "include": [
-    "src/*.js"
-  ],
   "require": [
     "babel-register"
   ],

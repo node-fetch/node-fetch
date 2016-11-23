@@ -1039,53 +1039,36 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		});
 	});
 
-	it('should allow piping response body as stream', function(done) {
+	it('should allow piping response body as stream', function() {
 		url = `${base}hello`;
-		fetch(url).then(res => {
+		return fetch(url).then(res => {
 			expect(res.body).to.be.an.instanceof(stream.Transform);
-			res.body.on('data', chunk => {
+			return streamToPromise(res.body, chunk => {
 				if (chunk === null) {
 					return;
 				}
 				expect(chunk.toString()).to.equal('world');
-			});
-			res.body.on('end', () => {
-				done();
 			});
 		});
 	});
 
-	it('should allow cloning a response, and use both as stream', function(done) {
+	it('should allow cloning a response, and use both as stream', function() {
 		url = `${base}hello`;
 		return fetch(url).then(res => {
-			let counter = 0;
 			const r1 = res.clone();
 			expect(res.body).to.be.an.instanceof(stream.Transform);
 			expect(r1.body).to.be.an.instanceof(stream.Transform);
-			res.body.on('data', chunk => {
+			const dataHandler = chunk => {
 				if (chunk === null) {
 					return;
 				}
 				expect(chunk.toString()).to.equal('world');
-			});
-			res.body.on('end', () => {
-				counter++;
-				if (counter == 2) {
-					done();
-				}
-			});
-			r1.body.on('data', chunk => {
-				if (chunk === null) {
-					return;
-				}
-				expect(chunk.toString()).to.equal('world');
-			});
-			r1.body.on('end', () => {
-				counter++;
-				if (counter == 2) {
-					done();
-				}
-			});
+			};
+
+			return Promise.all([
+				streamToPromise(res.body, dataHandler),
+				streamToPromise(r1.body, dataHandler)
+			]);
 		});
 	});
 
@@ -1698,3 +1681,15 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 });
 
 });
+
+function streamToPromise(stream, dataHandler) {
+	return new Promise((resolve, reject) => {
+		stream.on('data', (...args) => {
+			Promise.resolve()
+				.then(() => dataHandler(...args))
+				.catch(reject);
+		});
+		stream.on('end', resolve);
+		stream.on('error', reject);
+	});
+}
