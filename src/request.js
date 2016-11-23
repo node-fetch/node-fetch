@@ -7,7 +7,7 @@
 
 import { format as format_url, parse as parse_url } from 'url';
 import Headers from './headers.js';
-import Body, { clone } from './body';
+import Body, { clone, extractContentType } from './body';
 
 /**
  * Request class
@@ -45,6 +45,13 @@ export default class Request extends Body {
 		this.method = init.method || input.method || 'GET';
 		this.redirect = init.redirect || input.redirect || 'follow';
 		this.headers = new Headers(init.headers || input.headers || {});
+
+		if (init.body) {
+			const contentType = extractContentType(this);
+			if (contentType && !this.headers.has('Content-Type')) {
+				this.headers.append('Content-Type', contentType);
+			}
+		}
 
 		// server only options
 		this.follow = init.follow !== undefined ?

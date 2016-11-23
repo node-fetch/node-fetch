@@ -249,5 +249,25 @@ export function clone(instance) {
 	return body;
 }
 
+/**
+ * Performs the operation "extract a `Content-Type` value from |object|" as
+ * specified in the specification:
+ * https://fetch.spec.whatwg.org/#concept-bodyinit-extract
+ *
+ * This function assumes that instance.body is present and non-null.
+ *
+ * @param   Mixed  instance  Response or Request instance
+ */
+export function extractContentType(instance) {
+	// detect form data input from form-data module
+	if (typeof instance.body.getBoundary === 'function') {
+		return `multipart/form-data;boundary=${instance.body.getBoundary()}`;
+	}
+
+	if (typeof instance.body === 'string') {
+		return 'text/plain;charset=UTF-8';
+	}
+}
+
 // expose Promise
 Body.Promise = global.Promise;

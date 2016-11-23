@@ -68,11 +68,6 @@ function fetch(url, opts) {
 			headers.set('accept', '*/*');
 		}
 
-		// detect form data input from form-data module, this hack avoid the need to pass multipart header manually
-		if (!headers.has('content-type') && options.body && typeof options.body.getBoundary === 'function') {
-			headers.set('content-type', `multipart/form-data; boundary=${options.body.getBoundary()}`);
-		}
-
 		// bring node-fetch closer to browser behavior by setting content-length automatically
 		if (!headers.has('content-length') && /post|put|patch|delete/i.test(options.method)) {
 			if (typeof options.body === 'string') {
