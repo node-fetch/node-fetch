@@ -269,5 +269,22 @@ export function extractContentType(instance) {
 	}
 }
 
+export function getTotalBytes(instance) {
+	const {body} = instance;
+
+	if (typeof body === 'string') {
+		return Buffer.byteLength(body);
+	} else if (body && typeof body.getLengthSync === 'function') {
+		// detect form data input from form-data module
+		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
+			body.hasKnownLength && body.hasKnownLength()) { // 2.x
+			return body.getLengthSync();
+		}
+	} else if (body === undefined || body === null) {
+		// this is only necessary for older nodejs releases (before iojs merge)
+		return 0;
+	}
+}
+
 // expose Promise
 Body.Promise = global.Promise;
