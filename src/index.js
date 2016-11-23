@@ -14,7 +14,7 @@ import {PassThrough} from 'stream';
 import Body from './body';
 import Response from './response';
 import Headers from './headers';
-import Request from './request';
+import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 
 /**
@@ -37,7 +37,9 @@ function fetch(url, opts) {
 	// wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {
 		// build request object
-		const options = new Request(url, opts);
+		const request = new Request(url, opts);
+
+		const options = getNodeRequestOptions(request);
 
 		if (!options.protocol || !options.hostname) {
 			throw new Error('only absolute urls are supported');
@@ -49,46 +51,6 @@ function fetch(url, opts) {
 
 		const send = (options.protocol === 'https:' ? https : http).request;
 
-		// normalize headers
-		const headers = new Headers(options.headers);
-
-		if (options.compress) {
-			headers.set('accept-encoding', 'gzip,deflate');
-		}
-
-		if (!headers.has('user-agent')) {
-			headers.set('user-agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
-		}
-
-		if (!headers.has('connection') && !options.agent) {
-			headers.set('connection', 'close');
-		}
-
-		if (!headers.has('accept')) {
-			headers.set('accept', '*/*');
-		}
-
-		// bring node-fetch closer to browser behavior by setting content-length automatically
-		if (!headers.has('content-length') && /post|put|patch|delete/i.test(options.method)) {
-			if (typeof options.body === 'string') {
-				headers.set('content-length', Buffer.byteLength(options.body));
-			// detect form data input from form-data module, this hack avoid the need to add content-length header manually
-			} else if (options.body && typeof options.body.getLengthSync === 'function') {
-				// for form-data 1.x
-				if (options.body._lengthRetrievers && options.body._lengthRetrievers.length == 0) {
-					headers.set('content-length', options.body.getLengthSync().toString());
-				// for form-data 2.x
-				} else if (options.body.hasKnownLength && options.body.hasKnownLength()) {
-					headers.set('content-length', options.body.getLengthSync().toString());
-				}
-			// this is only necessary for older nodejs releases (before iojs merge)
-			} else if (options.body === undefined || options.body === null) {
-				headers.set('content-length', '0');
-			}
-		}
-
-		options.headers = headers.raw();
-
 		// http.request only support string as host header, this hack make custom host header possible
 		if (options.headers.host) {
 			options.headers.host = options.headers.host[0];
@@ -98,52 +60,52 @@ function fetch(url, opts) {
 		const req = send(options);
 		let reqTimeout;
 
-		if (options.timeout) {
+		if (request.timeout) {
 			req.once('socket', socket => {
 				reqTimeout = setTimeout(() => {
 					req.abort();
-					reject(new FetchError(`network timeout at: ${options.url}`, 'request-timeout'));
-				}, options.timeout);
+					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
+				}, request.timeout);
 			});
 		}
 
 		req.on('error', err => {
 			clearTimeout(reqTimeout);
-			reject(new FetchError(`request to ${options.url} failed, reason: ${err.message}`, 'system', err));
+			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 		});
 
 		req.on('response', res => {
 			clearTimeout(reqTimeout);
 
 			// handle redirect
-			if (fetch.isRedirect(res.statusCode) && options.redirect !== 'manual') {
-				if (options.redirect === 'error') {
-					reject(new FetchError(`redirect mode is set to error: ${options.url}`, 'no-redirect'));
+			if (fetch.isRedirect(res.statusCode) && request.redirect !== 'manual') {
+				if (request.redirect === 'error') {
+					reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect'));
 					return;
 				}
 
-				if (options.counter >= options.follow) {
-					reject(new FetchError(`maximum redirect reached at: ${options.url}`, 'max-redirect'));
+				if (request.counter >= request.follow) {
+					reject(new FetchError(`maximum redirect reached at: ${request.url}`, 'max-redirect'));
 					return;
 				}
 
 				if (!res.headers.location) {
-					reject(new FetchError(`redirect location header missing at: ${options.url}`, 'invalid-redirect'));
+					reject(new FetchError(`redirect location header missing at: ${request.url}`, 'invalid-redirect'));
 					return;
 				}
 
 				// per fetch spec, for POST request with 301/302 response, or any request with 303 response, use GET when following redirect
 				if (res.statusCode === 303
-					|| ((res.statusCode === 301 || res.statusCode === 302) && options.method === 'POST'))
+					|| ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST'))
 				{
-					options.method = 'GET';
-					delete options.body;
-					delete options.headers['content-length'];
+					request.method = 'GET';
+					request.body = null;
+					request.headers.delete('content-length');
 				}
 
-				options.counter++;
+				request.counter++;
 
-				resolve(fetch(resolve_url(options.url, res.headers.location), options));
+				resolve(fetch(resolve_url(request.url, res.headers.location), request));
 				return;
 			}
 
@@ -158,19 +120,19 @@ function fetch(url, opts) {
 					headers.append(name, res.headers[name]);
 				}
 			}
-			if (options.redirect === 'manual' && headers.has('location')) {
-				headers.set('location', resolve_url(options.url, headers.get('location')));
+			if (request.redirect === 'manual' && headers.has('location')) {
+				headers.set('location', resolve_url(request.url, headers.get('location')));
 			}
 
 			// prepare response
 			let body = res.pipe(new PassThrough());
 			const response_options = {
-				url: options.url
+				url: request.url
 				, status: res.statusCode
 				, statusText: res.statusMessage
 				, headers: headers
-				, size: options.size
-				, timeout: options.timeout
+				, size: request.size
+				, timeout: request.timeout
 			};
 
 			// response object
@@ -182,7 +144,7 @@ function fetch(url, opts) {
 			// 3. no content-encoding header
 			// 4. no content response (204)
 			// 5. content not modified response (304)
-			if (!options.compress || options.method === 'HEAD' || !headers.has('content-encoding') || res.statusCode === 204 || res.statusCode === 304) {
+			if (!request.compress || request.method === 'HEAD' || !headers.has('content-encoding') || res.statusCode === 204 || res.statusCode === 304) {
 				output = new Response(body, response_options);
 				resolve(output);
 				return;
@@ -224,16 +186,16 @@ function fetch(url, opts) {
 
 		// accept string, buffer or readable stream as body
 		// per spec we will call tostring on non-stream objects
-		if (typeof options.body === 'string') {
-			req.write(options.body);
+		if (typeof request.body === 'string') {
+			req.write(request.body);
 			req.end();
-		} else if (options.body instanceof Buffer) {
-			req.write(options.body);
+		} else if (request.body instanceof Buffer) {
+			req.write(request.body);
 			req.end()
-		} else if (typeof options.body === 'object' && options.body.pipe) {
-			options.body.pipe(req);
-		} else if (typeof options.body === 'object') {
-			req.write(options.body.toString());
+		} else if (typeof request.body === 'object' && request.body.pipe) {
+			request.body.pipe(req);
+		} else if (typeof request.body === 'object') {
+			req.write(request.body.toString());
 			req.end();
 		} else {
 			req.end();
