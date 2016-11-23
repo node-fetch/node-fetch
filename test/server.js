@@ -186,6 +186,17 @@ TestServer.prototype.router = function(req, res) {
 		res.end(convert('中文', 'gbk'));
 	}
 
+	if (p === '/encoding/chunked/gzip') {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'text/html');
+		res.setHeader('Content-Encoding', 'gzip');
+		res.setHeader('Transfer-Encoding', 'chunked');
+		zlib.gzip(new Array(40000).join('a'), function(err, buffer) {
+			res.write(buffer);
+			res.end();
+		});
+	}
+
 	if (p === '/encoding/chunked') {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');
