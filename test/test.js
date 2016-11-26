@@ -471,16 +471,6 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		});
 	});
 
-	it('should return empty object on no-content response', function() {
-		url = `${base}no-content`;
-		return fetch(url).then(res => {
-			return res.json().then(result => {
-				expect(result).to.be.an('object');
-				expect(result).to.be.empty;
-			});
-		});
-	});
-
 	it('should handle no content response with gzip encoding', function() {
 		url = `${base}no-content/gzip`;
 		return fetch(url).then(res => {

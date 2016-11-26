@@ -51,11 +51,6 @@ export default class Body {
 	 * @return  Promise
 	 */
 	json() {
-		// for 204 No Content response, buffer will be empty, parsing it will throw error
-		if (this.status === 204) {
-			return Body.Promise.resolve({});
-		}
-
 		return this[CONSUME_BODY]().then(buffer => JSON.parse(buffer.toString()));
 	}
 
