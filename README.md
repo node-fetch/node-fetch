@@ -37,10 +37,23 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 
 `npm install node-fetch --save`
 
+# Polyfill
+
+External packages that depend on `fetch` will generally expect `fetch` to be available on the global object, which means that it need to be used as a polyfill to work with these. To do so, simply add `require('node-fetch/polyfill')` at the top of your application entry point.
+
+If your use Webpack to package your Node code, you can simply add `node-fetch/polyfill` in the `entry` configuration option before your application entry point e.g.:
+
+```javascript
+module.exports = {
+   entry: ['node-fetch/polyfill', './app/js']
+};
+```
+
 
 # Usage
 
 ```javascript
+// if not using the polyfill
 var fetch = require('node-fetch');
 
 // if you are on node v0.10, set a Promise library first, eg.
