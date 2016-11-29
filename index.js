@@ -176,6 +176,9 @@ function Fetch(url, opts) {
 
 			// prepare response
 			var body = res.pipe(new stream.PassThrough());
+
+			body.clientResponse = res;
+
 			var response_options = {
 				url: options.url
 				, status: res.statusCode
