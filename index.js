@@ -177,9 +177,7 @@ function Fetch(url, opts) {
 			// prepare response
 			var body = res.pipe(new stream.PassThrough());
 
-			body.cancel = function () {
-				res.destroy();
-			};
+			body.clientResponse = res;
 
 			var response_options = {
 				url: options.url
