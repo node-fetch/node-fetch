@@ -38,17 +38,24 @@ export default class Request extends Body {
 			parsedURL = parse_url(input.url);
 		}
 
+		let method = init.method || input.method || 'GET';
+
+		if ((init.body != null || input instanceof Request && input.body != null) &&
+			(method === 'GET' || method === 'HEAD')) {
+			throw new TypeError('Request with GET/HEAD method cannot have body');
+		}
+
 		super(init.body || clone(input), {
 			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
 		});
 
 		// fetch spec options
-		this.method = init.method || input.method || 'GET';
+		this.method = method;
 		this.redirect = init.redirect || input.redirect || 'follow';
 		this.headers = new Headers(init.headers || input.headers || {});
 
-		if (init.body) {
+		if (init.body != null) {
 			const contentType = extractContentType(this);
 			if (contentType && !this.headers.has('Content-Type')) {
 				this.headers.append('Content-Type', contentType);

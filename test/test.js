@@ -1444,6 +1444,17 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		});
 	});
 
+	it('should throw error with GET/HEAD requests with body', function() {
+		expect(() => new Request('.', { body: '' }))
+			.to.throw(TypeError);
+		expect(() => new Request('.', { body: 'a' }))
+			.to.throw(TypeError);
+		expect(() => new Request('.', { body: '', method: 'HEAD' }))
+			.to.throw(TypeError);
+		expect(() => new Request('.', { body: 'a', method: 'HEAD' }))
+			.to.throw(TypeError);
+	});
+
 	it('should support empty options in Response constructor', function() {
 		let body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
@@ -1557,6 +1568,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support arrayBuffer() method in Request constructor', function() {
 		url = base;
 		var req = new Request(url, {
+			method: 'POST',
 			body: 'a=1'
 		});
 		expect(req.url).to.equal(url);
@@ -1570,6 +1582,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support text() method in Request constructor', function() {
 		url = base;
 		const req = new Request(url, {
+			method: 'POST',
 			body: 'a=1'
 		});
 		expect(req.url).to.equal(url);
@@ -1581,6 +1594,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support json() method in Request constructor', function() {
 		url = base;
 		const req = new Request(url, {
+			method: 'POST',
 			body: '{"a":1}'
 		});
 		expect(req.url).to.equal(url);
@@ -1592,6 +1606,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support buffer() method in Request constructor', function() {
 		url = base;
 		const req = new Request(url, {
+			method: 'POST',
 			body: 'a=1'
 		});
 		expect(req.url).to.equal(url);
