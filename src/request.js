@@ -40,12 +40,18 @@ export default class Request extends Body {
 
 		let method = init.method || input.method || 'GET';
 
-		if ((init.body != null || input instanceof Request && input.body != null) &&
+		if ((init.body != null || input instanceof Request && input.body !== null) &&
 			(method === 'GET' || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
-		super(init.body || clone(input), {
+		let inputBody = init.body != null ?
+			init.body :
+			input instanceof Request && input.body !== null ?
+				clone(input) :
+				null;
+
+		super(inputBody, {
 			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
 		});

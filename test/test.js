@@ -1544,9 +1544,14 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should default to null as body', function() {
 		const res = new Response();
 		expect(res.body).to.equal(null);
-		return res.text().then(result => {
-			expect(result).to.equal('');
-		});
+		const req = new Request('.');
+		expect(req.body).to.equal(null);
+
+		const cb = result => expect(result).to.equal('');
+		return Promise.all([
+			res.text().then(cb),
+			req.text().then(cb)
+		]);
 	});
 
 	it('should default to 200 as status code', function() {

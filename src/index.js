@@ -184,7 +184,7 @@ function fetch(url, opts) {
 			return;
 		});
 
-		// accept string, buffer or readable stream as body
+		// accept string, buffer, readable stream or null as body
 		// per spec we will call tostring on non-stream objects
 		if (typeof request.body === 'string') {
 			req.write(request.body);
@@ -192,9 +192,9 @@ function fetch(url, opts) {
 		} else if (request.body instanceof Buffer) {
 			req.write(request.body);
 			req.end()
-		} else if (typeof request.body === 'object' && request.body.pipe) {
+		} else if (request.body && typeof request.body === 'object' && request.body.pipe) {
 			request.body.pipe(req);
-		} else if (typeof request.body === 'object') {
+		} else if (request.body && typeof request.body === 'object') {
 			req.write(request.body.toString());
 			req.end();
 		} else {
