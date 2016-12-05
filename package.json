@@ -3,6 +3,7 @@
   "version": "1.6.3",
   "description": "A light-weight module that brings window.fetch to node.js and io.js",
   "main": "index.js",
+  "browser": "browser.js",
   "scripts": {
     "test": "mocha test/test.js",
     "report": "istanbul cover _mocha -- -R spec test/test.js",
