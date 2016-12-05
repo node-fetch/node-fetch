@@ -1509,8 +1509,9 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		});
 	});
 
-	it('should support blob() method in Request constructor', function() {
+	it('should support blob() method in Response constructor', function() {
 		const res = new Response('a=1', {
+			method: 'POST',
 			headers: {
 				'Content-Type': 'text/plain'
 			}
@@ -1657,6 +1658,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support blob() method in Request constructor', function() {
 		url = base;
 		var req = new Request(url, {
+			method: 'POST',
 			body: 'a=1',
 			headers: {
 				'Content-Type': 'text/plain'
