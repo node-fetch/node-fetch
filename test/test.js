@@ -719,6 +719,42 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		});
 	});
 
+	it('should allow POST request with blob body without type', function() {
+		url = `${base}inspect`;
+		opts = {
+			method: 'POST'
+			, body: new Blob(['a=1'])
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
+	it('should allow POST request with blob body with type', function() {
+		url = `${base}inspect`;
+		opts = {
+			method: 'POST',
+			body: new Blob(['a=1'], {
+				type: 'text/plain;charset=UTF-8'
+			})
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.equal('text/plain;charset=utf-8');
+			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
 	it('should allow POST request with readable stream as body', function() {
 		let body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
@@ -1623,6 +1659,13 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 
 	it('should support buffer as body in Response constructor', function() {
 		const res = new Response(new Buffer('a=1'));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support blob as body in Response constructor', function() {
+		const res = new Response(new Blob(['a=1']));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});

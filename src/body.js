@@ -149,7 +149,7 @@ export default class Body {
 			return Body.Promise.resolve(this.body);
 		}
 
-		// should never happen
+		// istanbul ignore if: should never happen
 		if (!bodyStream(this.body)) {
 			return Body.Promise.resolve(new Buffer(0));
 		}
@@ -306,6 +306,8 @@ export function clone(instance) {
 export function extractContentType(instance) {
 	const {body} = instance;
 
+	// istanbul ignore if: Currently, because of a guard in Request, body
+	// can never be null. Included here for completeness.
 	if (body === null) {
 		// body is null
 		return null;
@@ -375,12 +377,9 @@ export function writeToStream(dest, instance) {
 		// body is buffer
 		dest.write(body);
 		dest.end()
-	} else if (bodyStream(body)) {
+	} else {
 		// body is stream
 		body.pipe(dest);
-	} else {
-		// should never happen
-		dest.end();
 	}
 }
 
