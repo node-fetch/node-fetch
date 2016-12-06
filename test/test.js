@@ -4,6 +4,7 @@ import repeat from 'babel-runtime/core-js/string/repeat';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
+import chaiString from 'chai-string';
 import bluebird from 'bluebird';
 import then from 'promise';
 import {spawn} from 'child_process';
@@ -16,6 +17,7 @@ import * as fs from 'fs';
 
 chai.use(chaiPromised);
 chai.use(chaiIterator);
+chai.use(chaiString);
 const expect = chai.expect;
 
 import TestServer from './server';
@@ -630,6 +632,44 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			});
 	});
 
+	it('should set default User-Agent', function () {
+		url = `${base}inspect`;
+		fetch(url).then(res => res.json()).then(res => {
+			expect(res.headers['user-agent']).to.startWith('node-fetch/');
+		});
+	});
+
+	it('should allow setting User-Agent', function () {
+		url = `${base}inspect`;
+		opts = {
+			headers: {
+				'user-agent': 'faked'
+			}
+		};
+		fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.headers['user-agent']).to.equal('faked');
+		});
+	});
+
+	it('should set default Accept header', function () {
+		url = `${base}inspect`;
+		fetch(url).then(res => res.json()).then(res => {
+			expect(res.headers.accept).to.equal('*/*');
+		});
+	});
+
+	it('should allow setting Accept header', function () {
+		url = `${base}inspect`;
+		opts = {
+			headers: {
+				'accept': 'application/json'
+			}
+		};
+		fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.headers.accept).to.equal('application/json');
+		});
+	});
+
 	it('should allow POST request', function() {
 		url = `${base}inspect`;
 		opts = {
@@ -640,6 +680,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		}).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
 			expect(res.headers['content-length']).to.equal('0');
 		});
 	});
@@ -656,6 +697,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.equal('text/plain;charset=UTF-8');
 			expect(res.headers['content-length']).to.equal('3');
 		});
 	});
@@ -672,6 +714,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
 			expect(res.headers['transfer-encoding']).to.equal('chunked');
+			expect(res.headers['content-type']).to.be.undefined;
 			expect(res.headers['content-length']).to.be.undefined;
 		});
 	});
@@ -691,6 +734,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
 			expect(res.headers['transfer-encoding']).to.equal('chunked');
+			expect(res.headers['content-type']).to.be.undefined;
 			expect(res.headers['content-length']).to.be.undefined;
 		});
 	});
@@ -708,7 +752,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
-			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-type']).to.startWith('multipart/form-data;boundary=');
 			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.body).to.equal('a=1');
 		});
@@ -728,7 +772,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
-			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-type']).to.startWith('multipart/form-data;boundary=');
 			expect(res.headers['content-length']).to.be.undefined;
 			expect(res.body).to.contain('my_field=');
 		});
@@ -751,7 +795,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
-			expect(res.headers['content-type']).to.contain('multipart/form-data');
+			expect(res.headers['content-type']).to.startWith('multipart/form-data; boundary=');
 			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.headers.b).to.equal('2');
 			expect(res.body).to.equal('a=1');
@@ -1659,22 +1703,19 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		url = base;
 		var req = new Request(url, {
 			method: 'POST',
-			body: 'a=1',
-			headers: {
-				'Content-Type': 'text/plain'
-			}
+			body: new Buffer('a=1')
 		});
 		expect(req.url).to.equal(url);
 		return req.blob().then(function(result) {
 			expect(result).to.be.an.instanceOf(Blob);
 			expect(result.isClosed).to.be.false;
 			expect(result.size).to.equal(3);
-			expect(result.type).to.equal('text/plain');
+			expect(result.type).to.equal('');
 
 			result.close();
 			expect(result.isClosed).to.be.true;
 			expect(result.size).to.equal(0);
-			expect(result.type).to.equal('text/plain');
+			expect(result.type).to.equal('');
 		});
 	});
 

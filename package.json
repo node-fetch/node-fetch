@@ -39,6 +39,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "chai-iterator": "^1.1.1",
+    "chai-string": "^1.3.0",
     "codecov": "^1.0.1",
     "cross-env": "2.0.1",
     "form-data": ">=1.0.0",
