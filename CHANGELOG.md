@@ -3,6 +3,33 @@ Changelog
 =========
 
 
+# 2.x release
+
+## v2.0.0-alpha.1 (UNRELEASED)
+
+- Major: Node.js 0.10.x support is dropped
+- Major: rewrite in transpiled ES2015
+- Major: internal methods are no longer exposed
+- Major: throw error when a GET/HEAD Request is constructed with a non-null body (per spec)
+- Major: `response.text()` no longer attempts to detect encoding, instead always opting for UTF-8 (per spec); use `response.textConverted()` for the old behavior
+- Major: make `response.json()` throw error instead of returning an empty object on 204 no-content respose (per spec; reverts behavior set in v1.6.2)
+- Major: arrays as parameters to `headers.append` and `headers.set` are joined as a string (per spec)
+- Enhance: start testing on Node.js 4, 6, 7
+- Enhance: use Rollup to produce a distributed bundle (less memory overhead and faster startup)
+- Enhance: make `toString()` on Headers, Requests, and Responses return correct IDL class strings
+- Enhance: add an option to conform to latest spec at the expense of reduced compatibility
+- Enhance: set `Content-Length` header for Buffers as well
+- Enhance: add `response.arrayBuffer()` (also applies to Requests)
+- Enhance: add experimental `response.blob()` (also applies to Requests)
+- Enhance: make Headers iterable
+- Enhance: make Headers constructor accept an array of tuples
+- Enhance: make sure header names and values are valid in HTTP
+- Fix: coerce Headers prototype function parameters to strings, where applicable
+- Fix: fix Request and Response with `null` body
+- Fix: support WHATWG URL objects, created by `whatwg-url` package or `require('url').URL` in Node.js 7+
+- Other: use Codecov for code coverage tracking
+
+
 # 1.x release
 
 ## v1.6.3
