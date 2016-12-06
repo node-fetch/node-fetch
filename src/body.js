@@ -340,6 +340,9 @@ export function getTotalBytes(instance) {
 	} else if (body instanceof Blob) {
 		// body is blob
 		return body.size;
+	} else if (Buffer.isBuffer(body)) {
+		// body is buffer
+		return body.length;
 	} else if (body && typeof body.getLengthSync === 'function') {
 		// detect form data input from form-data module
 		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x

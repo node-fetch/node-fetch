@@ -713,9 +713,9 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		}).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
-			expect(res.headers['transfer-encoding']).to.equal('chunked');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
 			expect(res.headers['content-type']).to.be.undefined;
-			expect(res.headers['content-length']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('3');
 		});
 	});
 
