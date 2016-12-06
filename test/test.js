@@ -814,6 +814,8 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		}).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('[object Object]');
+			expect(res.headers['content-type']).to.equal('text/plain;charset=UTF-8');
+			expect(res.headers['content-length']).to.equal('15');
 		});
 	});
 
@@ -1446,14 +1448,20 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should support blob round-trip', function() {
 		url = `${base}hello`;
 
+		let length, type;
+
 		return fetch(url).then(res => res.blob()).then(blob => {
 			url = `${base}inspect`;
+			length = blob.size;
+			type = blob.type;
 			return fetch(url, {
 				method: 'POST',
 				body: blob
 			});
-		}).then(res => res.json()).then(({body}) => {
+		}).then(res => res.json()).then(({body, headers}) => {
 			expect(body).to.equal('world');
+			expect(headers['content-type']).to.equal(type);
+			expect(headers['content-length']).to.equal(String(length));
 		});
 	});
 

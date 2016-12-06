@@ -27,8 +27,21 @@ export default class Body {
 		size = 0,
 		timeout = 0
 	} = {}) {
-		if (body instanceof Blob) {
-			body = body[BUFFER];
+		if (body == null) {
+			// body is undefined or null
+			body = null;
+		} else if (typeof body === 'string') {
+			// body is string
+		} else if (body instanceof Blob) {
+			// body is blob
+		} else if (Buffer.isBuffer(body)) {
+			// body is buffer
+		} else if (bodyStream(body)) {
+			// body is stream
+		} else {
+			// none of the above
+			// coerce to string
+			body = String(body);
 		}
 		this.body = body;
 		this[DISTURBED] = false;
@@ -117,7 +130,7 @@ export default class Body {
 		this[DISTURBED] = true;
 
 		// body is null
-		if (!this.body) {
+		if (this.body === null) {
 			return Body.Promise.resolve(new Buffer(0));
 		}
 
@@ -126,9 +139,19 @@ export default class Body {
 			return Body.Promise.resolve(new Buffer(this.body));
 		}
 
+		// body is blob
+		if (this.body instanceof Blob) {
+			return Body.Promise.resolve(this.body[BUFFER]);
+		}
+
 		// body is buffer
 		if (Buffer.isBuffer(this.body)) {
 			return Body.Promise.resolve(this.body);
+		}
+
+		// should never happen
+		if (!bodyStream(this.body)) {
+			return Body.Promise.resolve(new Buffer(0));
 		}
 
 		// body is stream
@@ -281,30 +304,80 @@ export function clone(instance) {
  * @param   Mixed  instance  Response or Request instance
  */
 export function extractContentType(instance) {
-	// detect form data input from form-data module
-	if (typeof instance.body.getBoundary === 'function') {
-		return `multipart/form-data;boundary=${instance.body.getBoundary()}`;
-	}
+	const {body} = instance;
 
-	if (typeof instance.body === 'string') {
+	if (body === null) {
+		// body is null
+		return null;
+	} else if (typeof body === 'string') {
+		// body is string
 		return 'text/plain;charset=UTF-8';
+	} else if (body instanceof Blob) {
+		// body is blob
+		return body.type || null;
+	} else if (Buffer.isBuffer(body)) {
+		// body is buffer
+		return null;
+	} else if (typeof body.getBoundary === 'function') {
+		// detect form data input from form-data module
+		return `multipart/form-data;boundary=${body.getBoundary()}`;
+	} else {
+		// body is stream
+		// can't really do much about this
+		return null;
 	}
 }
 
 export function getTotalBytes(instance) {
 	const {body} = instance;
 
-	if (typeof body === 'string') {
+	if (body === null) {
+		// body is null
+		return 0;
+	} else if (typeof body === 'string') {
+		// body is string
 		return Buffer.byteLength(body);
+	} else if (body instanceof Blob) {
+		// body is blob
+		return body.size;
 	} else if (body && typeof body.getLengthSync === 'function') {
 		// detect form data input from form-data module
 		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
 			body.hasKnownLength && body.hasKnownLength()) { // 2.x
 			return body.getLengthSync();
 		}
-	} else if (body === undefined || body === null) {
-		// this is only necessary for older nodejs releases (before iojs merge)
-		return 0;
+		return null;
+	} else {
+		// body is stream
+		// can't really do much about this
+		return null;
+	}
+}
+
+export function writeToStream(dest, instance) {
+	const {body} = instance;
+
+	if (body === null) {
+		// body is null
+		dest.end();
+	} else if (typeof body === 'string') {
+		// body is string
+		dest.write(body);
+		dest.end();
+	} else if (body instanceof Blob) {
+		// body is blob
+		dest.write(body[BUFFER]);
+		dest.end();
+	} else if (Buffer.isBuffer(body)) {
+		// body is buffer
+		dest.write(body);
+		dest.end()
+	} else if (bodyStream(body)) {
+		// body is stream
+		body.pipe(dest);
+	} else {
+		// should never happen
+		dest.end();
 	}
 }
 

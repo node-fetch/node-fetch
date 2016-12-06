@@ -11,7 +11,7 @@ import * as https from 'https';
 import * as zlib from 'zlib';
 import {PassThrough} from 'stream';
 
-import Body from './body';
+import Body, { writeToStream } from './body';
 import Response from './response';
 import Headers from './headers';
 import Request, { getNodeRequestOptions } from './request';
@@ -184,22 +184,7 @@ function fetch(url, opts) {
 			return;
 		});
 
-		// accept string, buffer, readable stream or null as body
-		// per spec we will call tostring on non-stream objects
-		if (typeof request.body === 'string') {
-			req.write(request.body);
-			req.end();
-		} else if (request.body instanceof Buffer) {
-			req.write(request.body);
-			req.end()
-		} else if (request.body && typeof request.body === 'object' && request.body.pipe) {
-			request.body.pipe(req);
-		} else if (request.body && typeof request.body === 'object') {
-			req.write(request.body.toString());
-			req.end();
-		} else {
-			req.end();
-		}
+		writeToStream(req, request);
 	});
 
 };
