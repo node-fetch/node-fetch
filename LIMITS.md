@@ -2,7 +2,7 @@
 Known differences
 =================
 
-*As of 1.x release*
+*As of 2.x release*
 
 - Topics such as Cross-Origin, Content Security Policy, Mixed Content, Service Workers are ignored, given our server-side context.
 
@@ -16,12 +16,10 @@ Known differences
 
 - Also, you can handle rejected fetch requests through checking `err.type` and `err.code`.
 
-- Only support `res.text()`, `res.json()`, `res.buffer()` at the moment, until there are good use-cases for blob/arrayBuffer.
+- Only support `res.text()`, `res.json()`, `res.blob()`, `res.arraybuffer()`, `res.buffer()`
 
 - There is currently no built-in caching, as server-side caching varies by use-cases.
 
 - Current implementation lacks server-side cookie store, you will need to extract `Set-Cookie` headers manually.
 
 - If you are using `res.clone()` and writing an isomorphic app, note that stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers).
-
-- ES6 features such as `headers.entries()` are missing at the moment, but you can use `headers.raw()` to retrieve the raw headers object.
