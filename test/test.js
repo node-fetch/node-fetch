@@ -1473,6 +1473,8 @@ describe('node-fetch', function() {
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
+
+		expect(new RegExp(err.name + ': ' + err.message).test(err.stack)).to.be.true;
 	});
 
 	it('should support https request', function() {
