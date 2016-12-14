@@ -16,9 +16,6 @@
 export default function FetchError(message, type, systemError) {
 	Error.call(this, message);
 
-	// hide custom error implementation details from end-users
-	Error.captureStackTrace(this, this.constructor);
-
 	this.message = message;
 	this.type = type;
 
@@ -27,7 +24,10 @@ export default function FetchError(message, type, systemError) {
 		this.code = this.errno = systemError.code;
 	}
 
+	// hide custom error implementation details from end-users
+	Error.captureStackTrace(this, this.constructor);
 }
 
 FetchError.prototype = Object.create(Error.prototype);
+FetchError.prototype.constructor = FetchError;
 FetchError.prototype.name = 'FetchError';

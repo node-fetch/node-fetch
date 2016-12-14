@@ -1819,7 +1819,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		expect(body).to.have.property('buffer');
 	});
 
-	it('should create custom FetchError', function() {
+	it('should create custom FetchError', function funcName() {
 		const systemError = new Error('system');
 		systemError.code = 'ESOMEERROR';
 
@@ -1831,6 +1831,8 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
+		expect(err.stack).to.include('funcName')
+			.and.to.startWith(`${err.name}: ${err.message}`);
 	});
 
 	it('should support https request', function() {
