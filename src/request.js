@@ -31,7 +31,7 @@ export default class Request extends Body {
 				parsedURL = parse_url(input.href);
 			} else {
 				// coerce input to a string before attempting to parse
-				parsedURL = parse_url(input + '');
+				parsedURL = parse_url(`${input}`);
 			}
 			input = {};
 		} else {
