@@ -48,7 +48,7 @@
     "parted": "^0.1.1",
     "promise": "^7.1.1",
     "resumer": "0.0.0",
-    "rollup": "^0.36.4",
+    "rollup": "^0.37.0",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-node-resolve": "^2.0.0",
     "whatwg-url": "^4.0.0"
