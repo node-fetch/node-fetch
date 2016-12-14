@@ -46,6 +46,18 @@ describe('node-fetch', function() {
 		expect(p).to.have.property('then');
 	});
 
+	it('should return a promise when url instacnce of URL', function() { 
+		// same as url = new URL('https://github.com/'); 
+		url = { 
+			toString: function() { 
+				return 'https://github.com/'; 
+			} 
+		}; 
+		var p = fetch(url); 
+		expect(p).to.be.an.instanceof(fetch.Promise); 
+		expect(p).to.have.property('then'); 
+	});
+
 	it('should allow custom promise', function() {
 		url = 'http://example.com/';
 		var old = fetch.Promise;
