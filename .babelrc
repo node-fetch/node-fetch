@@ -16,11 +16,8 @@
       "presets": [
         [ "es2015", { "loose": true } ]
       ],
-      "ignore": [
-        "build"
-      ],
       "plugins": [
-        [ "istanbul", { "exclude": [ "src/blob.js", "test" ] } ],
+        [ "istanbul", { "exclude": [ "src/blob.js", "build", "test" ] } ],
 	"./build/babel-plugin"
       ]
     },
