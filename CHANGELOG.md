@@ -5,7 +5,9 @@ Changelog
 
 # 2.x release
 
-## v2.0.0-alpha.1 (UNRELEASED)
+## v2.0.0-alpha.1
+
+This is a major release. Check [our upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
 
 - Major: Node.js 0.10.x support is dropped
 - Major: rewrite in transpiled ES2015
