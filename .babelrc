@@ -1,0 +1,30 @@
+{
+  "plugins": [
+    "transform-runtime"
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        [ "es2015", { "loose": true } ]
+      ],
+      "plugins": [
+        "transform-runtime",
+	"./build/babel-plugin"
+      ]
+    },
+    "coverage": {
+      "presets": [
+        [ "es2015", { "loose": true } ]
+      ],
+      "plugins": [
+        [ "istanbul", { "exclude": [ "src/blob.js", "build", "test" ] } ],
+	"./build/babel-plugin"
+      ]
+    },
+    "rollup": {
+      "presets": [
+        [ "es2015", { "loose": true, "modules": false } ]
+      ]
+    }
+  }
+}

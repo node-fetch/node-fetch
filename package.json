@@ -2,11 +2,18 @@
   "name": "node-fetch",
   "version": "1.6.3",
   "description": "A light-weight module that brings window.fetch to node.js and io.js",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "jsnext:main": "lib/index.es.js",
+  "files": [
+    "lib/index.js",
+    "lib/index.es.js"
+  ],
   "scripts": {
-    "test": "mocha test/test.js",
-    "report": "istanbul cover _mocha -- -R spec test/test.js",
-    "coverage": "istanbul cover _mocha --report lcovonly -- -R spec test/test.js && codecov -f coverage/coverage.json"
+    "build": "cross-env BABEL_ENV=rollup rollup -c",
+    "prepublish": "npm run build",
+    "test": "cross-env BABEL_ENV=test mocha --compilers js:babel-register test/test.js",
+    "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
+    "coverage": "cross-env BABEL_ENV=coverage nyc --reporter json --reporter text mocha -R spec test/test.js && codecov -f coverage/coverage-final.json"
   },
   "repository": {
     "type": "git",
@@ -24,18 +31,32 @@
   },
   "homepage": "https://github.com/bitinn/node-fetch",
   "devDependencies": {
+    "babel-plugin-istanbul": "^3.0.0",
+    "babel-plugin-transform-runtime": "^6.15.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-register": "^6.16.3",
     "bluebird": "^3.3.4",
     "chai": "^3.5.0",
-    "chai-as-promised": "^5.2.0",
+    "chai-as-promised": "^6.0.0",
+    "chai-iterator": "^1.1.1",
+    "chai-string": "^1.3.0",
     "codecov": "^1.0.1",
+    "cross-env": "2.0.1",
     "form-data": ">=1.0.0",
-    "istanbul": "^0.4.2",
-    "mocha": "^2.1.0",
+    "is-builtin-module": "^1.0.0",
+    "mocha": "^3.1.2",
+    "nyc": "^10.0.0",
     "parted": "^0.1.1",
     "promise": "^7.1.1",
-    "resumer": "0.0.0"
+    "resumer": "0.0.0",
+    "rollup": "^0.37.0",
+    "rollup-plugin-babel": "^2.6.1",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "whatwg-url": "^4.0.0"
   },
   "dependencies": {
+    "babel-runtime": "^6.11.6",
+    "buffer-to-arraybuffer": "0.0.4",
     "encoding": "^0.1.11",
     "is-stream": "^1.0.1"
   }
