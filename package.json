@@ -9,7 +9,7 @@
     "lib/index.es.js"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "cross-env BABEL_ENV=rollup rollup -c",
     "prepublish": "npm run build",
     "test": "cross-env BABEL_ENV=test mocha --compilers js:babel-register test/test.js",
     "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
@@ -43,6 +43,7 @@
     "codecov": "^1.0.1",
     "cross-env": "2.0.1",
     "form-data": ">=1.0.0",
+    "is-builtin-module": "^1.0.0",
     "mocha": "^3.1.2",
     "nyc": "^10.0.0",
     "parted": "^0.1.1",

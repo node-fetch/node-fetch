@@ -6,6 +6,10 @@
     "test": {
       "presets": [
         [ "es2015", { "loose": true } ]
+      ],
+      "plugins": [
+        "transform-runtime",
+	"./build/babel-plugin"
       ]
     },
     "coverage": {
@@ -13,12 +17,8 @@
         [ "es2015", { "loose": true } ]
       ],
       "plugins": [
-        [ "istanbul", {
-          "exclude": [
-            "src/blob.js",
-            "test"
-          ]
-        } ]
+        [ "istanbul", { "exclude": [ "src/blob.js", "build", "test" ] } ],
+	"./build/babel-plugin"
       ]
     },
     "rollup": {

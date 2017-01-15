@@ -23,10 +23,14 @@ const expect = chai.expect;
 import TestServer from './server';
 
 // test subjects
-import fetch from '../src/index.js';
-import Headers from '../src/headers.js';
-import Response from '../src/response.js';
-import Request from '../src/request.js';
+import fetch, {
+	Headers,
+	Request,
+	Response
+} from '../src/';
+import HeadersOrig from '../src/headers.js';
+import RequestOrig from '../src/request.js';
+import ResponseOrig from '../src/response.js';
 import Body from '../src/body.js';
 import Blob from '../src/blob.js';
 import FetchError from '../src/fetch-error.js';
@@ -93,9 +97,9 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	});
 
 	it('should expose Headers, Response and Request constructors', function() {
-		expect(fetch.Headers).to.equal(Headers);
-		expect(fetch.Response).to.equal(Response);
-		expect(fetch.Request).to.equal(Request);
+		expect(Headers).to.equal(HeadersOrig);
+		expect(Response).to.equal(ResponseOrig);
+		expect(Request).to.equal(RequestOrig);
 	});
 
 	(supportToString ? it : it.skip)('should support proper toString output for Headers, Response and Request objects', function() {
