@@ -44,10 +44,14 @@ export default class Headers {
 		      this.append(name, value);
 		    }
 		  }
-		} else if (Array.isArray(headers)) {
+		} else if (typeof headers === 'object' && headers[Symbol.iterator]) {
 			// array of tuples
 			for (let el of headers) {
-				if (!Array.isArray(el) || el.length !== 2) {
+				if (typeof el !== 'object' || !el[Symbol.iterator]) {
+					throw new TypeError('Header pairs must be an iterable object');
+				}
+				el = Array.from(el);
+				if (el.length !== 2) {
 					throw new TypeError('Header pairs must contain exactly two items');
 				}
 				this.append(el[0], el[1]);
@@ -59,6 +63,8 @@ export default class Headers {
 				// will handle it.
 				this.append(prop, headers[prop]);
 			}
+		} else if (headers != null) {
+			throw new TypeError('Provided initializer must be an object');
 		}
 
 		Object.defineProperty(this, Symbol.toStringTag, {
