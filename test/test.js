@@ -46,7 +46,6 @@ try {
 const supportToString = ({
 	[Symbol.toStringTag]: 'z'
 }).toString() === '[object z]';
-const supportIterator = !!(global.Symbol && global.Symbol.iterator);
 
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
@@ -1242,9 +1241,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			['a', '1']
 		]);
 		headers.append('b', '3');
-		if (supportIterator) {
-			expect(headers).to.be.iterable;
-		}
+		expect(headers).to.be.iterable;
 
 		const result = [];
 		for (let pair of headers) {
@@ -1262,7 +1259,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		]);
 	});
 
-	(supportIterator ? it : it.skip)('should allow iterating through all headers with entries()', function() {
+	it('should allow iterating through all headers with entries()', function() {
 		const headers = new Headers([
 			['b', '2'],
 			['c', '4'],
@@ -1283,7 +1280,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			]);
 	});
 
-	(supportIterator ? it : it.skip)('should allow iterating through all headers with keys()', function() {
+	it('should allow iterating through all headers with keys()', function() {
 		const headers = new Headers([
 			['b', '2'],
 			['c', '4'],
@@ -1295,7 +1292,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			.and.to.iterate.over(Headers.FOLLOW_SPEC ? ['a', 'b', 'c'] : ['b', 'b', 'c', 'a']);
 	});
 
-	(supportIterator ? it : it.skip)('should allow iterating through all headers with values()', function() {
+	it('should allow iterating through all headers with values()', function() {
 		const headers = new Headers([
 			['b', '2'],
 			['c', '4'],
