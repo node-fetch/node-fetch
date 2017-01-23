@@ -5,7 +5,7 @@
   "env": {
     "test": {
       "presets": [
-        [ "es2015", { "loose": true } ]
+        [ "env", { "loose": true, "targets": { "node": 0.12 } } ]
       ],
       "plugins": [
         "transform-runtime",
@@ -14,7 +14,7 @@
     },
     "coverage": {
       "presets": [
-        [ "es2015", { "loose": true } ]
+        [ "env", { "loose": true, "targets": { "node": 0.12 } } ]
       ],
       "plugins": [
         [ "istanbul", { "exclude": [ "src/blob.js", "build", "test" ] } ],
@@ -23,7 +23,7 @@
     },
     "rollup": {
       "presets": [
-        [ "es2015", { "loose": true, "modules": false } ]
+        [ "env", { "loose": true, "targets": { "node": 0.12 }, "modules": false } ]
       ]
     }
   }
