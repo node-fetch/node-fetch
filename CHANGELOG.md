@@ -12,6 +12,7 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 - Major: Node.js 0.10.x support is dropped
 - Major: rewrite in transpiled ES2015
 - Major: internal methods are no longer exposed
+- Major: remove `headers.getAll()`; make `get()` return all headers (per spec)
 - Major: throw error when a GET/HEAD Request is constructed with a non-null body (per spec)
 - Major: `response.text()` no longer attempts to detect encoding, instead always opting for UTF-8 (per spec); use `response.textConverted()` for the old behavior
 - Major: make `response.json()` throw error instead of returning an empty object on 204 no-content respose (per spec; reverts behavior set in v1.6.2)

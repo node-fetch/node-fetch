@@ -28,36 +28,42 @@ to file an issue and we will be happy to help you solve the problem.
 ## Headers
 
 The main goal we have for the `Headers` class in v2 is to make it completely
-spec-compliant. However, due to changes in the Fetch Standard itself, total
-spec compliance would mean incompatibility with all current major browser
-implementations.
-
-Therefore, in v2, only a limited set of changes was applied to preserve
-compatibility with browsers by default. See [#181] for more information on why
-a feature is enabled or disabled.
+spec-compliant.
 
 ```js
 //////////////////////////////////////////////////////////////////////////////
-// If you are using an object as the initializer, all values will be
-// stringified. For arrays, the members will be joined with a comma.
+// `get()` now returns **all** headers, joined by a comma, instead of only the
+// first one. Its original behavior can be emulated using
+// `get().split(',')[0]`.
+
 const headers = new Headers({
   'Abc': 'string',
   'Multi': [ 'header1', 'header2' ]
 });
 
 // before                             after
+headers.get('Abc') =>                 headers.get('Abc') =>
+  'string'                              'string'
 headers.get('Multi') =>               headers.get('Multi') =>
   'header1';                            'header1,header2';
-headers.getAll('Multi') =>            headers.getAll('Multi') =>
-  [ 'header1', 'header2' ];             [ 'header1,header2' ];
+                                      headers.get('Multi').split(',')[0] =>
+                                        'header1';
 
-// Instead, to preserve the older behavior, you can use the header pair array
-// syntax.
-const headers = new Headers([
-  [ 'Abc', 'string' ],
-  [ 'Multi', 'header1' ],
-  [ 'Multi', 'header2' ]
-]);
+
+//////////////////////////////////////////////////////////////////////////////
+// `getAll()` is removed. Its behavior in v1 can be emulated with
+// `get().split(',')`.
+
+const headers = new Headers({
+  'Abc': 'string',
+  'Multi': [ 'header1', 'header2' ]
+});
+
+// before                             after
+headers.getAll('Multi') =>            headers.getAll('Multi') =>
+  [ 'header1', 'header2' ];             throws ReferenceError
+                                      headers.get('Multi').split(',') =>
+                                        [ 'header1', 'header2' ];
 
 
 //////////////////////////////////////////////////////////////////////////////
