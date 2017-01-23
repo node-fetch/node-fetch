@@ -23,8 +23,7 @@ function sanitizeValue(value) {
 	return value;
 }
 
-export const MAP = Symbol('map');
-const FOLLOW_SPEC = Symbol('followSpec');
+const MAP = Symbol('map');
 export default class Headers {
 	/**
 	 * Headers class
@@ -34,17 +33,8 @@ export default class Headers {
 	 */
 	constructor(headers) {
 		this[MAP] = Object.create(null);
-		this[FOLLOW_SPEC] = Headers.FOLLOW_SPEC;
 
-		// Headers
-		if (headers instanceof Headers) {
-		  let init = headers.raw();
-		  for (let name of Object.keys(init)) {
-		    for (let value of init[name]) {
-		      this.append(name, value);
-		    }
-		  }
-		} else if (typeof headers === 'object' && headers[Symbol.iterator]) {
+		if (typeof headers === 'object' && headers[Symbol.iterator]) {
 			// array of tuples
 			for (let el of headers) {
 				if (typeof el !== 'object' || !el[Symbol.iterator]) {
@@ -87,21 +77,7 @@ export default class Headers {
 			return null;
 		}
 
-		return this[FOLLOW_SPEC] ? list.join(',') : list[0];
-	}
-
-	/**
-	 * Return all header values given name
-	 *
-	 * @param   String  name  Header name
-	 * @return  Array
-	 */
-	getAll(name) {
-		if (!this.has(name)) {
-			return [];
-		}
-
-		return this[MAP][sanitizeName(name)];
+		return list.join(',');
 	}
 
 	/**
@@ -217,24 +193,12 @@ Object.defineProperty(Headers.prototype, Symbol.toStringTag, {
 });
 
 function getHeaderPairs(headers, kind) {
-	if (headers[FOLLOW_SPEC]) {
-		const keys = Object.keys(headers[MAP]).sort();
-		return keys.map(
-			kind === 'key' ?
-				k => [k] :
-				k => [k, headers.get(k)]
-		);
-	}
-
-	const values = [];
-
-	for (let name in headers[MAP]) {
-		for (let value of headers[MAP][name]) {
-			values.push([name, value]);
-		}
-	}
-
-	return values;
+	const keys = Object.keys(headers[MAP]).sort();
+	return keys.map(
+		kind === 'key' ?
+			k => [k] :
+			k => [k, headers.get(k)]
+	);
 }
 
 const INTERNAL = Symbol('internal');
@@ -305,5 +269,3 @@ Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
 	enumerable: false,
 	configurable: true
 });
-
-Headers.FOLLOW_SPEC = false;

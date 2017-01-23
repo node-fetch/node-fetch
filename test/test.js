@@ -59,16 +59,7 @@ after(done => {
 	local.stop(done);
 });
 
-(runner => {
-	runner(false);
-	runner(true);
-})(defaultFollowSpec => {
-
-describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
-	before(() => {
-		fetch.FOLLOW_SPEC = Headers.FOLLOW_SPEC = defaultFollowSpec;
-	});
-
+describe('node-fetch', () => {
 	it('should return a promise', function() {
 		url = 'http://example.com/';
 		const p = fetch(url);
@@ -1199,11 +1190,9 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 	it('should allow get all responses of a header', function() {
 		url = `${base}cookie`;
 		return fetch(url).then(res => {
-			const expected = fetch.FOLLOW_SPEC ? 'a=1,b=1' : 'a=1';
+			const expected = 'a=1,b=1';
 			expect(res.headers.get('set-cookie')).to.equal(expected);
 			expect(res.headers.get('Set-Cookie')).to.equal(expected);
-			expect(res.headers.getAll('set-cookie')).to.deep.equal(['a=1', 'b=1']);
-			expect(res.headers.getAll('Set-Cookie')).to.deep.equal(['a=1', 'b=1']);
 		});
 	});
 
@@ -1221,17 +1210,11 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			result.push([key, val]);
 		});
 
-		const expected = Headers.FOLLOW_SPEC ? [
+		expect(result).to.deep.equal([
 			["a", "1"]
 			, ["b", "2,3"]
 			, ["c", "4"]
-		] : [
-			["b", "2"]
-			, ["b", "3"]
-			, ["c", "4"]
-			, ["a", "1"]
-		];
-		expect(result).to.deep.equal(expected);
+		]);
 	});
 
 	it('should allow iterating through all headers with for-of loop', function() {
@@ -1247,15 +1230,10 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		for (let pair of headers) {
 			result.push(pair);
 		}
-		expect(result).to.deep.equal(Headers.FOLLOW_SPEC ? [
+		expect(result).to.deep.equal([
 			['a', '1'],
 			['b', '2,3'],
 			['c', '4']
-		] : [
-			['b', '2'],
-			['b', '3'],
-			['c', '4'],
-			['a', '1'],
 		]);
 	});
 
@@ -1268,15 +1246,10 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		headers.append('b', '3');
 
 		expect(headers.entries()).to.be.iterable
-			.and.to.deep.iterate.over(Headers.FOLLOW_SPEC ? [
+			.and.to.deep.iterate.over([
 				['a', '1'],
 				['b', '2,3'],
 				['c', '4']
-			] : [
-				['b', '2'],
-				['b', '3'],
-				['c', '4'],
-				['a', '1'],
 			]);
 	});
 
@@ -1289,7 +1262,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		headers.append('b', '3');
 
 		expect(headers.keys()).to.be.iterable
-			.and.to.iterate.over(Headers.FOLLOW_SPEC ? ['a', 'b', 'c'] : ['b', 'b', 'c', 'a']);
+			.and.to.iterate.over(['a', 'b', 'c']);
 	});
 
 	it('should allow iterating through all headers with values()', function() {
@@ -1301,27 +1274,7 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		headers.append('b', '3');
 
 		expect(headers.values()).to.be.iterable
-			.and.to.iterate.over(Headers.FOLLOW_SPEC ? ['1', '2,3', '4'] : ['2', '3', '4', '1']);
-	});
-
-	it('should only apply FOLLOW_SPEC when it is requested', function () {
-		Headers.FOLLOW_SPEC = true;
-
-		const src = [
-			['b', '2'],
-			['b', '3']
-		];
-
-		let headers = new Headers(src);
-		expect(headers.get('b')).to.equal('2,3');
-
-		Headers.FOLLOW_SPEC = false;
-		expect(headers.get('b')).to.equal('2,3');
-
-		headers = new Headers(src);
-		expect(headers.get('b')).to.equal('2');
-
-		Headers.FOLLOW_SPEC = defaultFollowSpec;
+			.and.to.iterate.over(['1', '2,3', '4']);
 	});
 
 	it('should allow deleting header', function() {
@@ -1329,7 +1282,6 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		return fetch(url).then(res => {
 			res.headers.delete('set-cookie');
 			expect(res.headers.get('set-cookie')).to.be.null;
-			expect(res.headers.getAll('set-cookie')).to.be.empty;
 		});
 	});
 
@@ -1341,7 +1293,6 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 		expect(() => headers.append('Hé-y', 'ok')) .to.throw(TypeError);
 		expect(() => headers.delete('Hé-y'))       .to.throw(TypeError);
 		expect(() => headers.get('Hé-y'))          .to.throw(TypeError);
-		expect(() => headers.getAll('Hé-y'))       .to.throw(TypeError);
 		expect(() => headers.has('Hé-y'))          .to.throw(TypeError);
 		expect(() => headers.set('Hé-y', 'ok'))    .to.throw(TypeError);
 
@@ -1443,23 +1394,23 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			['b', '2'],
 			['a', '3']
 		]);
-		expect(headers.getAll('a')).to.deep.equal(['1', '3']);
-		expect(headers.getAll('b')).to.deep.equal(['2']);
+		expect(headers.get('a')).to.equal('1,3');
+		expect(headers.get('b')).to.equal('2');
 
 		headers = new Headers([
 			new Set(['a', '1']),
 			['b', '2'],
 			new Map([['a', null], ['3', null]]).keys()
 		]);
-		expect(headers.getAll('a')).to.deep.equal(['1', '3']);
-		expect(headers.getAll('b')).to.deep.equal(['2']);
+		expect(headers.get('a')).to.equal('1,3');
+		expect(headers.get('b')).to.equal('2');
 
 		headers = new Headers(new Map([
 			['a', '1'],
 			['b', '2']
 		]));
-		expect(headers.getAll('a')).to.deep.equal(['1']);
-		expect(headers.getAll('b')).to.deep.equal(['2']);
+		expect(headers.get('a')).to.equal('1');
+		expect(headers.get('b')).to.equal('2');
 	});
 
 	it('should throw a TypeError if non-tuple exists in a headers initializer', function() {
@@ -1865,8 +1816,6 @@ describe(`node-fetch with FOLLOW_SPEC = ${defaultFollowSpec}`, () => {
 			expect(res.ok).to.be.true;
 		});
 	});
-
-});
 
 });
 
