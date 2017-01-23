@@ -7,6 +7,7 @@ process.env.BABEL_ENV = 'rollup';
 
 export default {
   entry: 'src/index.js',
+  exports: 'named',
   plugins: [
     babel({
       runtimeHelpers: true
