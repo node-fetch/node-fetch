@@ -31,29 +31,44 @@ export default class Headers {
 	 * @param   Object  headers  Response headers
 	 * @return  Void
 	 */
-	constructor(headers) {
+	constructor(init = undefined) {
 		this[MAP] = Object.create(null);
 
-		if (typeof headers === 'object' && headers[Symbol.iterator]) {
-			// array of tuples
-			for (let el of headers) {
-				if (typeof el !== 'object' || !el[Symbol.iterator]) {
-					throw new TypeError('Header pairs must be an iterable object');
+		// We don't worry about converting prop to ByteString here as append()
+		// will handle it.
+		if (init == null) {
+			// no op
+		} else if (typeof init === 'object') {
+			const method = init[Symbol.iterator];
+			if (method != null) {
+				if (typeof method !== 'function') {
+					throw new TypeError('Header pairs must be iterable');
 				}
-				el = Array.from(el);
-				if (el.length !== 2) {
-					throw new TypeError('Header pairs must contain exactly two items');
+
+				// sequence<sequence<ByteString>>
+				// Note: per spec we have to first exhaust the lists then process them
+				const pairs = [];
+				for (const pair of init) {
+					if (typeof pair !== 'object' || typeof pair[Symbol.iterator] !== 'function') {
+						throw new TypeError('Each header pair must be iterable');
+					}
+					pairs.push(Array.from(pair));
 				}
-				this.append(el[0], el[1]);
+
+				for (const pair of pairs) {
+					if (pair.length !== 2) {
+						throw new TypeError('Each header pair must be a name/value tuple');
+					}
+					this.append(pair[0], pair[1]);
+				}
+			} else {
+				// record<ByteString, ByteString>
+				for (const key of Object.keys(init)) {
+					const value = init[key];
+					this.append(key, value);
+				}
 			}
-		} else if (typeof headers === 'object') {
-			// plain object
-			for (const prop of Object.keys(headers)) {
-				// We don't worry about converting prop to ByteString here as append()
-				// will handle it.
-				this.append(prop, headers[prop]);
-			}
-		} else if (headers != null) {
+		} else {
 			throw new TypeError('Provided initializer must be an object');
 		}
 

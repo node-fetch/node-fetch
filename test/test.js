@@ -1417,6 +1417,7 @@ describe('node-fetch', () => {
 		expect(() => new Headers([ ['b', '2', 'huh?'] ])).to.throw(TypeError);
 		expect(() => new Headers([ 'b2' ])).to.throw(TypeError);
 		expect(() => new Headers('b2')).to.throw(TypeError);
+		expect(() => new Headers({ [Symbol.iterator]: 42 })).to.throw(TypeError);
 	});
 
 	it('should support fetch with Request instance', function() {
