@@ -5,6 +5,11 @@ Changelog
 
 # 2.x release
 
+## v2.0.0-alpha.3
+
+- Major: overwrite user's `Content-Length` if we can be sure our information is correct
+- Fix: exhaust list in `Headers` constructor before processing
+
 ## v2.0.0-alpha.2
 
 - Major: remove `headers.getAll()`; make `get()` return all headers delimited by commas (per spec)

@@ -1,9 +1,9 @@
 {
   "name": "node-fetch",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.3",
   "description": "A light-weight module that brings window.fetch to node.js",
   "main": "lib/index.js",
-  "jsnext:main": "lib/index.es.js",
+  "module": "lib/index.es.js",
   "files": [
     "lib/index.js",
     "lib/index.es.js"
