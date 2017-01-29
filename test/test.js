@@ -849,6 +849,27 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should overwrite Content-Length if possible', function() {
+		url = `${base}inspect`;
+		// note that fetch simply calls tostring on an object
+		opts = {
+			method: 'POST',
+			headers: {
+				'Content-Length': '1000'
+			},
+			body: 'a=1'
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.equal('text/plain;charset=UTF-8');
+			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
 	it('should allow PUT request', function() {
 		url = `${base}inspect`;
 		opts = {
@@ -872,22 +893,6 @@ describe('node-fetch', () => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('DELETE');
-		});
-	});
-
-	it('should allow POST request with string body', function() {
-		url = `${base}inspect`;
-		opts = {
-			method: 'POST'
-			, body: 'a=1'
-		};
-		return fetch(url, opts).then(res => {
-			return res.json();
-		}).then(res => {
-			expect(res.method).to.equal('POST');
-			expect(res.body).to.equal('a=1');
-			expect(res.headers['transfer-encoding']).to.be.undefined;
-			expect(res.headers['content-length']).to.equal('3');
 		});
 	});
 

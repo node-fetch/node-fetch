@@ -57,7 +57,7 @@ export default class Request extends Body {
 		});
 
 		// fetch spec options
-		this.method = method;
+		this.method = method.toUpperCase();
 		this.redirect = init.redirect || input.redirect || 'follow';
 		this.headers = new Headers(init.headers || input.headers || {});
 
@@ -79,7 +79,6 @@ export default class Request extends Body {
 		this.agent = init.agent || input.agent;
 
 		this[PARSED_URL] = parsedURL;
-
 		Object.defineProperty(this, Symbol.toStringTag, {
 			value: 'Request',
 			writable: false,
@@ -109,39 +108,53 @@ Object.defineProperty(Request.prototype, Symbol.toStringTag, {
 	configurable: true
 });
 
-function normalizeHeaders(request) {
+export function getNodeRequestOptions(request) {
 	const headers = new Headers(request.headers);
 
-	if (request.compress) {
-		headers.set('accept-encoding', 'gzip,deflate');
+	// fetch step 3
+	if (!headers.has('Accept')) {
+		headers.set('Accept', '*/*');
 	}
 
-	if (!headers.has('user-agent')) {
-		headers.set('user-agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+	// Basic fetch
+	if (!/^https?:$/.test(request[PARSED_URL].protocol)) {
+		throw new Error('only http(s) protocols are supported');
 	}
 
-	if (!headers.has('connection') && !request.agent) {
-		headers.set('connection', 'close');
+	// HTTP-network-or-cache fetch steps 5-9
+	let contentLengthValue = null;
+	if (request.body == null && /^(POST|PUT)$/i.test(request.method)) {
+		contentLengthValue = '0';
 	}
-
-	if (!headers.has('accept')) {
-		headers.set('accept', '*/*');
-	}
-
-	if (!headers.has('content-length') && /post|put|patch|delete/i.test(request.method)) {
+	if (request.body != null) {
 		const totalBytes = getTotalBytes(request);
 		if (typeof totalBytes === 'number') {
-			headers.set('content-length', totalBytes);
+			contentLengthValue = String(totalBytes);
 		}
 	}
+	if (contentLengthValue) {
+		headers.set('Content-Length', contentLengthValue);
+	}
 
-	return headers;
-}
+	// HTTP-network-or-cache fetch step 12
+	if (!headers.has('User-Agent')) {
+		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+	}
 
-export function getNodeRequestOptions(request) {
+	// HTTP-network-or-cache fetch step 16
+	if (request.compress) {
+		headers.set('Accept-Encoding', 'gzip,deflate');
+	}
+	if (!headers.has('Connection') && !request.agent) {
+		headers.set('Connection', 'close');
+	}
+
+	// HTTP-network fetch step 4
+	// chunked encoding is handled by Node.js
+
 	return Object.assign({}, request[PARSED_URL], {
 		method: request.method,
-		headers: normalizeHeaders(request).raw(),
+		headers: headers.raw(),
 		agent: request.agent
 	});
 }

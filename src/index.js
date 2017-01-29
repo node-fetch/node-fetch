@@ -44,10 +44,6 @@ export default function fetch(url, opts) {
 			throw new Error('only absolute urls are supported');
 		}
 
-		if (options.protocol !== 'http:' && options.protocol !== 'https:') {
-			throw new Error('only http(s) protocols are supported');
-		}
-
 		const send = (options.protocol === 'https:' ? https : http).request;
 
 		// http.request only support string as host header, this hack make custom host header possible
