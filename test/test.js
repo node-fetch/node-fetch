@@ -1319,6 +1319,20 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should create http.Agent class if options.agent is provided as an object', function() {
+		url = `${base}inspect`;
+		opts = {
+			agent: {
+				keepAlive: true
+			}
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.headers['connection']).to.equal('keep-alive');
+		});
+	});
+
 	it('should ignore unsupported attributes while reading headers', function() {
 		const FakeHeader = function () {};
 		// prototypes are currently ignored
