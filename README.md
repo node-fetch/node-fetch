@@ -187,6 +187,18 @@ Note that only `method`, `headers`, `redirect` and `body` are allowed in `window
 }
 ```
 
+#### Default Headers
+
+If no values are set, the following request headers will be sent automatically:
+
+Header            | Value                                                   
+----------------- | --------------------------------------------------------
+`Accept-Encoding` | `gzip,deflate`                                          
+`Accept`          | `*/*`                                                   
+`Connection`      | `close`                                                 
+`Content-Length`  | (automatically calculated)                              
+`User-Agent`      | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
+
 
 # License
 
