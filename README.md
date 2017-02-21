@@ -193,10 +193,10 @@ If no values are set, the following request headers will be sent automatically:
 
 Header            | Value                                                   
 ----------------- | --------------------------------------------------------
-`Accept-Encoding` | `gzip,deflate`                                          
+`Accept-Encoding` | `gzip,deflate` _(when `compress === true`)_             
 `Accept`          | `*/*`                                                   
 `Connection`      | `close`                                                 
-`Content-Length`  | (automatically calculated)                              
+`Content-Length`  | (automatically calculated, if possible)                 
 `User-Agent`      | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
 
 
