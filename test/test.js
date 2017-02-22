@@ -513,6 +513,17 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should decompress slightly invalid gzip response', function() {
+		url = `${base}gzip-truncated`;
+		return fetch(url).then(res => {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.text().then(result => {
+				expect(result).to.be.a('string');
+				expect(result).to.equal('hello world');
+			});
+		});
+	});
+
 	it('should decompress deflate response', function() {
 		url = `${base}deflate`;
 		return fetch(url).then(res => {

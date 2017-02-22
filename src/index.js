@@ -141,9 +141,18 @@ export default function fetch(url, opts) {
 				return;
 			}
 
+			// Be less strict when decoding compressed responses, since sometimes
+			// servers send slightly invalid responses that are still accepted
+			// by common browsers.
+			// Always using Z_SYNC_FLUSH is what cURL does.
+			const zlibOptions = {
+				flush: zlib.Z_SYNC_FLUSH,
+				finishFlush: zlib.Z_SYNC_FLUSH
+			};
+
 			// for gzip
 			if (codings == 'gzip' || codings == 'x-gzip') {
-				body = body.pipe(zlib.createGunzip());
+				body = body.pipe(zlib.createGunzip(zlibOptions));
 				resolve(new Response(body, response_options));
 				return;
 			}
@@ -156,9 +165,9 @@ export default function fetch(url, opts) {
 				raw.once('data', chunk => {
 					// see http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
-						body = body.pipe(zlib.createInflate());
+						body = body.pipe(zlib.createInflate(zlibOptions));
 					} else {
-						body = body.pipe(zlib.createInflateRaw());
+						body = body.pipe(zlib.createInflateRaw(zlibOptions));
 					}
 					resolve(new Response(body, response_options));
 				});
