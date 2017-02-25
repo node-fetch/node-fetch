@@ -8,6 +8,9 @@
     "lib/index.js",
     "lib/index.es.js"
   ],
+  "engines": {
+    "node": ">=4"
+  },
   "scripts": {
     "build": "cross-env BABEL_ENV=rollup rollup -c",
     "prepublish": "npm run build",
