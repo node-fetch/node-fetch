@@ -8,6 +8,9 @@
     "lib/index.js",
     "lib/index.es.js"
   ],
+  "engines": {
+    "node": ">=4"
+  },
   "scripts": {
     "build": "cross-env BABEL_ENV=rollup rollup -c",
     "prepublish": "npm run build",
@@ -33,7 +36,7 @@
   "devDependencies": {
     "babel-plugin-istanbul": "^3.0.0",
     "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-env": "^1.1.8",
+    "babel-preset-env": "^1.1.10",
     "babel-register": "^6.16.3",
     "bluebird": "^3.3.4",
     "chai": "^3.5.0",
