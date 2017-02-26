@@ -58,12 +58,7 @@ export default class Response {
 	}
 }
 
-for (const name of Object.getOwnPropertyNames(Body.prototype)) {
-	if (!(name in Response.prototype)) {
-		const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
-		Object.defineProperty(Response.prototype, name, desc);
-	}
-}
+Body.mixIn(Response.prototype);
 
 Object.defineProperty(Response.prototype, Symbol.toStringTag, {
 	value: 'ResponsePrototype',

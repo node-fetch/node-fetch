@@ -101,12 +101,7 @@ export default class Request {
 	}
 }
 
-for (const name of Object.getOwnPropertyNames(Body.prototype)) {
-	if (!(name in Request.prototype)) {
-		const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
-		Object.defineProperty(Request.prototype, name, desc);
-	}
-}
+Body.mixIn(Request.prototype);
 
 Object.defineProperty(Request.prototype, Symbol.toStringTag, {
 	value: 'RequestPrototype',
