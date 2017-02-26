@@ -345,6 +345,7 @@ export function extractContentType(instance) {
 export function getTotalBytes(instance) {
 	const {body} = instance;
 
+	// istanbul ignore if: included for completion
 	if (body === null) {
 		// body is null
 		return 0;

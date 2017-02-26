@@ -111,6 +111,7 @@ Object.defineProperty(Request.prototype, Symbol.toStringTag, {
 });
 
 export function getNodeRequestOptions(request) {
+	const parsedURL = request[PARSED_URL];
 	const headers = new Headers(request.headers);
 
 	// fetch step 3
@@ -119,8 +120,12 @@ export function getNodeRequestOptions(request) {
 	}
 
 	// Basic fetch
-	if (!/^https?:$/.test(request[PARSED_URL].protocol)) {
-		throw new Error('only http(s) protocols are supported');
+	if (!parsedURL.protocol || !parsedURL.hostname) {
+		throw new TypeError('Only absolute URLs are supported');
+	}
+
+	if (!/^https?:$/.test(parsedURL.protocol)) {
+		throw new TypeError('Only HTTP(S) protocols are supported');
 	}
 
 	// HTTP-network-or-cache fetch steps 5-9
@@ -154,7 +159,7 @@ export function getNodeRequestOptions(request) {
 	// HTTP-network fetch step 4
 	// chunked encoding is handled by Node.js
 
-	return Object.assign({}, request[PARSED_URL], {
+	return Object.assign({}, parsedURL, {
 		method: request.method,
 		headers: headers.raw(),
 		agent: request.agent

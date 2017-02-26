@@ -37,12 +37,7 @@ export default function fetch(url, opts) {
 	return new fetch.Promise((resolve, reject) => {
 		// build request object
 		const request = new Request(url, opts);
-
 		const options = getNodeRequestOptions(request);
-
-		if (!options.protocol || !options.hostname) {
-			throw new Error('only absolute urls are supported');
-		}
 
 		const send = (options.protocol === 'https:' ? https : http).request;
 
