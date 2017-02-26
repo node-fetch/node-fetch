@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/bitinn/node-fetch",
   "devDependencies": {
-    "babel-plugin-istanbul": "^3.0.0",
+    "babel-plugin-istanbul": "^4.0.0",
     "babel-plugin-transform-runtime": "^6.15.0",
     "babel-preset-env": "^1.1.10",
     "babel-register": "^6.16.3",
@@ -44,7 +44,7 @@
     "chai-iterator": "^1.1.1",
     "chai-string": "^1.3.0",
     "codecov": "^1.0.1",
-    "cross-env": "2.0.1",
+    "cross-env": "^3.1.4",
     "form-data": ">=1.0.0",
     "is-builtin-module": "^1.0.0",
     "mocha": "^3.1.2",
@@ -52,9 +52,8 @@
     "parted": "^0.1.1",
     "promise": "^7.1.1",
     "resumer": "0.0.0",
-    "rollup": "^0.37.0",
+    "rollup": "^0.41.4",
     "rollup-plugin-babel": "^2.6.1",
-    "rollup-plugin-node-resolve": "^2.0.0",
     "whatwg-url": "^4.0.0"
   },
   "dependencies": {

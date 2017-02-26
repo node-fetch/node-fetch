@@ -1,6 +1,5 @@
 
 // test tools
-import repeat from 'babel-runtime/core-js/string/repeat';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
@@ -1093,7 +1092,7 @@ describe('node-fetch', () => {
 		url = `${base}encoding/chunked`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			const padding = repeat('a', 10);
+			const padding = 'a'.repeat(10);
 			return res.textConverted().then(result => {
 				expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
 			});
@@ -1104,7 +1103,7 @@ describe('node-fetch', () => {
 		url = `${base}encoding/invalid`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			const padding = repeat('a', 1200);
+			const padding = 'a'.repeat(1200);
 			return res.textConverted().then(result => {
 				expect(result).to.not.equal(`${padding}中文`);
 			});
