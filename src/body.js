@@ -6,9 +6,8 @@
  */
 
 import {convert} from 'encoding';
-import bodyStream from 'is-stream';
 import toArrayBuffer from 'buffer-to-arraybuffer';
-import {PassThrough} from 'stream';
+import Stream, {PassThrough} from 'stream';
 import Blob, {BUFFER} from './blob.js';
 import FetchError from './fetch-error.js';
 
@@ -36,7 +35,7 @@ export default function Body(body, {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
-	} else if (bodyStream(body)) {
+	} else if (body instanceof Stream) {
 		// body is stream
 	} else {
 		// none of the above
@@ -154,7 +153,7 @@ function consumeBody(body) {
 	}
 
 	// istanbul ignore if: should never happen
-	if (!bodyStream(this.body)) {
+	if (!(this.body instanceof Stream)) {
 		return Body.Promise.resolve(new Buffer(0));
 	}
 
@@ -282,7 +281,7 @@ export function clone(instance) {
 
 	// check that body is a stream and not form-data object
 	// note: we can't clone the form-data object without having it as a dependency
-	if (bodyStream(body) && typeof body.getBoundary !== 'function') {
+	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
 		// tee instance body
 		p1 = new PassThrough();
 		p2 = new PassThrough();
