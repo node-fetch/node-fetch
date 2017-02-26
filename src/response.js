@@ -16,9 +16,9 @@ import Body, { clone } from './body';
  * @param   Object  opts  Response options
  * @return  Void
  */
-export default class Response extends Body {
+export default class Response {
 	constructor(body = null, opts = {}) {
-		super(body, opts);
+		Body.call(this, body, opts);
 
 		this.url = opts.url;
 		this.status = opts.status || 200;
@@ -55,6 +55,13 @@ export default class Response extends Body {
 			, ok: this.ok
 		});
 
+	}
+}
+
+for (const name of Object.getOwnPropertyNames(Body.prototype)) {
+	if (!(name in Response.prototype)) {
+		const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
+		Object.defineProperty(Response.prototype, name, desc);
 	}
 }
 

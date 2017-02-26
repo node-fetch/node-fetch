@@ -18,7 +18,7 @@ const PARSED_URL = Symbol('url');
  * @param   Object  init   Custom options
  * @return  Void
  */
-export default class Request extends Body {
+export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
 
@@ -51,7 +51,7 @@ export default class Request extends Body {
 				clone(input) :
 				null;
 
-		super(inputBody, {
+		Body.call(this, inputBody, {
 			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
 		});
@@ -98,6 +98,13 @@ export default class Request extends Body {
 	 */
 	clone() {
 		return new Request(this);
+	}
+}
+
+for (const name of Object.getOwnPropertyNames(Body.prototype)) {
+	if (!(name in Request.prototype)) {
+		const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
+		Object.defineProperty(Request.prototype, name, desc);
 	}
 }
 
