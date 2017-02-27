@@ -1,6 +1,5 @@
 import isBuiltin from 'is-builtin-module';
 import babel from 'rollup-plugin-babel';
-import resolve from 'rollup-plugin-node-resolve';
 import tweakDefault from './build/rollup-plugin';
 
 process.env.BABEL_ENV = 'rollup';

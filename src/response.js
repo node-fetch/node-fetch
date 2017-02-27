@@ -16,9 +16,9 @@ import Body, { clone } from './body';
  * @param   Object  opts  Response options
  * @return  Void
  */
-export default class Response extends Body {
+export default class Response {
 	constructor(body = null, opts = {}) {
-		super(body, opts);
+		Body.call(this, body, opts);
 
 		this.url = opts.url;
 		this.status = opts.status || 200;
@@ -57,6 +57,8 @@ export default class Response extends Body {
 
 	}
 }
+
+Body.mixIn(Response.prototype);
 
 Object.defineProperty(Response.prototype, Symbol.toStringTag, {
 	value: 'ResponsePrototype',

@@ -1,17 +1,16 @@
 
 // test tools
-import repeat from 'babel-runtime/core-js/string/repeat';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
-import bluebird from 'bluebird';
 import then from 'promise';
 import {spawn} from 'child_process';
 import * as stream from 'stream';
 import resumer from 'resumer';
 import FormData from 'form-data';
 import {parse as parseURL} from 'url';
+import {URL} from 'whatwg-url';
 import * as http from 'http';
 import * as fs from 'fs';
 
@@ -24,24 +23,17 @@ import TestServer from './server';
 
 // test subjects
 import fetch, {
+	FetchError,
 	Headers,
 	Request,
 	Response
 } from '../src/';
+import FetchErrorOrig from '../src/fetch-error.js';
 import HeadersOrig from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body from '../src/body.js';
 import Blob from '../src/blob.js';
-import FetchError from '../src/fetch-error.js';
-// test with native promise on node 0.11, and bluebird for node 0.10
-fetch.Promise = fetch.Promise || bluebird;
-
-let URL;
-// whatwg-url doesn't support old Node.js, so make it optional
-try {
-	URL = require('whatwg-url').URL;
-} catch (err) {}
 
 const supportToString = ({
 	[Symbol.toStringTag]: 'z'
@@ -72,7 +64,7 @@ describe('node-fetch', () => {
 		const old = fetch.Promise;
 		fetch.Promise = then;
 		expect(fetch(url)).to.be.an.instanceof(then);
-		expect(fetch(url)).to.not.be.an.instanceof(bluebird);
+		expect(fetch(url)).to.not.be.an.instanceof(old);
 		fetch.Promise = old;
 	});
 
@@ -87,6 +79,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should expose Headers, Response and Request constructors', function() {
+		expect(FetchError).to.equal(FetchErrorOrig);
 		expect(Headers).to.equal(HeadersOrig);
 		expect(Response).to.equal(ResponseOrig);
 		expect(Request).to.equal(RequestOrig);
@@ -100,17 +93,17 @@ describe('node-fetch', () => {
 
 	it('should reject with error if url is protocol relative', function() {
 		url = '//example.com/';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
 	});
 
 	it('should reject with error if url is relative path', function() {
 		url = '/some/path';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
 	});
 
 	it('should reject with error if protocol is unsupported', function() {
 		url = 'ftp://example.com/';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(Error);
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only HTTP(S) protocols are supported');
 	});
 
 	it('should reject with error on network failure', function() {
@@ -1093,7 +1086,7 @@ describe('node-fetch', () => {
 		url = `${base}encoding/chunked`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			const padding = repeat('a', 10);
+			const padding = 'a'.repeat(10);
 			return res.textConverted().then(result => {
 				expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
 			});
@@ -1104,7 +1097,7 @@ describe('node-fetch', () => {
 		url = `${base}encoding/invalid`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
-			const padding = repeat('a', 1200);
+			const padding = 'a'.repeat(1200);
 			return res.textConverted().then(result => {
 				expect(result).to.not.equal(`${padding}中文`);
 			});
@@ -1148,7 +1141,7 @@ describe('node-fetch', () => {
 		url = `${base}json`;
 		return fetch(url).then(res => {
 			const r1 = res.clone();
-			return fetch.Promise.all([res.json(), r1.text()]).then(results => {
+			return Promise.all([res.json(), r1.text()]).then(results => {
 				expect(results[0]).to.deep.equal({name: 'value'});
 				expect(results[1]).to.equal('{"name":"value"}');
 			});
@@ -1460,7 +1453,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	(URL ? it : it.skip)('should support fetch with WHATWG URL object', function() {
+	it('should support fetch with WHATWG URL object', function() {
 		url = `${base}hello`;
 		const urlObj = new URL(url);
 		const req = new Request(urlObj);
@@ -1794,7 +1787,7 @@ describe('node-fetch', () => {
 		expect(cl.agent).to.equal(agent);
 		// clone body shouldn't be the same body
 		expect(cl.body).to.not.equal(body);
-		return fetch.Promise.all([cl.text(), req.text()]).then(results => {
+		return Promise.all([cl.text(), req.text()]).then(results => {
 			expect(results[0]).to.equal('a=1');
 			expect(results[1]).to.equal('a=1');
 		});

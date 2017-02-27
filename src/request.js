@@ -18,7 +18,7 @@ const PARSED_URL = Symbol('url');
  * @param   Object  init   Custom options
  * @return  Void
  */
-export default class Request extends Body {
+export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
 
@@ -51,7 +51,7 @@ export default class Request extends Body {
 				clone(input) :
 				null;
 
-		super(inputBody, {
+		Body.call(this, inputBody, {
 			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
 		});
@@ -101,6 +101,8 @@ export default class Request extends Body {
 	}
 }
 
+Body.mixIn(Request.prototype);
+
 Object.defineProperty(Request.prototype, Symbol.toStringTag, {
 	value: 'RequestPrototype',
 	writable: false,
@@ -109,6 +111,7 @@ Object.defineProperty(Request.prototype, Symbol.toStringTag, {
 });
 
 export function getNodeRequestOptions(request) {
+	const parsedURL = request[PARSED_URL];
 	const headers = new Headers(request.headers);
 
 	// fetch step 3
@@ -117,8 +120,12 @@ export function getNodeRequestOptions(request) {
 	}
 
 	// Basic fetch
-	if (!/^https?:$/.test(request[PARSED_URL].protocol)) {
-		throw new Error('only http(s) protocols are supported');
+	if (!parsedURL.protocol || !parsedURL.hostname) {
+		throw new TypeError('Only absolute URLs are supported');
+	}
+
+	if (!/^https?:$/.test(parsedURL.protocol)) {
+		throw new TypeError('Only HTTP(S) protocols are supported');
 	}
 
 	// HTTP-network-or-cache fetch steps 5-9
@@ -152,7 +159,7 @@ export function getNodeRequestOptions(request) {
 	// HTTP-network fetch step 4
 	// chunked encoding is handled by Node.js
 
-	return Object.assign({}, request[PARSED_URL], {
+	return Object.assign({}, parsedURL, {
 		method: request.method,
 		headers: headers.raw(),
 		agent: request.agent

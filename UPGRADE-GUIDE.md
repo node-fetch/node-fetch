@@ -1,34 +1,41 @@
-# Upgrade to node-fetch v2
+# Upgrade to node-fetch v2.x
 
-node-fetch v2 brings about many changes that increase the compliance of
-WHATWG's [Fetch Standard][whatwg-fetch]. However, many of these changes meant
-that apps written for node-fetch v1 needs to be updated to work with node-fetch
-v2 and be conformant with the Fetch Standard.
+node-fetch v2.x brings about many changes that increase the compliance of
+WHATWG's [Fetch Standard][whatwg-fetch]. However, many of these changes mean
+that apps written for node-fetch v1.x needs to be updated to work with
+node-fetch v2.x and be conformant with the Fetch Standard. This document helps
+you make this transition.
+
+Note that this document is not an exhaustive list of all changes made in v2.x,
+but rather that of the most important breaking changes. See our [changelog] for
+other comparatively minor modifications.
 
 ## `.text()` no longer tries to detect encoding
 
-In v1, `response.text()` attempts to guess the text encoding of the input
+In v1.x, `response.text()` attempts to guess the text encoding of the input
 material and decode it for the user. However, it runs counter to the Fetch
 Standard which demands `.text()` to always use UTF-8.
 
 In "response" to that, we have changed `.text()` to use UTF-8. A new function
 **`response.textConverted()`** is created that maintains the behavior of
-`.text()` last year.
+`.text()` in v1.x.
 
 ## Internal methods hidden
 
-In v1, the user can access internal methods such as `_clone()`, `_decode()`,
+In v1.x, the user can access internal methods such as `_clone()`, `_decode()`,
 and `_convert()` on the `response` object. While these methods should never
-have been used, node-fetch v2 makes these functions completely inaccessible.
-If your app makes use of these functions, it may break when upgrading to v2.
+have been used, node-fetch v2.x makes these functions completely inaccessible.
+If your app makes use of these functions, it may break when upgrading to v2.x.
 
 If you have a use case that requires these methods to be available, feel free
 to file an issue and we will be happy to help you solve the problem.
 
 ## Headers
 
-The main goal we have for the `Headers` class in v2 is to make it completely
-spec-compliant.
+The main goal we have for the `Headers` class in v2.x is to make it completely
+spec-compliant. These changes are done in conjunction with GitHub's
+[`whatwg-fetch`][gh-fetch] polyfill, [Chrome][chrome-headers], and
+[Firefox][firefox-headers].
 
 ```js
 //////////////////////////////////////////////////////////////////////////////
@@ -87,15 +94,16 @@ headers.get('Héy');                // now throws
 new Headers({ 'Héy': 'ok' });      // now throws
 ```
 
-## 0.10.x support dropped
+## Node.js v0.x support dropped
 
-If you are still using Node.js v0.10, upgrade ASAP. Not only has Node.js
-dropped support for that release branch, it has become too much work for us to
-maintain. Therefore, we have dropped official support for v0.10.
-
-That being said, node-fetch may still work with v0.10, but as we are not
-actively trying to support that version, it is in the user's best interest to
-upgrade.
+If you are still using Node.js v0.10 or v0.12, upgrade ASAP. Not only has it
+become too much work for us to maintain, Node.js has also dropped support for
+those release branches in 2016. Check out Node.js' official [LTS plan] for more
+information on Node.js' support lifetime.
 
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
-[#181]: https://github.com/bitinn/node-fetch/issues/181
+[LTS plan]: https://github.com/nodejs/LTS#lts-plan
+[gh-fetch]: https://github.com/github/fetch
+[chrome-headers]: https://crbug.com/645492
+[firefox-headers]: https://bugzilla.mozilla.org/show_bug.cgi?id=1278275
+[changelog]: CHANGELOG.md

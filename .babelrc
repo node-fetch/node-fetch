@@ -1,29 +1,51 @@
 {
-  "plugins": [
-    "transform-runtime"
-  ],
-  "env": {
-    "test": {
-      "presets": [
-        [ "env", { "loose": true, "targets": { "node": 0.12 } } ]
+  env: {
+    test: {
+      presets: [
+        [ 'env', {
+          loose: true,
+          targets: { node: 4 },
+          exclude: [
+            // skip some almost-compliant features on Node.js v4.x
+            'transform-es2015-block-scoping',
+            'transform-es2015-classes',
+            'transform-es2015-for-of',
+          ]
+        } ]
       ],
-      "plugins": [
-        "transform-runtime",
-	"./build/babel-plugin"
+      plugins: [
+        './build/babel-plugin'
       ]
     },
-    "coverage": {
-      "presets": [
-        [ "env", { "loose": true, "targets": { "node": 0.12 } } ]
+    coverage: {
+      presets: [
+        [ 'env', {
+          loose: true,
+          targets: { node: 4 },
+          exclude: [
+            'transform-es2015-block-scoping',
+            'transform-es2015-classes',
+            'transform-es2015-for-of'
+          ]
+        } ]
       ],
-      "plugins": [
-        [ "istanbul", { "exclude": [ "src/blob.js", "build", "test" ] } ],
-	"./build/babel-plugin"
+      plugins: [
+        [ 'istanbul', { exclude: [ 'src/blob.js', 'build', 'test' ] } ],
+        './build/babel-plugin'
       ]
     },
-    "rollup": {
-      "presets": [
-        [ "env", { "loose": true, "targets": { "node": 0.12 }, "modules": false } ]
+    rollup: {
+      presets: [
+        [ 'env', {
+          loose: true,
+          targets: { node: 4 },
+          exclude: [
+            'transform-es2015-block-scoping',
+            'transform-es2015-classes',
+            'transform-es2015-for-of'
+          ],
+          modules: false
+        } ]
       ]
     }
   }
