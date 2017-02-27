@@ -9,27 +9,43 @@ Changelog
 
 This is a major release. Check [our upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
 
+### General changes
+
 - Major: Node.js 0.10.x and 0.12.x support is dropped
-- Major: overwrite user's `Content-Length` if we can be sure our information is correct (per spec)
-- Major: `response.text()` no longer attempts to detect encoding, instead always opting for UTF-8 (per spec); use `response.textConverted()` for the v1 behavior
-- Major: make `response.json()` throw error instead of returning an empty object on 204 no-content respose (per spec; reverts behavior changed in v1.6.2)
-- Major: remove `headers.getAll()`; make `get()` return all headers delimited by commas (per spec)
-- Major: internal methods are no longer exposed
-- Major: throw error when a `GET` or `HEAD` Request is constructed with a non-null body (per spec)
+- Major: `require('node-fetch/lib/response')` etc. is now unsupported; use `require('node-fetch').Response` or ES6 module imports
 - Enhance: start testing on Node.js 4, 6, 7
 - Enhance: use Rollup to produce a distributed bundle (less memory overhead and faster startup)
-- Enhance: make `toString()` on Headers, Requests, and Responses return correct IDL class strings
+- Enhance: make `Object.prototype.toString()` on Headers, Requests, and Responses return correct class strings
+- Other: rewrite in ES2015 using Babel
+- Other: use Codecov for code coverage tracking
+
+### HTTP requests
+
+- Major: overwrite user's `Content-Length` if we can be sure our information is correct (per spec)
+- Fix: support WHATWG URL objects, created by `whatwg-url` package or `require('url').URL` in Node.js 7+
+
+### Response and Request classes
+
+- Major: `response.text()` no longer attempts to detect encoding, instead always opting for UTF-8 (per spec); use `response.textConverted()` for the v1 behavior
+- Major: make `response.json()` throw error instead of returning an empty object on 204 no-content respose (per spec; reverts behavior changed in v1.6.2)
+- Major: internal methods are no longer exposed
+- Major: throw error when a `GET` or `HEAD` Request is constructed with a non-null body (per spec)
 - Enhance: add `response.arrayBuffer()` (also applies to Requests)
 - Enhance: add experimental `response.blob()` (also applies to Requests)
+- Fix: fix Request and Response with `null` body
+
+### Headers class
+
+- Major: remove `headers.getAll()`; make `get()` return all headers delimited by commas (per spec)
 - Enhance: make Headers iterable
 - Enhance: make Headers constructor accept an array of tuples
 - Enhance: make sure header names and values are valid in HTTP
-- Enhance: add a list of default headers in README
 - Fix: coerce Headers prototype function parameters to strings, where applicable
-- Fix: fix Request and Response with `null` body
-- Fix: support WHATWG URL objects, created by `whatwg-url` package or `require('url').URL` in Node.js 7+
-- Other: rewrite in ES2015 using Babel and Rollup
-- Other: use Codecov for code coverage tracking
+
+### Documentation
+
+- Enhance: more comprehensive API docs
+- Enhance: add a list of default headers in README
 
 
 # 1.x release
