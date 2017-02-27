@@ -6,7 +6,6 @@
  */
 
 import {convert} from 'encoding';
-import toArrayBuffer from 'buffer-to-arraybuffer';
 import Stream, {PassThrough} from 'stream';
 import Blob, {BUFFER} from './blob.js';
 import FetchError from './fetch-error.js';
@@ -59,7 +58,7 @@ Body.prototype = {
 	 * @return  Promise
 	 */
 	arrayBuffer() {
-		return consumeBody.call(this).then(buf => toArrayBuffer(buf));
+		return consumeBody.call(this).then(buf => buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
 	},
 
 	/**
