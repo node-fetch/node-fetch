@@ -70,6 +70,16 @@ export default class TestServer {
 			});
 		}
 
+		if (p === '/truncated-gzip') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.setHeader('Content-Encoding', 'gzip');
+			zlib.gzip('hello world', function(err, buffer) {
+				// truncate the CRC checksum and size check at the end of the stream
+				res.end(buffer.slice(0, buffer.length - 8));
+			});
+		}
+
 		if (p === '/deflate') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
