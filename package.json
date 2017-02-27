@@ -35,7 +35,6 @@
   "homepage": "https://github.com/bitinn/node-fetch",
   "devDependencies": {
     "babel-plugin-istanbul": "^4.0.0",
-    "babel-plugin-transform-runtime": "^6.15.0",
     "babel-preset-env": "^1.1.10",
     "babel-register": "^6.16.3",
     "chai": "^3.5.0",
