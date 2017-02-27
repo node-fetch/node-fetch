@@ -55,13 +55,13 @@ describe('node-fetch', () => {
 	it('should return a promise', function() {
 		url = 'http://example.com/';
 		const p = fetch(url);
-		expect(p).to.be.an.instanceof(Promise);
+		expect(p).to.be.an.instanceof(fetch.Promise);
 		expect(p).to.have.property('then');
 	});
 
 	it('should allow custom promise', function() {
 		url = 'http://example.com/';
-		const old = Promise;
+		const old = fetch.Promise;
 		fetch.Promise = then;
 		expect(fetch(url)).to.be.an.instanceof(then);
 		expect(fetch(url)).to.not.be.an.instanceof(old);
