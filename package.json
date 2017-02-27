@@ -56,7 +56,6 @@
     "whatwg-url": "^4.0.0"
   },
   "dependencies": {
-    "babel-runtime": "^6.11.6",
     "encoding": "^0.1.11"
   }
 }
