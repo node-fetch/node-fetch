@@ -125,33 +125,31 @@ export default function fetch(url, opts) {
 				, timeout: request.timeout
 			};
 
-			// response object
-			let output;
+			// HTTP-network fetch step 16.1.2
+			const codings = headers.get('Content-Encoding');
+
+			// HTTP-network fetch step 16.1.3: handle content codings
 
 			// in following scenarios we ignore compression support
 			// 1. compression support is disabled
 			// 2. HEAD request
-			// 3. no content-encoding header
+			// 3. no Content-Encoding header
 			// 4. no content response (204)
 			// 5. content not modified response (304)
-			if (!request.compress || request.method === 'HEAD' || !headers.has('content-encoding') || res.statusCode === 204 || res.statusCode === 304) {
-				output = new Response(body, response_options);
-				resolve(output);
+			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
+				resolve(new Response(body, response_options));
 				return;
 			}
 
-			// otherwise, check for gzip or deflate
-			let name = headers.get('content-encoding');
-
 			// for gzip
-			if (name == 'gzip' || name == 'x-gzip') {
+			if (codings == 'gzip' || codings == 'x-gzip') {
 				body = body.pipe(zlib.createGunzip());
-				output = new Response(body, response_options);
-				resolve(output);
+				resolve(new Response(body, response_options));
 				return;
+			}
 
 			// for deflate
-			} else if (name == 'deflate' || name == 'x-deflate') {
+			if (codings == 'deflate' || codings == 'x-deflate') {
 				// handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
 				const raw = res.pipe(new PassThrough());
@@ -162,16 +160,13 @@ export default function fetch(url, opts) {
 					} else {
 						body = body.pipe(zlib.createInflateRaw());
 					}
-					output = new Response(body, response_options);
-					resolve(output);
+					resolve(new Response(body, response_options));
 				});
 				return;
 			}
 
 			// otherwise, use response as-is
-			output = new Response(body, response_options);
-			resolve(output);
-			return;
+			resolve(new Response(body, response_options));
 		});
 
 		writeToStream(req, request);
