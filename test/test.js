@@ -23,16 +23,17 @@ import TestServer from './server';
 
 // test subjects
 import fetch, {
+	FetchError,
 	Headers,
 	Request,
 	Response
 } from '../src/';
+import FetchErrorOrig from '../src/fetch-error.js';
 import HeadersOrig from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body from '../src/body.js';
 import Blob from '../src/blob.js';
-import FetchError from '../src/fetch-error.js';
 
 const supportToString = ({
 	[Symbol.toStringTag]: 'z'
@@ -78,6 +79,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should expose Headers, Response and Request constructors', function() {
+		expect(FetchError).to.equal(FetchErrorOrig);
 		expect(Headers).to.equal(HeadersOrig);
 		expect(Response).to.equal(ResponseOrig);
 		expect(Request).to.equal(RequestOrig);

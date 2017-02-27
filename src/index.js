@@ -192,5 +192,6 @@ fetch.Promise = global.Promise;
 export {
 	Headers,
 	Request,
-	Response
+	Response,
+	FetchError
 };
