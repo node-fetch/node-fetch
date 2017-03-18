@@ -1205,6 +1205,18 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should return all headers using raw()', function() {
+		url = `${base}cookie`;
+		return fetch(url).then(res => {
+			const expected = [
+				'a=1',
+				'b=1'
+			];
+
+			expect(res.headers.raw()['set-cookie']).to.deep.equal(expected);
+		});
+	});
+
 	it('should allow iterating through all headers with forEach', function() {
 		const headers = new Headers([
 			['b', '2'],
