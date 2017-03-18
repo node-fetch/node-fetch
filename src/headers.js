@@ -34,6 +34,16 @@ export default class Headers {
 	constructor(init = undefined) {
 		this[MAP] = Object.create(null);
 
+		if (init instanceof Headers) {
+			for (const [key, values] of Object.entries(init.raw())) {
+				for (const value of values) {
+					this.append(key, value);
+				}
+			}
+
+			return;
+		}
+
 		// We don't worry about converting prop to ByteString here as append()
 		// will handle it.
 		if (init == null) {

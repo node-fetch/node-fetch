@@ -24,11 +24,7 @@ export default class Response {
 		this.status = opts.status || 200;
 		this.statusText = opts.statusText || STATUS_CODES[this.status];
 
-		if (opts.headers instanceof Headers) {
-			this.headers = opts.headers;
-		} else {
-			this.headers = new Headers(opts.headers);
-		}
+		this.headers = new Headers(opts.headers);
 
 		Object.defineProperty(this, Symbol.toStringTag, {
 			value: 'Response',
