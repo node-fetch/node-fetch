@@ -35,9 +35,12 @@ export default class Headers {
 		this[MAP] = Object.create(null);
 
 		if (init instanceof Headers) {
-			for (const [key, values] of Object.entries(init.raw())) {
-				for (const value of values) {
-					this.append(key, value);
+			const rawHeaders = init.raw();
+			const headerNames = Object.keys(rawHeaders);
+
+			for (const headerName of headerNames) {
+				for (const value of rawHeaders[headerName]) {
+					this.append(headerName, value);
 				}
 			}
 
