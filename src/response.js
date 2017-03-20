@@ -23,6 +23,7 @@ export default class Response {
 		this.url = opts.url;
 		this.status = opts.status || 200;
 		this.statusText = opts.statusText || STATUS_CODES[this.status];
+
 		this.headers = new Headers(opts.headers);
 
 		Object.defineProperty(this, Symbol.toStringTag, {
