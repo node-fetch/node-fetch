@@ -99,6 +99,8 @@ export default class Request {
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.lookup = init.lookup || input.lookup;
+		this.family = init.family || input.family;
+		this.localAddress = init.localAddress || input.localAddress;
 	}
 
 	get method() {
@@ -204,6 +206,7 @@ export function getNodeRequestOptions(request) {
 		headers: exportNodeCompatibleHeaders(headers),
 		agent: request.agent,
 		lookup: request.lookup,
-		family: request.family
+		family: request.family,
+		localAddress: request.localAddress
 	});
 }
