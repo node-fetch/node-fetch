@@ -77,6 +77,8 @@ export default class Request {
 			input.compress : true;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
+		this.family = init.family || input.family;
+		this.localAddress = init.localAddress || input.localAddress;
 
 		this[PARSED_URL] = parsedURL;
 		Object.defineProperty(this, Symbol.toStringTag, {
@@ -162,6 +164,8 @@ export function getNodeRequestOptions(request) {
 	return Object.assign({}, parsedURL, {
 		method: request.method,
 		headers: headers.raw(),
-		agent: request.agent
+		agent: request.agent,
+		family: request.family,
+		localAddress: request.localAddress
 	});
 }
