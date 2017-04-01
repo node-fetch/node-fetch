@@ -1199,7 +1199,7 @@ describe('node-fetch', () => {
 	it('should allow get all responses of a header', function() {
 		url = `${base}cookie`;
 		return fetch(url).then(res => {
-			const expected = 'a=1,b=1';
+			const expected = 'a=1, b=1';
 			expect(res.headers.get('set-cookie')).to.equal(expected);
 			expect(res.headers.get('Set-Cookie')).to.equal(expected);
 		});
@@ -1233,7 +1233,7 @@ describe('node-fetch', () => {
 
 		expect(result).to.deep.equal([
 			["a", "1"]
-			, ["b", "2,3"]
+			, ["b", "2, 3"]
 			, ["c", "4"]
 		]);
 	});
@@ -1253,7 +1253,7 @@ describe('node-fetch', () => {
 		}
 		expect(result).to.deep.equal([
 			['a', '1'],
-			['b', '2,3'],
+			['b', '2, 3'],
 			['c', '4']
 		]);
 	});
@@ -1269,7 +1269,7 @@ describe('node-fetch', () => {
 		expect(headers.entries()).to.be.iterable
 			.and.to.deep.iterate.over([
 				['a', '1'],
-				['b', '2,3'],
+				['b', '2, 3'],
 				['c', '4']
 			]);
 	});
@@ -1295,7 +1295,7 @@ describe('node-fetch', () => {
 		headers.append('b', '3');
 
 		expect(headers.values()).to.be.iterable
-			.and.to.iterate.over(['1', '2,3', '4']);
+			.and.to.iterate.over(['1', '2, 3', '4']);
 	});
 
 	it('should allow deleting header', function() {
@@ -1415,7 +1415,7 @@ describe('node-fetch', () => {
 			['b', '2'],
 			['a', '3']
 		]);
-		expect(headers.get('a')).to.equal('1,3');
+		expect(headers.get('a')).to.equal('1, 3');
 		expect(headers.get('b')).to.equal('2');
 
 		headers = new Headers([
@@ -1423,7 +1423,7 @@ describe('node-fetch', () => {
 			['b', '2'],
 			new Map([['a', null], ['3', null]]).keys()
 		]);
-		expect(headers.get('a')).to.equal('1,3');
+		expect(headers.get('a')).to.equal('1, 3');
 		expect(headers.get('b')).to.equal('2');
 
 		headers = new Headers(new Map([
