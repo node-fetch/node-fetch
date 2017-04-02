@@ -105,7 +105,7 @@ export default class Headers {
 			return null;
 		}
 
-		return list.join(',');
+		return list.join(', ');
 	}
 
 	/**
