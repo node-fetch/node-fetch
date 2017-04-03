@@ -191,7 +191,7 @@ The default values are shown after each option key.
 	timeout: 0,         // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
 	compress: true,     // support gzip/deflate content encoding. false to disable
 	size: 0,            // maximum response body size in bytes. 0 to disable
-	agent: null         // http(s).Agent instance, allows custom proxy, certificate etc.
+	agent: null         // http(s).Agent instance or options object, allows custom proxy, certificate etc.
 }
 ```
 

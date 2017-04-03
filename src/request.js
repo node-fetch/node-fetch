@@ -159,6 +159,8 @@ export function getNodeRequestOptions(request) {
 	// HTTP-network fetch step 4
 	// chunked encoding is handled by Node.js
 
+	// Agent normalization is done in fetch().
+
 	return Object.assign({}, parsedURL, {
 		method: request.method,
 		headers: headers.raw(),
