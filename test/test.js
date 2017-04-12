@@ -973,6 +973,17 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should expose url property on request object', function() {
+		const request = new Request(`${base}/foo`);
+		let found = false;
+		for (const k in request) {
+				if (k === 'url') {
+				found = true;
+			}
+		}
+		expect(found).to.be.true;
+	});
+
 	it('should reject decoding body twice', function() {
 		url = `${base}plain`;
 		return fetch(url).then(res => {
