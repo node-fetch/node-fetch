@@ -268,6 +268,10 @@ Constructs a new `Response` object. The constructor is identical to that in the 
 
 Because Node.js does not implement service workers (for which this class was designed), one rarely has to construct a `Response` directly.
 
+#### response.ok
+
+Convenience property representing if the request ended normally. Will evaluate to true if the response status was greater than or equal to 200 but smaller than 300.
+
 <a id="class-headers"></a>
 ### Class: Headers
 
