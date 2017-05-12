@@ -2,17 +2,17 @@
 Error handling with node-fetch
 ==============================
 
-Because `window.fetch` isn't designed to transparent about the cause of request errors, we have to come up with our own solutions.
+Because `window.fetch` isn't designed to be transparent about the cause of request errors, we have to come up with our own solutions.
 
 The basics:
 
-- All [operational errors][joyent-guide] are rejected as [FetchError](https://github.com/bitinn/node-fetch/blob/master/README.md#class-fetcherror), you can handle them all through promise `catch` clause.
+- All [operational errors][joyent-guide] are rejected with a [FetchError](https://github.com/bitinn/node-fetch/blob/master/README.md#class-fetcherror). You can handle them all through the promise `catch` clause.
 
-- All errors comes with `err.message` detailing the cause of errors.
+- All errors come with an `err.message` detailing the cause of errors.
 
-- All errors originated from `node-fetch` are marked with custom `err.type`.
+- All errors originating from `node-fetch` are marked with a custom `err.type`.
 
-- All errors originated from Node.js core are marked with `err.type = 'system'`, and contains addition `err.code` and `err.errno` for error handling, they are alias to error codes thrown by Node.js core.
+- All errors originating from Node.js core are marked with `err.type = 'system'`, and in addition contain an `err.code` and an `err.errno` for error handling. These are aliases for error codes thrown by Node.js core.
 
 - [Programmer errors][joyent-guide] are either thrown as soon as possible, or rejected with default `Error` with `err.message` for ease of troubleshooting.
 
