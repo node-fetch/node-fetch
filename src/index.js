@@ -141,6 +141,7 @@ export default function fetch(url, opts) {
 				return;
 			}
 
+			// For Node v6+
 			// Be less strict when decoding compressed responses, since sometimes
 			// servers send slightly invalid responses that are still accepted
 			// by common browsers.
@@ -165,9 +166,9 @@ export default function fetch(url, opts) {
 				raw.once('data', chunk => {
 					// see http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
-						body = body.pipe(zlib.createInflate(zlibOptions));
+						body = body.pipe(zlib.createInflate());
 					} else {
-						body = body.pipe(zlib.createInflateRaw(zlibOptions));
+						body = body.pipe(zlib.createInflateRaw());
 					}
 					resolve(new Response(body, response_options));
 				});
