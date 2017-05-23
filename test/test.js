@@ -441,13 +441,10 @@ describe('node-fetch', function() {
 		});
 	});
 
-	it('should return empty object on no-content response', function() {
+	it('should throw on no-content json response', function() {
 		url = base + '/no-content';
 		return fetch(url).then(function(res) {
-			return res.json().then(function(result) {
-				expect(result).to.be.an('object');
-				expect(result).to.be.empty;
-			});
+			return expect(res.json()).to.eventually.be.rejectedWith(FetchError);
 		});
 	});
 

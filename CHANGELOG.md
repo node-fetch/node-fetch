@@ -5,6 +5,12 @@ Changelog
 
 # 1.x release
 
+## v1.7.0
+
+(Note: this is a maintenance release, `1.x` will only have backported bugfix beyond this release.)
+
+- Fix: revert change in `v1.6.2` where 204 no-content response is handled with a special case, this conflicts with browser Fetch implementation (as browsers always throw when res.json() parses an empty string). Since this is an operational error, it's wrapped in a `FetchError` for easier error handling.
+
 ## v1.6.3
 
 - Enhance: error handling document to explain `FetchError` design
