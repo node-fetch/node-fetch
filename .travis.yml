@@ -8,5 +8,5 @@ env:
   - FORMDATA_VERSION=2.1.0
 before_script:
   - 'if [ "$FORMDATA_VERSION" ]; then npm install form-data@^$FORMDATA_VERSION; fi'
-before_install: if [[ $TRAVIS_NODE_VERSION <= 1 ]]; then npm install -g npm@1.4.28; fi
+before_install: if [[ `npm -v` < 3 ]]; then npm install -g npm@1.4.28; fi
 script: npm run coverage
