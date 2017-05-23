@@ -32,3 +32,9 @@ node_modules
 
 # Coveralls token files
 .coveralls.yml
+
+## ignore some files from 2.x branch
+
+.nyc_output
+lib/index.js
+lib/index.es.js
