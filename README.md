@@ -49,7 +49,7 @@ $ npm install node-fetch@next --save
 
 ## Usage
 
-Note that documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/tree/1.x), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) if you want to find out the difference.
+Note that documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) if you want to find out the difference.
 
 ```javascript
 import fetch from 'node-fetch';
