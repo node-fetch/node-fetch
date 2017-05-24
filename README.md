@@ -35,13 +35,13 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 
 ## Install
 
-Stable release (`v1.x`)
+Stable release (`1.x`)
 
 ```sh
 $ npm install node-fetch --save
 ```
 
-Next release (`v2.x`), currently in alpha
+Next release (`2.x`), currently in alpha
 
 ```sh
 $ npm install node-fetch@next --save
@@ -49,7 +49,7 @@ $ npm install node-fetch@next --save
 
 ## Usage
 
-Note that documentation below is up-to-date with `v2.x` releases, [see `v1.x` readme](https://github.com/bitinn/node-fetch/tree/v1.6.3) and [upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) if you want to find out the difference.
+Note that documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) if you want to find out the difference.
 
 ```javascript
 import fetch from 'node-fetch';
