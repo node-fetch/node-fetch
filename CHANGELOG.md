@@ -50,6 +50,10 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 
 # 1.x release
 
+## backport releases (v1.7.0 and beyond)
+
+See [changelog on 1.x branch](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) for details.
+
 ## v1.6.3
 
 - Enhance: error handling document to explain `FetchError` design
