@@ -38,3 +38,4 @@ node_modules
 .nyc_output
 lib/index.js
 lib/index.es.js
+package-lock.json

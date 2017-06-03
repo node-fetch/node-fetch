@@ -12,6 +12,9 @@ function TestServer() {
 	this.server = http.createServer(this.router);
 	this.port = 30001;
 	this.hostname = 'localhost';
+	// node 8 default keepalive timeout is 5000ms
+	// make it shorter here as we want to close server quickly at the end of tests
+	this.server.keepAliveTimeout = 1000;
 	this.server.on('error', function(err) {
 		console.log(err.stack);
 	});
