@@ -13,11 +13,12 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 
 - Major: Node.js 0.10.x and 0.12.x support is dropped
 - Major: `require('node-fetch/lib/response')` etc. is now unsupported; use `require('node-fetch').Response` or ES6 module imports
-- Enhance: start testing on Node.js 4, 6, 7
+- Enhance: start testing on Node.js 4, 6, 8 LTS
 - Enhance: use Rollup to produce a distributed bundle (less memory overhead and faster startup)
 - Enhance: make `Object.prototype.toString()` on Headers, Requests, and Responses return correct class strings
 - Other: rewrite in ES2015 using Babel
 - Other: use Codecov for code coverage tracking
+- Other: update package.json script for npm 5
 
 ### HTTP requests
 
