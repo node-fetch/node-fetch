@@ -33,3 +33,7 @@ node_modules
 
 # Babel-compiled files
 lib
+
+# Ignore package manager lock files
+package-lock.json
+yarn.lock
