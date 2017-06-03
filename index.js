@@ -241,7 +241,7 @@ function Fetch(url, opts) {
 			req.end();
 		} else if (options.body instanceof Buffer) {
 			req.write(options.body);
-			req.end()
+			req.end();
 		} else if (typeof options.body === 'object' && options.body.pipe) {
 			options.body.pipe(req);
 		} else if (typeof options.body === 'object') {
