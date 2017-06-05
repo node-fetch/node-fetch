@@ -79,16 +79,14 @@ export default class Request {
 		this.agent = init.agent || input.agent;
 
 		this[PARSED_URL] = parsedURL;
+		this.url = format_url(parsedURL);
+
 		Object.defineProperty(this, Symbol.toStringTag, {
 			value: 'Request',
 			writable: false,
 			enumerable: false,
 			configurable: true
 		});
-	}
-
-	get url() {
-		return format_url(this[PARSED_URL]);
 	}
 
 	/**
