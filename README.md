@@ -132,7 +132,7 @@ var body = { a: 1 };
 fetch('http://httpbin.org/post', { 
 	method: 'POST',
 	body:    JSON.stringify(body),
-	headers: { 'Content-Type': 'application/json' },
+	headers: { 'Content-Type': 'application/json' }
 })
 	.then(res => res.json())
 	.then(json => console.log(json));
