@@ -63,6 +63,9 @@ export default class Request {
 
 		if (init.body != null) {
 			const contentType = extractContentType(this);
+			if (contentType === 'application/x-www-form-urlencoded') {
+				this.body = String(this.body);
+			}
 			if (contentType !== null && !this.headers.has('Content-Type')) {
 				this.headers.append('Content-Type', contentType);
 			}
