@@ -9,10 +9,12 @@ import {spawn} from 'child_process';
 import * as stream from 'stream';
 import resumer from 'resumer';
 import FormData from 'form-data';
-import {parse as parseURL} from 'url';
+import URLSearchParams_Polyfill from 'url-search-params';
+import {parse as parseURL, URLSearchParams} from 'url';
 import {URL} from 'whatwg-url';
 import * as http from 'http';
 import * as fs from 'fs';
+import * as path from 'path';
 
 chai.use(chaiPromised);
 chai.use(chaiIterator);
@@ -794,7 +796,7 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with form-data using stream as body', function() {
 		const form = new FormData();
-		form.append('my_field', fs.createReadStream('test/dummy.txt'));
+		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
 		url = `${base}multipart`;
 		opts = {
@@ -850,6 +852,68 @@ describe('node-fetch', () => {
 			expect(res.body).to.equal('[object Object]');
 			expect(res.headers['content-type']).to.equal('text/plain;charset=UTF-8');
 			expect(res.headers['content-length']).to.equal('15');
+		});
+	});
+
+	const itUSP = typeof URLSearchParams === 'function' ? it : it.skip;
+	itUSP('should allow POST request with URLSearchParams as body', function() {
+		const params = new URLSearchParams();
+		params.append('a','1');
+
+		url = `${base}inspect`;
+		opts = {
+			method: 'POST',
+			body: params,
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+			expect(res.headers['content-length']).to.equal('3');
+			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	itUSP('should still recognize URLSearchParams when extended', function() {
+		class CustomSearchParams extends URLSearchParams {}
+		const params = new CustomSearchParams();
+		params.append('a','1');
+
+		url = `${base}inspect`;
+		opts = {
+			method: 'POST',
+			body: params,
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+			expect(res.headers['content-length']).to.equal('3');
+			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	/* for 100% code coverage, checks for duck-typing-only detection
+	 * where both constructor.name and brand tests fail */
+	it('should still recognize URLSearchParams when extended from polyfill', function() {
+		class CustomPolyfilledSearchParams extends URLSearchParams_Polyfill {}
+		const params = new CustomPolyfilledSearchParams();
+		params.append('a','1');
+
+		url = `${base}inspect`;
+		opts = {
+			method: 'POST',
+			body: params,
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+			expect(res.headers['content-length']).to.equal('3');
+			expect(res.body).to.equal('a=1');
 		});
 	});
 

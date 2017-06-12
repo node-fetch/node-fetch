@@ -30,6 +30,8 @@ export default function Body(body, {
 		body = null;
 	} else if (typeof body === 'string') {
 		// body is string
+	} else if (isURLSearchParams(body)) {
+		// body is a URLSearchParams
 	} else if (body instanceof Blob) {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
@@ -274,6 +276,31 @@ function convertBody(buffer, headers) {
 }
 
 /**
+ * Detect a URLSearchParams object
+ * ref: https://github.com/bitinn/node-fetch/issues/296#issuecomment-307598143
+ *
+ * @param   Object  obj     Object to detect by type or brand
+ * @return  String
+ */
+function isURLSearchParams(obj) {
+    // Duck-typing as a necessary condition.
+    if (typeof obj !== 'object' ||
+        typeof obj.append !== 'function' ||
+        typeof obj.delete !== 'function' ||
+        typeof obj.get !== 'function' ||
+        typeof obj.getAll !== 'function' ||
+        typeof obj.has !== 'function' ||
+        typeof obj.set !== 'function') {
+        return false;
+    }
+
+    // Brand-checking and more duck-typing as optional condition.
+    return obj.constructor.name === 'URLSearchParams' ||
+        Object.prototype.toString.call(obj) === '[object URLSearchParams]' ||
+        typeof obj.sort === 'function';
+}
+
+/**
  * Clone body given Res/Req instance
  *
  * @param   Mixed  instance  Response or Request instance
@@ -324,6 +351,9 @@ export function extractContentType(instance) {
 	} else if (typeof body === 'string') {
 		// body is string
 		return 'text/plain;charset=UTF-8';
+	} else if (isURLSearchParams(body)) {
+	 	// body is a URLSearchParams
+		return 'application/x-www-form-urlencoded;charset=UTF-8';
 	} else if (body instanceof Blob) {
 		// body is blob
 		return body.type || null;
@@ -350,6 +380,9 @@ export function getTotalBytes(instance) {
 	} else if (typeof body === 'string') {
 		// body is string
 		return Buffer.byteLength(body);
+	} else if (isURLSearchParams(body)) {
+		// body is URLSearchParams
+		return Buffer.byteLength(String(body));
 	} else if (body instanceof Blob) {
 		// body is blob
 		return body.size;
@@ -379,6 +412,10 @@ export function writeToStream(dest, instance) {
 	} else if (typeof body === 'string') {
 		// body is string
 		dest.write(body);
+		dest.end();
+	} else if (isURLSearchParams(body)) {
+		// body is URLSearchParams
+		dest.write(Buffer.from(String(body)));
 		dest.end();
 	} else if (body instanceof Blob) {
 		// body is blob
