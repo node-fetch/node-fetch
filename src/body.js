@@ -415,8 +415,8 @@ export function writeToStream(dest, instance) {
 		dest.end();
 	} else if (isURLSearchParams(body)) {
 		// body is URLSearchParams
-		dest.write(new Buffer(String(body)));
-		dest.end()
+		dest.write(Buffer.from(String(body)));
+		dest.end();
 	} else if (body instanceof Blob) {
 		// body is blob
 		dest.write(body[BUFFER]);
