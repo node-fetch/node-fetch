@@ -353,7 +353,7 @@ export function extractContentType(instance) {
 		return 'text/plain;charset=UTF-8';
 	} else if (isURLSearchParams(body)) {
 	 	// body is a URLSearchParams
-		return 'application/x-www-form-urlencoded';
+		return 'application/x-www-form-urlencoded;charset=UTF-8';
 	} else if (body instanceof Blob) {
 		// body is blob
 		return body.type || null;
@@ -380,6 +380,9 @@ export function getTotalBytes(instance) {
 	} else if (typeof body === 'string') {
 		// body is string
 		return Buffer.byteLength(body);
+	} else if (isURLSearchParams(body)) {
+		// body is URLSearchParams
+		return Buffer.byteLength(String(body));
 	} else if (body instanceof Blob) {
 		// body is blob
 		return body.size;
@@ -410,6 +413,10 @@ export function writeToStream(dest, instance) {
 		// body is string
 		dest.write(body);
 		dest.end();
+	} else if (isURLSearchParams(body)) {
+		// body is URLSearchParams
+		dest.write(new Buffer(String(body)));
+		dest.end()
 	} else if (body instanceof Blob) {
 		// body is blob
 		dest.write(body[BUFFER]);
