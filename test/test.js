@@ -446,7 +446,9 @@ describe('node-fetch', () => {
 		url = `${base}error/json`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('application/json');
-			return expect(res.json()).to.eventually.be.rejectedWith(Error);
+			return expect(res.json()).to.eventually.be.rejected
+				.and.be.an.instanceOf(FetchError)
+				.and.include({ type: 'invalid-json' });
 		});
 	});
 
@@ -460,6 +462,18 @@ describe('node-fetch', () => {
 				expect(result).to.be.a('string');
 				expect(result).to.be.empty;
 			});
+		});
+	});
+
+	it('should reject when trying to parse no content response as json', function() {
+		url = `${base}no-content`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(204);
+			expect(res.statusText).to.equal('No Content');
+			expect(res.ok).to.be.true;
+			return expect(res.json()).to.eventually.be.rejected
+				.and.be.an.instanceOf(FetchError)
+				.and.include({ type: 'invalid-json' });
 		});
 	});
 
