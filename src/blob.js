@@ -31,9 +31,9 @@ export default class Blob {
 				if (element instanceof Buffer) {
 					buffer = element;
 				} else if (ArrayBuffer.isView(element)) {
-					buffer = Buffer.from(new Uint8Array(element.buffer, element.byteOffset, element.byteLength));
+					buffer = Buffer.from(element.buffer, element.byteOffset, element.byteLength);
 				} else if (element instanceof ArrayBuffer) {
-					buffer = Buffer.from(new Uint8Array(element));
+					buffer = Buffer.from(element);
 				} else if (element instanceof Blob) {
 					buffer = element[BUFFER];
 				} else {
