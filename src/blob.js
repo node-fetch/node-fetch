@@ -31,13 +31,13 @@ export default class Blob {
 				if (element instanceof Buffer) {
 					buffer = element;
 				} else if (ArrayBuffer.isView(element)) {
-					buffer = new Buffer(new Uint8Array(element.buffer, element.byteOffset, element.byteLength));
+					buffer = Buffer.from(element.buffer, element.byteOffset, element.byteLength);
 				} else if (element instanceof ArrayBuffer) {
-					buffer = new Buffer(new Uint8Array(element));
+					buffer = Buffer.from(element);
 				} else if (element instanceof Blob) {
 					buffer = element[BUFFER];
 				} else {
-					buffer = new Buffer(typeof element === 'string' ? element : String(element));
+					buffer = Buffer.from(typeof element === 'string' ? element : String(element));
 				}
 				buffers.push(buffer);
 			}

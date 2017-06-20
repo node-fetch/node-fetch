@@ -720,7 +720,7 @@ describe('node-fetch', () => {
 		url = `${base}inspect`;
 		opts = {
 			method: 'POST'
-			, body: new Buffer('a=1', 'utf-8')
+			, body: Buffer.from('a=1', 'utf-8')
 		};
 		return fetch(url, opts).then(res => {
 			return res.json();
@@ -1432,7 +1432,7 @@ describe('node-fetch', () => {
 		res.j = NaN;
 		res.k = true;
 		res.l = false;
-		res.m = new Buffer('test');
+		res.m = Buffer.from('test');
 
 		const h1 = new Headers(res);
 		h1.set('n', [1, 2]);
@@ -1728,7 +1728,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support buffer as body in Response constructor', function() {
-		const res = new Response(new Buffer('a=1'));
+		const res = new Response(Buffer.from('a=1'));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
@@ -1824,7 +1824,7 @@ describe('node-fetch', () => {
 		url = base;
 		var req = new Request(url, {
 			method: 'POST',
-			body: new Buffer('a=1')
+			body: Buffer.from('a=1')
 		});
 		expect(req.url).to.equal(url);
 		return req.blob().then(function(result) {
