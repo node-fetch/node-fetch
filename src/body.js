@@ -233,7 +233,7 @@ function consumeBody(body) {
  */
 function convertBody(buffer, headers) {
 	if (typeof convert !== 'function') {
-		throw new FetchError('The package `encoding` must be installed to use the textConverted() function', 'missing-encoding');
+		throw new Error('The package `encoding` must be installed to use the textConverted() function');
 	}
 
 	const ct = headers.get('content-type');

@@ -1095,13 +1095,7 @@ describe('node-fetch', () => {
 	});
 
 	describe('external encoding', () => {
-		const hasEncoding = typeof convert === 'function';
-
 		describe('with optional `encoding`', () => {
-			before(function() {
-				if (!hasEncoding) this.skip();
-			})
-
 			it('should only use UTF-8 decoding with text()', function() {
 				url = `${base}encoding/euc-jp`;
 				return fetch(url).then(res => {
@@ -1209,10 +1203,7 @@ describe('node-fetch', () => {
 		describe('without optional `encoding`', function() {
 			before(function() {
 				// give npm long enough to uninstall the package
-				this.timeout(8000);
-
-				// if for some reason it's already not a function, just resolve
-				if (!hasEncoding) return Promise.resolve();
+				this.timeout(12000);
 
 				return new Promise(function(resolve, reject) {
 					// run npm uninstall of the encoding package, since we've already run all the tests we needed it for
@@ -1226,8 +1217,7 @@ describe('node-fetch', () => {
 					for (let moduleId in cache) {
 						const isEncoding = moduleId.includes('encoding')
 						const isFetchSrc = moduleId.includes(path.join('fetch', 'src'))
-						const isNotFetchError = !moduleId.includes('fetch-error')
-						if ( isEncoding || (isFetchSrc && isNotFetchError)) {
+						if (isEncoding || isFetchSrc) {
 							delete cache[moduleId]
 						}
 					}
@@ -1241,8 +1231,7 @@ describe('node-fetch', () => {
 				url = `${base}hello`;
 				return fetch(url).then((res) => {
 					return expect(res.textConverted()).to.eventually.be.rejected
-						.and.be.an.instanceOf(FetchError)
-						.and.include({type: 'missing-encoding'});
+						.and.have.property('message').which.includes('encoding')
 				});
 			});
 		});
