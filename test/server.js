@@ -2,8 +2,9 @@ import * as http from 'http';
 import { parse } from 'url';
 import * as zlib from 'zlib';
 import * as stream from 'stream';
-import { convert } from 'encoding';
 import { multipart as Multipart } from 'parted';
+
+try { var convert = require('encoding').convert } catch(e) {}
 
 export default class TestServer {
 	constructor() {
