@@ -1213,7 +1213,7 @@ describe('node-fetch', () => {
 					});
 				}).then(() => {
 					const cache = require.cache;
-					// check each item in require cache, delete all `encoding` and 'fetch/src' entries (keeping FetchError)
+					// check each item in require cache, delete all `encoding` and 'fetch/src' entries
 					for (let moduleId in cache) {
 						const isEncoding = moduleId.includes('encoding')
 						const isFetchSrc = moduleId.includes(path.join('fetch', 'src'))

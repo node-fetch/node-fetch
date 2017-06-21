@@ -11,7 +11,8 @@ import FetchError from './fetch-error.js';
 
 const DISTURBED = Symbol('disturbed');
 
-try { var convert = require('encoding').convert } catch(e) {}
+let convert;
+try { convert = require('encoding').convert } catch(e) {}
 
 /**
  * Body class
