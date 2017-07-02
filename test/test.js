@@ -16,6 +16,9 @@ import * as http from 'http';
 import * as fs from 'fs';
 import * as path from 'path';
 
+let convert;
+try { convert = require('encoding').convert; } catch(e) { }
+
 chai.use(chaiPromised);
 chai.use(chaiIterator);
 chai.use(chaiString);
@@ -1090,109 +1093,6 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should only use UTF-8 decoding with text()', function() {
-		url = `${base}encoding/euc-jp`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			return res.text().then(result => {
-				expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>\ufffd\ufffd\ufffd\u0738\ufffd</title>');
-			});
-		});
-	});
-
-	it('should support encoding decode, xml dtd detect', function() {
-		url = `${base}encoding/euc-jp`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			return res.textConverted().then(result => {
-				expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
-			});
-		});
-	});
-
-	it('should support encoding decode, content-type detect', function() {
-		url = `${base}encoding/shift-jis`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			return res.textConverted().then(result => {
-				expect(result).to.equal('<div>日本語</div>');
-			});
-		});
-	});
-
-	it('should support encoding decode, html5 detect', function() {
-		url = `${base}encoding/gbk`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			return res.textConverted().then(result => {
-				expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
-			});
-		});
-	});
-
-	it('should support encoding decode, html4 detect', function() {
-		url = `${base}encoding/gb2312`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			return res.textConverted().then(result => {
-				expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
-			});
-		});
-	});
-
-	it('should default to utf8 encoding', function() {
-		url = `${base}encoding/utf8`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			expect(res.headers.get('content-type')).to.be.null;
-			return res.textConverted().then(result => {
-				expect(result).to.equal('中文');
-			});
-		});
-	});
-
-	it('should support uncommon content-type order, charset in front', function() {
-		url = `${base}encoding/order1`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			return res.textConverted().then(result => {
-				expect(result).to.equal('中文');
-			});
-		});
-	});
-
-	it('should support uncommon content-type order, end with qs', function() {
-		url = `${base}encoding/order2`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			return res.textConverted().then(result => {
-				expect(result).to.equal('中文');
-			});
-		});
-	});
-
-	it('should support chunked encoding, html4 detect', function() {
-		url = `${base}encoding/chunked`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			const padding = 'a'.repeat(10);
-			return res.textConverted().then(result => {
-				expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
-			});
-		});
-	});
-
-	it('should only do encoding detection up to 1024 bytes', function() {
-		url = `${base}encoding/invalid`;
-		return fetch(url).then(res => {
-			expect(res.status).to.equal(200);
-			const padding = 'a'.repeat(1200);
-			return res.textConverted().then(result => {
-				expect(result).to.not.equal(`${padding}中文`);
-			});
-		});
-	});
-
 	it('should allow piping response body as stream', function() {
 		url = `${base}hello`;
 		return fetch(url).then(res => {
@@ -1930,3 +1830,130 @@ function streamToPromise(stream, dataHandler) {
 		stream.on('error', reject);
 	});
 }
+
+describe('external encoding', () => {
+	const hasEncoding = typeof convert === 'function';
+
+	describe('with optional `encoding`', function() {
+		before(function() {
+			if(!hasEncoding) this.skip();
+		});
+
+		it('should only use UTF-8 decoding with text()', function() {
+			url = `${base}encoding/euc-jp`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.text().then(result => {
+					expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>\ufffd\ufffd\ufffd\u0738\ufffd</title>');
+				});
+			});
+		});
+
+		it('should support encoding decode, xml dtd detect', function() {
+			url = `${base}encoding/euc-jp`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
+				});
+			});
+		});
+
+		it('should support encoding decode, content-type detect', function() {
+			url = `${base}encoding/shift-jis`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('<div>日本語</div>');
+				});
+			});
+		});
+
+		it('should support encoding decode, html5 detect', function() {
+			url = `${base}encoding/gbk`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
+				});
+			});
+		});
+
+		it('should support encoding decode, html4 detect', function() {
+			url = `${base}encoding/gb2312`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
+				});
+			});
+		});
+
+		it('should default to utf8 encoding', function() {
+			url = `${base}encoding/utf8`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				expect(res.headers.get('content-type')).to.be.null;
+				return res.textConverted().then(result => {
+					expect(result).to.equal('中文');
+				});
+			});
+		});
+
+		it('should support uncommon content-type order, charset in front', function() {
+			url = `${base}encoding/order1`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('中文');
+				});
+			});
+		});
+
+		it('should support uncommon content-type order, end with qs', function() {
+			url = `${base}encoding/order2`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('中文');
+				});
+			});
+		});
+
+		it('should support chunked encoding, html4 detect', function() {
+			url = `${base}encoding/chunked`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				const padding = 'a'.repeat(10);
+				return res.textConverted().then(result => {
+					expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
+				});
+			});
+		});
+
+		it('should only do encoding detection up to 1024 bytes', function() {
+			url = `${base}encoding/invalid`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				const padding = 'a'.repeat(1200);
+				return res.textConverted().then(result => {
+					expect(result).to.not.equal(`${padding}中文`);
+				});
+			});
+		});
+	});
+
+	describe('without optional `encoding`', function() {
+		before(function() {
+			if (hasEncoding) this.skip()
+		});
+
+		it('should throw a FetchError if res.textConverted() is called without `encoding` in require cache', () => {
+			url = `${base}hello`;
+			return fetch(url).then((res) => {
+				return expect(res.textConverted()).to.eventually.be.rejected
+					.and.have.property('message').which.includes('encoding')
+			});
+		});
+	});
+});

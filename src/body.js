@@ -5,12 +5,14 @@
  * Body interface provides common methods for Request and Response
  */
 
-import {convert} from 'encoding';
 import Stream, {PassThrough} from 'stream';
 import Blob, {BUFFER} from './blob.js';
 import FetchError from './fetch-error.js';
 
 const DISTURBED = Symbol('disturbed');
+
+let convert;
+try { convert = require('encoding').convert; } catch(e) {}
 
 /**
  * Body class
@@ -231,6 +233,10 @@ function consumeBody(body) {
  * @return  String
  */
 function convertBody(buffer, headers) {
+	if (typeof convert !== 'function') {
+		throw new Error('The package `encoding` must be installed to use the textConverted() function');
+	}
+
 	const ct = headers.get('content-type');
 	let charset = 'utf-8';
 	let res, str;
