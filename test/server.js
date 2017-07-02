@@ -4,7 +4,8 @@ import * as zlib from 'zlib';
 import * as stream from 'stream';
 import { multipart as Multipart } from 'parted';
 
-try { var convert = require('encoding').convert } catch(e) {}
+let convert;
+try { convert = require('encoding').convert; } catch(e) {}
 
 export default class TestServer {
 	constructor() {

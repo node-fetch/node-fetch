@@ -12,7 +12,7 @@ import FetchError from './fetch-error.js';
 const DISTURBED = Symbol('disturbed');
 
 let convert;
-try { convert = require('encoding').convert } catch(e) {}
+try { convert = require('encoding').convert; } catch(e) {}
 
 /**
  * Body class

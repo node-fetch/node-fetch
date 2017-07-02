@@ -17,7 +17,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 let convert;
-try { convert = require('encoding').convert } catch(e) { }
+try { convert = require('encoding').convert; } catch(e) { }
 
 chai.use(chaiPromised);
 chai.use(chaiIterator);
