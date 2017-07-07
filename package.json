@@ -10,7 +10,7 @@
     "lib/index.es.js"
   ],
   "engines": {
-    "node": ">=4"
+    "node": "4.x || >=6.0.0"
   },
   "scripts": {
     "build": "cross-env BABEL_ENV=rollup rollup -c",
