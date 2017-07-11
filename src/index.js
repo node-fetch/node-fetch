@@ -7,6 +7,7 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
+import parseDataURL from 'data-urls';
 import Body, { writeToStream, getTotalBytes } from './body';
 import Response from './response';
 import Headers, { createHeadersLenient } from './headers';
@@ -31,6 +32,17 @@ export default function fetch(url, opts) {
 	// allow custom promise
 	if (!fetch.Promise) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
+	}
+
+	if (/^data:/.test(url)) {
+		const request = new Request(url, opts);
+		try  {
+			const data = parseDataURL(url);
+			const res = new Response(data.body, {headers: {'Content-Type': data.mimeType}});
+			return fetch.Promise.resolve(res);
+		} catch (err) {
+			return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL, ${err.message}`, 'system', err));
+		}
 	}
 
 	Body.Promise = fetch.Promise;
