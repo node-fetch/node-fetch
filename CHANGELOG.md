@@ -19,6 +19,7 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 - Other: rewrite in ES2015 using Babel
 - Other: use Codecov for code coverage tracking
 - Other: update package.json script for npm 5
+- Other: `encoding` module is now optional
 
 ### HTTP requests
 
@@ -33,6 +34,8 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 - Major: throw error when a `GET` or `HEAD` Request is constructed with a non-null body (per spec)
 - Enhance: add `response.arrayBuffer()` (also applies to Requests)
 - Enhance: add experimental `response.blob()` (also applies to Requests)
+- Enhance: `URLSearchParams` is now accepted as a body
+- Enhance: wrap `response.json()` json parsing error as `FetchError`
 - Fix: fix Request and Response with `null` body
 
 ### Headers class
