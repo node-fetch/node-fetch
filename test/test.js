@@ -626,24 +626,24 @@ describe('node-fetch', () => {
 	});
 
 	it('should clear internal timeout on fetch response', function (done) {
-		this.timeout(1000);
-		spawn('node', ['-e', `require('./')('${base}hello', { timeout: 5000 })`])
+		this.timeout(2000);
+		spawn('node', ['-e', `require('./')('${base}hello', { timeout: 10000 })`])
 			.on('exit', () => {
 				done();
 			});
 	});
 
 	it('should clear internal timeout on fetch redirect', function (done) {
-		this.timeout(1000);
-		spawn('node', ['-e', `require('./')('${base}redirect/301', { timeout: 5000 })`])
+		this.timeout(2000);
+		spawn('node', ['-e', `require('./')('${base}redirect/301', { timeout: 10000 })`])
 			.on('exit', () => {
 				done();
 			});
 	});
 
 	it('should clear internal timeout on fetch error', function (done) {
-		this.timeout(1000);
-		spawn('node', ['-e', `require('./')('${base}error/reset', { timeout: 5000 })`])
+		this.timeout(2000);
+		spawn('node', ['-e', `require('./')('${base}error/reset', { timeout: 10000 })`])
 			.on('exit', () => {
 				done();
 			});
