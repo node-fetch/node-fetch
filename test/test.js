@@ -58,14 +58,14 @@ after(done => {
 
 describe('node-fetch', () => {
 	it('should return a promise', function() {
-		url = 'http://example.com/';
+		url = `${base}hello`;
 		const p = fetch(url);
 		expect(p).to.be.an.instanceof(fetch.Promise);
 		expect(p).to.have.property('then');
 	});
 
 	it('should allow custom promise', function() {
-		url = 'http://example.com/';
+		url = `${base}hello`;
 		const old = fetch.Promise;
 		fetch.Promise = then;
 		expect(fetch(url)).to.be.an.instanceof(then);
@@ -74,7 +74,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should throw error when no promise implementation are found', function() {
-		url = 'http://example.com/';
+		url = `${base}hello`;
 		const old = fetch.Promise;
 		fetch.Promise = undefined;
 		expect(() => {
