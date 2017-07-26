@@ -5,16 +5,17 @@ import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import then from 'promise';
-import {spawn} from 'child_process';
-import * as stream from 'stream';
 import resumer from 'resumer';
 import FormData from 'form-data';
 import URLSearchParams_Polyfill from 'url-search-params';
-import {parse as parseURL, URLSearchParams} from 'url';
-import {URL} from 'whatwg-url';
-import * as http from 'http';
-import * as fs from 'fs';
-import * as path from 'path';
+import { URL } from 'whatwg-url';
+
+const { spawn } = require('child_process');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const stream = require('stream');
+const { parse: parseURL, URLSearchParams } = require('url');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) { }
