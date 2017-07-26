@@ -10,7 +10,7 @@ import * as stream from 'stream';
 import resumer from 'resumer';
 import FormData from 'form-data';
 import URLSearchParams_Polyfill from 'url-search-params';
-import {parse as parseURL, URLSearchParams} from 'url';
+import {parse as parseURL, URLSearchParams, URL as URLNode} from 'url';
 import {URL} from 'whatwg-url';
 import * as http from 'http';
 import * as fs from 'fs';
@@ -117,6 +117,7 @@ describe('node-fetch', () => {
 			.and.be.an.instanceOf(FetchError)
 			.and.include({ type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED' });
 	});
+
 
 	it('should resolve into response', function() {
 		url = `${base}hello`;
@@ -1445,6 +1446,16 @@ describe('node-fetch', () => {
 		const urlObj = new URL(url);
 		const req = new Request(urlObj);
 		return fetch(req).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	it('should support fetch with native URL object', function() {
+		url = `${base}hello`
+		const urlObj = new URLNode(url);
+		return fetch(urlObj).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.ok).to.be.true;
 			expect(res.status).to.equal(200);
