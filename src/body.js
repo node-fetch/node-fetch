@@ -5,9 +5,11 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, {PassThrough} from 'stream';
-import Blob, {BUFFER} from './blob.js';
+import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
+
+const Stream = require('stream');
+const { PassThrough } = require('stream');
 
 const DISTURBED = Symbol('disturbed');
 

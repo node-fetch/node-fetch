@@ -5,17 +5,17 @@
  * a request API compatible with window.fetch
  */
 
-import {resolve as resolve_url} from 'url';
-import * as http from 'http';
-import * as https from 'https';
-import * as zlib from 'zlib';
-import {PassThrough} from 'stream';
-
 import Body, { writeToStream } from './body';
 import Response from './response';
 import Headers from './headers';
 import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
+
+const http = require('http');
+const https = require('https');
+const { PassThrough } = require('stream');
+const { resolve: resolve_url } = require('url');
+const zlib = require('zlib');
 
 /**
  * Fetch function

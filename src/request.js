@@ -5,9 +5,10 @@
  * Request class contains server only options
  */
 
-import { format as format_url, parse as parse_url } from 'url';
 import Headers from './headers.js';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
+
+const { format: format_url, parse: parse_url } = require('url');
 
 const PARSED_URL = Symbol('url');
 
