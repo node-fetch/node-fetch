@@ -19,12 +19,13 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 - Other: rewrite in ES2015 using Babel
 - Other: use Codecov for code coverage tracking
 - Other: update package.json script for npm 5
-- Other: `encoding` module is now optional
+- Other: `encoding` module is now optional (alpha.7)
 
 ### HTTP requests
 
 - Major: overwrite user's `Content-Length` if we can be sure our information is correct (per spec)
 - Fix: support WHATWG URL objects, created by `whatwg-url` package or `require('url').URL` in Node.js 7+
+- Fix: a regression in older v2 build where `index.es.js` doesn't require https module, causing HTTPS request to fail (alpha.8)
 
 ### Response and Request classes
 
