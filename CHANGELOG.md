@@ -7,6 +7,10 @@ Changelog
 
 (Note: `1.x` will only have backported bugfix releases beyond `1.7.0`)
 
+## v1.7.2
+
+- Fix: when using node-fetch with test framework such as `jest`, `instanceof` check could fail in `Headers` class. This is causing some header values, such as `set-cookie`, to be dropped incorrectly.
+
 ## v1.7.1
 
 - Fix: close local test server properly under Node 8.
