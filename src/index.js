@@ -13,6 +13,8 @@ import FetchError from './fetch-error';
 
 const http = require('http');
 const https = require('https');
+const path = require('path');
+const fs = require('fs');
 const { PassThrough } = require('stream');
 const { resolve: resolve_url } = require('url');
 const zlib = require('zlib');
@@ -39,6 +41,26 @@ export default function fetch(url, opts) {
 		const request = new Request(url, opts);
 		const options = getNodeRequestOptions(request);
 
+    if (options.protocol === 'file:') {
+      const filePath = path.normalize(url.substring('file:///'.length));
+      if (!fs.existsSync(filePath)) {
+        reject(new FetchError(`File not found: ${filePath}`));
+      }
+      const readStream = fs.createReadStream(filePath);
+      readStream.on('open', function () {
+        resolve(new Response(readStream, {
+          url: request.url,
+          status: 200,
+          statusText: 'OK',
+          //  size: data.length,
+          timeout: request.timeout
+        }));
+      });
+      readStream.on('error', function (err) {
+        reject(new FetchError(`File read error: ${filePath}`));
+      });
+      return;
+    }
 		const send = (options.protocol === 'https:' ? https : http).request;
 
 		// http.request only support string as host header, this hack make custom host header possible
