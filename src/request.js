@@ -120,14 +120,14 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept', '*/*');
 	}
 
-	// Basic fetch
-	if (!parsedURL.protocol || !parsedURL.hostname) {
-		throw new TypeError('Only absolute URLs are supported');
-	}
+  // Basic fetch
+  if (!parsedURL.protocol || (parsedURL.protocol !== 'file:' && !parsedURL.hostname)) {
+    throw new TypeError('Only absolute URLs are supported');
+  }
 
-	if (!/^https?:$/.test(parsedURL.protocol)) {
-		throw new TypeError('Only HTTP(S) protocols are supported');
-	}
+  if (!/^https?:$/.test(parsedURL.protocol) && !/^file:$/.test(parsedURL.protocol)) {
+    throw new TypeError('Only HTTP(S) and FILE protocols are supported');
+  }
 
 	// HTTP-network-or-cache fetch steps 5-9
 	let contentLengthValue = null;

@@ -1957,4 +1957,14 @@ describe('external encoding', () => {
 			});
 		});
 	});
+
+  describe('file:///', function () {
+    it('should reading file URLs', function() {
+      return fetch('file:///' + path.join(__dirname, 'dummy.txt')).then(res => {
+     		return res.text();
+      }).then(text => {
+        expect(text).to.equal('i am a dummy');
+			});
+    });
+  });
 });
