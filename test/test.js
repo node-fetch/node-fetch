@@ -887,7 +887,7 @@ describe('node-fetch', () => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
-			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded');
 			expect(res.headers['content-length']).to.equal('3');
 			expect(res.body).to.equal('a=1');
 		});
@@ -907,7 +907,7 @@ describe('node-fetch', () => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
-			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded');
 			expect(res.headers['content-length']).to.equal('3');
 			expect(res.body).to.equal('a=1');
 		});
@@ -929,7 +929,7 @@ describe('node-fetch', () => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
-			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+			expect(res.headers['content-type']).to.equal('application/x-www-form-urlencoded');
 			expect(res.headers['content-length']).to.equal('3');
 			expect(res.body).to.equal('a=1');
 		});
