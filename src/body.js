@@ -367,7 +367,7 @@ export function extractContentType(instance) {
 		return 'text/plain;charset=UTF-8';
 	} else if (isURLSearchParams(body)) {
 	 	// body is a URLSearchParams
-		return 'application/x-www-form-urlencoded;charset=UTF-8';
+		return 'application/x-www-form-urlencoded';
 	} else if (body instanceof Blob) {
 		// body is blob
 		return body.type || null;
