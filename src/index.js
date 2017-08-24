@@ -48,25 +48,19 @@ export default function fetch(url, opts) {
 
 		// send request
 		const req = send(options);
-		let reqTimeout;
 
 		if (request.timeout) {
-			req.once('socket', socket => {
-				reqTimeout = setTimeout(() => {
-					req.abort();
-					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-				}, request.timeout);
-			});
+			req.setTimeout(request.timeout, () => {
+				req.abort();
+				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
+			})
 		}
 
 		req.on('error', err => {
-			clearTimeout(reqTimeout);
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 		});
 
 		req.on('response', res => {
-			clearTimeout(reqTimeout);
-
 			// handle redirect
 			if (fetch.isRedirect(res.statusCode) && request.redirect !== 'manual') {
 				if (request.redirect === 'error') {
