@@ -339,6 +339,17 @@ export default class TestServer {
 			});
 			req.pipe(parser);
 		}
+
+		if (p === '/trailers') {
+			res.statusCode = 200;
+			res.setHeader('Transfer-Encoding', 'chunked');
+			res.setHeader('Trailer', 'X-Node-Fetch');
+			res.write('Body of the response');
+			setTimeout(() => {
+				res.addTrailers({ 'X-Node-Fetch': 'hello world!' });
+				res.end();
+			}, 1000);
+		}
 	}
 }
 

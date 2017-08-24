@@ -7,7 +7,7 @@
 
 import Body, { writeToStream } from './body';
 import Response from './response';
-import Headers from './headers';
+import Headers, { nodeToHeaders } from './headers';
 import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 
@@ -100,29 +100,29 @@ export default function fetch(url, opts) {
 			}
 
 			// normalize location header for manual redirect mode
-			const headers = new Headers();
-			for (const name of Object.keys(res.headers)) {
-				if (Array.isArray(res.headers[name])) {
-					for (const val of res.headers[name]) {
-						headers.append(name, val);
-					}
-				} else {
-					headers.append(name, res.headers[name]);
-				}
-			}
+			const headers = nodeToHeaders(res.headers);
 			if (request.redirect === 'manual' && headers.has('location')) {
 				headers.set('location', resolve_url(request.url, headers.get('location')));
 			}
 
 			// prepare response
 			let body = res.pipe(new PassThrough());
-			const response_options = {
-				url: request.url
-				, status: res.statusCode
-				, statusText: res.statusMessage
-				, headers: headers
-				, size: request.size
-				, timeout: request.timeout
+
+			const createResponse = body => {
+				const response = new Response(body, {
+					url: request.url,
+					status: res.statusCode,
+					statusText: res.statusMessage,
+					headers,
+					size: request.size,
+					timeout: request.timeout,
+				});
+				response.trailer = new fetch.Promise(resolve => {
+					res.on('end', () => {
+						resolve(nodeToHeaders(res.trailers));
+					});
+				});
+				return response;
 			};
 
 			// HTTP-network fetch step 16.1.2
@@ -137,7 +137,7 @@ export default function fetch(url, opts) {
 			// 4. no content response (204)
 			// 5. content not modified response (304)
 			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
-				resolve(new Response(body, response_options));
+				resolve(createResponse(body));
 				return;
 			}
 
@@ -154,7 +154,7 @@ export default function fetch(url, opts) {
 			// for gzip
 			if (codings == 'gzip' || codings == 'x-gzip') {
 				body = body.pipe(zlib.createGunzip(zlibOptions));
-				resolve(new Response(body, response_options));
+				resolve(createResponse(body));
 				return;
 			}
 
@@ -170,13 +170,13 @@ export default function fetch(url, opts) {
 					} else {
 						body = body.pipe(zlib.createInflateRaw());
 					}
-					resolve(new Response(body, response_options));
+					resolve(createResponse(body));
 				});
 				return;
 			}
 
 			// otherwise, use response as-is
-			resolve(new Response(body, response_options));
+			resolve(createResponse(body));
 		});
 
 		writeToStream(req, request);

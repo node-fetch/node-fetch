@@ -284,6 +284,20 @@ const HeadersIteratorPrototype = Object.setPrototypeOf({
 	Object.getPrototypeOf([][Symbol.iterator]())
 ));
 
+export function nodeToHeaders(headersObj) {
+	const headers = new Headers();
+	for (const name of Object.keys(headersObj)) {
+		if (Array.isArray(headersObj[name])) {
+			for (const val of headersObj[name]) {
+				headers.append(name, val);
+			}
+		} else {
+			headers.append(name, headersObj[name]);
+		}
+	}
+	return headers;
+}
+
 Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
 	value: 'HeadersIterator',
 	writable: false,

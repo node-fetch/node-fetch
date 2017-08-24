@@ -26,6 +26,7 @@ export default class Response {
 		this.statusText = opts.statusText || STATUS_CODES[this.status];
 
 		this.headers = new Headers(opts.headers);
+		this.trailer = Body.Promise.resolve(new Headers());
 
 		Object.defineProperty(this, Symbol.toStringTag, {
 			value: 'Response',
@@ -48,15 +49,15 @@ export default class Response {
 	 * @return  Response
 	 */
 	clone() {
-
-		return new Response(clone(this), {
-			url: this.url
-			, status: this.status
-			, statusText: this.statusText
-			, headers: this.headers
-			, ok: this.ok
+		const clonedResponseObject = new Response(clone(this), {
+			url: this.url,
+			status: this.status,
+			statusText: this.statusText,
+			headers: this.headers,
+			ok: this.ok
 		});
-
+		clonedResponseObject.trailer = this.trailer.then(headers => new Headers(headers));
+		return clonedResponseObject;
 	}
 }
 
