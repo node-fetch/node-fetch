@@ -128,7 +128,7 @@ export default class TestServer {
 		if (p === '/slow') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
-			res.write('test');
+			res.flushHeaders();
 			setTimeout(function() {
 				res.end('test');
 			}, 1000);
