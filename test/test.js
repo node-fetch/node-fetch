@@ -1458,7 +1458,7 @@ describe('node-fetch', function() {
 		expect(body).to.have.property('buffer');
 	});
 
-	it('should create custom FetchError', function() {
+	it('should create custom FetchError', function funcName() {
 		var systemError = new Error('system');
 		systemError.code = 'ESOMEERROR';
 
@@ -1470,6 +1470,8 @@ describe('node-fetch', function() {
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
+		expect(err.stack).to.include('funcName');
+		expect(err.stack.split('\n')[0]).to.equal(err.name + ': ' + err.message);
 	});
 
 	it('should support https request', function() {
