@@ -1470,8 +1470,8 @@ describe('node-fetch', function() {
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
-		expect(err.stack).to.include('funcName')
-			.and.to.startWith(`${err.name}: ${err.message}`);
+		expect(err.stack).to.include('funcName');
+		expect(err.stack.split('\n')[0]).to.equal(err.name + ': ' + err.message);
 	});
 
 	it('should support https request', function() {
