@@ -20,6 +20,8 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 - Other: use Codecov for code coverage tracking
 - Other: update package.json script for npm 5
 - Other: `encoding` module is now optional (alpha.7)
+- Other: expose browser.js through package.json, avoid bundling mishaps (alpha.9)
+- Other: allow TypeScript to `import` node-fetch by exposing default (alpha.9)
 
 ### HTTP requests
 
