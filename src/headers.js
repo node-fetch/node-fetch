@@ -238,6 +238,7 @@ function createHeadersIterator(target, kind) {
 		kind,
 		index: 0
 	};
+    iterator[Symbol.iterator] = () => iterator;
 	return iterator;
 }
 
