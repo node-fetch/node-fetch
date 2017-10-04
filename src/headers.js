@@ -280,9 +280,7 @@ const HeadersIteratorPrototype = Object.setPrototypeOf({
 			done: false
 		};
 	}
-}, Object.getPrototypeOf(
-	Object.getPrototypeOf([][Symbol.iterator]())
-));
+}, Object.getPrototypeOf([][Symbol.iterator]()));
 
 Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
 	value: 'HeadersIterator',
