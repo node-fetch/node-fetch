@@ -21,11 +21,38 @@ export default class Response {
 	constructor(body = null, opts = {}) {
 		Body.call(this, body, opts);
 
-		this.url = opts.url;
-		this.status = opts.status || 200;
-		this.statusText = opts.statusText || STATUS_CODES[this.status];
+		const url = opts.url;
+		const status = opts.status || 200;
+		const statusText = opts.statusText || STATUS_CODES[status];
+		const headers = new Headers(opts.headers);
 
-		this.headers = new Headers(opts.headers);
+		Object.defineProperties(this, {
+			url: {
+				get() { return url },
+				set() {},
+				enumerable: true,
+			},
+			status: {
+				get() { return status },
+				set() {},
+				enumerable: true,
+			},
+			statusText: {
+				get() { return statusText },
+				set() {},
+				enumerable: true,
+			},
+			headers: {
+				get() { return headers; },
+				set() {},
+				enumerable: true,
+			},
+			ok: {
+				get() { return this.status >= 200 && this.status < 300},
+				set() {},
+				enumerable: true,
+			}
+		});
 
 		Object.defineProperty(this, Symbol.toStringTag, {
 			value: 'Response',
@@ -33,13 +60,8 @@ export default class Response {
 			enumerable: false,
 			configurable: true
 		});
-	}
 
-	/**
-	 * Convenience property representing if the request ended normally
-	 */
-	get ok() {
-		return this.status >= 200 && this.status < 300;
+		return Object.create(this);
 	}
 
 	/**
