@@ -97,6 +97,11 @@ describe('node-fetch', () => {
 		expect(new Request(base).toString()).to.equal('[object Request]');
 	});
 
+	it('should reject with error if illegal options are passed', function() {
+		url = `${base}hello`;
+		return expect(fetch(url,  {data: 'test', foo: 'bar', method: 'GET'})).to.eventually.be.rejectedWith(TypeError, 'Request options cannot contain keys data, foo');
+	});
+	
 	it('should reject with error if url is protocol relative', function() {
 		url = '//example.com/';
 		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
