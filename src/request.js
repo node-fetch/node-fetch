@@ -10,6 +10,7 @@ import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const { format: format_url, parse: parse_url } = require('url');
 
+const ALLOWED_OPTIONS = ['method', 'headers', 'body', 'redirect', 'follow', 'timeout', 'compress', 'size', 'agent', 'counter'];
 const PARSED_URL = Symbol('url');
 
 /**
@@ -38,7 +39,13 @@ export default class Request {
 		} else {
 			parsedURL = parse_url(input.url);
 		}
-
+		
+		let illegalKeys = Object.keys(init).filter((key) => !~ALLOWED_OPTIONS.indexOf(key));
+		
+		if (illegalKeys.length > 0) {
+			throw new TypeError(`Request options cannot contain keys ${illegalKeys.join(', ')}`);
+		}
+    
 		let method = init.method || input.method || 'GET';
 
 		if ((init.body != null || input instanceof Request && input.body !== null) &&
