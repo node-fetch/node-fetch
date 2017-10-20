@@ -40,7 +40,7 @@ export default class Request {
 			parsedURL = parse_url(input.url);
 		}
 		
-		let illegalKeys = Object.keys(init).filter((key) => !ALLOWED_OPTIONS.includes(key));
+		let illegalKeys = Object.keys(init).filter((key) => !~ALLOWED_OPTIONS.indexOf(key));
 		
 		if (illegalKeys.length > 0) {
 			throw new TypeError(`Request options cannot contain keys ${illegalKeys.join(', ')}`);
