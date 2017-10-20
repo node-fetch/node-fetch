@@ -10,7 +10,7 @@ import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const { format: format_url, parse: parse_url } = require('url');
 
-const ALLOWED_OPTIONS = ['method', 'headers', 'body', 'redirect', 'follow', 'timeout', 'compress', 'size', 'agent'];
+const ALLOWED_OPTIONS = ['method', 'headers', 'body', 'redirect', 'follow', 'timeout', 'compress', 'size', 'agent', 'counter'];
 const PARSED_URL = Symbol('url');
 
 /**
