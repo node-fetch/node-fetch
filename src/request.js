@@ -39,7 +39,7 @@ export default class Request {
 			parsedURL = parse_url(input.url);
 		}
 
-		let method = init.method || input.method || 'GET';
+		const method = init.method || input.method || 'GET';
 
 		if ((init.body != null || input instanceof Request && input.body !== null) &&
 			(method === 'GET' || method === 'HEAD')) {
@@ -58,9 +58,31 @@ export default class Request {
 		});
 
 		// fetch spec options
-		this.method = method.toUpperCase();
-		this.redirect = init.redirect || input.redirect || 'follow';
-		this.headers = new Headers(init.headers || input.headers || {});
+		const redirect = init.redirect || input.redirect || 'follow';
+		const headers = new Headers(init.headers || input.headers || {});
+
+		Object.defineProperties(this, {
+			method: {
+				get() { return method.toUpperCase() },
+				set() {},
+				enumerable: true,
+			},
+			redirect: {
+				get() { return redirect },
+				set() {},
+				enumerable: true,
+			},
+			headers: {
+				get() { return headers },
+				set() {},
+				enumerable: true,
+			},
+			url: {
+				get() { return format_url(this[PARSED_URL]) },
+				set() {},
+				enumerable: true,
+			},
+		});
 
 		if (init.body != null) {
 			const contentType = extractContentType(this);
@@ -86,10 +108,8 @@ export default class Request {
 			enumerable: false,
 			configurable: true
 		});
-	}
 
-	get url() {
-		return format_url(this[PARSED_URL]);
+		return Object.create(this);
 	}
 
 	/**

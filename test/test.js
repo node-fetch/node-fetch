@@ -91,6 +91,122 @@ describe('node-fetch', () => {
 		expect(Request).to.equal(RequestOrig);
 	});
 
+	describe('Response', function() {
+		it('does not provide own enumerable properties', function() {
+			const response = new Response({
+				headers: new Headers({ 'x-custom-header': 1337 }),
+				url: 'my.url',
+				status: 200,
+				statusText: 'yay',
+			});
+			expect(Object.getOwnPropertyNames(response)).to.be.empty;
+		});
+
+		it('does provide enumerable properties', function() {
+			const response = new Response({
+				headers: new Headers({ 'x-custom-header': 1337 }),
+				url: 'my.url',
+				status: 200,
+				statusText: 'yay',
+			});
+			const enumerableProperties = [];
+			for (const property in response) {
+				enumerableProperties.push(property);
+			}
+			['headers', 'ok', 'url', 'status', 'statusText'].forEach(
+				property => expect(enumerableProperties).to.contain(property)
+			);
+		});
+
+		describe('defines the readOnly property', function() {
+			const response = new Response('', {
+				headers: new Headers({ 'x-custom-header': 1337 }),
+				url: 'my.url',
+				status: 200,
+				statusText: 'yay',
+			});
+
+			it('headers', function() {
+				response.headers = new Headers({ 'x-custom-header': 42 });
+				expect(response.headers).to.eql(new Headers({ 'x-custom-header': 1337 }));
+			});
+
+			it('ok', function() {
+				response.ok = false;
+				expect(response.ok).to.be.true;
+			});
+
+			it('status', function() {
+				response.status = 400;
+				expect(response.status).to.equal(200);
+			});
+
+			it('statusText', function() {
+				response.statusText = 'edited';
+				expect(response.statusText).to.equal('yay');
+			});
+
+			it('url', function() {
+				response.url = 'edited';
+				expect(response.url).to.equal('my.url');
+			});
+        });
+	});
+
+	describe('Request', function() {
+		it('does not provide own enumerable properties', function() {
+			const request = new Request('my.url', {
+				method: 'GET',
+				headers: new Headers({ 'x-custom-header': 1337 }),
+				redirect: 'follow',
+			});
+			expect(Object.getOwnPropertyNames(request)).to.be.empty;
+		});
+
+		it('does provide enumerable properties', function() {
+			const request = new Request('my.url', {
+				method: 'GET',
+				headers: new Headers({ 'x-custom-header': 1337 }),
+				redirect: 'follow',
+			});
+			const enumerableProperties = [];
+			for (const property in request) {
+				enumerableProperties.push(property);
+			}
+			['method', 'url', 'headers', 'redirect'].forEach(
+				property => expect(enumerableProperties).to.contain(property)
+			);
+		});
+
+		describe ('defines the readOnly property', function() {
+			const request = new Request('my.url', {
+				method: 'GET',
+				headers: new Headers({ 'x-custom-header': 1337 }),
+				redirect: 'follow',
+			});
+
+			it('method', function() {
+				request.method = 'PUT';
+				expect(request.method).to.equal('GET');
+			});
+
+			it('url', function() {
+				request.url = 'edited';
+				expect(request.url).to.equal('my.url');
+			});
+
+			it('headers', function() {
+				request.headers = new Headers({ 'x-custom-header': 'edited' });
+				expect(request.headers).to.eql(new Headers({ 'x-custom-header': 1337 }));
+			});
+
+			it('redirect', function() {
+				request.redirect = 'error';
+				expect(request.redirect).to.equal('follow');
+			});
+		});
+	});
+
 	(supportToString ? it : it.skip)('should support proper toString output for Headers, Response and Request objects', function() {
 		expect(new Headers().toString()).to.equal('[object Headers]');
 		expect(new Response().toString()).to.equal('[object Response]');
