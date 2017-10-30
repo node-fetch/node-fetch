@@ -12,6 +12,8 @@ Known differences
 
 - `res.url` contains the final url when following redirects.
 
+- Chrome 47+ defaults `redirect` to `manual`, while node-fetch defaults to `follow`.
+
 - For convenience, `res.body` is a Node.js [Readable stream][readable-stream], so decoding can be handled independently.
 
 - Similarly, `req.body` can either be `null`, a string, a buffer or a Readable stream.
