@@ -40,6 +40,7 @@ export default class Request {
 		}
 
 		let method = init.method || input.method || 'GET';
+		method = method.toUpperCase();
 
 		if ((init.body != null || input instanceof Request && input.body !== null) &&
 			(method === 'GET' || method === 'HEAD')) {
@@ -58,7 +59,7 @@ export default class Request {
 		});
 
 		// fetch spec options
-		this.method = method.toUpperCase();
+		this.method = method;
 		this.redirect = init.redirect || input.redirect || 'follow';
 		this.headers = new Headers(init.headers || input.headers || {});
 
