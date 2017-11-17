@@ -76,13 +76,14 @@ export default function fetch(url, opts) {
 			if (request.timeout) {
 				reqTimeout = setTimeout(() => {
 					req.abort();
-					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
+					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout', {timings: timings}));
 				}, request.timeout);
 			}
 		});
 
 		req.on('error', err => {
 			timings.end = process.hrtime();
+			err.timings = timings;
 			clearTimeout(reqTimeout);
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 		});
@@ -97,18 +98,19 @@ export default function fetch(url, opts) {
 
 			// handle redirect
 			if (fetch.isRedirect(res.statusCode) && request.redirect !== 'manual') {
+				const err_data = {timings: timings};
 				if (request.redirect === 'error') {
-					reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect'));
+					reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect', err_data));
 					return;
 				}
 
 				if (request.counter >= request.follow) {
-					reject(new FetchError(`maximum redirect reached at: ${request.url}`, 'max-redirect'));
+					reject(new FetchError(`maximum redirect reached at: ${request.url}`, 'max-redirect', err_data));
 					return;
 				}
 
 				if (!res.headers.location) {
-					reject(new FetchError(`redirect location header missing at: ${request.url}`, 'invalid-redirect'));
+					reject(new FetchError(`redirect location header missing at: ${request.url}`, 'invalid-redirect', err_data));
 					return;
 				}
 
