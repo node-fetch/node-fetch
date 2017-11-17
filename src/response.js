@@ -22,6 +22,7 @@ export default class Response {
 		Body.call(this, body, opts);
 
 		this.url = opts.url;
+		this.timings = opts.timings;
 		this.status = opts.status || 200;
 		this.statusText = opts.statusText || STATUS_CODES[this.status];
 

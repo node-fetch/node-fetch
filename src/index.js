@@ -39,6 +39,15 @@ export default function fetch(url, opts) {
 		const request = new Request(url, opts);
 		const options = getNodeRequestOptions(request);
 
+		const timings = {
+			// use process.hrtime() as it's not a subject of clock drift
+			start: process.hrtime(),
+			dnsLookup: undefined,
+			tcpConnection: undefined,
+			tlsHandshake: undefined,
+			firstByte: undefined,
+			end: undefined
+		}
 		const send = (options.protocol === 'https:' ? https : http).request;
 
 		// http.request only support string as host header, this hack make custom host header possible
@@ -50,22 +59,41 @@ export default function fetch(url, opts) {
 		const req = send(options);
 		let reqTimeout;
 
-		if (request.timeout) {
-			req.once('socket', socket => {
+		req.once('socket', socket => {
+			socket.on('lookup', () => {
+				timings.dnsLookup = process.hrtime();
+			})
+			socket.on('connect', () => {
+				timings.tcpConnection = process.hrtime();
+			})
+			socket.on('secureConnect', () => {
+				timings.tlsHandshake = process.hrtime();
+			})
+			socket.on('close', () => {
+				timings.end = process.hrtime();
+			})
+
+			if (request.timeout) {
 				reqTimeout = setTimeout(() => {
 					req.abort();
 					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
 				}, request.timeout);
-			});
-		}
+			}
+		});
 
 		req.on('error', err => {
+			timings.end = process.hrtime();
 			clearTimeout(reqTimeout);
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 		});
 
 		req.on('response', res => {
+			timings.end = process.hrtime();
 			clearTimeout(reqTimeout);
+
+			res.once('readable', () => {
+				timings.firstByte = process.hrtime();
+			});
 
 			// handle redirect
 			if (fetch.isRedirect(res.statusCode) && request.redirect !== 'manual') {
@@ -123,6 +151,7 @@ export default function fetch(url, opts) {
 				, headers: headers
 				, size: request.size
 				, timeout: request.timeout
+				, timings: timings
 			};
 
 			// HTTP-network fetch step 16.1.2
