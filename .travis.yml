@@ -11,7 +11,7 @@ env:
 before_script:
   - 'if [ "$FORMDATA_VERSION" ]; then npm install form-data@^$FORMDATA_VERSION; fi'
   - 'if [ "$ENCODING" = "yes" ]; then npm install encoding; fi'
-before_install: npm install -g npm
+#before_install: npm install -g npm
 script: npm run coverage
 cache:
   directories:
