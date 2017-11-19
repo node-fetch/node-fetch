@@ -1527,6 +1527,10 @@ describe('node-fetch', () => {
 			.to.throw(TypeError);
 		expect(() => new Request('.', { body: 'a', method: 'HEAD' }))
 			.to.throw(TypeError);
+		expect(() => new Request('.', { body: 'a', method: 'get' }))
+			.to.throw(TypeError);
+		expect(() => new Request('.', { body: 'a', method: 'head' }))
+			.to.throw(TypeError);
 	});
 
 	it('should support empty options in Response constructor', function() {
