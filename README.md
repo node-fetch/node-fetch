@@ -2,7 +2,8 @@
 node-fetch
 ==========
 
-[![npm version][npm-image]][npm-url]
+[![npm stable version][npm-image]][npm-url]
+[![npm next version][npm-next-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![coverage status][codecov-image]][codecov-url]
 
@@ -13,7 +14,7 @@ A light-weight module that brings `window.fetch` to Node.js
 
 Instead of implementing `XMLHttpRequest` in Node.js to run browser-specific [Fetch polyfill](https://github.com/github/fetch), why not go from native `http` to `fetch` API directly? Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js runtime.
 
-See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) for isomorphic usage (exports `node-fetch` for server-side, `whatwg-fetch` for client-side).
+See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) or Leonardo Quixada's [cross-fetch](https://github.com/lquixada/cross-fetch) for isomorphic usage (exports `node-fetch` for server-side, `whatwg-fetch` for client-side).
 
 
 ## Features
@@ -22,13 +23,13 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 - Make conscious trade-off when following [whatwg fetch spec][whatwg-fetch] and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known difference.
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native stream for body, on both request and response.
-- Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
-- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors](https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md) for troubleshooting.
+- Decode content encoding (gzip/deflate) properly, convert `res.text()` output to UTF-8 optionally.
+- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors][ERROR-HANDLING.md] for troubleshooting.
 
 
 ## Difference from client-side fetch
 
-- See [Known Differences](https://github.com/bitinn/node-fetch/blob/master/LIMITS.md) for details.
+- See [Known Differences][LIMITS.md] for details.
 - If you happen to use a missing feature that `window.fetch` offers, feel free to open an issue.
 - Pull requests are welcomed too!
 
@@ -47,9 +48,12 @@ Next release (`2.x`), currently in alpha
 $ npm install node-fetch@next --save
 ```
 
+*Note: 2.x is expected to be in alpha for quite a while; due to Fetch Spec itself is still evolving and we try to follow its design. Many have been using 2.x for over 6 months, we consider it to be stable and ready for production.*
+
+
 ## Usage
 
-Note that documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) if you want to find out the difference.
+Note that documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide][UPGRADE-GUIDE.md] if you want to find out the difference.
 
 ```javascript
 import fetch from 'node-fetch';
@@ -398,13 +402,17 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 
 [npm-image]: https://img.shields.io/npm/v/node-fetch.svg?style=flat-square
+[npm-next-image]: https://img.shields.io/npm/v/node-fetch/next.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/node-fetch
 [travis-image]: https://img.shields.io/travis/bitinn/node-fetch.svg?style=flat-square
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
 [codecov-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
+
 [ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
+[LIMITS.md]: https://github.com/bitinn/node-fetch/blob/master/LIMITS.md
+[UPGRADE-GUIDE.md]: https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md
+
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
-[mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
