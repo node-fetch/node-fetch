@@ -577,6 +577,17 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should skip decompression if "rawBody" option setted up in true', function() {
+		url = `${base}gzip`;
+		return fetch(url, {
+			rawBody: true
+		}).then(res => {
+			return res.text().then(result => {
+				expect(result).not.to.equal('hello world');
+			});
+		});
+	})
+
 	it('should reject if response compression is invalid', function() {
 		url = `${base}invalid-content-encoding`;
 		return fetch(url).then(res => {
