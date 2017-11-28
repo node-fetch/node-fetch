@@ -79,6 +79,7 @@ export default class Request {
 			input.compress : true;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
+		this.rawBody = init.rawBody || input.rawBody;
 
 		this[PARSED_URL] = parsedURL;
 		Object.defineProperty(this, Symbol.toStringTag, {

@@ -131,12 +131,13 @@ export default function fetch(url, opts) {
 			// HTTP-network fetch step 16.1.3: handle content codings
 
 			// in following scenarios we ignore compression support
-			// 1. compression support is disabled
-			// 2. HEAD request
-			// 3. no Content-Encoding header
-			// 4. no content response (204)
-			// 5. content not modified response (304)
-			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
+			// 1. `rawBody` option is setted up in true
+			// 2. compression support is disabled
+			// 3. HEAD request
+			// 4. no Content-Encoding header
+			// 5. no content response (204)
+			// 6. content not modified response (304)
+			if (request.rawBody || !request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
 				resolve(new Response(body, response_options));
 				return;
 			}
