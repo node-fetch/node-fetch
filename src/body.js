@@ -12,6 +12,7 @@ const Stream = require('stream');
 const { PassThrough } = require('stream');
 
 const DISTURBED = Symbol('disturbed');
+const ERROR = Symbol('error');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) {}
@@ -49,8 +50,15 @@ export default function Body(body, {
 	}
 	this.body = body;
 	this[DISTURBED] = false;
+	this[ERROR] = null;
 	this.size = size;
 	this.timeout = timeout;
+
+	if (this.body instanceof Stream) {
+		this.body.on('error', err => {
+			this[ERROR] = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+		});
+	}
 }
 
 Body.prototype = {
@@ -152,6 +160,10 @@ function consumeBody(body) {
 	}
 
 	this[DISTURBED] = true;
+
+	if (this[ERROR]) {
+		return Body.Promise.reject(this[ERROR]);
+	}
 
 	// body is null
 	if (this.body === null) {
