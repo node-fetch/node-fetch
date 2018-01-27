@@ -10,6 +10,8 @@ import Body, { clone } from './body';
 
 const { STATUS_CODES } = require('http');
 
+const INTERNALS = Symbol('Response internals');
+
 /**
  * Response class
  *
@@ -21,25 +23,37 @@ export default class Response {
 	constructor(body = null, opts = {}) {
 		Body.call(this, body, opts);
 
-		this.url = opts.url;
-		this.status = opts.status || 200;
-		this.statusText = opts.statusText || STATUS_CODES[this.status];
+		const status = opts.status || 200;
 
-		this.headers = new Headers(opts.headers);
+		this[INTERNALS] = {
+			url: opts.url,
+			status,
+			statusText: opts.statusText || STATUS_CODES[status],
+			headers: new Headers(opts.headers)
+		};
+	}
 
-		Object.defineProperty(this, Symbol.toStringTag, {
-			value: 'Response',
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
+	get url() {
+		return this[INTERNALS].url;
+	}
+
+	get status() {
+		return this[INTERNALS].status;
 	}
 
 	/**
 	 * Convenience property representing if the request ended normally
 	 */
 	get ok() {
-		return this.status >= 200 && this.status < 300;
+		return this[INTERNALS].status >= 200 && this[INTERNALS].status < 300;
+	}
+
+	get statusText() {
+		return this[INTERNALS].statusText;
+	}
+
+	get headers() {
+		return this[INTERNALS].headers;
 	}
 
 	/**
@@ -62,8 +76,17 @@ export default class Response {
 
 Body.mixIn(Response.prototype);
 
+Object.defineProperties(Response.prototype, {
+	url: { enumerable: true },
+	status: { enumerable: true },
+	ok: { enumerable: true },
+	statusText: { enumerable: true },
+	headers: { enumerable: true },
+	clone: { enumerable: true }
+});
+
 Object.defineProperty(Response.prototype, Symbol.toStringTag, {
-	value: 'ResponsePrototype',
+	value: 'Response',
 	writable: false,
 	enumerable: false,
 	configurable: true

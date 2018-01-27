@@ -10,7 +10,20 @@ import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const { format: format_url, parse: parse_url } = require('url');
 
-const PARSED_URL = Symbol('url');
+const INTERNALS = Symbol('Request internals');
+
+/**
+ * Check if a value is an instance of Request.
+ *
+ * @param   Mixed   input
+ * @return  Boolean
+ */
+function isRequest(input) {
+	return (
+		typeof input === 'object' &&
+		typeof input[INTERNALS] === 'object'
+	);
+}
 
 /**
  * Request class
@@ -24,7 +37,7 @@ export default class Request {
 		let parsedURL;
 
 		// normalize input
-		if (!(input instanceof Request)) {
+		if (!isRequest(input)) {
 			if (input && input.href) {
 				// in order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
@@ -42,14 +55,14 @@ export default class Request {
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
 
-		if ((init.body != null || input instanceof Request && input.body !== null) &&
+		if ((init.body != null || isRequest(input) && input.body !== null) &&
 			(method === 'GET' || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
 		let inputBody = init.body != null ?
 			init.body :
-			input instanceof Request && input.body !== null ?
+			isRequest(input) && input.body !== null ?
 				clone(input) :
 				null;
 
@@ -58,19 +71,23 @@ export default class Request {
 			size: init.size || input.size || 0
 		});
 
-		// fetch spec options
-		this.method = method;
-		this.redirect = init.redirect || input.redirect || 'follow';
-		this.headers = new Headers(init.headers || input.headers || {});
+		const headers = new Headers(init.headers || input.headers || {});
 
 		if (init.body != null) {
 			const contentType = extractContentType(this);
-			if (contentType !== null && !this.headers.has('Content-Type')) {
-				this.headers.append('Content-Type', contentType);
+			if (contentType !== null && !headers.has('Content-Type')) {
+				headers.append('Content-Type', contentType);
 			}
 		}
 
-		// server only options
+		this[INTERNALS] = {
+			method,
+			redirect: init.redirect || input.redirect || 'follow',
+			headers,
+			parsedURL
+		};
+
+		// node-fetch-only options
 		this.follow = init.follow !== undefined ?
 			init.follow : input.follow !== undefined ?
 			input.follow : 20;
@@ -79,18 +96,22 @@ export default class Request {
 			input.compress : true;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
+	}
 
-		this[PARSED_URL] = parsedURL;
-		Object.defineProperty(this, Symbol.toStringTag, {
-			value: 'Request',
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
+	get method() {
+		return this[INTERNALS].method;
 	}
 
 	get url() {
-		return format_url(this[PARSED_URL]);
+		return format_url(this[INTERNALS].parsedURL);
+	}
+
+	get headers() {
+		return this[INTERNALS].headers;
+	}
+
+	get redirect() {
+		return this[INTERNALS].redirect;
 	}
 
 	/**
@@ -106,10 +127,18 @@ export default class Request {
 Body.mixIn(Request.prototype);
 
 Object.defineProperty(Request.prototype, Symbol.toStringTag, {
-	value: 'RequestPrototype',
+	value: 'Request',
 	writable: false,
 	enumerable: false,
 	configurable: true
+});
+
+Object.defineProperties(Request.prototype, {
+	method: { enumerable: true },
+	url: { enumerable: true },
+	headers: { enumerable: true },
+	redirect: { enumerable: true },
+	clone: { enumerable: true }
 });
 
 /**
@@ -119,8 +148,8 @@ Object.defineProperty(Request.prototype, Symbol.toStringTag, {
  * @return  Object   The options object to be passed to http.request
  */
 export function getNodeRequestOptions(request) {
-	const parsedURL = request[PARSED_URL];
-	const headers = new Headers(request.headers);
+	const parsedURL = request[INTERNALS].parsedURL;
+	const headers = new Headers(request[INTERNALS].headers);
 
 	// fetch step 3
 	if (!headers.has('Accept')) {

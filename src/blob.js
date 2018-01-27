@@ -6,13 +6,6 @@ const TYPE = Symbol('type');
 
 export default class Blob {
 	constructor() {
-		Object.defineProperty(this, Symbol.toStringTag, {
-			value: 'Blob',
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
-
 		this[TYPE] = '';
 
 		const blobParts = arguments[0];
@@ -87,8 +80,14 @@ export default class Blob {
 	}
 }
 
+Object.defineProperties(Blob.prototype, {
+	size: { enumerable: true },
+	type: { enumerable: true },
+	slice: { enumerable: true }
+});
+
 Object.defineProperty(Blob.prototype, Symbol.toStringTag, {
-	value: 'BlobPrototype',
+	value: 'Blob',
 	writable: false,
 	enumerable: false,
 	configurable: true

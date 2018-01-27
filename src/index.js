@@ -84,18 +84,25 @@ export default function fetch(url, opts) {
 					return;
 				}
 
+				// Create a new Request object.
+				const requestOpts = {
+					headers: new Headers(request.headers),
+					follow: request.follow,
+					counter: request.counter + 1,
+					agent: request.agent,
+					compress: request.compress,
+					method: request.method
+				};
+
 				// per fetch spec, for POST request with 301/302 response, or any request with 303 response, use GET when following redirect
 				if (res.statusCode === 303
 					|| ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST'))
 				{
-					request.method = 'GET';
-					request.body = null;
-					request.headers.delete('content-length');
+					requestOpts.method = 'GET';
+					requestOpts.headers.delete('content-length');
 				}
 
-				request.counter++;
-
-				resolve(fetch(resolve_url(request.url, res.headers.location), request));
+				resolve(fetch(new Request(resolve_url(request.url, res.headers.location), requestOpts)));
 				return;
 			}
 

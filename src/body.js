@@ -11,16 +11,15 @@ import FetchError from './fetch-error.js';
 const Stream = require('stream');
 const { PassThrough } = require('stream');
 
-const DISTURBED = Symbol('disturbed');
-const ERROR = Symbol('error');
-
 let convert;
 try { convert = require('encoding').convert; } catch(e) {}
 
+const INTERNALS = Symbol('Body internals');
+
 /**
- * Body class
+ * Body mixin
  *
- * Cannot use ES6 class because Body must be called with .call().
+ * Ref: https://fetch.spec.whatwg.org/#body
  *
  * @param   Stream  body  Readable stream
  * @param   Object  opts  Response options
@@ -48,22 +47,28 @@ export default function Body(body, {
 		// coerce to string
 		body = String(body);
 	}
-	this.body = body;
-	this[DISTURBED] = false;
-	this[ERROR] = null;
+	this[INTERNALS] = {
+		body,
+		disturbed: false,
+		error: null
+	};
 	this.size = size;
 	this.timeout = timeout;
 
-	if (this.body instanceof Stream) {
-		this.body.on('error', err => {
-			this[ERROR] = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+	if (body instanceof Stream) {
+		body.on('error', err => {
+			this[INTERNALS].error = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 		});
 	}
 }
 
 Body.prototype = {
+	get body() {
+		return this[INTERNALS].body;
+	},
+
 	get bodyUsed() {
-		return this[DISTURBED];
+		return this[INTERNALS].disturbed;
 	},
 
 	/**
@@ -139,6 +144,16 @@ Body.prototype = {
 
 };
 
+// In browsers, all properties are enumerable.
+Object.defineProperties(Body.prototype, {
+	body: { enumerable: true },
+	bodyUsed: { enumerable: true },
+	arrayBuffer: { enumerable: true },
+	blob: { enumerable: true },
+	json: { enumerable: true },
+	text: { enumerable: true }
+});
+
 Body.mixIn = function (proto) {
 	for (const name of Object.getOwnPropertyNames(Body.prototype)) {
 		// istanbul ignore else: future proof
@@ -150,19 +165,21 @@ Body.mixIn = function (proto) {
 };
 
 /**
- * Decode buffers into utf-8 string
+ * Consume and convert an entire Body to a Buffer.
+ *
+ * Ref: https://fetch.spec.whatwg.org/#concept-body-consume-body
  *
  * @return  Promise
  */
-function consumeBody(body) {
-	if (this[DISTURBED]) {
-		return Body.Promise.reject(new Error(`body used already for: ${this.url}`));
+function consumeBody() {
+	if (this[INTERNALS].disturbed) {
+		return Body.Promise.reject(new TypeError(`body used already for: ${this.url}`));
 	}
 
-	this[DISTURBED] = true;
+	this[INTERNALS].disturbed = true;
 
-	if (this[ERROR]) {
-		return Body.Promise.reject(this[ERROR]);
+	if (this[INTERNALS].error) {
+		return Body.Promise.reject(this[INTERNALS].error);
 	}
 
 	// body is null
@@ -309,21 +326,21 @@ function convertBody(buffer, headers) {
  * @return  String
  */
 function isURLSearchParams(obj) {
-    // Duck-typing as a necessary condition.
-    if (typeof obj !== 'object' ||
-        typeof obj.append !== 'function' ||
-        typeof obj.delete !== 'function' ||
-        typeof obj.get !== 'function' ||
-        typeof obj.getAll !== 'function' ||
-        typeof obj.has !== 'function' ||
-        typeof obj.set !== 'function') {
-        return false;
-    }
+	// Duck-typing as a necessary condition.
+	if (typeof obj !== 'object' ||
+		typeof obj.append !== 'function' ||
+		typeof obj.delete !== 'function' ||
+		typeof obj.get !== 'function' ||
+		typeof obj.getAll !== 'function' ||
+		typeof obj.has !== 'function' ||
+		typeof obj.set !== 'function') {
+		return false;
+	}
 
-    // Brand-checking and more duck-typing as optional condition.
-    return obj.constructor.name === 'URLSearchParams' ||
-        Object.prototype.toString.call(obj) === '[object URLSearchParams]' ||
-        typeof obj.sort === 'function';
+	// Brand-checking and more duck-typing as optional condition.
+	return obj.constructor.name === 'URLSearchParams' ||
+		Object.prototype.toString.call(obj) === '[object URLSearchParams]' ||
+		typeof obj.sort === 'function';
 }
 
 /**
@@ -350,7 +367,7 @@ export function clone(instance) {
 		body.pipe(p1);
 		body.pipe(p2);
 		// set instance body to teed body and return the other teed body
-		instance.body = p1;
+		instance[INTERNALS].body = p1;
 		body = p2;
 	}
 
@@ -362,7 +379,7 @@ export function clone(instance) {
  * specified in the specification:
  * https://fetch.spec.whatwg.org/#concept-bodyinit-extract
  *
- * This function assumes that instance.body is present and non-null.
+ * This function assumes that instance.body is present.
  *
  * @param   Mixed  instance  Response or Request instance
  */

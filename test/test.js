@@ -1365,6 +1365,21 @@ describe('node-fetch', () => {
 });
 
 describe('Headers', function () {
+	it('should have attributes conforming to Web IDL', function () {
+		const headers = new Headers();
+		expect(Object.getOwnPropertyNames(headers)).to.be.empty;
+		const enumerableProperties = [];
+		for (const property in headers) {
+			enumerableProperties.push(property);
+		}
+		for (const toCheck of [
+			'append', 'delete', 'entries', 'forEach', 'get', 'has', 'keys', 'set',
+			'values'
+		]) {
+			expect(enumerableProperties).to.contain(toCheck);
+		}
+	});
+
 	it('should allow iterating through all headers with forEach', function() {
 		const headers = new Headers([
 			['b', '2'],
@@ -1569,6 +1584,28 @@ describe('Headers', function () {
 });
 
 describe('Response', function () {
+	it('should have attributes conforming to Web IDL', function () {
+		const res = new Response();
+		const enumerableProperties = [];
+		for (const property in res) {
+			enumerableProperties.push(property);
+		}
+		for (const toCheck of [
+			'body', 'bodyUsed', 'arrayBuffer', 'blob', 'json', 'text',
+			'url', 'status', 'ok', 'statusText', 'headers', 'clone'
+		]) {
+			expect(enumerableProperties).to.contain(toCheck);
+		}
+		for (const toCheck of [
+			'body', 'bodyUsed', 'url', 'status', 'ok', 'statusText',
+			'headers'
+		]) {
+			expect(() => {
+				res[toCheck] = 'abc';
+			}).to.throw();
+		}
+	});
+
 	it('should support empty options', function() {
 		let body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
@@ -1690,6 +1727,27 @@ describe('Response', function () {
 });
 
 describe('Request', function () {
+	it('should have attributes conforming to Web IDL', function () {
+		const req = new Request('https://github.com/');
+		const enumerableProperties = [];
+		for (const property in req) {
+			enumerableProperties.push(property);
+		}
+		for (const toCheck of [
+			'body', 'bodyUsed', 'arrayBuffer', 'blob', 'json', 'text',
+			'method', 'url', 'headers', 'redirect', 'clone'
+		]) {
+			expect(enumerableProperties).to.contain(toCheck);
+		}
+		for (const toCheck of [
+			'body', 'bodyUsed', 'method', 'url', 'headers', 'redirect'
+		]) {
+			expect(() => {
+				req[toCheck] = 'abc';
+			}).to.throw();
+		}
+	});
+
 	it('should support wrapping Request instance', function() {
 		url = `${base}hello`;
 

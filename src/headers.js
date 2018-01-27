@@ -84,13 +84,6 @@ export default class Headers {
 		} else {
 			throw new TypeError('Provided initializer must be an object');
 		}
-
-		Object.defineProperty(this, Symbol.toStringTag, {
-			value: 'Headers',
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
 	}
 
 	/**
@@ -214,10 +207,22 @@ export default class Headers {
 Headers.prototype.entries = Headers.prototype[Symbol.iterator];
 
 Object.defineProperty(Headers.prototype, Symbol.toStringTag, {
-	value: 'HeadersPrototype',
+	value: 'Headers',
 	writable: false,
 	enumerable: false,
 	configurable: true
+});
+
+Object.defineProperties(Headers.prototype, {
+	get: { enumerable: true },
+	forEach: { enumerable: true },
+	set: { enumerable: true },
+	append: { enumerable: true },
+	has: { enumerable: true },
+	delete: { enumerable: true },
+	keys: { enumerable: true },
+	values: { enumerable: true },
+	entries: { enumerable: true }
 });
 
 function getHeaderPairs(headers, kind) {
