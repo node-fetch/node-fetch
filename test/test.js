@@ -1615,13 +1615,7 @@ describe('node-fetch', () => {
 		});
 		return res.blob().then(function(result) {
 			expect(result).to.be.an.instanceOf(Blob);
-			expect(result.isClosed).to.be.false;
 			expect(result.size).to.equal(3);
-			expect(result.type).to.equal('text/plain');
-
-			result.close();
-			expect(result.isClosed).to.be.true;
-			expect(result.size).to.equal(0);
 			expect(result.type).to.equal('text/plain');
 		});
 	});
@@ -1768,13 +1762,7 @@ describe('node-fetch', () => {
 		expect(req.url).to.equal(url);
 		return req.blob().then(function(result) {
 			expect(result).to.be.an.instanceOf(Blob);
-			expect(result.isClosed).to.be.false;
 			expect(result.size).to.equal(3);
-			expect(result.type).to.equal('');
-
-			result.close();
-			expect(result.isClosed).to.be.true;
-			expect(result.size).to.equal(0);
 			expect(result.type).to.equal('');
 		});
 	});

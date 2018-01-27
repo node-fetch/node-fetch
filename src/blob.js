@@ -3,7 +3,6 @@
 
 export const BUFFER = Symbol('buffer');
 const TYPE = Symbol('type');
-const CLOSED = Symbol('closed');
 
 export default class Blob {
 	constructor() {
@@ -14,7 +13,6 @@ export default class Blob {
 			configurable: true
 		});
 
-		this[CLOSED] = false;
 		this[TYPE] = '';
 
 		const blobParts = arguments[0];
@@ -51,13 +49,10 @@ export default class Blob {
 		}
 	}
 	get size() {
-		return this[CLOSED] ? 0 : this[BUFFER].length;
+		return this[BUFFER].length;
 	}
 	get type() {
 		return this[TYPE];
-	}
-	get isClosed() {
-		return this[CLOSED];
 	}
 	slice() {
 		const size = this.size;
@@ -88,11 +83,7 @@ export default class Blob {
 		);
 		const blob = new Blob([], { type: arguments[2] });
 		blob[BUFFER] = slicedBuffer;
-		blob[CLOSED] = this[CLOSED];
 		return blob;
-	}
-	close() {
-		this[CLOSED] = true;
 	}
 }
 
