@@ -587,6 +587,40 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should handle errors on the body stream even if it is not used', function(done) {
+		url = `${base}invalid-content-encoding`;
+		fetch(url)
+			.then(res => {
+				expect(res.status).to.equal(200);
+			})
+			.catch(() => {})
+			.then(() => {
+				// Wait a few ms to see if a uncaught error occurs
+				setTimeout(() => {
+					done();
+				}, 50);
+			});
+	});
+
+	it('should collect handled errors on the body stream to reject if the body is used later', function() {
+
+		function delay(value) {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					resolve(value)
+				}, 100);
+			});
+		}
+
+		url = `${base}invalid-content-encoding`;
+		return fetch(url).then(delay).then(res => {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return expect(res.text()).to.eventually.be.rejected
+				.and.be.an.instanceOf(FetchError)
+				.and.have.property('code', 'Z_DATA_ERROR');
+		});
+	});
+
 	it('should allow disabling auto decompression', function() {
 		url = `${base}gzip`;
 		opts = {
