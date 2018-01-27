@@ -4,7 +4,7 @@ export default function tweakDefault() {
       var lines = source.split('\n');
       for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
-        var matches = /^exports\['default'] = (.*);$/.exec(line);
+        var matches = /^exports(?:\['default']|\.default) = (.*);$/.exec(line);
         if (matches) {
           lines[i] = 'module.exports = exports = ' + matches[1] + ';';
           break;
