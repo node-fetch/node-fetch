@@ -80,6 +80,10 @@ export default class Request {
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 
+		if (init.additionalRequestProperties) {
+			Object.assign(this, init.additionalRequestProperties);
+		}
+
 		this[PARSED_URL] = parsedURL;
 		Object.defineProperty(this, Symbol.toStringTag, {
 			value: 'Request',
