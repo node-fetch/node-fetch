@@ -396,6 +396,15 @@ export function extractContentType(instance) {
 	}
 }
 
+/**
+ * The Fetch Standard treats this as if "total bytes" is a property on the body.
+ * For us, we have to explicitly get it with a function.
+ *
+ * ref: https://fetch.spec.whatwg.org/#concept-body-total-bytes
+ *
+ * @param   Body    instance   Instance of Body
+ * @return  Number?            Number of bytes, or null if not possible
+ */
 export function getTotalBytes(instance) {
 	const {body} = instance;
 
@@ -429,6 +438,12 @@ export function getTotalBytes(instance) {
 	}
 }
 
+/**
+ * Write a Body to a Node.js WritableStream (e.g. http.Request) object.
+ *
+ * @param   Body    instance   Instance of Body
+ * @return  Void
+ */
 export function writeToStream(dest, instance) {
 	const {body} = instance;
 

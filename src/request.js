@@ -112,6 +112,12 @@ Object.defineProperty(Request.prototype, Symbol.toStringTag, {
 	configurable: true
 });
 
+/**
+ * Convert a Request to Node.js http request options.
+ *
+ * @param   Request  A Request instance
+ * @return  Object   The options object to be passed to http.request
+ */
 export function getNodeRequestOptions(request) {
 	const parsedURL = request[PARSED_URL];
 	const headers = new Headers(request.headers);
