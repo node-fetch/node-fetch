@@ -95,7 +95,10 @@ export default function fetch(url, opts) {
 
 				request.counter++;
 
-				resolve(fetch(resolve_url(request.url, res.headers.location), request));
+				// allow to pass a fetch-compatible function for supporting wrappers
+				const resolver = opts && opts.resolver || fetch;
+
+				resolve(resolver(resolve_url(request.url, res.headers.location), request));
 				return;
 			}
 

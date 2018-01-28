@@ -402,6 +402,19 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow redirect resolver', function() {
+		url = `${base}redirect/301`;
+		opts = {
+			resolver: (url, opts) => fetch(url, opts).then(res => {
+				res.customResolver = true;
+				return res;
+			})
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.customResolver).to.be.true;
+		});
+	});
+
 	it('should handle client-error response', function() {
 		url = `${base}error/400`;
 		return fetch(url).then(res => {
