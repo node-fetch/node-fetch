@@ -18,6 +18,7 @@ export default function FetchError(message, type, systemError) {
 
 	this.message = message;
 	this.type = type;
+	this.timings = (systemError || {}).timings;
 
 	// when err.type is `system`, err.code contains system error code
 	if (systemError) {
