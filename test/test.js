@@ -1230,6 +1230,141 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow deleting header', function() {
+		url = `${base}cookie`;
+		return fetch(url).then(res => {
+			res.headers.delete('set-cookie');
+			expect(res.headers.get('set-cookie')).to.be.null;
+		});
+	});
+
+	it('should send request with connection keep-alive if agent is provided', function() {
+		url = `${base}inspect`;
+		opts = {
+			agent: new http.Agent({
+				keepAlive: true
+			})
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.headers['connection']).to.equal('keep-alive');
+		});
+	});
+
+	it('should support fetch with Request instance', function() {
+		url = `${base}hello`;
+		const req = new Request(url);
+		return fetch(req).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	it('should support fetch with Node.js URL object', function() {
+		url = `${base}hello`;
+		const urlObj = parseURL(url);
+		const req = new Request(urlObj);
+		return fetch(req).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	it('should support fetch with WHATWG URL object', function() {
+		url = `${base}hello`;
+		const urlObj = new URL(url);
+		const req = new Request(urlObj);
+		return fetch(req).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+		});
+	});
+
+	it('should support blob round-trip', function() {
+		url = `${base}hello`;
+
+		let length, type;
+
+		return fetch(url).then(res => res.blob()).then(blob => {
+			url = `${base}inspect`;
+			length = blob.size;
+			type = blob.type;
+			return fetch(url, {
+				method: 'POST',
+				body: blob
+			});
+		}).then(res => res.json()).then(({body, headers}) => {
+			expect(body).to.equal('world');
+			expect(headers['content-type']).to.equal(type);
+			expect(headers['content-length']).to.equal(String(length));
+		});
+	});
+
+	it('should support overwrite Request instance', function() {
+		url = `${base}inspect`;
+		const req = new Request(url, {
+			method: 'POST'
+			, headers: {
+				a: '1'
+			}
+		});
+		return fetch(req, {
+			method: 'GET'
+			, headers: {
+				a: '2'
+			}
+		}).then(res => {
+			return res.json();
+		}).then(body => {
+			expect(body.method).to.equal('GET');
+			expect(body.headers.a).to.equal('2');
+		});
+	});
+
+	it('should support arrayBuffer(), blob(), text(), json() and buffer() method in Body constructor', function() {
+		const body = new Body('a=1');
+		expect(body).to.have.property('arrayBuffer');
+		expect(body).to.have.property('blob');
+		expect(body).to.have.property('text');
+		expect(body).to.have.property('json');
+		expect(body).to.have.property('buffer');
+	});
+
+	it('should create custom FetchError', function funcName() {
+		const systemError = new Error('system');
+		systemError.code = 'ESOMEERROR';
+
+		const err = new FetchError('test message', 'test-error', systemError);
+		expect(err).to.be.an.instanceof(Error);
+		expect(err).to.be.an.instanceof(FetchError);
+		expect(err.name).to.equal('FetchError');
+		expect(err.message).to.equal('test message');
+		expect(err.type).to.equal('test-error');
+		expect(err.code).to.equal('ESOMEERROR');
+		expect(err.errno).to.equal('ESOMEERROR');
+		expect(err.stack).to.include('funcName')
+			.and.to.startWith(`${err.name}: ${err.message}`);
+	});
+
+	it('should support https request', function() {
+		this.timeout(5000);
+		url = 'https://github.com/';
+		opts = {
+			method: 'HEAD'
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+		});
+	});
+
+});
+
+describe('Headers', function () {
 	it('should allow iterating through all headers with forEach', function() {
 		const headers = new Headers([
 			['b', '2'],
@@ -1311,14 +1446,6 @@ describe('node-fetch', () => {
 			.and.to.iterate.over(['1', '2, 3', '4']);
 	});
 
-	it('should allow deleting header', function() {
-		url = `${base}cookie`;
-		return fetch(url).then(res => {
-			res.headers.delete('set-cookie');
-			expect(res.headers.get('set-cookie')).to.be.null;
-		});
-	});
-
 	it('should reject illegal header', function() {
 		const headers = new Headers();
 		expect(() => new Headers({ 'He y': 'ok' })).to.throw(TypeError);
@@ -1332,20 +1459,6 @@ describe('node-fetch', () => {
 
 		// 'o k' is valid value but invalid name
 		new Headers({ 'He-y': 'o k' });
-	});
-
-	it('should send request with connection keep-alive if agent is provided', function() {
-		url = `${base}inspect`;
-		opts = {
-			agent: new http.Agent({
-				keepAlive: true
-			})
-		};
-		return fetch(url, opts).then(res => {
-			return res.json();
-		}).then(res => {
-			expect(res.headers['connection']).to.equal('keep-alive');
-		});
 	});
 
 	it('should ignore unsupported attributes while reading headers', function() {
@@ -1453,59 +1566,130 @@ describe('node-fetch', () => {
 		expect(() => new Headers('b2')).to.throw(TypeError);
 		expect(() => new Headers({ [Symbol.iterator]: 42 })).to.throw(TypeError);
 	});
+});
 
-	it('should support fetch with Request instance', function() {
-		url = `${base}hello`;
-		const req = new Request(url);
-		return fetch(req).then(res => {
-			expect(res.url).to.equal(url);
-			expect(res.ok).to.be.true;
-			expect(res.status).to.equal(200);
+describe('Response', function () {
+	it('should support empty options', function() {
+		let body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+		const res = new Response(body);
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
 		});
 	});
 
-	it('should support fetch with Node.js URL object', function() {
-		url = `${base}hello`;
-		const urlObj = parseURL(url);
-		const req = new Request(urlObj);
-		return fetch(req).then(res => {
-			expect(res.url).to.equal(url);
-			expect(res.ok).to.be.true;
-			expect(res.status).to.equal(200);
+	it('should support parsing headers', function() {
+		const res = new Response(null, {
+			headers: {
+				a: '1'
+			}
+		});
+		expect(res.headers.get('a')).to.equal('1');
+	});
+
+	it('should support text() method', function() {
+		const res = new Response('a=1');
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
 		});
 	});
 
-	it('should support fetch with WHATWG URL object', function() {
-		url = `${base}hello`;
-		const urlObj = new URL(url);
-		const req = new Request(urlObj);
-		return fetch(req).then(res => {
-			expect(res.url).to.equal(url);
-			expect(res.ok).to.be.true;
-			expect(res.status).to.equal(200);
+	it('should support json() method', function() {
+		const res = new Response('{"a":1}');
+		return res.json().then(result => {
+			expect(result.a).to.equal(1);
 		});
 	});
 
-	it('should support blob round-trip', function() {
-		url = `${base}hello`;
-
-		let length, type;
-
-		return fetch(url).then(res => res.blob()).then(blob => {
-			url = `${base}inspect`;
-			length = blob.size;
-			type = blob.type;
-			return fetch(url, {
-				method: 'POST',
-				body: blob
-			});
-		}).then(res => res.json()).then(({body, headers}) => {
-			expect(body).to.equal('world');
-			expect(headers['content-type']).to.equal(type);
-			expect(headers['content-length']).to.equal(String(length));
+	it('should support buffer() method', function() {
+		const res = new Response('a=1');
+		return res.buffer().then(result => {
+			expect(result.toString()).to.equal('a=1');
 		});
 	});
 
+	it('should support blob() method', function() {
+		const res = new Response('a=1', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain'
+			}
+		});
+		return res.blob().then(function(result) {
+			expect(result).to.be.an.instanceOf(Blob);
+			expect(result.size).to.equal(3);
+			expect(result.type).to.equal('text/plain');
+		});
+	});
+
+	it('should support clone() method', function() {
+		let body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+		const res = new Response(body, {
+			headers: {
+				a: '1'
+			}
+			, url: base
+			, status: 346
+			, statusText: 'production'
+		});
+		const cl = res.clone();
+		expect(cl.headers.get('a')).to.equal('1');
+		expect(cl.url).to.equal(base);
+		expect(cl.status).to.equal(346);
+		expect(cl.statusText).to.equal('production');
+		expect(cl.ok).to.be.false;
+		// clone body shouldn't be the same body
+		expect(cl.body).to.not.equal(body);
+		return cl.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support stream as body', function() {
+		let body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+		const res = new Response(body);
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support string as body', function() {
+		const res = new Response('a=1');
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support buffer as body', function() {
+		const res = new Response(Buffer.from('a=1'));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support blob as body', function() {
+		const res = new Response(new Blob(['a=1']));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should default to null as body', function() {
+		const res = new Response();
+		expect(res.body).to.equal(null);
+
+		return res.text().then(result => expect(result).to.equal(''));
+	});
+
+	it('should default to 200 as status code', function() {
+		const res = new Response(null);
+		expect(res.status).to.equal(200);
+	});
+});
+
+describe('Request', function () {
 	it('should support wrapping Request instance', function() {
 		url = `${base}hello`;
 
@@ -1531,27 +1715,6 @@ describe('node-fetch', () => {
 		expect(r2.counter).to.equal(0);
 	});
 
-	it('should support overwrite Request instance', function() {
-		url = `${base}inspect`;
-		const req = new Request(url, {
-			method: 'POST'
-			, headers: {
-				a: '1'
-			}
-		});
-		return fetch(req, {
-			method: 'GET'
-			, headers: {
-				a: '2'
-			}
-		}).then(res => {
-			return res.json();
-		}).then(body => {
-			expect(body.method).to.equal('GET');
-			expect(body.headers.a).to.equal('2');
-		});
-	});
-
 	it('should throw error with GET/HEAD requests with body', function() {
 		expect(() => new Request('.', { body: '' }))
 			.to.throw(TypeError);
@@ -1567,132 +1730,13 @@ describe('node-fetch', () => {
 			.to.throw(TypeError);
 	});
 
-	it('should support empty options in Response constructor', function() {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-		const res = new Response(body);
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
-	it('should support parsing headers in Response constructor', function() {
-		const res = new Response(null, {
-			headers: {
-				a: '1'
-			}
-		});
-		expect(res.headers.get('a')).to.equal('1');
-	});
-
-	it('should support text() method in Response constructor', function() {
-		const res = new Response('a=1');
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
-	it('should support json() method in Response constructor', function() {
-		const res = new Response('{"a":1}');
-		return res.json().then(result => {
-			expect(result.a).to.equal(1);
-		});
-	});
-
-	it('should support buffer() method in Response constructor', function() {
-		const res = new Response('a=1');
-		return res.buffer().then(result => {
-			expect(result.toString()).to.equal('a=1');
-		});
-	});
-
-	it('should support blob() method in Response constructor', function() {
-		const res = new Response('a=1', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'text/plain'
-			}
-		});
-		return res.blob().then(function(result) {
-			expect(result).to.be.an.instanceOf(Blob);
-			expect(result.size).to.equal(3);
-			expect(result.type).to.equal('text/plain');
-		});
-	});
-
-	it('should support clone() method in Response constructor', function() {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-		const res = new Response(body, {
-			headers: {
-				a: '1'
-			}
-			, url: base
-			, status: 346
-			, statusText: 'production'
-		});
-		const cl = res.clone();
-		expect(cl.headers.get('a')).to.equal('1');
-		expect(cl.url).to.equal(base);
-		expect(cl.status).to.equal(346);
-		expect(cl.statusText).to.equal('production');
-		expect(cl.ok).to.be.false;
-		// clone body shouldn't be the same body
-		expect(cl.body).to.not.equal(body);
-		return cl.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
-	it('should support stream as body in Response constructor', function() {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-		const res = new Response(body);
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
-	it('should support string as body in Response constructor', function() {
-		const res = new Response('a=1');
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
-	it('should support buffer as body in Response constructor', function() {
-		const res = new Response(Buffer.from('a=1'));
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
-	it('should support blob as body in Response constructor', function() {
-		const res = new Response(new Blob(['a=1']));
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
 	it('should default to null as body', function() {
-		const res = new Response();
-		expect(res.body).to.equal(null);
 		const req = new Request('.');
 		expect(req.body).to.equal(null);
-
-		const cb = result => expect(result).to.equal('');
-		return Promise.all([
-			res.text().then(cb),
-			req.text().then(cb)
-		]);
+		return req.text().then(result => expect(result).to.equal(''));
 	});
 
-	it('should default to 200 as status code', function() {
-		const res = new Response(null);
-		expect(res.status).to.equal(200);
-	});
-
-	it('should support parsing headers in Request constructor', function() {
+	it('should support parsing headers', function() {
 		url = base;
 		const req = new Request(url, {
 			headers: {
@@ -1703,7 +1747,7 @@ describe('node-fetch', () => {
 		expect(req.headers.get('a')).to.equal('1');
 	});
 
-	it('should support arrayBuffer() method in Request constructor', function() {
+	it('should support arrayBuffer() method', function() {
 		url = base;
 		var req = new Request(url, {
 			method: 'POST',
@@ -1717,7 +1761,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support text() method in Request constructor', function() {
+	it('should support text() method', function() {
 		url = base;
 		const req = new Request(url, {
 			method: 'POST',
@@ -1729,7 +1773,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support json() method in Request constructor', function() {
+	it('should support json() method', function() {
 		url = base;
 		const req = new Request(url, {
 			method: 'POST',
@@ -1741,7 +1785,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support buffer() method in Request constructor', function() {
+	it('should support buffer() method', function() {
 		url = base;
 		const req = new Request(url, {
 			method: 'POST',
@@ -1753,7 +1797,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support blob() method in Request constructor', function() {
+	it('should support blob() method', function() {
 		url = base;
 		var req = new Request(url, {
 			method: 'POST',
@@ -1767,13 +1811,13 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support arbitrary url in Request constructor', function() {
+	it('should support arbitrary url', function() {
 		url = 'anything';
 		const req = new Request(url);
 		expect(req.url).to.equal('anything');
 	});
 
-	it('should support clone() method in Request constructor', function() {
+	it('should support clone() method', function() {
 		url = base;
 		let body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
@@ -1806,44 +1850,6 @@ describe('node-fetch', () => {
 			expect(results[1]).to.equal('a=1');
 		});
 	});
-
-	it('should support arrayBuffer(), blob(), text(), json() and buffer() method in Body constructor', function() {
-		const body = new Body('a=1');
-		expect(body).to.have.property('arrayBuffer');
-		expect(body).to.have.property('blob');
-		expect(body).to.have.property('text');
-		expect(body).to.have.property('json');
-		expect(body).to.have.property('buffer');
-	});
-
-	it('should create custom FetchError', function funcName() {
-		const systemError = new Error('system');
-		systemError.code = 'ESOMEERROR';
-
-		const err = new FetchError('test message', 'test-error', systemError);
-		expect(err).to.be.an.instanceof(Error);
-		expect(err).to.be.an.instanceof(FetchError);
-		expect(err.name).to.equal('FetchError');
-		expect(err.message).to.equal('test message');
-		expect(err.type).to.equal('test-error');
-		expect(err.code).to.equal('ESOMEERROR');
-		expect(err.errno).to.equal('ESOMEERROR');
-		expect(err.stack).to.include('funcName')
-			.and.to.startWith(`${err.name}: ${err.message}`);
-	});
-
-	it('should support https request', function() {
-		this.timeout(5000);
-		url = 'https://github.com/';
-		opts = {
-			method: 'HEAD'
-		};
-		return fetch(url, opts).then(res => {
-			expect(res.status).to.equal(200);
-			expect(res.ok).to.be.true;
-		});
-	});
-
 });
 
 function streamToPromise(stream, dataHandler) {
