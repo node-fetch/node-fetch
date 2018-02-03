@@ -13,7 +13,7 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 
 - Major: Node.js 0.10.x and 0.12.x support is dropped
 - Major: `require('node-fetch/lib/response')` etc. is now unsupported; use `require('node-fetch').Response` or ES6 module imports
-- Enhance: start testing on Node.js 4, 6, 8 LTS
+- Enhance: start testing on Node.js v4.x, v6.x, v8.x LTS, as well as v9.x stable
 - Enhance: use Rollup to produce a distributed bundle (less memory overhead and faster startup)
 - Enhance: make `Object.prototype.toString()` on Headers, Requests, and Responses return correct class strings
 - Other: rewrite in ES2015 using Babel
@@ -26,8 +26,8 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 ### HTTP requests
 
 - Major: overwrite user's `Content-Length` if we can be sure our information is correct (per spec)
+- Fix: errors in a response are caught before the body is accessed
 - Fix: support WHATWG URL objects, created by `whatwg-url` package or `require('url').URL` in Node.js 7+
-- Fix: a regression in older v2 build where `index.es.js` doesn't require https module, causing HTTPS request to fail (alpha.8)
 
 ### Response and Request classes
 

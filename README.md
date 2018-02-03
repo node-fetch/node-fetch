@@ -36,20 +36,11 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 
 ## Install
 
-Stable release (`1.x`)
+Stable release (`2.x`)
 
 ```sh
 $ npm install node-fetch --save
 ```
-
-Next release (`2.x`), currently in alpha
-
-```sh
-$ npm install node-fetch@next --save
-```
-
-*Note: 2.x is expected to be in alpha for quite a while; due to Fetch Spec itself is still evolving and we try to follow its design. Many have been using 2.x for over 6 months, we consider it to be stable and ready for production.*
-
 
 ## Usage
 
