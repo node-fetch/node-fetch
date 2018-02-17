@@ -26,5 +26,7 @@ Known differences
 
 - If you are using `res.clone()` and writing an isomorphic app, note that stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers).
 
+- Creating a Response using a used stream will not set `bodyUsed` on the response object to `true`.
+
 [readable-stream]: https://nodejs.org/api/stream.html#stream_readable_streams
 [ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
