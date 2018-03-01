@@ -7,6 +7,8 @@
 
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
+import isArrayBuffer  from 'is-array-buffer';
+import typedarrayToBuffer  from 'typedarray-to-buffer';
 
 const Stream = require('stream');
 const { PassThrough } = require('stream');
@@ -40,6 +42,8 @@ export default function Body(body, {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
+	} else if (isArrayBuffer(body)) {
+		// body is array buffer
 	} else if (body instanceof Stream) {
 		// body is stream
 	} else {
@@ -441,6 +445,9 @@ export function getTotalBytes(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
+	} else if (isArrayBuffer(body)) {
+		// body is array buffer
+		return body.byteLength;
 	} else if (body && typeof body.getLengthSync === 'function') {
 		// detect form data input from form-data module
 		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
@@ -482,6 +489,10 @@ export function writeToStream(dest, instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		dest.write(body);
+		dest.end()
+	} else if (isArrayBuffer(body)) {
+		// body is array buffer
+		dest.write(typedarrayToBuffer(body));
 		dest.end()
 	} else {
 		// body is stream
