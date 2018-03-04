@@ -7,7 +7,6 @@
 
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
-import isArrayBuffer  from 'is-array-buffer';
 
 const Stream = require('stream');
 const { PassThrough } = require('stream');
@@ -41,7 +40,7 @@ export default function Body(body, {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
-	} else if (isArrayBuffer(body)) {
+	} else if (body instanceof ArrayBuffer) {
 		// body is array buffer
 	} else if (body instanceof Stream) {
 		// body is stream
@@ -444,7 +443,7 @@ export function getTotalBytes(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
-	} else if (isArrayBuffer(body)) {
+	} else if (body instanceof ArrayBuffer) {
 		// body is array buffer
 		return body.byteLength;
 	} else if (body && typeof body.getLengthSync === 'function') {
@@ -489,7 +488,7 @@ export function writeToStream(dest, instance) {
 		// body is buffer
 		dest.write(body);
 		dest.end()
-	} else if (isArrayBuffer(body)) {
+	} else if (body instanceof ArrayBuffer) {
 		// body is array buffer
 		dest.write(Buffer.from(body));
 		dest.end()
