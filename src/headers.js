@@ -5,11 +5,12 @@
  * Headers class offers convenient helpers
  */
 
-import { checkInvalidHeaderChar, checkIsHttpToken } from './common.js';
+const invalidTokenRegex = /[^\^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
+const invalidHeaderCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
 
 function sanitizeName(name) {
 	name += '';
-	if (!checkIsHttpToken(name)) {
+	if (invalidTokenRegex.test(name)) {
 		throw new TypeError(`${name} is not a legal HTTP header name`);
 	}
 	return name.toLowerCase();
@@ -17,7 +18,7 @@ function sanitizeName(name) {
 
 function sanitizeValue(value) {
 	value += '';
-	if (checkInvalidHeaderChar(value)) {
+	if (invalidHeaderCharRegex.test(value)) {
 		throw new TypeError(`${value} is not a legal HTTP header value`);
 	}
 	return value;
