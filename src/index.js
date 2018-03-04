@@ -7,7 +7,7 @@
 
 import Body, { writeToStream } from './body';
 import Response from './response';
-import Headers from './headers';
+import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 
@@ -106,19 +106,10 @@ export default function fetch(url, opts) {
 				return;
 			}
 
+			const headers = createHeadersLenient(res.headers);
 			// normalize location header for manual redirect mode
-			const headers = new Headers();
-			for (const name of Object.keys(res.headers)) {
-				if (Array.isArray(res.headers[name])) {
-					for (const val of res.headers[name]) {
-						headers.append(name, val);
-					}
-				} else {
-					headers.append(name, res.headers[name]);
-				}
-			}
-			if (request.redirect === 'manual' && headers.has('location')) {
-				headers.set('location', resolve_url(request.url, headers.get('location')));
+			if (request.redirect === 'manual' && headers.has('Location')) {
+				headers.set('Location', resolve_url(request.url, headers.get('Location')));
 			}
 
 			// prepare response
