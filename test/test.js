@@ -778,9 +778,7 @@ describe('node-fetch', () => {
 			method: 'POST'
 			, body: stringToArrayBuffer('Hello, world!\n')
 		};
-		return fetch(url, opts).then(res => {
-			return res.json();
-		}).then(res => {
+		return fetch(url, opts).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('Hello, world!\n');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
