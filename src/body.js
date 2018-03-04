@@ -405,6 +405,9 @@ export function extractContentType(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return null;
+	} else if (body instanceof ArrayBuffer) {
+		// body is array buffer
+		return null;
 	} else if (typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
