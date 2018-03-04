@@ -8,7 +8,6 @@
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
 import isArrayBuffer  from 'is-array-buffer';
-import typedarrayToBuffer  from 'typedarray-to-buffer';
 
 const Stream = require('stream');
 const { PassThrough } = require('stream');
@@ -492,7 +491,7 @@ export function writeToStream(dest, instance) {
 		dest.end()
 	} else if (isArrayBuffer(body)) {
 		// body is array buffer
-		dest.write(typedarrayToBuffer(body));
+		dest.write(Buffer.from(body));
 		dest.end()
 	} else {
 		// body is stream

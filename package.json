@@ -59,7 +59,6 @@
     "whatwg-url": "^5.0.0"
   },
   "dependencies": {
-    "is-array-buffer": "^1.0.0",
-    "typedarray-to-buffer": "^3.1.2"
+    "is-array-buffer": "^1.0.0"
   }
 }
