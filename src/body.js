@@ -319,9 +319,9 @@ function convertBody(buffer, headers) {
 
 	// turn raw buffers into a single utf-8 buffer
 	return convert(
-		buffer
-		, 'UTF-8'
-		, charset
+		buffer,
+		'UTF-8',
+		charset
 	).toString();
 }
 

@@ -62,13 +62,12 @@ export default class Response {
 	 * @return  Response
 	 */
 	clone() {
-
 		return new Response(clone(this), {
-			url: this.url
-			, status: this.status
-			, statusText: this.statusText
-			, headers: this.headers
-			, ok: this.ok
+			url: this.url,
+			status: this.status,
+			statusText: this.statusText,
+			headers: this.headers,
+			ok: this.ok
 		});
 
 	}
