@@ -5,6 +5,10 @@ Changelog
 
 # 2.x release
 
+## v2.1.1
+
+Fix packaging errors in v2.1.0.
+
 ## v2.1.0
 
 - Enhance: allow using ArrayBuffer as the `body` of a `fetch()` or `Request`
