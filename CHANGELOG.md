@@ -5,6 +5,14 @@ Changelog
 
 # 2.x release
 
+## v2.1.0
+
+- Enhance: allow using ArrayBuffer as the `body` of a `fetch()` or `Request`
+- Fix: store HTTP headers of a `Headers` object internally with the given case, for compatibility with older servers that incorrectly treated header names in a case-sensitive manner
+- Fix: silently ignore invalid HTTP headers
+- Fix: handle HTTP redirect responses without a `Location` header just like non-redirect responses
+- Fix: include bodies when following a redirection when appropriate
+
 ## v2.0.0
 
 This is a major release. Check [our upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
