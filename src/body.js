@@ -40,7 +40,7 @@ export default function Body(body, {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
-	} else if (body instanceof ArrayBuffer) {
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is array buffer
 	} else if (body instanceof Stream) {
 		// body is stream
@@ -205,7 +205,7 @@ function consumeBody() {
 	}
 
 	// body is buffer
-	if (this.body instanceof ArrayBuffer) {
+	if (Object.prototype.toString.call(this.body) === '[object ArrayBuffer]') {
 		return Body.Promise.resolve(this.body);
 	}
 
@@ -410,7 +410,7 @@ export function extractContentType(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return null;
-	} else if (body instanceof ArrayBuffer) {
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is array buffer
 		return null;
 	} else if (typeof body.getBoundary === 'function') {
@@ -451,7 +451,7 @@ export function getTotalBytes(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
-	} else if (body instanceof ArrayBuffer) {
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is array buffer
 		return body.byteLength;
 	} else if (body && typeof body.getLengthSync === 'function') {
@@ -496,7 +496,7 @@ export function writeToStream(dest, instance) {
 		// body is buffer
 		dest.write(body);
 		dest.end()
-	} else if (body instanceof ArrayBuffer) {
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is array buffer
 		dest.write(Buffer.from(body));
 		dest.end()
