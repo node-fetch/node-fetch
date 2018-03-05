@@ -250,9 +250,8 @@ export default class TestServer {
 			res.end();
 		}
 
-		if (p === '/error/redirect') {
+		if (p === '/redirect/no-location') {
 			res.statusCode = 301;
-			//res.setHeader('Location', '/inspect');
 			res.end();
 		}
 

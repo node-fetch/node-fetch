@@ -274,6 +274,22 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should follow PATCH request redirect code 301 with PATCH', function() {
+		url = `${base}redirect/301`;
+		opts = {
+			method: 'PATCH'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.url).to.equal(`${base}inspect`);
+			expect(res.status).to.equal(200);
+			return res.json().then(res => {
+				expect(res.method).to.equal('PATCH');
+				expect(res.body).to.equal('a=1');
+			});
+		});
+	});
+
 	it('should follow POST request redirect code 302 with GET', function() {
 		url = `${base}redirect/302`;
 		opts = {
@@ -290,6 +306,22 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should follow PATCH request redirect code 302 with PATCH', function() {
+		url = `${base}redirect/302`;
+		opts = {
+			method: 'PATCH'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.url).to.equal(`${base}inspect`);
+			expect(res.status).to.equal(200);
+			return res.json().then(res => {
+				expect(res.method).to.equal('PATCH');
+				expect(res.body).to.equal('a=1');
+			});
+		});
+	});
+
 	it('should follow redirect code 303 with GET', function() {
 		url = `${base}redirect/303`;
 		opts = {
@@ -302,6 +334,22 @@ describe('node-fetch', () => {
 			return res.json().then(result => {
 				expect(result.method).to.equal('GET');
 				expect(result.body).to.equal('');
+			});
+		});
+	});
+
+	it('should follow PATCH request redirect code 307 with PATCH', function() {
+		url = `${base}redirect/307`;
+		opts = {
+			method: 'PATCH'
+			, body: 'a=1'
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.url).to.equal(`${base}inspect`);
+			expect(res.status).to.equal(200);
+			return res.json().then(result => {
+				expect(result.method).to.equal('PATCH');
+				expect(result.body).to.equal('a=1');
 			});
 		});
 	});
@@ -384,15 +432,17 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should reject broken redirect', function() {
-		url = `${base}error/redirect`;
-		return expect(fetch(url)).to.eventually.be.rejected
-			.and.be.an.instanceOf(FetchError)
-			.and.have.property('type', 'invalid-redirect');
+	it('should treat broken redirect as ordinary response (follow)', function() {
+		url = `${base}redirect/no-location`;
+		return fetch(url, opts).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.be.null;
+		});
 	});
 
-	it('should not reject broken redirect under manual redirect', function() {
-		url = `${base}error/redirect`;
+	it('should treat broken redirect as ordinary response (manual)', function() {
+		url = `${base}redirect/no-location`;
 		opts = {
 			redirect: 'manual'
 		};

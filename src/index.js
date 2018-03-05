@@ -5,7 +5,7 @@
  * a request API compatible with window.fetch
  */
 
-import Body, { writeToStream } from './body';
+import Body, { writeToStream, getTotalBytes } from './body';
 import Response from './response';
 import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
@@ -67,49 +67,67 @@ export default function fetch(url, opts) {
 		req.on('response', res => {
 			clearTimeout(reqTimeout);
 
-			// handle redirect
-			if (fetch.isRedirect(res.statusCode) && request.redirect !== 'manual') {
-				if (request.redirect === 'error') {
-					reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect'));
-					return;
-				}
-
-				if (request.counter >= request.follow) {
-					reject(new FetchError(`maximum redirect reached at: ${request.url}`, 'max-redirect'));
-					return;
-				}
-
-				if (!res.headers.location) {
-					reject(new FetchError(`redirect location header missing at: ${request.url}`, 'invalid-redirect'));
-					return;
-				}
-
-				// Create a new Request object.
-				const requestOpts = {
-					headers: new Headers(request.headers),
-					follow: request.follow,
-					counter: request.counter + 1,
-					agent: request.agent,
-					compress: request.compress,
-					method: request.method
-				};
-
-				// per fetch spec, for POST request with 301/302 response, or any request with 303 response, use GET when following redirect
-				if (res.statusCode === 303
-					|| ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST'))
-				{
-					requestOpts.method = 'GET';
-					requestOpts.headers.delete('content-length');
-				}
-
-				resolve(fetch(new Request(resolve_url(request.url, res.headers.location), requestOpts)));
-				return;
-			}
-
 			const headers = createHeadersLenient(res.headers);
-			// normalize location header for manual redirect mode
-			if (request.redirect === 'manual' && headers.has('Location')) {
-				headers.set('Location', resolve_url(request.url, headers.get('Location')));
+
+			// HTTP fetch step 5
+			if (fetch.isRedirect(res.statusCode)) {
+				// HTTP fetch step 5.2
+				const location = headers.get('Location');
+
+				// HTTP fetch step 5.3
+				const locationURL = location === null ? null : resolve_url(request.url, location);
+
+				// HTTP fetch step 5.5
+				switch (request.redirect) {
+					case 'error':
+						reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect'));
+						return;
+					case 'manual':
+						// node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
+						if (locationURL !== null) {
+							headers.set('Location', locationURL);
+						}
+						break;
+					case 'follow':
+						// HTTP-redirect fetch step 2
+						if (locationURL === null) {
+							break;
+						}
+
+						// HTTP-redirect fetch step 5
+						if (request.counter >= request.follow) {
+							reject(new FetchError(`maximum redirect reached at: ${request.url}`, 'max-redirect'));
+							return;
+						}
+
+						// HTTP-redirect fetch step 6 (counter increment)
+						// Create a new Request object.
+						const requestOpts = {
+							headers: new Headers(request.headers),
+							follow: request.follow,
+							counter: request.counter + 1,
+							agent: request.agent,
+							compress: request.compress,
+							method: request.method,
+							body: request.body
+						};
+
+						// HTTP-redirect fetch step 9
+						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
+							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'))
+						}
+
+						// HTTP-redirect fetch step 11
+						if (res.statusCode === 303 || ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST')) {
+							requestOpts.method = 'GET';
+							requestOpts.body = undefined;
+							requestOpts.headers.delete('content-length');
+						}
+
+						// HTTP-redirect fetch step 15
+						resolve(fetch(new Request(locationURL, requestOpts)));
+						return;
+				}
 			}
 
 			// prepare response
