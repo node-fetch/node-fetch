@@ -3,6 +3,8 @@
  * request.js
  *
  * Request class contains server only options
+ *
+ * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
 import Headers from './headers.js';
@@ -151,7 +153,7 @@ export function getNodeRequestOptions(request) {
 	const parsedURL = request[INTERNALS].parsedURL;
 	const headers = new Headers(request[INTERNALS].headers);
 
-	// fetch step 3
+	// fetch step 1.3
 	if (!headers.has('Accept')) {
 		headers.set('Accept', '*/*');
 	}
@@ -165,7 +167,7 @@ export function getNodeRequestOptions(request) {
 		throw new TypeError('Only HTTP(S) protocols are supported');
 	}
 
-	// HTTP-network-or-cache fetch steps 5-9
+	// HTTP-network-or-cache fetch steps 2.4-2.7
 	let contentLengthValue = null;
 	if (request.body == null && /^(POST|PUT)$/i.test(request.method)) {
 		contentLengthValue = '0';
@@ -180,12 +182,12 @@ export function getNodeRequestOptions(request) {
 		headers.set('Content-Length', contentLengthValue);
 	}
 
-	// HTTP-network-or-cache fetch step 12
+	// HTTP-network-or-cache fetch step 2.11
 	if (!headers.has('User-Agent')) {
 		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
 	}
 
-	// HTTP-network-or-cache fetch step 16
+	// HTTP-network-or-cache fetch step 2.15
 	if (request.compress) {
 		headers.set('Accept-Encoding', 'gzip,deflate');
 	}
@@ -193,7 +195,7 @@ export function getNodeRequestOptions(request) {
 		headers.set('Connection', 'close');
 	}
 
-	// HTTP-network fetch step 4
+	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
 
 	return Object.assign({}, parsedURL, {
