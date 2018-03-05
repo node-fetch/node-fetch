@@ -135,12 +135,12 @@ export default function fetch(url, opts) {
 			// prepare response
 			let body = res.pipe(new PassThrough());
 			const response_options = {
-				url: request.url
-				, status: res.statusCode
-				, statusText: res.statusMessage
-				, headers: headers
-				, size: request.size
-				, timeout: request.timeout
+				url: request.url,
+				status: res.statusCode,
+				statusText: res.statusMessage,
+				headers: headers,
+				size: request.size,
+				timeout: request.timeout
 			};
 
 			// HTTP-network fetch step 12.1.1.3
