@@ -3,6 +3,8 @@
  * index.js
  *
  * a request API compatible with window.fetch
+ *
+ * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
 import Body, { writeToStream, getTotalBytes } from './body';
@@ -141,10 +143,10 @@ export default function fetch(url, opts) {
 				, timeout: request.timeout
 			};
 
-			// HTTP-network fetch step 16.1.2
+			// HTTP-network fetch step 12.1.1.3
 			const codings = headers.get('Content-Encoding');
 
-			// HTTP-network fetch step 16.1.3: handle content codings
+			// HTTP-network fetch step 12.1.1.4: handle content codings
 
 			// in following scenarios we ignore compression support
 			// 1. compression support is disabled
