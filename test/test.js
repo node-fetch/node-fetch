@@ -7,6 +7,7 @@ import chaiString from 'chai-string';
 import then from 'promise';
 import resumer from 'resumer';
 import FormData from 'form-data';
+import stringToArrayBuffer from 'string-to-arraybuffer';
 import URLSearchParams_Polyfill from 'url-search-params';
 import { URL } from 'whatwg-url';
 
@@ -768,6 +769,21 @@ describe('node-fetch', () => {
 			expect(res.headers['transfer-encoding']).to.be.undefined;
 			expect(res.headers['content-type']).to.be.undefined;
 			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
+	it('should allow POST request with ArrayBuffer body', function() {
+		url = `${base}inspect`;
+		opts = {
+			method: 'POST'
+			, body: stringToArrayBuffer('Hello, world!\n')
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
 		});
 	});
 

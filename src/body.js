@@ -40,6 +40,8 @@ export default function Body(body, {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
+		// body is array buffer
 	} else if (body instanceof Stream) {
 		// body is stream
 	} else {
@@ -199,6 +201,11 @@ function consumeBody() {
 
 	// body is buffer
 	if (Buffer.isBuffer(this.body)) {
+		return Body.Promise.resolve(this.body);
+	}
+
+	// body is buffer
+	if (Object.prototype.toString.call(this.body) === '[object ArrayBuffer]') {
 		return Body.Promise.resolve(this.body);
 	}
 
@@ -403,6 +410,9 @@ export function extractContentType(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return null;
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
+		// body is array buffer
+		return null;
 	} else if (typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
@@ -441,6 +451,9 @@ export function getTotalBytes(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
+		// body is array buffer
+		return body.byteLength;
 	} else if (body && typeof body.getLengthSync === 'function') {
 		// detect form data input from form-data module
 		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
@@ -482,6 +495,10 @@ export function writeToStream(dest, instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		dest.write(body);
+		dest.end()
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
+		// body is array buffer
+		dest.write(Buffer.from(body));
 		dest.end()
 	} else {
 		// body is stream
