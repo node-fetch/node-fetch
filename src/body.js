@@ -204,6 +204,11 @@ function consumeBody() {
 		return Body.Promise.resolve(this.body);
 	}
 
+	// body is buffer
+	if (this.body instanceof ArrayBuffer) {
+		return Body.Promise.resolve(this.body);
+	}
+
 	// istanbul ignore if: should never happen
 	if (!(this.body instanceof Stream)) {
 		return Body.Promise.resolve(Buffer.alloc(0));
