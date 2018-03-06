@@ -16,6 +16,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const stream = require('stream');
+const buffer = require('buffer');
 const { parse: parseURL, URLSearchParams } = require('url');
 
 let convert;
@@ -1427,6 +1428,21 @@ describe('node-fetch', () => {
 		});
 	});
 
+	// issue #414
+	it('should reject if attempt to accumulate body stream throws', function () {
+		let body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+		const res = new Response(body);
+		const bufferConcat = Buffer.concat;
+		Buffer.concat = () => { throw new Error('embedded error'); };
+
+		return res.text().then(() => chai.assert(false)).catch(err => {
+			expect(err).to.be.an.instanceOf(FetchError)
+				.and.include({ type: 'system' })
+				.and.have.property('message').that.includes('Could not create Buffer')
+				.and.that.includes('embedded error');
+		}).then(() => Buffer.concat = bufferConcat);
+	});
 });
 
 describe('Headers', function () {
