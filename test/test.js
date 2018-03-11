@@ -16,7 +16,6 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const stream = require('stream');
-const buffer = require('buffer');
 const { parse: parseURL, URLSearchParams } = require('url');
 
 let convert;
@@ -1434,6 +1433,7 @@ describe('node-fetch', () => {
 		body = body.pipe(new stream.PassThrough());
 		const res = new Response(body);
 		const bufferConcat = Buffer.concat;
+		const restoreBufferConcat = () => Buffer.concat = bufferConcat;
 		Buffer.concat = () => { throw new Error('embedded error'); };
 
 		return res.text().then(() => chai.assert(false)).catch(err => {
@@ -1441,7 +1441,7 @@ describe('node-fetch', () => {
 				.and.include({ type: 'system' })
 				.and.have.property('message').that.includes('Could not create Buffer')
 				.and.that.includes('embedded error');
-		}).then(() => Buffer.concat = bufferConcat);
+		}).then(restoreBufferConcat, restoreBufferConcat);
 	});
 });
 
