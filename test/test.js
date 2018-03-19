@@ -1771,6 +1771,13 @@ describe('Response', function () {
 		});
 	});
 
+	it('should support ArrayBuffer as body', function() {
+		const res = new Response(stringToArrayBuffer('a=1'));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
 	it('should support blob as body', function() {
 		const res = new Response(new Blob(['a=1']));
 		return res.text().then(result => {
@@ -1971,6 +1978,16 @@ describe('Request', function () {
 		return Promise.all([cl.text(), req.text()]).then(results => {
 			expect(results[0]).to.equal('a=1');
 			expect(results[1]).to.equal('a=1');
+		});
+	});
+
+	it('should support ArrayBuffer as body', function() {
+		const req = new Request('', {
+			method: 'POST',
+			body: stringToArrayBuffer('a=1')
+		});
+		return req.text().then(result => {
+			expect(result).to.equal('a=1');
 		});
 	});
 });
