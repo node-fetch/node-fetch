@@ -206,7 +206,7 @@ function consumeBody() {
 
 	// body is buffer
 	if (Object.prototype.toString.call(this.body) === '[object ArrayBuffer]') {
-		return Body.Promise.resolve(this.body);
+		return Body.Promise.resolve(Buffer.from(this.body));
 	}
 
 	// istanbul ignore if: should never happen
