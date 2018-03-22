@@ -128,6 +128,7 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 15
 						resolve(fetch(new Request(locationURL, requestOpts)));
+						res.on('data', () => {}) // response *must* be consumed otherwise it gets stuck forever
 						return;
 				}
 			}
