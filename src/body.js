@@ -257,7 +257,13 @@ function consumeBody() {
 			}
 
 			clearTimeout(resTimeout);
-			resolve(Buffer.concat(accum));
+
+			try {
+				resolve(Buffer.concat(accum));
+			} catch (err) {
+				// handle streams that have accumulated too much data (issue #414)
+				reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${err.message}`, 'system', err));
+			}
 		});
 	});
 }

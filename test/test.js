@@ -1427,6 +1427,25 @@ describe('node-fetch', () => {
 		});
 	});
 
+	// issue #414
+	it('should reject if attempt to accumulate body stream throws', function () {
+		let body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+		const res = new Response(body);
+		const bufferConcat = Buffer.concat;
+		const restoreBufferConcat = () => Buffer.concat = bufferConcat;
+		Buffer.concat = () => { throw new Error('embedded error'); };
+
+		const textPromise = res.text();
+		// Ensure that `Buffer.concat` is always restored:
+		textPromise.then(restoreBufferConcat, restoreBufferConcat);
+
+		return expect(textPromise).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.include({ type: 'system' })
+			.and.have.property('message').that.includes('Could not create Buffer')
+			.and.that.includes('embedded error');
+	});
 });
 
 describe('Headers', function () {
