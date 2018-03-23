@@ -43,11 +43,6 @@ export default function fetch(url, opts) {
 
 		const send = (options.protocol === 'https:' ? https : http).request;
 
-		// http.request only support string as host header, this hack make custom host header possible
-		if (options.headers.host) {
-			options.headers.host = options.headers.host[0];
-		}
-
 		// send request
 		const req = send(options);
 		let reqTimeout;
