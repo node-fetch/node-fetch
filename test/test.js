@@ -208,6 +208,20 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should accept custom HoSt header', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			headers: {
+				HoSt: 'example.com'
+			}
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.headers['host']).to.equal('example.com');
+		});
+	});
+
 	it('should follow redirect code 301', function() {
 		const url = `${base}redirect/301`;
 		return fetch(url).then(res => {
