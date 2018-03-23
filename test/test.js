@@ -1436,12 +1436,15 @@ describe('node-fetch', () => {
 		const restoreBufferConcat = () => Buffer.concat = bufferConcat;
 		Buffer.concat = () => { throw new Error('embedded error'); };
 
-		return res.text().then(() => chai.assert(false)).catch(err => {
-			expect(err).to.be.an.instanceOf(FetchError)
-				.and.include({ type: 'system' })
-				.and.have.property('message').that.includes('Could not create Buffer')
-				.and.that.includes('embedded error');
-		}).then(restoreBufferConcat, restoreBufferConcat);
+		const textPromise = res.text();
+		// Ensure that `Buffer.concat` is always restored:
+		textPromise.then(restoreBufferConcat, restoreBufferConcat);
+
+		return expect(textPromise).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.include({ type: 'system' })
+			.and.have.property('message').that.includes('Could not create Buffer')
+			.and.that.includes('embedded error');
 	});
 });
 
