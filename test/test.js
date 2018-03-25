@@ -367,6 +367,17 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should not follow non-GET redirect if body is a readable stream', function() {
+		const url = `${base}redirect/307`;
+		const opts = {
+			method: 'PATCH',
+			body: resumer().queue('a=1').end()
+		};
+		return expect(fetch(url, opts)).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'unsupported-redirect');
+	});
+
 	it('should obey maximum redirect, reject case', function() {
 		const url = `${base}redirect/chain`;
 		const opts = {
