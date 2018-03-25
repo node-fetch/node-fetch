@@ -477,6 +477,20 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should ignore invalid headers', function() {
+		const url = `${base}invalid-header`;
+		return fetch(url).then(res => {
+			expect(res.headers.get('Invalid-Header')).to.be.null;
+			expect(res.headers.get('Invalid-Header-Value')).to.be.null;
+			expect(res.headers.get('Set-Cookie')).to.be.null;
+			expect(Array.from(res.headers.keys()).length).to.equal(4);
+			expect(res.headers.has('Connection')).to.be.true;
+			expect(res.headers.has('Content-Type')).to.be.true;
+			expect(res.headers.has('Date')).to.be.true;
+			expect(res.headers.has('Transfer-Encoding')).to.be.true;
+		});
+	});
+
 	it('should handle client-error response', function() {
 		const url = `${base}error/400`;
 		return fetch(url).then(res => {
