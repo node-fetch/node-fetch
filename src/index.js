@@ -47,18 +47,23 @@ export default function fetch(url, opts) {
 		const req = send(options);
 		let reqTimeout;
 
+		function finalize() {
+			req.abort();
+			clearTimeout(reqTimeout);
+		}
+
 		if (request.timeout) {
 			req.once('socket', socket => {
 				reqTimeout = setTimeout(() => {
-					req.abort();
 					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
+					finalize();
 				}, request.timeout);
 			});
 		}
 
 		req.on('error', err => {
-			clearTimeout(reqTimeout);
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
+			finalize();
 		});
 
 		req.on('response', res => {
@@ -78,6 +83,7 @@ export default function fetch(url, opts) {
 				switch (request.redirect) {
 					case 'error':
 						reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect'));
+						finalize();
 						return;
 					case 'manual':
 						// node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
@@ -94,6 +100,7 @@ export default function fetch(url, opts) {
 						// HTTP-redirect fetch step 5
 						if (request.counter >= request.follow) {
 							reject(new FetchError(`maximum redirect reached at: ${request.url}`, 'max-redirect'));
+							finalize();
 							return;
 						}
 
@@ -111,7 +118,9 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 9
 						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
-							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'))
+							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'));
+							finalize();
+							return;
 						}
 
 						// HTTP-redirect fetch step 11
@@ -123,6 +132,7 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 15
 						resolve(fetch(new Request(locationURL, requestOpts)));
+						finalize();
 						return;
 				}
 			}
