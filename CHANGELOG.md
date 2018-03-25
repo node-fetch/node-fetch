@@ -7,7 +7,7 @@ Changelog
 
 ## v2.1.2
 
-- Fix: allow `Body` methods to work on ArrayBuffer`-backed `Body` objects
+- Fix: allow `Body` methods to work on `ArrayBuffer`-backed `Body` objects
 - Fix: reject promise returned by `Body` methods when the accumulated `Buffer` exceeds the maximum size
 - Fix: support custom `Host` headers with any casing
 - Fix: support importing `fetch()` from TypeScript in `browser.js`
