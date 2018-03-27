@@ -52,14 +52,22 @@ export default function Body(body, {
 	this[INTERNALS] = {
 		body,
 		disturbed: false,
-		error: null
+		error: null,
+		rejectCurrentPromise: undefined
 	};
 	this.size = size;
 	this.timeout = timeout;
 
 	if (body instanceof Stream) {
+		// handle stream error, such as incorrect content-encoding
 		body.on('error', err => {
-			this[INTERNALS].error = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+			const error = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+			const { rejectCurrentPromise } = this[INTERNALS];
+			if (typeof rejectCurrentPromise === 'function') {
+				rejectCurrentPromise(error);
+			} else {
+				this[INTERNALS].error = error;
+			}
 		});
 	}
 }
@@ -231,10 +239,7 @@ function consumeBody() {
 			}, this.timeout);
 		}
 
-		// handle stream error, such as incorrect content-encoding
-		this.body.on('error', err => {
-			reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
-		});
+		this[INTERNALS].rejectCurrentPromise = reject;
 
 		this.body.on('data', chunk => {
 			if (abort || chunk === null) {
