@@ -61,12 +61,12 @@ export default function fetch(url, opts) {
 			});
 		}
 
-		req.on('error', err => {
+		req.once('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
 		});
 
-		req.on('response', res => {
+		req.once('response', res => {
 			clearTimeout(reqTimeout);
 
 			const headers = createHeadersLenient(res.headers);

@@ -251,7 +251,7 @@ function consumeBody() {
 			accum.push(chunk);
 		});
 
-		this.body.on('end', () => {
+		this.body.once('end', () => {
 			if (abort) {
 				return;
 			}
