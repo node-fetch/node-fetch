@@ -11,6 +11,7 @@ import Headers, { exportNodeCompatibleHeaders } from './headers.js';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const { format: format_url, parse: parse_url } = require('url');
+const { AbortController, AbortSignal } = require('abort-controller');
 
 const INTERNALS = Symbol('Request internals');
 
@@ -27,6 +28,14 @@ function isRequest(input) {
 	);
 }
 
+// TODO: use toString check after https://github.com/mysticatea/abort-controller/pull/5
+function isAbortSignal(input) {
+	return (
+		typeof input === 'object' &&
+		input instanceof AbortSignal
+	);
+}
+
 /**
  * Request class
  *
@@ -37,6 +46,7 @@ function isRequest(input) {
 export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
+		let signal;
 
 		// normalize input
 		if (!isRequest(input)) {
@@ -52,6 +62,14 @@ export default class Request {
 			input = {};
 		} else {
 			parsedURL = parse_url(input.url);
+			signal = input[INTERNALS].signal;
+		}
+
+		if (init.signal != null) {
+			if (!isAbortSignal(init.signal)) {
+				throw new TypeError('Provided signal must be an AbortSignal object');
+			}
+			signal = init.signal;
 		}
 
 		let method = init.method || input.method || 'GET';
@@ -82,11 +100,23 @@ export default class Request {
 			}
 		}
 
+		const abortController = new AbortController();
+		if (signal !== undefined) {
+			if (signal.aborted) {
+				abortController.abort();
+			} else {
+				signal.addEventListener('abort', () => {
+					abortController.abort();
+				});
+			}
+		}
+
 		this[INTERNALS] = {
 			method,
 			redirect: init.redirect || input.redirect || 'follow',
 			headers,
-			parsedURL
+			parsedURL,
+			signal: abortController.signal
 		};
 
 		// node-fetch-only options
@@ -116,6 +146,10 @@ export default class Request {
 		return this[INTERNALS].redirect;
 	}
 
+	get signal() {
+		return this[INTERNALS].signal;
+	}
+
 	/**
 	 * Clone this request
 	 *
@@ -142,6 +176,16 @@ Object.defineProperties(Request.prototype, {
 	redirect: { enumerable: true },
 	clone: { enumerable: true }
 });
+
+/**
+ * Get the AbortSignal object belonging to a Request.
+ *
+ * @param   Request      A Request instance
+ * @return  AbortSignal  request's signal
+ */
+export function getAbortSignal(request) {
+	return request[INTERNALS].signal;
+}
 
 /**
  * Convert a Request to Node.js http request options.

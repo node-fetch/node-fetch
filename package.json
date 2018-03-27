@@ -58,5 +58,7 @@
     "url-search-params": "^0.10.0",
     "whatwg-url": "^5.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "abort-controller": "^1.0.1"
+  }
 }

@@ -61,7 +61,12 @@ export default function Body(body, {
 	if (body instanceof Stream) {
 		// handle stream error, such as incorrect content-encoding
 		body.on('error', err => {
-			const error = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+			let error;
+			if (err instanceof FetchError) {
+				error = err;
+			} else {
+				error = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+			}
 			const { rejectCurrentPromise } = this[INTERNALS];
 			if (typeof rejectCurrentPromise === 'function') {
 				rejectCurrentPromise(error);

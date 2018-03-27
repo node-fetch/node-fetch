@@ -10,7 +10,7 @@
 import Body, { writeToStream, getTotalBytes } from './body';
 import Response from './response';
 import Headers, { createHeadersLenient } from './headers';
-import Request, { getNodeRequestOptions } from './request';
+import Request, { getAbortSignal, getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 
 const http = require('http');
@@ -39,6 +39,12 @@ export default function fetch(url, opts) {
 	return new fetch.Promise((resolve, reject) => {
 		// build request object
 		const request = new Request(url, opts);
+		const signal = getAbortSignal(request);
+		if (signal.aborted) {
+			reject(new FetchError(`Fetch to ${request.url} has been aborted`, 'aborted'));
+			return;
+		}
+
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
@@ -46,10 +52,22 @@ export default function fetch(url, opts) {
 		// send request
 		const req = send(options);
 		let reqTimeout;
+		let body;
+
+		function abortCallback() {
+			const error = new FetchError(`Fetch to ${request.url} has been aborted`, 'aborted');
+			reject(error);
+			if (body !== undefined) {
+				body.emit('error', error);
+			}
+			finalize();
+		}
+		signal.addEventListener('abort', abortCallback);
 
 		function finalize() {
 			req.abort();
 			clearTimeout(reqTimeout);
+			signal.removeEventListener('abort', abortCallback);
 		}
 
 		if (request.timeout) {
@@ -61,10 +79,15 @@ export default function fetch(url, opts) {
 			});
 		}
 
-		req.once('error', err => {
+		function errorHandler(err) {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
+			if (body !== undefined) {
+				body.emit('error', err);
+			}
 			finalize();
-		});
+		}
+
+		req.on('error', errorHandler);
 
 		req.once('response', res => {
 			clearTimeout(reqTimeout);
@@ -138,7 +161,8 @@ export default function fetch(url, opts) {
 			}
 
 			// prepare response
-			let body = res.pipe(new PassThrough());
+			res.on('error', errorHandler);
+			body = res.pipe(new PassThrough());
 			const response_options = {
 				url: request.url,
 				status: res.statusCode,
