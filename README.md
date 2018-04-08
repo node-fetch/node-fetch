@@ -80,7 +80,9 @@ fetch('http://domain.invalid/')
 
 fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
 	.then(res => {
-		const dest = fs.createWriteStream('./octocat.png');
+		const dest = fs.createWriteStream('./octocat.png', {
+			autoClose: true,
+		});
 		res.body.pipe(dest);
 	});
 
