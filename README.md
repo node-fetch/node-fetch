@@ -3,7 +3,6 @@ node-fetch
 ==========
 
 [![npm stable version][npm-image]][npm-url]
-[![npm next version][npm-next-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![coverage status][codecov-image]][codecov-url]
 
