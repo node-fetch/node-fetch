@@ -203,6 +203,7 @@ export function getNodeRequestOptions(request) {
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
 		agent: request.agent,
-		lookup: request.lookup
+		lookup: request.lookup,
+		family: request.family
 	});
 }
