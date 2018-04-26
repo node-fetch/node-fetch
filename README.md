@@ -256,6 +256,7 @@ The following node-fetch extension properties are provided:
 - `compress`
 - `counter`
 - `agent`
+- `family`
 
 See [options](#fetch-options) for exact meaning of these extensions.
 
