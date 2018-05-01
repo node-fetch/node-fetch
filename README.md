@@ -1,10 +1,17 @@
 node-fetch
 ==========
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 [![npm version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![coverage status][codecov-image]][codecov-url]
 [![install size][install-size-image]][install-size-url]
+=======
+[![npm stable version][npm-image]][npm-url]
+[![npm next version][npm-next-image]][npm-url]
+[![build status][travis-image]][travis-url]
+[![coverage status][codecov-image]][codecov-url]
+>>>>>>> fix broken indentation
 
 A light-weight module that brings `window.fetch` to Node.js
 
@@ -30,6 +37,29 @@ A light-weight module that brings `window.fetch` to Node.js
     - [Post data using a file stream](#post-data-using-a-file-stream)
     - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
 - [API](#api)
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
+=======
+    - [fetch(url[, options])](#fetchurl-options)
+    - [Options](#options)
+        - [Default Headers](#default-headers)
+    - [Class: Request](#class-request)
+    - [new Request(input[, options])](#new-requestinput-options)
+    - [Class: Response](#class-response)
+    - [new Response([body[, options]])](#new-responsebody-options)
+    - [response.ok](#responseok)
+    - [Class: Headers](#class-headers)
+    - [new Headers([init])](#new-headersinit)
+    - [Interface: Body](#interface-body)
+    - [body.body](#bodybody)
+    - [body.bodyUsed](#bodybodyused)
+    - [body.arrayBuffer()](#bodyarraybuffer)
+    - [body.blob()](#bodyblob)
+    - [body.json()](#bodyjson)
+    - [body.text()](#bodytext)
+    - [body.buffer()](#bodybuffer)
+    - [body.textConverted()](#bodytextconverted)
+    - [Class: FetchError](#class-fetcherror)
+>>>>>>> fix broken indentation
 - [License](#license)
 - [Acknowledgement](#acknowledgement)
 
@@ -45,16 +75,28 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 ## Features
 
 - Stay consistent with `window.fetch` API.
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 - Make conscious trade-off when following [WHATWG fetch spec][whatwg-fetch] and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known difference.
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native Node streams for body, on both request and response.
 - Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
 - Useful extensions such as timeout, redirect limit, response size limit, [explicit errors](https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md) for troubleshooting.
+=======
+- Make conscious trade-off when following [whatwg fetch spec][whatwg-fetch] and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known difference.
+- Use native promise, but allow substituting it with [insert your favorite promise library].
+- Use native stream for body, on both request and response.
+- Decode content encoding (gzip/deflate) properly, convert `res.text()` output to UTF-8 optionally.
+- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors][ERROR-HANDLING.md] for troubleshooting.
+>>>>>>> fix broken indentation
 
 
 ## Difference from client-side fetch
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 - See [Known Differences](https://github.com/bitinn/node-fetch/blob/master/LIMITS.md) for details.
+=======
+- See [Known Differences][LIMITS.md] for details.
+>>>>>>> fix broken indentation
 - If you happen to use a missing feature that `window.fetch` offers, feel free to open an issue.
 - Pull requests are welcomed too!
 
@@ -69,12 +111,20 @@ $ npm install node-fetch --save
 
 ## Loading and configuring the module
 We suggest you load the module via `require`, pending the stabalizing of es modules in node:
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 const fetch = require('node-fetch');
 
 ```
 If you are using a Promise library other than native, set it through fetch.Promise:
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 const Bluebird = require('bluebird');
 
 fetch.Promise = Bluebird;
@@ -82,35 +132,59 @@ fetch.Promise = Bluebird;
 
 ## Common Usage
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 NOTE: The documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) for the differences.
 
 ### Plain text or HTML
 ```js
+=======
+NOTE: The documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide][UPGRADE-GUIDE.md] for the differences.
+
+### Plain text or HTML
+```javascript
+>>>>>>> fix broken indentation
 fetch('https://github.com/')
     .then(res => res.text())
     .then(body => console.log(body));
 ```
 
 ### JSON
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 fetch('https://api.github.com/users/github')
     .then(res => res.json())
     .then(json => console.log(json));
 ```
 
 ### Simple Post
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
 fetch('https://httpbin.org/post', { method: 'POST', body: 'a=1' })
+=======
+```javascript
+fetch('http://httpbin.org/post', { method: 'post', body: 'a=1' })
+>>>>>>> fix broken indentation
     .then(res => res.json()) // expecting a json response
     .then(json => console.log(json));
 ```
 
 ### Post with JSON
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
 const body = { a: 1 };
 
 fetch('https://httpbin.org/post', { 
         method: 'POST',
+=======
+```javascript
+const body = { a: 1 };
+
+fetch('http://httpbin.org/post', { 
+        method: 'post',
+>>>>>>> fix broken indentation
         body:    JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' },
     })
@@ -122,13 +196,21 @@ fetch('https://httpbin.org/post', {
 `URLSearchParams` is available in Node.js as of v7.5.0. See [official documentation](https://nodejs.org/api/url.html#url_class_urlsearchparams) for more usage methods.
 
 NOTE: The `Content-Type` header is only set automatically to `x-www-form-urlencoded` when an instance of `URLSearchParams` is given as such:
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 const { URLSearchParams } = require('url');
 
 const params = new URLSearchParams();
 params.append('a', 1);
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 fetch('https://httpbin.org/post', { method: 'POST', body: params })
+=======
+fetch('http://httpbin.org/post', { method: 'post', body: params })
+>>>>>>> fix broken indentation
     .then(res => res.json())
     .then(json => console.log(json));
 ```
@@ -138,15 +220,24 @@ NOTE: 3xx-5xx responses are *NOT* exceptions, and should be handled in `then()`,
 
 Adding a catch to the fetch promise chain will catch *all* exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document](https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md)  for more details.
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
 fetch('https://domain.invalid/')
+=======
+```javascript
+fetch('http://domain.invalid/')
+>>>>>>> fix broken indentation
     .catch(err => console.error(err));
 ```
 
 ### Handling client and server errors
 It is common to create a helper function to check that the response contains no client (4xx) or server (5xx) error responses:
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 function checkStatus(res) {
     if (res.ok) { // res.status >= 200 && res.status < 300
         return res;
@@ -155,7 +246,11 @@ function checkStatus(res) {
     }
 }
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 fetch('https://httpbin.org/status/400')
+=======
+fetch('http://httpbin.org/status/400')
+>>>>>>> fix broken indentation
     .then(checkStatus)
     .then(res => console.log('will not get here...'))
 ```
@@ -164,7 +259,11 @@ fetch('https://httpbin.org/status/400')
 
 ### Streams
 The "Node.js way" is to use streams when possible:
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
     .then(res => {
         const dest = fs.createWriteStream('./octocat.png');
@@ -172,12 +271,19 @@ fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
     });
 ```
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 [TODO]: # (Somewhere i think we also should mention arrayBuffer also if you want to be cross-fetch compatible.)
 
 ### Buffer
 If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
 
 ```js
+=======
+### Buffer
+If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
+
+```javascript
+>>>>>>> fix broken indentation
 const fileType = require('file-type');
 
 fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
@@ -187,7 +293,11 @@ fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
 ```
 
 ### Accessing Headers and other Meta data
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 fetch('https://github.com/')
     .then(res => {
         console.log(res.ok);
@@ -199,24 +309,40 @@ fetch('https://github.com/')
 ```
 
 ### Post data using a file stream
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 const { createReadStream } = require('fs');
 
 const stream = createReadStream('input.txt');
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 fetch('https://httpbin.org/post', { method: 'POST', body: stream })
+=======
+fetch('http://httpbin.org/post', { method: 'post', body: stream })
+>>>>>>> fix broken indentation
     .then(res => res.json())
     .then(json => console.log(json));
 ```
 
 ### Post with form-data (detect multipart)
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ```js
+=======
+```javascript
+>>>>>>> fix broken indentation
 const FormData = require('form-data');
 
 const form = new FormData();
 form.append('a', 1);
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 fetch('https://httpbin.org/post', { method: 'POST', body: form })
+=======
+fetch('http://httpbin.org/post', { method: 'post', body: form })
+>>>>>>> fix broken indentation
     .then(res => res.json())
     .then(json => console.log(json));
 
@@ -227,12 +353,20 @@ const form = new FormData();
 form.append('a', 1);
 
 const options = {
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
     method: 'POST',
+=======
+    method: 'post',
+>>>>>>> fix broken indentation
     body: form,
     headers: form.getHeaders()
 }
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 fetch('https://httpbin.org/post', options)
+=======
+fetch('http://httpbin.org/post', options)
+>>>>>>> fix broken indentation
     .then(res => res.json())
     .then(json => console.log(json));
 ```
@@ -250,9 +384,13 @@ See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) 
 
 Perform an HTTP(S) fetch.
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 `url` should be an absolute url, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected promise.
 
 [TODO]: # (It might be a good idea to reformat the options section into a table layout, like the headers section, instead of current code block.)
+=======
+`url` should be an absolute url, such as `http://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected promise.
+>>>>>>> fix broken indentation
 
 <a id="fetch-options"></a>
 ### Options
@@ -280,8 +418,11 @@ The default values are shown after each option key.
 
 If no values are set, the following request headers will be sent automatically:
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 [TODO]: # ("we always said content-length will be "automatically calculated, if possible" in the default header section, but we never explain what's the condition for it to be calculated, and that chunked transfer-encoding will be used when they are not calculated or supplied." - "Maybe also add Transfer-Encoding: chunked? That header is added by Node.js automatically if the input is a stream, I believe.")
 
+=======
+>>>>>>> fix broken indentation
 Header            | Value
 ----------------- | --------------------------------------------------------
 `Accept-Encoding` | `gzip,deflate` _(when `options.compress === true`)_
@@ -353,8 +494,11 @@ Because Node.js does not implement service workers (for which this class was des
 
 ### response.ok
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 <small>*(spec-compliant)*</small>
 
+=======
+>>>>>>> fix broken indentation
 Convenience property representing if the request ended normally. Will evaluate to true if the response status was greater than or equal to 200 but smaller than 300.
 
 <a id="class-headers"></a>
@@ -438,8 +582,11 @@ Consume the body and return a promise that will resolve to one of these formats.
 
 Consume the body and return a promise that will resolve to a Buffer.
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 [TODO]: # (textConverted API should mention an optional dependency on encoding, which users need to install by themselves, and this is done purely for backward compatibility with 1.x release.)
 
+=======
+>>>>>>> fix broken indentation
 ### body.textConverted()
 
 <small>*(node-fetch extension)*</small>
@@ -455,20 +602,35 @@ Identical to `body.text()`, except instead of always converting to UTF-8, encodi
 
 An operational error in the fetching process. See [ERROR-HANDLING.md][] for more info.
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
+=======
+## License
+
+MIT
+
+
+>>>>>>> fix broken indentation
 ## Acknowledgement
 
 Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid implementation reference.
 
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 ## License
 
 MIT
 
 [npm-image]: https://img.shields.io/npm/v/node-fetch.svg?style=flat-square
+=======
+
+[npm-image]: https://img.shields.io/npm/v/node-fetch.svg?style=flat-square
+[npm-next-image]: https://img.shields.io/npm/v/node-fetch/next.svg?style=flat-square
+>>>>>>> fix broken indentation
 [npm-url]: https://www.npmjs.com/package/node-fetch
 [travis-image]: https://img.shields.io/travis/bitinn/node-fetch.svg?style=flat-square
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
 [codecov-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
+<<<<<<< 451e580ce9858af1bb2d9d7a5c44725c48586fa3
 [install-size-image]: https://packagephobia.now.sh/badge?p=node-fetch
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
 [ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
@@ -476,3 +638,13 @@ MIT
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
+=======
+
+[ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
+[LIMITS.md]: https://github.com/bitinn/node-fetch/blob/master/LIMITS.md
+[UPGRADE-GUIDE.md]: https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md
+
+[whatwg-fetch]: https://fetch.spec.whatwg.org/
+[response-init]: https://fetch.spec.whatwg.org/#responseinit
+[node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
+>>>>>>> fix broken indentation
