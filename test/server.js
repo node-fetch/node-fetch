@@ -264,6 +264,12 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/redirect/chain/timeout') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/timeout');
+			res.end();
+		}
+
 		if (p === '/redirect/no-location') {
 			res.statusCode = 301;
 			res.end();

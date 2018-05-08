@@ -749,6 +749,18 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow custom timeout on redirects, reject case', function() {
+		this.timeout(500);
+		const url = `${base}redirect/chain/timeout`;
+		const opts = {
+			follow: 2,
+			timeout: 100
+		}
+		return expect(fetch(url, opts)).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'request-timeout');
+	});
+
 	it('should clear internal timeout on fetch response', function (done) {
 		this.timeout(2000);
 		spawn('node', ['-e', `require('./')('${base}hello', { timeout: 10000 })`])
