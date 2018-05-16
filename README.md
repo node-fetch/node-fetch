@@ -6,6 +6,7 @@ node-fetch
 [![npm next version][npm-next-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![coverage status][codecov-image]][codecov-url]
+[![install size](https://packagephobia.now.sh/badge?p=node-fetch)](https://packagephobia.now.sh/result?p=node-fetch)
 
 A light-weight module that brings `window.fetch` to Node.js
 
