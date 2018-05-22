@@ -875,6 +875,52 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow POST request with ArrayBufferView (Uint8Array) body', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'))
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
+	it('should allow POST request with ArrayBufferView (DataView) body', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new DataView(stringToArrayBuffer('Hello, world!\n'))
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
+	// TODO: Node.js v4 doesn't support necessary Buffer API, so we skip this test, drop this check once Node.js v4 support is not needed
+	(Buffer.from.length === 3 ? it : it.skip)('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'), 7, 6)
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('world!');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('6');
+		});
+	});
+
 	it('should allow POST request with blob body without type', function() {
 		const url = `${base}inspect`;
 		const opts = {
