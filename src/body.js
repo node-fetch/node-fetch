@@ -39,7 +39,10 @@ export default function Body(body, {
 	} else if (body instanceof Blob) {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
-		// body is buffer
+        // body is buffer
+    } else if (body.buffer instanceof ArrayBuffer) {
+		// body is ArrayBuffer or inherits from ArrayBufferView
+        body = body.buffer
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is array buffer
 	} else if (body instanceof Stream) {
