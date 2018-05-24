@@ -2051,35 +2051,55 @@ describe('Request', function () {
 
     it('should support Uint8Array as body', function() {
     	const data = new Uint8Array(3);
-        data[0] = 'a';
-        data[1] = '=';
-        data[2] = '1';
+        data[0] = 1;
+        data[1] = 2;
+        data[2] = 3;
         const req = new Request('', {
             method: 'POST',
             body: data
         });
         return req.buffer().then(result => {
-            expect(result[0]).to.equal(data[0]);
-            expect(result[1]).to.equal(data[1]);
-            expect(result[2]).to.equal(data[2]);
-            expect(result.byteLength).to.equal(data.byteLength)
+            expect(result[0]).to.equal(1);
+            expect(result[1]).to.equal(2);
+            expect(result[2]).to.equal(3);
+            expect(result.byteLength).to.equal(3)
         });
     });
 
     it('should support Uint16Array as body', function() {
-        const data = new Uint8Array(3);
-        data[0] = 'a';
-        data[1] = '=';
-        data[2] = '1';
+        const data = new Uint16Array(3);
+        data[0] = 1;
+        data[1] = 2;
+        data[2] = 3;
         const req = new Request('', {
             method: 'POST',
             body: data
         });
         return req.buffer().then(result => {
-            expect(result[0]).to.equal(data[0]);
-            expect(result[1]).to.equal(data[1]);
-            expect(result[2]).to.equal(data[2]);
-            expect(result.byteLength).to.equal(data.byteLength)
+            const res = new Uint16Array(result.buffer);
+            expect(res[0]).to.equal(1);
+            expect(res[1]).to.equal(2);
+            expect(res[2]).to.equal(3);
+            expect(res.byteLength).to.equal(6);
+            expect(res.length).to.equal(3);
+        });
+    });
+    it('should support Float64Array as body', function() {
+        const data = new Float64Array(3);
+        data[0] = -1.0;
+        data[1] = -2.0;
+        data[2] = -3.0;
+        const req = new Request('', {
+            method: 'POST',
+            body: data
+        });
+        return req.buffer().then(result => {
+            const res = new Float64Array(result.buffer);
+            expect(res[0]).to.equal(-1.0);
+            expect(res[1]).to.equal(-2.0);
+            expect(res[2]).to.equal(-3.0);
+            expect(res.byteLength).to.equal(24);
+            expect(res.length).to.equal(3);
         });
     });
 });
