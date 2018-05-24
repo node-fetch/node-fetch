@@ -2048,6 +2048,40 @@ describe('Request', function () {
 			expect(result).to.equal('a=1');
 		});
 	});
+
+    it('should support Uint8Array as body', function() {
+    	const data = new Uint8Array(3);
+        data[0] = 'a';
+        data[1] = '=';
+        data[2] = '1';
+        const req = new Request('', {
+            method: 'POST',
+            body: data
+        });
+        return req.buffer().then(result => {
+            expect(result[0]).to.equal(data[0]);
+            expect(result[1]).to.equal(data[1]);
+            expect(result[2]).to.equal(data[2]);
+            expect(result.byteLength).to.equal(data.byteLength)
+        });
+    });
+
+    it('should support Uint16Array as body', function() {
+        const data = new Uint8Array(3);
+        data[0] = 'a';
+        data[1] = '=';
+        data[2] = '1';
+        const req = new Request('', {
+            method: 'POST',
+            body: data
+        });
+        return req.buffer().then(result => {
+            expect(result[0]).to.equal(data[0]);
+            expect(result[1]).to.equal(data[1]);
+            expect(result[2]).to.equal(data[2]);
+            expect(result.byteLength).to.equal(data.byteLength)
+        });
+    });
 });
 
 function streamToPromise(stream, dataHandler) {
