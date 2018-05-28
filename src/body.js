@@ -39,9 +39,11 @@ export default function Body(body, {
 	} else if (body instanceof Blob) {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
-		// body is buffer
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+		// body is ArrayBuffer
+	} else if (body instanceof ArrayBuffer) {
+		// body is ArrayBufferView
+	} else if (ArrayBuffer.isView(body)) {
+		// body is array buffer view
 	} else if (body instanceof Stream) {
 		// body is stream
 	} else {
@@ -204,8 +206,8 @@ function consumeBody() {
 		return Body.Promise.resolve(this.body);
 	}
 
-	// body is buffer
-	if (Object.prototype.toString.call(this.body) === '[object ArrayBuffer]') {
+	// body is ArrayBuffer
+	if (this.body instanceof ArrayBuffer) {
 		return Body.Promise.resolve(Buffer.from(this.body));
 	}
 
@@ -416,8 +418,11 @@ export function extractContentType(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return null;
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+	} else if (body instanceof ArrayBuffer) {
+		// body is ArrayBuffer
+		return null;
+	} else if (ArrayBuffer.isView(body)) {
+		// body is ArrayBufferView
 		return null;
 	} else if (typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
@@ -457,8 +462,11 @@ export function getTotalBytes(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+	} else if (body instanceof ArrayBuffer) {
+		// body is ArrayBuffer
+		return body.byteLength;
+	} else if (ArrayBuffer.isView(body)) {
+		// body is ArrayBufferView
 		return body.byteLength;
 	} else if (body && typeof body.getLengthSync === 'function') {
 		// detect form data input from form-data module
@@ -502,9 +510,13 @@ export function writeToStream(dest, instance) {
 		// body is buffer
 		dest.write(body);
 		dest.end()
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+	} else if (body instanceof ArrayBuffer) {
+		// body is ArrayBuffer
 		dest.write(Buffer.from(body));
+		dest.end()
+	} else if (ArrayBuffer.isView(body)) {
+		// body is ArrayBufferView
+		dest.write(Buffer.from(body.buffer, body.byteOffset, body.byteLength));
 		dest.end()
 	} else {
 		// body is stream
