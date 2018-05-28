@@ -39,11 +39,11 @@ export default function Body(body, {
 	} else if (body instanceof Blob) {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
+		// body is Buffer
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is ArrayBuffer
-	} else if (body instanceof ArrayBuffer) {
-		// body is ArrayBufferView
 	} else if (ArrayBuffer.isView(body)) {
-		// body is array buffer view
+		// body is ArrayBufferView
 	} else if (body instanceof Stream) {
 		// body is stream
 	} else {
@@ -207,8 +207,13 @@ function consumeBody() {
 	}
 
 	// body is ArrayBuffer
-	if (this.body instanceof ArrayBuffer) {
+	if (Object.prototype.toString.call(this.body) === '[object ArrayBuffer]') {
 		return Body.Promise.resolve(Buffer.from(this.body));
+	}
+
+	// body is ArrayBufferView
+	if (ArrayBuffer.isView(this.body)) {
+		return Body.Promise.resolve(Buffer.from(this.body.buffer, this.body.byteOffset, this.body.byteLength));
 	}
 
 	// istanbul ignore if: should never happen
@@ -418,7 +423,7 @@ export function extractContentType(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return null;
-	} else if (body instanceof ArrayBuffer) {
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is ArrayBuffer
 		return null;
 	} else if (ArrayBuffer.isView(body)) {
@@ -462,7 +467,7 @@ export function getTotalBytes(instance) {
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
-	} else if (body instanceof ArrayBuffer) {
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is ArrayBuffer
 		return body.byteLength;
 	} else if (ArrayBuffer.isView(body)) {
@@ -510,7 +515,7 @@ export function writeToStream(dest, instance) {
 		// body is buffer
 		dest.write(body);
 		dest.end()
-	} else if (body instanceof ArrayBuffer) {
+	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is ArrayBuffer
 		dest.write(Buffer.from(body));
 		dest.end()

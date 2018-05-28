@@ -18,6 +18,12 @@ const path = require('path');
 const stream = require('stream');
 const { parse: parseURL, URLSearchParams } = require('url');
 const { lookup } = require('dns');
+const vm = require('vm');
+
+const {
+	ArrayBuffer: VMArrayBuffer,
+	Uint8Array: VMUint8Array
+} = vm.runInNewContext('this');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) { }
@@ -876,6 +882,21 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow POST request with ArrayBuffer body from a VM context', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new VMUint8Array(Buffer.from('Hello, world!\n')).buffer
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
 	it('should allow POST request with ArrayBufferView (Uint8Array) body', function() {
 		const url = `${base}inspect`;
 		const opts = {
@@ -896,6 +917,21 @@ describe('node-fetch', () => {
 		const opts = {
 			method: 'POST',
 			body: new DataView(stringToArrayBuffer('Hello, world!\n'))
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
+	it('should allow POST request with ArrayBufferView (Uint8Array) body from a VM context', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new VMUint8Array(Buffer.from('Hello, world!\n'))
 		};
 		return fetch(url, opts).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1919,6 +1955,20 @@ describe('Response', function () {
 		});
 	});
 
+	it('should support Uint8Array as body', function() {
+		const res = new Response(new Uint8Array(stringToArrayBuffer('a=1')));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support DataView as body', function() {
+		const res = new Response(new DataView(stringToArrayBuffer('a=1')));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
 	it('should default to null as body', function() {
 		const res = new Response();
 		expect(res.body).to.equal(null);
@@ -2119,6 +2169,26 @@ describe('Request', function () {
 		const req = new Request('', {
 			method: 'POST',
 			body: stringToArrayBuffer('a=1')
+		});
+		return req.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support Uint8Array as body', function() {
+		const req = new Request('', {
+			method: 'POST',
+			body: new Uint8Array(stringToArrayBuffer('a=1'))
+		});
+		return req.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support DataView as body', function() {
+		const req = new Request('', {
+			method: 'POST',
+			body: new DataView(stringToArrayBuffer('a=1'))
 		});
 		return req.text().then(result => {
 			expect(result).to.equal('a=1');
