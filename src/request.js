@@ -188,7 +188,7 @@ export function getNodeRequestOptions(request) {
 	}
 
 	// HTTP-network-or-cache fetch step 2.15
-	if (request.compress) {
+	if (request.compress && !headers.has('Accept-Encoding')) {
 		headers.set('Accept-Encoding', 'gzip,deflate');
 	}
 	if (!headers.has('Connection') && !request.agent) {
