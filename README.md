@@ -217,6 +217,7 @@ The default values are shown after each option key.
 	compress: true,     // support gzip/deflate content encoding. false to disable
 	size: 0,            // maximum response body size in bytes. 0 to disable
 	agent: null         // http(s).Agent instance, allows custom proxy, certificate etc.
+	lookup: dns.lookup  // custom dns lookup function for socket
 }
 ```
 
