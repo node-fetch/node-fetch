@@ -10,6 +10,7 @@ import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import URLSearchParams_Polyfill from 'url-search-params';
 import { URL } from 'whatwg-url';
+import { lookup } from 'dns';
 
 const { spawn } = require('child_process');
 const http = require('http');
@@ -1530,6 +1531,30 @@ describe('node-fetch', () => {
 			.and.include({ type: 'system' })
 			.and.have.property('message').that.includes('Could not create Buffer')
 			.and.that.includes('embedded error');
+	});
+
+	it("should call a custom `lookup` function", function() {
+		const url = `${base}hello`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		return fetch(url, { lookup: lookupSpy }).then(() => {
+			expect(called).to.equal(1);
+		});
+	});
+
+	it("should use the custom `lookup` function for redirects", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		return fetch(url, { lookup: lookupSpy }).then(() => {
+			expect(called).to.equal(2);
+		});
 	});
 });
 
