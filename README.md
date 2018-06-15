@@ -218,6 +218,8 @@ The default values are shown after each option key.
 	size: 0,            // maximum response body size in bytes. 0 to disable
 	agent: null         // http(s).Agent instance, allows custom proxy, certificate etc.
 	lookup: dns.lookup  // custom dns lookup function for socket
+	family: null        // numbers 4 or 6 to limit dns resolution to ip v4 or v6
+	localAddress: null  // local interface to bind to for network connections
 }
 ```
 
@@ -257,6 +259,8 @@ The following node-fetch extension properties are provided:
 - `counter`
 - `agent`
 - `family`
+- `lookup`
+- `localAddress`
 
 See [options](#fetch-options) for exact meaning of these extensions.
 
