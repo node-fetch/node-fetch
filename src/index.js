@@ -114,7 +114,9 @@ export default function fetch(url, opts) {
 							compress: request.compress,
 							method: request.method,
 							body: request.body,
-							lookup: request.lookup
+							lookup: request.lookup,
+							family: request.family,
+							localAddress: request.localAddress
 						};
 
 						// HTTP-redirect fetch step 9
