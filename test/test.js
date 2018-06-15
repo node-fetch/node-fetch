@@ -530,6 +530,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle DNS-error response', function() {
+		this.timeout(10000);
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -1502,7 +1503,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support https request', function() {
-		this.timeout(5000);
+		this.timeout(10000);
 		const url = 'https://github.com/';
 		const opts = {
 			method: 'HEAD'
