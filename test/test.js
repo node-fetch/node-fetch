@@ -10,6 +10,7 @@ import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import URLSearchParams_Polyfill from 'url-search-params';
 import { URL } from 'whatwg-url';
+import { lookup } from 'dns';
 
 const { spawn } = require('child_process');
 const http = require('http');
@@ -529,6 +530,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle DNS-error response', function() {
+		this.timeout(10000);
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -1501,7 +1503,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support https request', function() {
-		this.timeout(5000);
+		this.timeout(10000);
 		const url = 'https://github.com/';
 		const opts = {
 			method: 'HEAD'
@@ -1530,6 +1532,59 @@ describe('node-fetch', () => {
 			.and.include({ type: 'system' })
 			.and.have.property('message').that.includes('Could not create Buffer')
 			.and.that.includes('embedded error');
+	});
+
+	it("should call a custom `lookup` function", function() {
+		const url = `${base}hello`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		return fetch(url, { lookup: lookupSpy }).then(() => {
+			expect(called).to.equal(1);
+		});
+	});
+
+	it("should use the custom `lookup` function for redirects", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		return fetch(url, { lookup: lookupSpy }).then(() => {
+			expect(called).to.equal(2);
+		});
+	});
+
+	it("should pass the `family` option to the dns lookup", function () {
+		const url = `${base}redirect/301`;
+		const recordedOptions = [];
+		const family = Symbol('family');
+		function lookupSpy(hostname, options, callback) {
+			recordedOptions.push(options);
+			return lookup(hostname, {}, callback);
+		}
+		return fetch(url, { lookup: lookupSpy, family }).then(() => {
+			expect(recordedOptions[0].family).to.equal(family);
+			expect(recordedOptions[1].family).to.equal(family);
+			expect(recordedOptions).to.have.length(2);
+		});
+	});
+
+	it("should succeed with valid values for option `localAddress`", function () {
+		const url = `${base}redirect/301`;
+		return fetch(url, { localAddress: '0.0.0.0' }).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+		});
+	});
+
+	it("should fail with illegal values for option `localAddress`", function () {
+		const url = `${base}hello`;
+		const illegalBind = fetch(url, { localAddress: '1.1.1.1.1' });
+		return expect(illegalBind).to.eventually.be.rejected;
 	});
 });
 
