@@ -1569,6 +1569,7 @@ describe('node-fetch', () => {
 		return fetch(url, { lookup: lookupSpy, family }).then(() => {
 			expect(recordedOptions[0].family).to.equal(family);
 			expect(recordedOptions[1].family).to.equal(family);
+			expect(recordedOptions).to.have.length(2);
 		});
 	});
 
