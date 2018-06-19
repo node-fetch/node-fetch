@@ -1545,6 +1545,22 @@ describe('node-fetch', () => {
 			expect(called).to.equal(2);
 		});
 	});
+
+	it("supports supplying a famliy option to the agent", function() {
+		const url = `${base}redirect/301`;
+		const families = [];
+		const family = Symbol('family');
+		function lookupSpy(hostname, options, callback) {
+			families.push(options.family)
+			return lookup(hostname, {}, callback);
+		}
+		const agent = http.Agent({ lookup: lookupSpy, family });
+		return fetch(url, { agent }).then(() => {
+			expect(families).to.have.length(2);
+			expect(families[0]).to.equal(family);
+			expect(families[1]).to.equal(family);
+		});
+	});
 });
 
 describe('Headers', function () {
