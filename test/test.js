@@ -1556,6 +1556,54 @@ describe('node-fetch', () => {
 			expect(called).to.equal(2);
 		});
 	});
+
+	it("should use our custom lookup func even with an agent", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		const agent = http.Agent();
+		return fetch(url, { lookup: lookupSpy, agent }).then(() => {
+			expect(called).to.equal(2);
+		});
+	});
+
+	it("also supports supplying the lookup funtion to the agent", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		const agent = http.Agent({ lookup: lookupSpy });
+		return fetch(url, { agent }).then(() => {
+			expect(called).to.equal(2);
+		});
+	});
+
+	it("prefers the agent's lookup function over ours", function () {
+		const url = `${base}redirect/301`;
+		let lookupsAgent = 0;
+		let lookupsFetch = 0;
+
+		function lookupSpyAgent(hostname, options, callback) {
+			lookupsAgent++;
+			return lookup(hostname, options, callback);
+		}
+
+		function lookupSpyFetch(hostname, options, callback) {
+			lookupsFetch++;
+			return lookup(hostname, options, callback);
+		}
+
+		const agent = http.Agent({ lookup: lookupSpyAgent });
+		return fetch(url, { agent, lookup: lookupSpyFetch }).then(() => {
+			expect(lookupsFetch).to.equal(0);
+			expect(lookupsAgent).to.equal(2);
+		});
+	});
 });
 
 describe('Headers', function () {
