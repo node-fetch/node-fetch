@@ -17,6 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const stream = require('stream');
 const { parse: parseURL, URLSearchParams } = require('url');
+const { lookup } = require('dns');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) { }
@@ -1530,6 +1531,19 @@ describe('node-fetch', () => {
 			.and.include({ type: 'system' })
 			.and.have.property('message').that.includes('Could not create Buffer')
 			.and.that.includes('embedded error');
+	});
+
+	it("supports supplying a lookup function to the agent", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		const agent = http.Agent({ lookup: lookupSpy });
+		return fetch(url, { agent }).then(() => {
+			expect(called).to.equal(2);
+		});
 	});
 });
 
