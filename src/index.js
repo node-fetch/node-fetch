@@ -113,7 +113,8 @@ export default function fetch(url, opts) {
 							agent: request.agent,
 							compress: request.compress,
 							method: request.method,
-							body: request.body
+							body: request.body,
+							lookup: request.lookup
 						};
 
 						// HTTP-redirect fetch step 9

@@ -10,6 +10,7 @@ import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import URLSearchParams_Polyfill from 'url-search-params';
 import { URL } from 'whatwg-url';
+import { lookup } from 'dns';
 
 const { spawn } = require('child_process');
 const http = require('http');
@@ -529,6 +530,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should handle DNS-error response', function() {
+		this.timeout(15000);
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -1501,7 +1503,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support https request', function() {
-		this.timeout(5000);
+		this.timeout(10000);
 		const url = 'https://github.com/';
 		const opts = {
 			method: 'HEAD'
@@ -1530,6 +1532,78 @@ describe('node-fetch', () => {
 			.and.include({ type: 'system' })
 			.and.have.property('message').that.includes('Could not create Buffer')
 			.and.that.includes('embedded error');
+	});
+
+	it("should call a custom `lookup` function", function() {
+		const url = `${base}hello`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		return fetch(url, { lookup: lookupSpy }).then(() => {
+			expect(called).to.equal(1);
+		});
+	});
+
+	it("should use the custom `lookup` function for redirects", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		return fetch(url, { lookup: lookupSpy }).then(() => {
+			expect(called).to.equal(2);
+		});
+	});
+
+	it("should use our custom lookup func even with an agent", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		const agent = http.Agent();
+		return fetch(url, { lookup: lookupSpy, agent }).then(() => {
+			expect(called).to.equal(2);
+		});
+	});
+
+	it("also supports supplying the lookup funtion to the agent", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		const agent = http.Agent({ lookup: lookupSpy });
+		return fetch(url, { agent }).then(() => {
+			expect(called).to.equal(2);
+		});
+	});
+
+	it("prefers the agent's lookup function over ours", function () {
+		const url = `${base}redirect/301`;
+		let lookupsAgent = 0;
+		let lookupsFetch = 0;
+
+		function lookupSpyAgent(hostname, options, callback) {
+			lookupsAgent++;
+			return lookup(hostname, options, callback);
+		}
+
+		function lookupSpyFetch(hostname, options, callback) {
+			lookupsFetch++;
+			return lookup(hostname, options, callback);
+		}
+
+		const agent = http.Agent({ lookup: lookupSpyAgent });
+		return fetch(url, { agent, lookup: lookupSpyFetch }).then(() => {
+			expect(lookupsFetch).to.equal(0);
+			expect(lookupsAgent).to.equal(2);
+		});
 	});
 });
 
