@@ -41,7 +41,7 @@ spec-compliant. These changes are done in conjunction with GitHub's
 //////////////////////////////////////////////////////////////////////////////
 // `get()` now returns **all** headers, joined by a comma, instead of only the
 // first one. Its original behavior can be emulated using
-// `get().split(',')[0]`.
+// `get().split(', ')[0]`.
 
 const headers = new Headers({
   'Abc': 'string',
@@ -53,13 +53,13 @@ headers.get('Abc') =>                 headers.get('Abc') =>
   'string'                              'string'
 headers.get('Multi') =>               headers.get('Multi') =>
   'header1';                            'header1,header2';
-                                      headers.get('Multi').split(',')[0] =>
+                                      headers.get('Multi').split(', ')[0] =>
                                         'header1';
 
 
 //////////////////////////////////////////////////////////////////////////////
 // `getAll()` is removed. Its behavior in v1 can be emulated with
-// `get().split(',')`.
+// `get().split(', ')`.
 
 const headers = new Headers({
   'Abc': 'string',
@@ -69,7 +69,7 @@ const headers = new Headers({
 // before                             after
 headers.getAll('Multi') =>            headers.getAll('Multi') =>
   [ 'header1', 'header2' ];             throws ReferenceError
-                                      headers.get('Multi').split(',') =>
+                                      headers.get('Multi').split(', ') =>
                                         [ 'header1', 'header2' ];
 
 
