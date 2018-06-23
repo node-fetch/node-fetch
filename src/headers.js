@@ -147,7 +147,7 @@ export default class Headers {
 	 */
 	set(name, value) {
 		name = `${name}`;
-		value = `${value}`;
+		value = Array.isArray(value) ? value.join(', ') : `${value}`;
 		validateName(name);
 		validateValue(value);
 		const key = find(this[MAP], name);
@@ -163,7 +163,7 @@ export default class Headers {
 	 */
 	append(name, value) {
 		name = `${name}`;
-		value = `${value}`;
+		value = Array.isArray(value) ? value.join(', ') : `${value}`;
 		validateName(name);
 		validateValue(value);
 		const key = find(this[MAP], name);

@@ -1703,11 +1703,11 @@ describe('Headers', function () {
 		const h1Raw = h1.raw();
 
 		expect(h1Raw['a']).to.include('string');
-		expect(h1Raw['b']).to.include('1,2');
+		expect(h1Raw['b']).to.include('1, 2');
 		expect(h1Raw['c']).to.include('');
 		expect(h1Raw['d']).to.include('');
 		expect(h1Raw['e']).to.include('1');
-		expect(h1Raw['f']).to.include('1,2');
+		expect(h1Raw['f']).to.include('1, 2');
 		expect(h1Raw['g']).to.include('[object Object]');
 		expect(h1Raw['h']).to.include('undefined');
 		expect(h1Raw['i']).to.include('null');
@@ -1715,8 +1715,8 @@ describe('Headers', function () {
 		expect(h1Raw['k']).to.include('true');
 		expect(h1Raw['l']).to.include('false');
 		expect(h1Raw['m']).to.include('test');
-		expect(h1Raw['n']).to.include('1,2');
-		expect(h1Raw['n']).to.include('3,4');
+		expect(h1Raw['n']).to.include('1, 2');
+		expect(h1Raw['n']).to.include('3, 4');
 
 		expect(h1Raw['z']).to.be.undefined;
 	});
