@@ -10,7 +10,10 @@
 import Body, { writeToStream, getTotalBytes } from './body';
 import Response from './response';
 import Headers, { createHeadersLenient } from './headers';
-import Request, { getAbortSignal, getNodeRequestOptions } from './request';
+import Request, {
+	removeAbortSignalCallback,
+	getNodeRequestOptions
+} from './request';
 import FetchError from './fetch-error';
 
 const http = require('http');
@@ -39,7 +42,7 @@ export default function fetch(url, opts) {
 	return new fetch.Promise((resolve, reject) => {
 		// build request object
 		const request = new Request(url, opts);
-		const signal = getAbortSignal(request);
+		const signal = request.signal;
 		if (signal.aborted) {
 			reject(new FetchError(`Fetch to ${request.url} has been aborted`, 'aborted'));
 			return;
@@ -62,13 +65,19 @@ export default function fetch(url, opts) {
 			}
 			finalize();
 		}
-		signal.addEventListener('abort', abortCallback);
+
+		function removeSignalListeners() {
+			removeAbortSignalCallback(request);
+			signal.removeEventListener('abort', abortCallback);
+		}
 
 		function finalize() {
 			req.abort();
 			clearTimeout(reqTimeout);
-			signal.removeEventListener('abort', abortCallback);
+			removeSignalListeners();
 		}
+
+		signal.addEventListener('abort', abortCallback);
 
 		if (request.timeout) {
 			req.once('socket', socket => {
@@ -91,6 +100,7 @@ export default function fetch(url, opts) {
 
 		req.once('response', res => {
 			clearTimeout(reqTimeout);
+			removeSignalListeners();
 
 			const headers = createHeadersLenient(res.headers);
 
