@@ -10,6 +10,7 @@ import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import URLSearchParams_Polyfill from 'url-search-params';
 import { URL } from 'whatwg-url';
+import { isListeningForAbortSignal } from '../src/request';
 
 const { spawn } = require('child_process');
 const http = require('http');
@@ -17,6 +18,7 @@ const fs = require('fs');
 const path = require('path');
 const stream = require('stream');
 const { parse: parseURL, URLSearchParams } = require('url');
+const { AbortController } = require('abort-controller');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) { }
@@ -951,6 +953,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with form-data using stream as body', function() {
+		this.enableTimeouts(false);
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
@@ -2186,5 +2189,105 @@ describe('external encoding', () => {
 					.and.have.property('message').which.includes('encoding')
 			});
 		});
+	});
+});
+
+describe('Abort signal', () => {
+	it('should should throw error when invalid instance of signal is provided', function() {
+		expect(() => {
+			new Request(`test`, {
+				signal: 'invalid "object"'
+			});
+		}).to.throw(TypeError)
+			.and.have.property('message', 'Provided signal must be an AbortSignal object');
+	});
+
+	it('should remove Request\'s "abort" listener from signal instance on abort', function() {
+		const abortController = new AbortController();
+		const request = new Request(`test`, {
+			signal: abortController.signal
+		});
+
+		expect(isListeningForAbortSignal(request)).to.equal(true);
+		abortController.abort();
+
+		expect(isListeningForAbortSignal(request)).to.equal(false);
+	});
+
+	it('should be shared among parent and derived Request instances', function() {
+		const level = 7;
+		const abortController = new AbortController();
+		const requests = [new Request(`test`, {
+			signal: abortController.signal
+		})];
+		for (let i = 1; i < level; i++) {
+			requests.push(new Request(requests[i - 1]));
+		}
+
+		for (let i = 0; i < level; i++) {
+			expect(isListeningForAbortSignal(requests[i])).to.equal(true);
+		}
+		abortController.abort();
+		
+		for (let i = 0; i < level; i++) {
+			expect(isListeningForAbortSignal(requests[i])).to.equal(false);
+		}
+	});
+
+	it('should be overrideable on derived Request instances', function() {
+		const parentAbortController = new AbortController();
+		const derivedAbortController = new AbortController();
+		const parentRequest = new Request(`test`, {
+			signal: parentAbortController.signal
+		});
+		const derivedRequest = new Request(parentRequest, {
+			signal: derivedAbortController.signal
+		});
+
+		expect(isListeningForAbortSignal(parentRequest)).to.equal(true);
+		expect(isListeningForAbortSignal(derivedRequest)).to.equal(true);
+		parentAbortController.abort();
+		
+		expect(isListeningForAbortSignal(parentRequest)).to.equal(false);
+		expect(isListeningForAbortSignal(derivedRequest)).to.equal(true);
+	});
+
+	it('should be removeable on derived Request instances', function() {
+		const parentAbortController = new AbortController();
+		const parentRequest = new Request(`test`, {
+			signal: parentAbortController.signal
+		});
+		const derivedRequest = new Request(parentRequest, {
+			signal: null
+		});
+
+		expect(isListeningForAbortSignal(parentRequest)).to.equal(true);
+		expect(isListeningForAbortSignal(derivedRequest)).to.equal(false);
+	});
+
+	it('should throw FetchError of type "aborted" if signal is already aborted', function() {
+		const abortController = new AbortController();
+		const url = `${base}hello`;
+		const opts = {
+			signal: abortController.signal
+		};
+		abortController.abort();
+		return expect(fetch(url, opts)).to.be.eventually.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'aborted');
+	});
+
+	it('should throw FetchError of type "aborted" on abort', function() {
+		this.timeout(500);
+		const abortController = new AbortController();
+		const url = `${base}timeout`;
+		const opts = {
+			timeout: 100,
+			signal: abortController.signal
+		};
+		setTimeout(() => { abortController.abort(); }, 50);
+		return expect(fetch(url, opts)).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'aborted');
 	});
 });
