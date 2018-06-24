@@ -28,8 +28,17 @@ function isRequest(input) {
 	);
 }
 
-function isAbortSignal(input) {
-	return input.toString() === "[object AbortSignal]";
+let isAbortSignal;
+if (typeof Symbol === "function" && typeof Symbol.toStringTag === "symbol") {
+	isAbortSignal = function(input) { return input.toString() === "[object AbortSignal]" };
+}
+else {
+	isAbortSignal = function(input) {
+		return (
+			typeof input === 'object' &&
+			input instanceof AbortSignal
+		);
+	}
 }
 
 /**
