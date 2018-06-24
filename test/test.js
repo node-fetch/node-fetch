@@ -953,7 +953,6 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with form-data using stream as body', function() {
-		this.enableTimeouts(false);
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
