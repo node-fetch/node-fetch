@@ -28,12 +28,8 @@ function isRequest(input) {
 	);
 }
 
-// TODO: use toString check after https://github.com/mysticatea/abort-controller/pull/5
 function isAbortSignal(input) {
-	return (
-		typeof input === 'object' &&
-		input instanceof AbortSignal
-	);
+	return input.toString() === "[object AbortSignal]";
 }
 
 /**
@@ -65,11 +61,11 @@ export default class Request {
 			signal = input[INTERNALS].signal;
 		}
 
-		if (init.signal != null) {
-			if (!isAbortSignal(init.signal)) {
+		if (init.signal !== undefined) {
+			if (init.signal !== null && !isAbortSignal(init.signal)) {
 				throw new TypeError('Provided signal must be an AbortSignal object');
 			}
-			signal = init.signal;
+			signal = init.signal === null ? undefined : init.signal;
 		}
 
 		let method = init.method || input.method || 'GET';
@@ -100,14 +96,16 @@ export default class Request {
 			}
 		}
 
+		let onSignalAbort = undefined;
 		const abortController = new AbortController();
 		if (signal !== undefined) {
 			if (signal.aborted) {
 				abortController.abort();
 			} else {
-				signal.addEventListener('abort', () => {
+				onSignalAbort = () => {
 					abortController.abort();
-				});
+				};
+				signal.addEventListener('abort', onSignalAbort);
 			}
 		}
 
@@ -116,16 +114,17 @@ export default class Request {
 			redirect: init.redirect || input.redirect || 'follow',
 			headers,
 			parsedURL,
-			signal: abortController.signal
+			signal: abortController.signal,
+			onSignalAbort
 		};
 
 		// node-fetch-only options
 		this.follow = init.follow !== undefined ?
 			init.follow : input.follow !== undefined ?
-			input.follow : 20;
+				input.follow : 20;
 		this.compress = init.compress !== undefined ?
 			init.compress : input.compress !== undefined ?
-			input.compress : true;
+				input.compress : true;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 	}
@@ -178,13 +177,31 @@ Object.defineProperties(Request.prototype, {
 });
 
 /**
- * Get the AbortSignal object belonging to a Request.
+ * Indicates whether Request instance is listening for abort signal.
  *
  * @param   Request      A Request instance
- * @return  AbortSignal  request's signal
+ * @return  boolean
  */
-export function getAbortSignal(request) {
-	return request[INTERNALS].signal;
+export function isListeningForAbortSignal(request) {
+	const signal = request.signal;
+	return signal !== undefined
+		&& signal.aborted !== true
+		&& request[INTERNALS].onSignalAbort !== undefined;
+}
+
+/**
+ * Removes the callback attached to a Request's signal "abort" event.
+ *
+ * @param   Request      A Request instance
+ * @return  boolean      Indicates whether callback has been removed
+ */
+export function removeAbortSignalCallback(request) {
+	if (request[INTERNALS].onSignalAbort !== undefined) {
+		const callback = request[INTERNALS].onSignalAbort;
+		request[INTERNALS].onSignalAbort = undefined;
+		return request.signal.removeEventListener('abort', callback);
+	}
+	return false;
 }
 
 /**
