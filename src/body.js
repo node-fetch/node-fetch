@@ -211,6 +211,11 @@ function consumeBody() {
 		return Body.Promise.resolve(Buffer.from(this.body));
 	}
 
+	// body is ArrayBufferView
+	if (ArrayBuffer.isView(this.body)) {
+		return Body.Promise.resolve(Buffer.from(this.body));
+	}
+
 	// istanbul ignore if: should never happen
 	if (!(this.body instanceof Stream)) {
 		return Body.Promise.resolve(Buffer.alloc(0));
