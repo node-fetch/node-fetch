@@ -1930,6 +1930,18 @@ describe('Response', function () {
 		const res = new Response(null);
 		expect(res.status).to.equal(200);
 	});
+
+	// issue #482
+	it('should support TypedArray as body', function() {
+		const res = new Response(Uint8Array.from([1, 2, 3]));
+		return res.arrayBuffer().then(arrayBuffer => {
+			const dataView = new DataView(arrayBuffer);
+			expect(dataView.byteLength).to.equal(3);
+			expect(dataView.getUint8(0)).to.equal(1);
+			expect(dataView.getUint8(1)).to.equal(2);
+			expect(dataView.getUint8(2)).to.equal(3);
+		});
+	});
 });
 
 describe('Request', function () {
