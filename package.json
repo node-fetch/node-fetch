@@ -2,11 +2,12 @@
   "name": "node-fetch",
   "version": "2.1.2",
   "description": "A light-weight module that brings window.fetch to node.js",
-  "main": "lib/index.js",
+  "main": "lib/index",
   "browser": "./browser.js",
-  "module": "lib/index.es.js",
+  "module": "lib/index.mjs",
   "files": [
     "lib/index.js",
+    "lib/index.mjs",
     "lib/index.es.js",
     "browser.js"
   ],
@@ -47,6 +48,7 @@
     "codecov": "^3.0.0",
     "cross-env": "^5.1.3",
     "form-data": "^2.3.1",
+    "is-builtin-module": "^1.0.0",
     "mocha": "^5.0.0",
     "nyc": "11.9.0",
     "parted": "^0.1.1",

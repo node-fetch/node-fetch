@@ -7,10 +7,9 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
+import { format as format_url, parse as parse_url } from 'url';
 import Headers, { exportNodeCompatibleHeaders } from './headers.js';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
-
-const { format: format_url, parse: parse_url } = require('url');
 
 const INTERNALS = Symbol('Request internals');
 

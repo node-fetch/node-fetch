@@ -5,10 +5,9 @@
  * Response class provides content decoding
  */
 
+import { STATUS_CODES } from 'http';
 import Headers from './headers.js';
 import Body, { clone } from './body';
-
-const { STATUS_CODES } = require('http');
 
 const INTERNALS = Symbol('Response internals');
 
