@@ -215,9 +215,6 @@ export default function fetch(url, opts) {
  */
 fetch.isRedirect = code => code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
 
-// Needed for TypeScript.
-fetch.default = fetch;
-
 // expose Promise
 fetch.Promise = global.Promise;
 export {
