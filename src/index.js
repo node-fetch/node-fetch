@@ -167,7 +167,7 @@ export default function fetch(url, opts) {
 						}
 
 						// HTTP-redirect fetch step 15
-						resolve(fetch(new Request(locationURL, requestOpts)));
+						resolve(fetch(locationURL, requestOpts));
 						finalize();
 						return;
 				}
