@@ -16,7 +16,7 @@
   "scripts": {
     "build": "cross-env BABEL_ENV=rollup rollup -c",
     "prepare": "npm run build",
-    "test": "cross-env BABEL_ENV=test mocha --compilers js:babel-register test/test.js",
+    "test": "cross-env BABEL_ENV=test mocha --require babel-register test/test.js",
     "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
     "coverage": "cross-env BABEL_ENV=coverage nyc --reporter json --reporter text mocha -R spec test/test.js && codecov -f coverage/coverage-final.json"
   },
