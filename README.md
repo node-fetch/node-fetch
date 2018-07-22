@@ -6,6 +6,7 @@ node-fetch
 [![npm next version][npm-next-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![coverage status][codecov-image]][codecov-url]
+[![install size][install-size-image]][install-size-url]
 
 A light-weight module that brings `window.fetch` to Node.js
 
@@ -410,6 +411,8 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
 [codecov-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
+[install-size-image]: https://packagephobia.now.sh/badge?p=node-fetch
+[install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
 
 [ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
 [LIMITS.md]: https://github.com/bitinn/node-fetch/blob/master/LIMITS.md
