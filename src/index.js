@@ -12,6 +12,7 @@ import Response from './response';
 import Headers, { createHeadersLenient } from './headers';
 import Request, {
 	removeAbortSignalCallback,
+	getAbortSignal,
 	getNodeRequestOptions
 } from './request';
 import FetchError from './fetch-error';
@@ -42,7 +43,8 @@ export default function fetch(url, opts) {
 	return new fetch.Promise((resolve, reject) => {
 		// build request object
 		const request = new Request(url, opts);
-		const signal = request.signal;
+		const signal = getAbortSignal(request);
+
 		if (signal.aborted) {
 			reject(new FetchError(`Fetch to ${request.url} has been aborted`, 'aborted'));
 			return;
@@ -146,7 +148,8 @@ export default function fetch(url, opts) {
 							agent: request.agent,
 							compress: request.compress,
 							method: request.method,
-							body: request.body
+							body: request.body,
+							signal
 						};
 
 						// HTTP-redirect fetch step 9

@@ -192,7 +192,7 @@ Object.defineProperties(Request.prototype, {
  * @return  boolean
  */
 export function isListeningForAbortSignal(request) {
-	const signal = request.signal;
+	const signal = request[INTERNALS].signal;
 	return signal !== undefined
 		&& signal.aborted !== true
 		&& request[INTERNALS].onSignalAbort !== undefined;
@@ -211,6 +211,16 @@ export function removeAbortSignalCallback(request) {
 		return request.signal.removeEventListener('abort', callback);
 	}
 	return false;
+}
+
+/**
+ * Get the AbortSignal object belonging to a Request.
+ *
+ * @param   Request      A Request instance
+ * @return  AbortSignal  request's signal
+ */
+export function getAbortSignal(request) {
+	return request[INTERNALS].signal;
 }
 
 /**
