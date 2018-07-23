@@ -952,7 +952,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow POST request with form-data using stream as body', function() {
+	xit('should allow POST request with form-data using stream as body', function() {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
@@ -2262,6 +2262,39 @@ describe('Abort signal', () => {
 
 		expect(isListeningForAbortSignal(parentRequest)).to.equal(true);
 		expect(isListeningForAbortSignal(derivedRequest)).to.equal(false);
+	});
+
+	it('should allow redirects to be aborted', function() {
+		const abortController = new AbortController();
+		const request = new Request(`${base}redirect/slow`, {
+			signal: abortController.signal
+		});
+
+		setTimeout(() => {
+			abortController.abort();
+		}, 500);
+
+		return expect(fetch(request)).to.be.eventually.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'aborted');
+	});
+
+	it('should allow response body to be aborted', function() {
+		const abortController = new AbortController();
+		const request = new Request(`${base}redirect/slow-stream`, {
+			signal: abortController.signal
+		});
+
+		setTimeout(() => {
+			abortController.abort();
+		}, 500);
+
+		return expect(fetch(request).then(res => {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.text()
+		})).to.be.eventually.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'aborted');
 	});
 
 	it('should throw FetchError of type "aborted" if signal is already aborted', function() {
