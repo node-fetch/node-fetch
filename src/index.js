@@ -59,27 +59,40 @@ export default function fetch(url, opts) {
 		let reqTimeout;
 		let body;
 
-		function abortCallback() {
-			const error = new FetchError(`Fetch to ${request.url} has been aborted`, 'aborted');
-			reject(error);
+		function removeSignalListeners() {
+			removeAbortSignalCallback(request);
+			signal.removeEventListener('abort', abortHandler);
+		}
+
+		function bodyErrorHandler(err) {
 			if (body !== undefined) {
-				body.emit('error', error);
+				body.emit('error', err);
 			}
+		}
+
+		function abortHandler() {
+			const err = new FetchError(`Fetch to ${request.url} has been aborted`, 'aborted');
+			reject(err);
+			bodyErrorHandler(err);
 			finalize();
 		}
 
-		function removeSignalListeners() {
-			removeAbortSignalCallback(request);
-			signal.removeEventListener('abort', abortCallback);
+		function errorHandler(err) {
+			// do not emit "socket dropped" error if signal is aborted, because an error has already been emitted
+			// (this error will be emitted if req.abort() is called before the connection succeeds)
+			if (err.code !== 'ECONNRESET' || !signal.aborted) {
+				reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
+				bodyErrorHandler(err);
+				finalize();
+			}
 		}
 
 		function finalize() {
 			req.abort();
 			clearTimeout(reqTimeout);
-			removeSignalListeners();
 		}
 
-		signal.addEventListener('abort', abortCallback);
+		signal.addEventListener('abort', abortHandler);
 
 		if (request.timeout) {
 			req.once('socket', socket => {
@@ -90,19 +103,11 @@ export default function fetch(url, opts) {
 			});
 		}
 
-		function errorHandler(err) {
-			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
-			if (body !== undefined) {
-				body.emit('error', err);
-			}
-			finalize();
-		}
-
 		req.on('error', errorHandler);
+		req.on('close', removeSignalListeners);
 
 		req.once('response', res => {
 			clearTimeout(reqTimeout);
-			removeSignalListeners();
 
 			const headers = createHeadersLenient(res.headers);
 
