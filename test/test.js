@@ -952,7 +952,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	xit('should allow POST request with form-data using stream as body', function() {
+	it('should allow POST request with form-data using stream as body', function() {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
