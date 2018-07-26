@@ -145,7 +145,7 @@ export default function fetch(url, opts) {
 				statusText: res.statusMessage,
 				headers: headers,
 				size: request.size,
-				timeout: request.timeout
+				timeout: opts && opts.bodyTimeout || request.timeout
 			};
 
 			// HTTP-network fetch step 12.1.1.3
