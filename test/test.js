@@ -17,6 +17,13 @@ const fs = require('fs');
 const path = require('path');
 const stream = require('stream');
 const { parse: parseURL, URLSearchParams } = require('url');
+const { lookup } = require('dns');
+const vm = require('vm');
+
+const {
+	ArrayBuffer: VMArrayBuffer,
+	Uint8Array: VMUint8Array
+} = vm.runInNewContext('this');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) { }
@@ -875,6 +882,94 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow POST request with ArrayBuffer body from a VM context', function() {
+		// TODO: Node.js v4 doesn't support ArrayBuffer from other contexts, so we skip this test, drop this check once Node.js v4 support is not needed
+		try {
+			Buffer.from(new VMArrayBuffer());
+		} catch (err) {
+			this.skip();
+		}
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new VMUint8Array(Buffer.from('Hello, world!\n')).buffer
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
+	it('should allow POST request with ArrayBufferView (Uint8Array) body', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'))
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
+	it('should allow POST request with ArrayBufferView (DataView) body', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new DataView(stringToArrayBuffer('Hello, world!\n'))
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
+	it('should allow POST request with ArrayBufferView (Uint8Array) body from a VM context', function() {
+		// TODO: Node.js v4 doesn't support ArrayBufferView from other contexts, so we skip this test, drop this check once Node.js v4 support is not needed
+		try {
+			Buffer.from(new VMArrayBuffer());
+		} catch (err) {
+			this.skip();
+		}
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new VMUint8Array(Buffer.from('Hello, world!\n'))
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('Hello, world!\n');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('14');
+		});
+	});
+
+	// TODO: Node.js v4 doesn't support necessary Buffer API, so we skip this test, drop this check once Node.js v4 support is not needed
+	(Buffer.from.length === 3 ? it : it.skip)('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'), 7, 6)
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('world!');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.equal('6');
+		});
+	});
+
 	it('should allow POST request with blob body without type', function() {
 		const url = `${base}inspect`;
 		const opts = {
@@ -1485,6 +1580,35 @@ describe('node-fetch', () => {
 			.and.have.property('message').that.includes('Could not create Buffer')
 			.and.that.includes('embedded error');
 	});
+
+	it("supports supplying a lookup function to the agent", function() {
+		const url = `${base}redirect/301`;
+		let called = 0;
+		function lookupSpy(hostname, options, callback) {
+			called++;
+			return lookup(hostname, options, callback);
+		}
+		const agent = http.Agent({ lookup: lookupSpy });
+		return fetch(url, { agent }).then(() => {
+			expect(called).to.equal(2);
+		});
+	});
+
+	it("supports supplying a famliy option to the agent", function() {
+		const url = `${base}redirect/301`;
+		const families = [];
+		const family = Symbol('family');
+		function lookupSpy(hostname, options, callback) {
+			families.push(options.family)
+			return lookup(hostname, {}, callback);
+		}
+		const agent = http.Agent({ lookup: lookupSpy, family });
+		return fetch(url, { agent }).then(() => {
+			expect(families).to.have.length(2);
+			expect(families[0]).to.equal(family);
+			expect(families[1]).to.equal(family);
+		});
+	});
 });
 
 describe('Headers', function () {
@@ -1843,6 +1967,20 @@ describe('Response', function () {
 		});
 	});
 
+	it('should support Uint8Array as body', function() {
+		const res = new Response(new Uint8Array(stringToArrayBuffer('a=1')));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support DataView as body', function() {
+		const res = new Response(new DataView(stringToArrayBuffer('a=1')));
+		return res.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
 	it('should default to null as body', function() {
 		const res = new Response();
 		expect(res.body).to.equal(null);
@@ -2043,6 +2181,26 @@ describe('Request', function () {
 		const req = new Request('', {
 			method: 'POST',
 			body: stringToArrayBuffer('a=1')
+		});
+		return req.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support Uint8Array as body', function() {
+		const req = new Request('', {
+			method: 'POST',
+			body: new Uint8Array(stringToArrayBuffer('a=1'))
+		});
+		return req.text().then(result => {
+			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support DataView as body', function() {
+		const req = new Request('', {
+			method: 'POST',
+			body: new DataView(stringToArrayBuffer('a=1'))
 		});
 		return req.text().then(result => {
 			expect(result).to.equal('a=1');

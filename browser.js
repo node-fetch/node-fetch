@@ -1,8 +1,10 @@
-module.exports = exports = window.fetch;
+"use strict";
+
+module.exports = exports = self.fetch;
 
 // Needed for TypeScript and Webpack.
-exports.default = window.fetch.bind(window);
+exports.default = self.fetch.bind(self);
 
-exports.Headers = window.Headers;
-exports.Request = window.Request;
-exports.Response = window.Response;
+exports.Headers = self.Headers;
+exports.Request = self.Request;
+exports.Response = self.Response;

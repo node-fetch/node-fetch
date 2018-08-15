@@ -5,11 +5,9 @@
  * Body interface provides common methods for Request and Response
  */
 
+import Stream, { PassThrough } from 'stream';
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
-
-const Stream = require('stream');
-const { PassThrough } = require('stream');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) {}
@@ -39,9 +37,11 @@ export default function Body(body, {
 	} else if (body instanceof Blob) {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
-		// body is buffer
+		// body is Buffer
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+		// body is ArrayBuffer
+	} else if (ArrayBuffer.isView(body)) {
+		// body is ArrayBufferView
 	} else if (body instanceof Stream) {
 		// body is stream
 	} else {
@@ -204,9 +204,14 @@ function consumeBody() {
 		return Body.Promise.resolve(this.body);
 	}
 
-	// body is buffer
+	// body is ArrayBuffer
 	if (Object.prototype.toString.call(this.body) === '[object ArrayBuffer]') {
 		return Body.Promise.resolve(Buffer.from(this.body));
+	}
+
+	// body is ArrayBufferView
+	if (ArrayBuffer.isView(this.body)) {
+		return Body.Promise.resolve(Buffer.from(this.body.buffer, this.body.byteOffset, this.body.byteLength));
 	}
 
 	// istanbul ignore if: should never happen
@@ -417,7 +422,10 @@ export function extractContentType(instance) {
 		// body is buffer
 		return null;
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+		// body is ArrayBuffer
+		return null;
+	} else if (ArrayBuffer.isView(body)) {
+		// body is ArrayBufferView
 		return null;
 	} else if (typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
@@ -458,7 +466,10 @@ export function getTotalBytes(instance) {
 		// body is buffer
 		return body.length;
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+		// body is ArrayBuffer
+		return body.byteLength;
+	} else if (ArrayBuffer.isView(body)) {
+		// body is ArrayBufferView
 		return body.byteLength;
 	} else if (body && typeof body.getLengthSync === 'function') {
 		// detect form data input from form-data module
@@ -503,8 +514,12 @@ export function writeToStream(dest, instance) {
 		dest.write(body);
 		dest.end()
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is array buffer
+		// body is ArrayBuffer
 		dest.write(Buffer.from(body));
+		dest.end()
+	} else if (ArrayBuffer.isView(body)) {
+		// body is ArrayBufferView
+		dest.write(Buffer.from(body.buffer, body.byteOffset, body.byteLength));
 		dest.end()
 	} else {
 		// body is stream

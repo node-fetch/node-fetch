@@ -30,6 +30,19 @@ module.exports = ({ types: t }) => ({
                     )
                   ),
                   t.expressionStatement(
+                    t.callExpression(
+                      t.memberExpression(
+                        t.identifier('Object'), t.identifier('defineProperty')),
+                      [
+                        t.identifier('exports'),
+                        t.stringLiteral('__esModule'),
+                        t.objectExpression([
+                          t.objectProperty(t.identifier('value'), t.booleanLiteral(true))
+                        ])
+                      ]
+                    )
+                  ),
+                  t.expressionStatement(
                     t.assignmentExpression('=',
                       expr.node.left, t.identifier('exports')
                     )

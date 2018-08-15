@@ -76,8 +76,8 @@ $ npm install node-fetch --save
 We suggest you load the module via `require`, pending the stabalizing of es modules in node:
 ```js
 const fetch = require('node-fetch');
-
 ```
+
 If you are using a Promise library other than native, set it through fetch.Promise:
 ```js
 const Bluebird = require('bluebird');
@@ -99,6 +99,7 @@ fetch('https://github.com/')
 #### JSON
 
 ```js
+
 fetch('https://api.github.com/users/github')
     .then(res => res.json())
     .then(json => console.log(json));
@@ -110,7 +111,6 @@ fetch('https://httpbin.org/post', { method: 'POST', body: 'a=1' })
     .then(res => res.json()) // expecting a json response
     .then(json => console.log(json));
 ```
-
 
 #### Post with JSON
 
@@ -130,6 +130,7 @@ fetch('https://httpbin.org/post', {
 `URLSearchParams` is available in Node.js as of v7.5.0. See [official documentation](https://nodejs.org/api/url.html#url_class_urlsearchparams) for more usage methods.
 
 NOTE: The `Content-Type` header is only set automatically to `x-www-form-urlencoded` when an instance of `URLSearchParams` is given as such:
+
 ```js
 const { URLSearchParams } = require('url');
 
@@ -163,7 +164,6 @@ function checkStatus(res) {
     }
 }
 
-
 fetch('https://httpbin.org/status/400')
     .then(checkStatus)
     .then(res => console.log('will not get here...'))
@@ -173,6 +173,7 @@ fetch('https://httpbin.org/status/400')
 
 #### Streams
 The "Node.js way" is to use streams when possible:
+
 ```js
 fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
     .then(res => {
@@ -181,6 +182,7 @@ fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
     });
 ```
 
+<<<<<<< HEAD
 
 [TODO]: # (Somewhere i think we also should mention arrayBuffer also if you want to be cross-fetch compatible.)
 
@@ -196,6 +198,7 @@ fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
     .then(type => { /* ... */ });
 ```
 
+<<<<<<< HEAD
 
 #### Accessing Headers and other Meta data
 ```js
@@ -210,6 +213,7 @@ fetch('https://github.com/')
 ```
 
 #### Post data using a file stream
+
 ```js
 const { createReadStream } = require('fs');
 
@@ -220,6 +224,7 @@ fetch('https://httpbin.org/post', { method: 'POST', body: stream })
     .then(json => console.log(json));
 ```
 
+<<<<<<< HEAD
 
 #### Post with form-data (detect multipart)
 

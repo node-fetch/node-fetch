@@ -5,6 +5,15 @@ Changelog
 
 # 2.x release
 
+## v2.2.0
+
+- Enhance: Support all `ArrayBuffer` view types
+- Enhance: Support Web Workers
+- Enhance: Support Node.js' `--experimental-modules` mode; deprecate `.es.js` file
+- Fix: Add `__esModule` property to the exports object
+- Other: Better example in README for writing response to a file
+- Other: More tests for Agent
+
 ## v2.1.2
 
 - Fix: allow `Body` methods to work on `ArrayBuffer`-backed `Body` objects
