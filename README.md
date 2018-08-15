@@ -32,7 +32,7 @@ A light-weight module that brings `window.fetch` to Node.js
 - [API](#api)
     - [fetch(url[, options])](#fetchurl-options)
     - [Options](#options)
-    - [Class: Request](#class-request)Additional changes made as per discussion in #448
+    - [Class: Request](#class-request)
     - [Class: Response](#class-response)
     - [Class: Headers](#class-headers)
     - [Interface: Body](#interface-body)
@@ -47,7 +47,6 @@ A light-weight module that brings `window.fetch` to Node.js
 Instead of implementing `XMLHttpRequest` in Node.js to run browser-specific [Fetch polyfill](https://github.com/github/fetch), why not go from native `http` to `fetch` API directly? Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js runtime.
 
 See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) or Leonardo Quixada's [cross-fetch](https://github.com/lquixada/cross-fetch) for isomorphic usage (exports `node-fetch` for server-side, `whatwg-fetch` for client-side).
-
 
 ## Features
 
@@ -254,7 +253,7 @@ See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) 
 
 ## API
 
-#### fetch(url[, options])
+### fetch(url[, options])
 
 - `url` A string representing the URL for fetching
 - `options` [Options](#fetch-options) for the HTTP(S) request
@@ -267,7 +266,7 @@ Perform an HTTP(S) fetch.
 [TODO]: # (It might be a good idea to reformat the options section into a table layout, like the headers section, instead of current code block.)
 
 <a id="fetch-options"></a>
-#### Options
+### Options
 
 The default values are shown after each option key.
 
@@ -303,7 +302,7 @@ Header            | Value
 `User-Agent`      | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
 
 <a id="class-request"></a>
-#### Class: Request
+### Class: Request
 
 An HTTP(S) request containing information about URL, method, headers, and the body. This class implements the [Body](#iface-body) interface.
 
@@ -340,7 +339,7 @@ Constructs a new `Request` object. The constructor is identical to that in the [
 In most cases, directly `fetch(url, options)` is simpler than creating a `Request` object.
 
 <a id="class-response"></a>
-#### Class: Response
+### Class: Response
 
 An HTTP(S) response. This class implements the [Body](#iface-body) interface.
 
@@ -370,7 +369,7 @@ Because Node.js does not implement service workers (for which this class was des
 Convenience property representing if the request ended normally. Will evaluate to true if the response status was greater than or equal to 200 but smaller than 300.
 
 <a id="class-headers"></a>
-#### Class: Headers
+### Class: Headers
 
 This class allows manipulating and iterating over a set of HTTP headers. All methods specified in the [Fetch Standard][whatwg-fetch] are implemented.
 
@@ -407,7 +406,7 @@ const copyOfHeaders = new Headers(headers);
 ```
 
 <a id="iface-body"></a>
-#### Interface: Body
+### Interface: Body
 
 `Body` is an abstract interface with methods that are applicable to both `Request` and `Response` classes.
 
@@ -461,7 +460,7 @@ Consume the body and return a promise that will resolve to a Buffer.
 Identical to `body.text()`, except instead of always converting to UTF-8, encoding sniffing will be performed and text converted to UTF-8, if possible.
 
 <a id="class-fetcherror"></a>
-#### Class: FetchError
+### Class: FetchError
 
 <small>*(node-fetch extension)*</small>
 
