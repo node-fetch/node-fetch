@@ -96,7 +96,8 @@ export default class Request {
 			init.compress : input.compress !== undefined ?
 			input.compress : true;
 		this.counter = init.counter || input.counter || 0;
-		this.agent = init.agent || input.agent;
+    this.agent = init.agent || input.agent;
+    this.family = init.family || input.family;
 	}
 
 	get method() {
@@ -200,6 +201,7 @@ export function getNodeRequestOptions(request) {
 	return Object.assign({}, parsedURL, {
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
-		agent: request.agent
+    agent: request.agent,
+    family: request.family
 	});
 }
