@@ -1,10 +1,10 @@
 "use strict";
 
-module.exports = exports = self.fetch;
+module.exports = exports = this.fetch;
 
 // Needed for TypeScript and Webpack.
-exports.default = self.fetch.bind(self);
+exports.default = this.fetch.bind(this);
 
-exports.Headers = self.Headers;
-exports.Request = self.Request;
-exports.Response = self.Response;
+exports.Headers = this.Headers;
+exports.Request = this.Request;
+exports.Response = this.Response;
