@@ -387,6 +387,12 @@ Consume the body and return a promise that will resolve to a Buffer.
 
 Identical to `body.text()`, except instead of always converting to UTF-8, encoding sniffing will be performed and text converted to UTF-8, if possible.
 
+*The API requires an optional dependency on [encoding][encoding-url], which users need to install separately (See issue [#412][issue-412-url]). This is done purely for backward compatibility with 1.x release. For [Webpack][webpack-url] users, please install either [encoding][encoding-url] or the [IgnorePlugin][ignoreplugin-url]:*
+
+```js
+new webpack.IgnorePlugin(/^encoding$/, /node-fetch/)
+```
+
 <a id="class-fetcherror"></a>
 ### Class: FetchError
 
@@ -421,3 +427,7 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
+[encoding-url]: https://www.npmjs.com/package/encoding
+[issue-412-url]: https://github.com/bitinn/node-fetch/issues/412
+[webpack-url]: https://webpack.js.org
+[ignoreplugin-url]: https://webpack.js.org/plugins/ignore-plugin/
