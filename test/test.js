@@ -756,6 +756,20 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow separate custom timeout on response body different from request timeout', function() {
+		this.timeout(500);
+		const url = `${base}slow`;
+		const opts = {
+			bodyTimeout: 200,
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.ok).to.be.true;
+			return expect(res.text()).to.eventually.be.rejected
+				.and.be.an.instanceOf(FetchError)
+				.and.have.property('type', 'body-timeout');
+		});
+	});
+
 	it('should clear internal timeout on fetch response', function (done) {
 		this.timeout(2000);
 		spawn('node', ['-e', `require('./')('${base}hello', { timeout: 10000 })`])
