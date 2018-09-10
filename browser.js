@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = exports = self.fetch;
+module.exports = exports = self.fetch.bind(self);
 
 // Needed for TypeScript and Webpack.
 exports.default = self.fetch.bind(self);
