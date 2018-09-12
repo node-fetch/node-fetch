@@ -177,10 +177,16 @@ export default class TestServer {
 			res.end(convert('<meta charset="gbk"><div>中文</div>', 'gbk'));
 		}
 
-		if (p === '/encoding/gb2312') {
+		if (p === '/encoding/gb2312/1') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/html');
-			res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>', 'gb2312'));
+			res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>腾讯首页</div>', 'gb2312'));
+		}
+
+		if (p === '/encoding/gb2312/2') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/html');
+			res.end(convert('<meta content="text/html; charset=gb2312 http-equiv="Content-Type""><div>腾讯首页</div>', 'gb2312'));
 		}
 
 		if (p === '/encoding/shift-jis') {

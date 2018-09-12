@@ -305,11 +305,7 @@ function convertBody(buffer, headers) {
 
 	// html4
 	if (!res && str) {
-		res = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(str);
-
-		if (res) {
-			res = /charset=(.*)/i.exec(res.pop());
-		}
+		res = /<meta.+?content=["'].+;\s?charset=(.+?)["'\s]/i.exec(str);
 	}
 
 	// xml

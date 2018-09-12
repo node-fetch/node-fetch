@@ -2269,11 +2269,21 @@ describe('external encoding', () => {
 		});
 
 		it('should support encoding decode, html4 detect', function() {
-			const url = `${base}encoding/gb2312`;
+      		let url
+			
+			url = `${base}encoding/gb2312/1`;
 			return fetch(url).then(res => {
 				expect(res.status).to.equal(200);
 				return res.textConverted().then(result => {
-					expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
+					expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>腾讯首页</div>');
+				});
+      		});
+
+      		url = `${base}encoding/gb2312/2`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('<meta content="text/html; charset=gb2312" http-equiv="Content-Type"><div>腾讯首页</div>');
 				});
 			});
 		});
