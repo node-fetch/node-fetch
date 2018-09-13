@@ -281,9 +281,6 @@ describe('node-fetch', () => {
 	it('should set redirected response property as true', function() {
 		const url = `${base}redirect/301`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(`${base}inspect`);
-			expect(res.status).to.equal(200);
-			expect(res.ok).to.be.true;
 			expect(res.redirected).to.be.true;
 		});
 	});
@@ -291,10 +288,6 @@ describe('node-fetch', () => {
 	it('should set redirected response property as false', function() {
 		const url = `${base}hello`;
 		return fetch(url).then(res => {
-			expect(res.url).to.equal(url);
-			expect(res.ok).to.be.true;
-			expect(res.status).to.equal(200);
-			expect(res.statusText).to.equal('OK');
 			expect(res.redirected).to.be.false;
 		});
 	});
