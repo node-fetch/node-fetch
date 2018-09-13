@@ -28,7 +28,8 @@ export default class Response {
 			url: opts.url,
 			status,
 			statusText: opts.statusText || STATUS_CODES[status],
-			headers: new Headers(opts.headers)
+			headers: new Headers(opts.headers),
+			redirected: opts.redirected
 		};
 	}
 
@@ -55,6 +56,10 @@ export default class Response {
 		return this[INTERNALS].headers;
 	}
 
+	get redirected() {
+		return this[INTERNALS].redirected;
+	}
+
 	/**
 	 * Clone this response
 	 *
@@ -66,7 +71,8 @@ export default class Response {
 			status: this.status,
 			statusText: this.statusText,
 			headers: this.headers,
-			ok: this.ok
+			ok: this.ok,
+			redirected: this.redirected
 		});
 
 	}

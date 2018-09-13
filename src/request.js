@@ -115,6 +115,13 @@ export default class Request {
 		return this[INTERNALS].redirect;
 	}
 
+	get redirected() {
+		if (this.counter > 0)
+			return true;
+		else
+			return false;
+	}
+
 	/**
 	 * Clone this request
 	 *
