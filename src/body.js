@@ -26,7 +26,7 @@ const INTERNALS = Symbol('Body internals');
 export default function Body(body, {
 	size = 0,
 	timeout = 0
-} = {}, headers) {
+}, headers) {
 	if (body == null) {
 		// body is undefined or null
 		body = null;
