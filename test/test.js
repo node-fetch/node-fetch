@@ -1139,6 +1139,30 @@ describe('node-fetch', () => {
 		expect(req.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
 	});
 
+	itUSP('Reading a body with URLSearchParams should echo back the result', function() {
+		const params = new URLSearchParams();
+		params.append('a','1');
+
+		return new Response(params).text().then(text => {
+			expect(text).to.equal('a=1');
+		});
+	});
+
+	itUSP('mutating URLSearchParams should not have an effect after Request/Response are constructed', function() {
+		const params = new URLSearchParams();
+		const req = new Request(`${base}inspect`, { method: 'POST', body: params })
+
+		params.append('a','1')
+
+		// Couldn't simply use the `new Res(args).text()` or `new Req(args).text()`
+		// since it would fail.
+		return fetch(req).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.body).to.equal('');
+		});
+	});
+
 	itUSP('should still recognize URLSearchParams when extended', function() {
 		class CustomSearchParams extends URLSearchParams {}
 		const params = new CustomSearchParams();
