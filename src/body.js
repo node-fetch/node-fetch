@@ -27,18 +27,22 @@ export default function Body(body, opts, headers) {
 	const { size = 0, timeout = 0 } = opts;
 
 	const haveType = headers.has('Content-Type');
-	let contentType = extractContentType(body);
+	let contentType = null;
 
 	if (body == null) {
 		// body is undefined or null
 		body = null;
-	} else if (typeof body === 'string') {
-		// body is string
 	} else if (isURLSearchParams(body)) {
 		// body is a URLSearchParams
 		body = Buffer.from(String(body));
+		contentType = 'application/x-www-form-urlencoded;charset=UTF-8';
 	} else if (body instanceof Blob) {
 		// body is blob
+		body = body[BUFFER];
+		contentType = body.type || null;
+	} else if (body && typeof body.getBoundary === 'function') {
+		// detect form data input from form-data module
+		contentType = `multipart/form-data;boundary=${body.getBoundary()}`;
 	} else if (Buffer.isBuffer(body)) {
 		// body is Buffer
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
@@ -50,8 +54,8 @@ export default function Body(body, opts, headers) {
 	} else {
 		// none of the above
 		// coerce to string
-		body = String(body);
-		contentType = extractContentType(body)
+		body = Buffer.from(String(body));
+		contentType = 'text/plain;charset=UTF-8';
 	}
 
 	if (!haveType && contentType) {
@@ -196,16 +200,6 @@ function consumeBody() {
 	// body is null
 	if (this.body === null) {
 		return Body.Promise.resolve(Buffer.alloc(0));
-	}
-
-	// body is string
-	if (typeof this.body === 'string') {
-		return Body.Promise.resolve(Buffer.from(this.body));
-	}
-
-	// body is blob
-	if (this.body instanceof Blob) {
-		return Body.Promise.resolve(this.body[BUFFER]);
 	}
 
 	// body is buffer
@@ -399,49 +393,6 @@ export function clone(instance) {
 	}
 
 	return body;
-}
-
-/**
- * Performs the operation "extract a `Content-Type` value from |object|" as
- * specified in the specification:
- * https://fetch.spec.whatwg.org/#concept-bodyinit-extract
- *
- * This function assumes that instance.body is present.
- *
- * @param   Mixed  instance  Response or Request instance
- */
-function extractContentType(body) {
-	// istanbul ignore if: Currently, because of a guard in Request, body
-	// can never be null. Included here for completeness.
-	if (body === null) {
-		// body is null
-		return null;
-	} else if (typeof body === 'string') {
-		// body is string
-		return 'text/plain;charset=UTF-8';
-	} else if (isURLSearchParams(body)) {
-	 	// body is a URLSearchParams
-		return 'application/x-www-form-urlencoded;charset=UTF-8';
-	} else if (body instanceof Blob) {
-		// body is blob
-		return body.type || null;
-	} else if (Buffer.isBuffer(body)) {
-		// body is buffer
-		return null;
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is ArrayBuffer
-		return null;
-	} else if (ArrayBuffer.isView(body)) {
-		// body is ArrayBufferView
-		return null;
-	} else if (typeof body.getBoundary === 'function') {
-		// detect form data input from form-data module
-		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	} else {
-		// body is stream
-		// can't really do much about this
-		return null;
-	}
 }
 
 /**

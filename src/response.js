@@ -20,7 +20,7 @@ const INTERNALS = Symbol('Response internals');
  */
 export default class Response {
 	constructor(body = null, opts = {}) {
-		const headers = new Headers(opts.headers)
+		const headers = new Headers(opts.headers);
 
 		Body.call(this, body, opts, headers);
 
