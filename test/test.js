@@ -1538,7 +1538,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should support arrayBuffer(), blob(), text(), json() and buffer() method in Body constructor', function() {
-		const body = new Body('a=1');
+		const body = new Body('a=1', {}, new Headers());
 		expect(body).to.have.property('arrayBuffer');
 		expect(body).to.have.property('blob');
 		expect(body).to.have.property('text');
