@@ -23,10 +23,9 @@ const INTERNALS = Symbol('Body internals');
  * @param   Object  opts  Response options
  * @return  Void
  */
-export default function Body(body, {
-	size = 0,
-	timeout = 0
-}, headers) {
+export default function Body(body, opts, headers) {
+	const { size = 0, timeout = 0 } = opts;
+
 	if (body == null) {
 		// body is undefined or null
 		body = null;
