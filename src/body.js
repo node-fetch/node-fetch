@@ -26,6 +26,9 @@ const INTERNALS = Symbol('Body internals');
 export default function Body(body, opts, headers) {
 	const { size = 0, timeout = 0 } = opts;
 
+	const haveType = headers.has('Content-Type');
+	let contentType = extractContentType(body);
+
 	if (body == null) {
 		// body is undefined or null
 		body = null;
@@ -33,6 +36,7 @@ export default function Body(body, opts, headers) {
 		// body is string
 	} else if (isURLSearchParams(body)) {
 		// body is a URLSearchParams
+		body = Buffer.from(String(body));
 	} else if (body instanceof Blob) {
 		// body is blob
 	} else if (Buffer.isBuffer(body)) {
@@ -47,7 +51,13 @@ export default function Body(body, opts, headers) {
 		// none of the above
 		// coerce to string
 		body = String(body);
+		contentType = extractContentType(body)
 	}
+
+	if (!haveType && contentType) {
+		headers.set('Content-Type', contentType);
+	}
+
 	this[INTERNALS] = {
 		body,
 		disturbed: false,
@@ -60,13 +70,6 @@ export default function Body(body, opts, headers) {
 		body.on('error', err => {
 			this[INTERNALS].error = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 		});
-	}
-
-	if (body != null && !headers.has('Content-Type')) {
-		const contentType = extractContentType(this);
-		if (contentType) {
-			headers.append('Content-Type', contentType);
-		}
 	}
 }
 
@@ -407,9 +410,7 @@ export function clone(instance) {
  *
  * @param   Mixed  instance  Response or Request instance
  */
-export function extractContentType(instance) {
-	const {body} = instance;
-
+export function extractContentType(body) {
 	// istanbul ignore if: Currently, because of a guard in Request, body
 	// can never be null. Included here for completeness.
 	if (body === null) {
