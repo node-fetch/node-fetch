@@ -1126,6 +1126,19 @@ describe('node-fetch', () => {
 		});
 	});
 
+	itUSP('constructing a Response with URLSearchParams as body should have a Content-Type', function() {
+		const params = new URLSearchParams();
+		const res = new Response(params);
+		res.headers.get('Content-Type');
+		expect(res.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+	});
+
+	itUSP('constructing a Request with URLSearchParams as body should have a Content-Type', function() {
+		const params = new URLSearchParams();
+		const req = new Request(base, { method: 'POST', body: params });
+		expect(req.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+	});
+
 	itUSP('should still recognize URLSearchParams when extended', function() {
 		class CustomSearchParams extends URLSearchParams {}
 		const params = new CustomSearchParams();
