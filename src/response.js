@@ -20,7 +20,9 @@ const INTERNALS = Symbol('Response internals');
  */
 export default class Response {
 	constructor(body = null, opts = {}) {
-		Body.call(this, body, opts);
+		const headers = new Headers(opts.headers)
+
+		Body.call(this, body, opts, headers);
 
 		const status = opts.status || 200;
 
@@ -28,7 +30,7 @@ export default class Response {
 			url: opts.url,
 			status,
 			statusText: opts.statusText || STATUS_CODES[status],
-			headers: new Headers(opts.headers)
+			headers
 		};
 	}
 

@@ -67,19 +67,12 @@ export default class Request {
 				clone(input) :
 				null;
 
+		const headers = new Headers(init.headers || input.headers || {});
+
 		Body.call(this, inputBody, {
 			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
-		});
-
-		const headers = new Headers(init.headers || input.headers || {});
-
-		if (init.body != null) {
-			const contentType = extractContentType(this);
-			if (contentType !== null && !headers.has('Content-Type')) {
-				headers.append('Content-Type', contentType);
-			}
-		}
+		}, headers);
 
 		this[INTERNALS] = {
 			method,

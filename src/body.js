@@ -26,7 +26,7 @@ const INTERNALS = Symbol('Body internals');
 export default function Body(body, {
 	size = 0,
 	timeout = 0
-} = {}) {
+} = {}, headers) {
 	if (body == null) {
 		// body is undefined or null
 		body = null;
@@ -61,6 +61,13 @@ export default function Body(body, {
 		body.on('error', err => {
 			this[INTERNALS].error = new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 		});
+	}
+
+	if (body != null && !headers.has('Content-Type')) {
+		const contentType = extractContentType(this);
+		if (contentType) {
+			headers.append('Content-Type', contentType);
+		}
 	}
 }
 
