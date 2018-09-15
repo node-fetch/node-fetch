@@ -38,9 +38,9 @@ export default function Body(body, opts, headers) {
 		contentType = 'application/x-www-form-urlencoded;charset=UTF-8';
 	} else if (body instanceof Blob) {
 		// body is blob
-		body = body[BUFFER];
 		contentType = body.type || null;
-	} else if (body && typeof body.getBoundary === 'function') {
+		body = body[BUFFER];
+	} else if (typeof body === 'object' && typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
 		contentType = `multipart/form-data;boundary=${body.getBoundary()}`;
 	} else if (Buffer.isBuffer(body)) {
