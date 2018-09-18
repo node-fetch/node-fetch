@@ -9,7 +9,8 @@
     "lib/index.js",
     "lib/index.mjs",
     "lib/index.es.js",
-    "browser.js"
+    "browser.js",
+    "polyfill.js"
   ],
   "engines": {
     "node": "4.x || >=6.0.0"
@@ -28,7 +29,8 @@
   "keywords": [
     "fetch",
     "http",
-    "promise"
+    "promise",
+    "polyfill"
   ],
   "author": "David Frank",
   "license": "MIT",

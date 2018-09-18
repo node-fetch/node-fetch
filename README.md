@@ -77,6 +77,12 @@ We suggest you load the module via `require`, pending the stabalizing of es modu
 const fetch = require('node-fetch');
 ```
 
+To polyfill `fetch`, `Headers`, `Request` and `Response` in global scope:
+
+```js
+require('node-fetch/polyfill')
+```
+
 If you are using a Promise library other than native, set it through fetch.Promise:
 ```js
 const Bluebird = require('bluebird');
