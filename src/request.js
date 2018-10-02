@@ -149,7 +149,7 @@ Object.defineProperties(Request.prototype, {
  * @return  Object   The options object to be passed to http.request
  */
 export function getNodeRequestOptions(request) {
-	const parsedURL = request[INTERNALS].parsedURL;
+	let parsedURL = request[INTERNALS].parsedURL;
 	const headers = new Headers(request[INTERNALS].headers);
 
 	// fetch step 1.3
@@ -196,6 +196,22 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
+
+	// unix socket support, similar to request.js
+	if (parsedURL.hostname === 'unix') {
+		const [socketPath, ...path] = parsedURL.pathname.split(':')
+		parsedURL = {
+			protocol: parsedURL.protocol,
+			auth: parsedURL.auth,
+			port: parsedURL.port,
+			hash: parsedURL.hash,
+			search: parsedURL.search,
+			query: parsedURL.query,
+			pathname: path.join(':'),
+			path: path.join(':'),
+			socketPath
+		}
+	}
 
 	return Object.assign({}, parsedURL, {
 		method: request.method,
