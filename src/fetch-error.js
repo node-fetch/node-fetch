@@ -14,8 +14,6 @@
  * @return  FetchError
  */
 export default function FetchError(message, type, systemError) {
-	Error.call(this, message);
-
 	this.message = message;
 	this.type = type;
 
