@@ -88,7 +88,11 @@ export default function fetch(url, opts) {
 					case 'manual':
 						// node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
 						if (locationURL !== null) {
-							headers.set('Location', locationURL);
+							try {
+								headers.set('Location', locationURL);
+							} catch (err) {
+								reject(err)
+							}
 						}
 						break;
 					case 'follow':
