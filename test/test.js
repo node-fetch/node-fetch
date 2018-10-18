@@ -229,6 +229,50 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should accept extra node specific options in init', function() {
+		const url = `${base}inspect`;
+		return fetch(url, {
+			nodeOptions: {
+				setHost: false
+			}
+		}).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.headers['host']).to.undefined;
+		});
+	});
+
+	it('should accept extra node specific options in request', function() {
+		const url = `${base}inspect`;
+		return fetch(new Request(url, {
+			nodeOptions: {
+				setHost: false
+			}
+		})).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.headers['host']).to.undefined;
+		});
+	});
+
+	it('should accept extra node specific options in init overriding request', function() {
+		const url = `${base}inspect`;
+		const origRequest = new Request(url, {
+			nodeOptions: {
+				setHost: true
+			}
+		});
+		return fetch(new Request(origRequest, {
+			nodeOptions: {
+				setHost: false
+			}
+		})).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.headers['host']).to.undefined;
+		});
+	});
+
 	it('should follow redirect code 301', function() {
 		const url = `${base}redirect/301`;
 		return fetch(url).then(res => {

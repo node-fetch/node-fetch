@@ -36,6 +36,7 @@ function isRequest(input) {
 export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
+		let nodeOptions = init.nodeOptions;
 
 		// normalize input
 		if (!isRequest(input)) {
@@ -51,6 +52,7 @@ export default class Request {
 			input = {};
 		} else {
 			parsedURL = parse_url(input.url);
+			nodeOptions = nodeOptions || input[INTERNALS].nodeOptions;
 		}
 
 		let method = init.method || input.method || 'GET';
@@ -85,7 +87,8 @@ export default class Request {
 			method,
 			redirect: init.redirect || input.redirect || 'follow',
 			headers,
-			parsedURL
+			parsedURL,
+			nodeOptions
 		};
 
 		// node-fetch-only options
@@ -151,6 +154,7 @@ Object.defineProperties(Request.prototype, {
 export function getNodeRequestOptions(request) {
 	const parsedURL = request[INTERNALS].parsedURL;
 	const headers = new Headers(request[INTERNALS].headers);
+	const nodeOptions = request[INTERNALS].nodeOptions || {};
 
 	// fetch step 1.3
 	if (!headers.has('Accept')) {
@@ -197,7 +201,7 @@ export function getNodeRequestOptions(request) {
 	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
 
-	return Object.assign({}, parsedURL, {
+	return Object.assign({}, nodeOptions, parsedURL, {
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
 		agent: request.agent
