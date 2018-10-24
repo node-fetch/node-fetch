@@ -10,7 +10,6 @@ env:
 before_script:
   - 'if [ "$FORMDATA_VERSION" ]; then npm install form-data@^$FORMDATA_VERSION; fi'
 script:
-  - npm install -g npm@latest
   - npm uninstall encoding
   - npm run coverage
   - npm install encoding
