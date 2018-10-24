@@ -8,6 +8,8 @@ node-fetch
 
 A light-weight module that brings `window.fetch` to Node.js
 
+(We are looking for [v2 maintainers and collaborators](https://github.com/bitinn/node-fetch/issues/252))
+
 <!-- TOC -->
 
 - [Motivation](#motivation)
@@ -469,6 +471,8 @@ An operational error in the fetching process. See [ERROR-HANDLING.md][] for more
 ## Acknowledgement
 
 Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid implementation reference.
+
+`node-fetch` v1 was maintained by [@bitinn](https://github.com/bitinn), v2 is currently maintained by [@TimothyGu](https://github.com/timothygu), v2 readme is written by [@jkantr](https://github.com/jkantr).
 
 ## License
 
