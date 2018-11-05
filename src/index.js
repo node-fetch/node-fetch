@@ -7,7 +7,7 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import { resolve as resolve_url } from 'url';
+import Url from 'url';
 import http from 'http';
 import https from 'https';
 import zlib from 'zlib';
@@ -19,8 +19,9 @@ import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 
-// fix an issue where PassThrough isn't a named export for node <10
+// fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough = Stream.PassThrough;
+const resolve_url = Url.resolve;
 
 /**
  * Fetch function

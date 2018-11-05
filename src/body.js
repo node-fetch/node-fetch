@@ -5,7 +5,8 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, { PassThrough } from 'stream';
+import Stream from 'stream';
+
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
 
@@ -13,6 +14,9 @@ let convert;
 try { convert = require('encoding').convert; } catch(e) {}
 
 const INTERNALS = Symbol('Body internals');
+
+// fix an issue where "PassThrough" isn't a named export for node <10
+const PassThrough = Stream.PassThrough;
 
 /**
  * Body mixin

@@ -7,7 +7,7 @@ Changelog
 
 ## master
 
-- Fix: `import` on index.js, where `PassThrough` doesn't have a named export when using with node <10 and `--exerimental-modules` flag.
+- Fix: multiple `import` rules, where `PassThrough` etc. doesn't have a named export when using node <10 and `--exerimental-modules` flag.
 
 ## v2.2.0
 
