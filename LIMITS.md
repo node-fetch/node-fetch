@@ -26,5 +26,7 @@ Known differences
 
 - If you are using `res.clone()` and writing an isomorphic app, note that stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers).
 
+- Because node.js stream doesn't expose a [*disturbed*](https://fetch.spec.whatwg.org/#concept-readablestream-disturbed) property like Stream spec, using a consumed stream for `new Response(body)` will not set `bodyUsed` flag correctly.
+
 [readable-stream]: https://nodejs.org/api/stream.html#stream_readable_streams
 [ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md

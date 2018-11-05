@@ -7,11 +7,16 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import { format as format_url, parse as parse_url } from 'url';
+import Url from 'url';
+
 import Headers, { exportNodeCompatibleHeaders } from './headers.js';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const INTERNALS = Symbol('Request internals');
+
+// fix an issue where "format", "parse" aren't a named export for node <10
+const parse_url = Url.parse;
+const format_url = Url.format;
 
 /**
  * Check if a value is an instance of Request.
@@ -187,9 +192,10 @@ export function getNodeRequestOptions(request) {
 	}
 
 	// HTTP-network-or-cache fetch step 2.15
-	if (request.compress) {
+	if (request.compress && !headers.has('Accept-Encoding')) {
 		headers.set('Accept-Encoding', 'gzip,deflate');
 	}
+
 	if (!headers.has('Connection') && !request.agent) {
 		headers.set('Connection', 'close');
 	}

@@ -731,6 +731,19 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should not overwrite existing accept-encoding header when auto decompression is true', function() {
+		const url = `${base}inspect`;
+		const opts = {
+			compress: true,
+			headers: {
+				'Accept-Encoding': 'gzip'
+			}
+		};
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.headers['accept-encoding']).to.equal('gzip');
+		});
+	});
+
 	it('should allow custom timeout', function() {
 		this.timeout(500);
 		const url = `${base}timeout`;
@@ -782,7 +795,7 @@ describe('node-fetch', () => {
 
 	it('should set default User-Agent', function () {
 		const url = `${base}inspect`;
-		fetch(url).then(res => res.json()).then(res => {
+		return fetch(url).then(res => res.json()).then(res => {
 			expect(res.headers['user-agent']).to.startWith('node-fetch/');
 		});
 	});
@@ -794,7 +807,7 @@ describe('node-fetch', () => {
 				'user-agent': 'faked'
 			}
 		};
-		fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, opts).then(res => res.json()).then(res => {
 			expect(res.headers['user-agent']).to.equal('faked');
 		});
 	});
@@ -813,7 +826,7 @@ describe('node-fetch', () => {
 				'accept': 'application/json'
 			}
 		};
-		fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, opts).then(res => res.json()).then(res => {
 			expect(res.headers.accept).to.equal('application/json');
 		});
 	});
