@@ -183,8 +183,6 @@ fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
     });
 ```
 
-[TODO]: # (Somewhere i think we also should mention arrayBuffer also if you want to be cross-fetch compatible.)
-
 #### Buffer
 If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
 
@@ -265,8 +263,6 @@ Perform an HTTP(S) fetch.
 
 `url` should be an absolute url, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected promise.
 
-[TODO]: # (It might be a good idea to reformat the options section into a table layout, like the headers section, instead of current code block.)
-
 <a id="fetch-options"></a>
 ### Options
 
@@ -285,7 +281,7 @@ The default values are shown after each option key.
     timeout: 0,         // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
     compress: true,     // support gzip/deflate content encoding. false to disable
     size: 0,            // maximum response body size in bytes. 0 to disable
-    agent: null         // http(s).Agent instance, allows custom proxy, certificate etc.
+    agent: null         // http(s).Agent instance, allows custom proxy, certificate, dns lookup etc.
 }
 ```
 
@@ -293,15 +289,14 @@ The default values are shown after each option key.
 
 If no values are set, the following request headers will be sent automatically:
 
-[TODO]: # ("we always said content-length will be "automatically calculated, if possible" in the default header section, but we never explain what's the condition for it to be calculated, and that chunked transfer-encoding will be used when they are not calculated or supplied." - "Maybe also add Transfer-Encoding: chunked? That header is added by Node.js automatically if the input is a stream, I believe.")
-
-Header            | Value
------------------ | --------------------------------------------------------
-`Accept-Encoding` | `gzip,deflate` _(when `options.compress === true`)_
-`Accept`          | `*/*`
-`Connection`      | `close` _(when no `options.agent` is present)_
-`Content-Length`  | _(automatically calculated, if possible)_
-`User-Agent`      | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
+Header              | Value
+------------------- | --------------------------------------------------------
+`Accept-Encoding`   | `gzip,deflate` _(when `options.compress === true`)_
+`Accept`            | `*/*`
+`Connection`        | `close` _(when no `options.agent` is present)_
+`Content-Length`    | _(automatically calculated, if possible)_
+`Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_
+`User-Agent`        | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
 
 <a id="class-request"></a>
 ### Class: Request
@@ -451,8 +446,6 @@ Consume the body and return a promise that will resolve to one of these formats.
 
 Consume the body and return a promise that will resolve to a Buffer.
 
-[TODO]: # (textConverted API should mention an optional dependency on encoding, which users need to install by themselves, and this is done purely for backward compatibility with 1.x release.)
-
 #### body.textConverted()
 
 <small>*(node-fetch extension)*</small>
@@ -460,6 +453,8 @@ Consume the body and return a promise that will resolve to a Buffer.
 * Returns: <code>Promise&lt;String&gt;</code>
 
 Identical to `body.text()`, except instead of always converting to UTF-8, encoding sniffing will be performed and text converted to UTF-8, if possible.
+
+(This API requires an optional dependency on npm package [encoding](https://www.npmjs.com/package/encoding), which you need to install manually. `webpack` users may see [a warning message](https://github.com/bitinn/node-fetch/issues/412#issuecomment-379007792) due to this optional dependency.)
 
 <a id="class-fetcherror"></a>
 ### Class: FetchError
