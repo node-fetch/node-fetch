@@ -269,6 +269,20 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/redirect/slow') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/redirect/301');
+			setTimeout(function() {
+				res.end();
+			}, 1000);
+		}
+
+		if (p === '/redirect/slow-stream') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/slow');
+			res.end();
+		}
+
 		if (p === '/error/400') {
 			res.statusCode = 400;
 			res.setHeader('Content-Type', 'text/plain');
