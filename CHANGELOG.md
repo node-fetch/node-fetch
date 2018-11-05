@@ -5,6 +5,10 @@ Changelog
 
 # 2.x release
 
+## master
+
+- Fix: `import` on index.js, where `PassThrough` doesn't have a named export when using with node <10 and `--exerimental-modules` flag.
+
 ## v2.2.0
 
 - Enhance: Support all `ArrayBuffer` view types
