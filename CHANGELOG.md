@@ -5,7 +5,7 @@ Changelog
 
 # 2.x release
 
-## master
+## v2.2.1
 
 - Fix: `compress` flag shouldn't overwrite existing `Accept-Encoding` header.
 - Fix: multiple `import` rules, where `PassThrough` etc. doesn't have a named export when using node <10 and `--exerimental-modules` flag.
