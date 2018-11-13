@@ -5,6 +5,10 @@ Changelog
 
 # 2.x release
 
+## master
+
+- Fix: update `browser.js` to support react-native, where `self` isn't available.
+
 ## v2.2.1
 
 - Fix: `compress` flag shouldn't overwrite existing `Accept-Encoding` header.
