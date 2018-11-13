@@ -8,7 +8,7 @@
 import http from 'http';
 
 import Headers from './headers.js';
-import Body, { clone } from './body';
+import Body, { clone, extractContentType } from './body';
 
 const INTERNALS = Symbol('Response internals');
 
@@ -27,12 +27,20 @@ export default class Response {
 		Body.call(this, body, opts);
 
 		const status = opts.status || 200;
+		const headers = new Headers(opts.headers)
+
+		if (body != null && !headers.has('Content-Type')) {
+			const contentType = extractContentType(body);
+			if (contentType) {
+				headers.append('Content-Type', contentType);
+			}
+		}
 
 		this[INTERNALS] = {
 			url: opts.url,
 			status,
 			statusText: opts.statusText || STATUS_CODES[status],
-			headers: new Headers(opts.headers)
+			headers
 		};
 	}
 

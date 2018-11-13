@@ -37,6 +37,7 @@ export default function Body(body, {
 	} else if (typeof body === 'string') {
 		// body is string
 	} else if (isURLSearchParams(body)) {
+		body = Buffer.from(body.toString());
 		// body is a URLSearchParams
 	} else if (body instanceof Blob) {
 		// body is blob
@@ -415,9 +416,7 @@ export function clone(instance) {
  *
  * @param   Mixed  instance  Response or Request instance
  */
-export function extractContentType(instance) {
-	const {body} = instance;
-
+export function extractContentType(body) {
 	// istanbul ignore if: Currently, because of a guard in Request, body
 	// can never be null. Included here for completeness.
 	if (body === null) {
@@ -444,10 +443,13 @@ export function extractContentType(instance) {
 	} else if (typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	} else {
+	} else if (body instanceof Stream) {
 		// body is stream
 		// can't really do much about this
 		return null;
+	} else {
+		// Body constructor defaults other things to string
+		return 'text/plain;charset=UTF-8';
 	}
 }
 

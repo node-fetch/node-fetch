@@ -1365,6 +1365,38 @@ describe('node-fetch', () => {
 	});
 
 	const itUSP = typeof URLSearchParams === 'function' ? it : it.skip;
+
+	itUSP('constructing a Response with URLSearchParams as body should have a Content-Type', function() {
+		const params = new URLSearchParams();
+		const res = new Response(params);
+		res.headers.get('Content-Type');
+		expect(res.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+	});
+
+	itUSP('constructing a Request with URLSearchParams as body should have a Content-Type', function() {
+		const params = new URLSearchParams();
+		const req = new Request(base, { method: 'POST', body: params });
+		expect(req.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+	});
+
+	itUSP('Reading a body with URLSearchParams should echo back the result', function() {
+		const params = new URLSearchParams();
+		params.append('a','1');
+		return new Response(params).text().then(text => {
+			expect(text).to.equal('a=1');
+		});
+	});
+
+	// Body should been cloned...
+	itUSP('constructing a Request/Response with URLSearchParams and mutating it should not affected body', function() {
+		const params = new URLSearchParams();
+		const req = new Request(`${base}inspect`, { method: 'POST', body: params })
+		params.append('a','1')
+		return req.text().then(text => {
+			expect(text).to.equal('');
+		});
+	});
+
 	itUSP('should allow POST request with URLSearchParams as body', function() {
 		const params = new URLSearchParams();
 		params.append('a','1');
