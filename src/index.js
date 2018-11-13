@@ -18,6 +18,7 @@ import Response from './response';
 import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
+import AbortError from './abort-error';
 
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough = Stream.PassThrough;
@@ -46,13 +47,40 @@ export default function fetch(url, opts) {
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
+		const { signal } = request;
+		let response = null;
+
+		const abort = ()  => {
+			let error = new AbortError('The user aborted a request.');
+			reject(error);
+			if (request.body && request.body instanceof Stream.Readable) {
+				request.body.destroy(error);
+			}
+			if (!response || !response.body) return;
+			response.body.emit('error', error);
+		}
+
+		if (signal && signal.aborted) {
+			abort();
+			return;
+		}
+
+		const abortAndFinalize = () => {
+			abort();
+			finalize();
+		}
 
 		// send request
 		const req = send(options);
 		let reqTimeout;
 
+		if (signal) {
+			signal.addEventListener('abort', abortAndFinalize);
+		}
+
 		function finalize() {
 			req.abort();
+			if (signal) signal.removeEventListener('abort', abortAndFinalize);
 			clearTimeout(reqTimeout);
 		}
 
@@ -117,7 +145,8 @@ export default function fetch(url, opts) {
 							agent: request.agent,
 							compress: request.compress,
 							method: request.method,
-							body: request.body
+							body: request.body,
+							signal: request.signal,
 						};
 
 						// HTTP-redirect fetch step 9
@@ -142,7 +171,11 @@ export default function fetch(url, opts) {
 			}
 
 			// prepare response
+			res.once('end', () => {
+				if (signal) signal.removeEventListener('abort', abortAndFinalize);
+			});
 			let body = res.pipe(new PassThrough());
+
 			const response_options = {
 				url: request.url,
 				status: res.statusCode,
@@ -164,7 +197,8 @@ export default function fetch(url, opts) {
 			// 4. no content response (204)
 			// 5. content not modified response (304)
 			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
-				resolve(new Response(body, response_options));
+				response = new Response(body, response_options);
+				resolve(response);
 				return;
 			}
 
@@ -181,7 +215,8 @@ export default function fetch(url, opts) {
 			// for gzip
 			if (codings == 'gzip' || codings == 'x-gzip') {
 				body = body.pipe(zlib.createGunzip(zlibOptions));
-				resolve(new Response(body, response_options));
+				response = new Response(body, response_options);
+				resolve(response);
 				return;
 			}
 
@@ -197,13 +232,15 @@ export default function fetch(url, opts) {
 					} else {
 						body = body.pipe(zlib.createInflateRaw());
 					}
-					resolve(new Response(body, response_options));
+					response = new Response(body, response_options);
+					resolve(response);
 				});
 				return;
 			}
 
 			// otherwise, use response as-is
-			resolve(new Response(body, response_options));
+			response = new Response(body, response_options);
+			resolve(response);
 		});
 
 		writeToStream(req, request);

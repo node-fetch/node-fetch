@@ -8,7 +8,7 @@
  */
 
 import Url from 'url';
-
+import Stream from 'stream';
 import Headers, { exportNodeCompatibleHeaders } from './headers.js';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
 
@@ -17,6 +17,8 @@ const INTERNALS = Symbol('Request internals');
 // fix an issue where "format", "parse" aren't a named export for node <10
 const parse_url = Url.parse;
 const format_url = Url.format;
+
+const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
  * Check if a value is an instance of Request.
@@ -29,6 +31,15 @@ function isRequest(input) {
 		typeof input === 'object' &&
 		typeof input[INTERNALS] === 'object'
 	);
+}
+
+function isAbortSignal(signal) {
+	const proto = (
+		signal
+		&& typeof signal === 'object'
+		&& Object.getPrototypeOf(signal)
+	);
+	return !!(proto && proto.constructor.name === 'AbortSignal');
 }
 
 /**
@@ -86,11 +97,21 @@ export default class Request {
 			}
 		}
 
+		let signal = isRequest(input)
+			? input.signal
+			: null;
+		if ('signal' in init) signal = init.signal
+
+		if (signal != null && !isAbortSignal(signal)) {
+			throw new TypeError('Expected signal to be an instanceof AbortSignal');
+		}
+
 		this[INTERNALS] = {
 			method,
 			redirect: init.redirect || input.redirect || 'follow',
 			headers,
-			parsedURL
+			parsedURL,
+			signal,
 		};
 
 		// node-fetch-only options
@@ -120,6 +141,10 @@ export default class Request {
 		return this[INTERNALS].redirect;
 	}
 
+	get signal() {
+		return this[INTERNALS].signal;
+	}
+
 	/**
 	 * Clone this request
 	 *
@@ -144,7 +169,8 @@ Object.defineProperties(Request.prototype, {
 	url: { enumerable: true },
 	headers: { enumerable: true },
 	redirect: { enumerable: true },
-	clone: { enumerable: true }
+	clone: { enumerable: true },
+	signal: { enumerable: true },
 });
 
 /**
@@ -169,6 +195,14 @@ export function getNodeRequestOptions(request) {
 
 	if (!/^https?:$/.test(parsedURL.protocol)) {
 		throw new TypeError('Only HTTP(S) protocols are supported');
+	}
+
+	if (
+		request.signal
+		&& request.body instanceof Stream.Readable
+		&& !streamDestructionSupported
+	) {
+		throw new Error('Cancellation of streamed requests with AbortSignal is not supported in node < 8');
 	}
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7

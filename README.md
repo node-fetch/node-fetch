@@ -118,7 +118,7 @@ fetch('https://httpbin.org/post', { method: 'POST', body: 'a=1' })
 ```js
 const body = { a: 1 };
 
-fetch('https://httpbin.org/post', { 
+fetch('https://httpbin.org/post', {
         method: 'post',
         body:    JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' },
@@ -275,14 +275,49 @@ The default values are shown after each option key.
     headers: {},        // request headers. format is the identical to that accepted by the Headers constructor (see below)
     body: null,         // request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
     redirect: 'follow', // set to `manual` to extract redirect headers, `error` to reject redirect
+    signal: null,       // pass an instance of AbortSignal to optionally abort requests
 
     // The following properties are node-fetch extensions
     follow: 20,         // maximum redirect count. 0 to not follow redirect
-    timeout: 0,         // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
+    timeout: 0,         // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
     compress: true,     // support gzip/deflate content encoding. false to disable
     size: 0,            // maximum response body size in bytes. 0 to disable
     agent: null         // http(s).Agent instance, allows custom proxy, certificate, dns lookup etc.
 }
+```
+
+#### Request cancellation with AbortController:
+
+> NOTE: You may only cancel streamed requests on Node >= v8.0.0
+
+You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
+
+An example of timing out a request after 150ms could be achieved as follows:
+
+```js
+import AbortContoller from 'abort-controller';
+
+const controller = new AbortController();
+const timeout = setTimeout(
+  () => { controller.abort(); },
+  150,
+);
+
+fetch(url, { signal: controller.signal })
+  .then(res => res.json())
+  .then(
+    data => {
+      useData(data)
+    },
+    err => {
+      if (err.name === 'AbortError') {
+        // request was aborted
+      }
+    },
+  )
+  .finally(() => {
+    clearTimeout(timeout);
+  });
 ```
 
 ##### Default Headers
@@ -462,6 +497,13 @@ Identical to `body.text()`, except instead of always converting to UTF-8, encodi
 <small>*(node-fetch extension)*</small>
 
 An operational error in the fetching process. See [ERROR-HANDLING.md][] for more info.
+
+<a id="class-aborterror"></a>
+### Class: AbortError
+
+<small>*(node-fetch extension)*</small>
+
+An Error thrown when the request is aborted in response to an `AbortSignal`'s `abort` event. It has a `name` property of `AbortError`. See [ERROR-HANDLING.MD][] for more info.
 
 ## Acknowledgement
 

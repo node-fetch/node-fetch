@@ -37,6 +37,8 @@
   },
   "homepage": "https://github.com/bitinn/node-fetch",
   "devDependencies": {
+    "abort-controller": "^1.0.2",
+    "abortcontroller-polyfill": "^1.1.9",
     "babel-core": "^6.26.0",
     "babel-plugin-istanbul": "^4.1.5",
     "babel-preset-env": "^1.6.1",
