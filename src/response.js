@@ -23,7 +23,7 @@ export default class Response {
 		Body.call(this, body, opts);
 
 		const status = opts.status || 200;
-    const headers = new Headers(opts.headers)
+		const headers = new Headers(opts.headers)
 
 		if (body != null && !headers.has('Content-Type')) {
 			const contentType = extractContentType(body);
