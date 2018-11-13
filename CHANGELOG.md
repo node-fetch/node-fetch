@@ -8,6 +8,7 @@ Changelog
 ## v2.3.0
 
 - New: `AbortSignal` support, with README example.
+- Enhance: handle invalid `Location` header during redirect by rejecting them explicitly with `FetchError`.
 - Fix: update `browser.js` to support react-native environment, where `self` isn't available globally.
 
 ## v2.2.1
