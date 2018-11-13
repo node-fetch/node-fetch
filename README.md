@@ -31,6 +31,7 @@ A light-weight module that brings `window.fetch` to Node.js
     - [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
     - [Post data using a file stream](#post-data-using-a-file-stream)
     - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
+    - [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
 - [API](#api)
     - [fetch(url[, options])](#fetchurl-options)
     - [Options](#options)
@@ -248,6 +249,40 @@ fetch('https://httpbin.org/post', options)
     .then(json => console.log(json));
 ```
 
+#### Request cancellation with AbortSignal
+
+> NOTE: You may only cancel streamed requests on Node >= v8.0.0
+
+You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
+
+An example of timing out a request after 150ms could be achieved as follows:
+
+```js
+import AbortContoller from 'abort-controller';
+
+const controller = new AbortController();
+const timeout = setTimeout(
+  () => { controller.abort(); },
+  150,
+);
+
+fetch(url, { signal: controller.signal })
+  .then(res => res.json())
+  .then(
+    data => {
+      useData(data)
+    },
+    err => {
+      if (err.name === 'AbortError') {
+        // request was aborted
+      }
+    },
+  )
+  .finally(() => {
+    clearTimeout(timeout);
+  });
+```
+
 See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for more examples.
 
 
@@ -284,40 +319,6 @@ The default values are shown after each option key.
     size: 0,            // maximum response body size in bytes. 0 to disable
     agent: null         // http(s).Agent instance, allows custom proxy, certificate, dns lookup etc.
 }
-```
-
-#### Request cancellation with AbortController:
-
-> NOTE: You may only cancel streamed requests on Node >= v8.0.0
-
-You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
-
-An example of timing out a request after 150ms could be achieved as follows:
-
-```js
-import AbortContoller from 'abort-controller';
-
-const controller = new AbortController();
-const timeout = setTimeout(
-  () => { controller.abort(); },
-  150,
-);
-
-fetch(url, { signal: controller.signal })
-  .then(res => res.json())
-  .then(
-    data => {
-      useData(data)
-    },
-    err => {
-      if (err.name === 'AbortError') {
-        // request was aborted
-      }
-    },
-  )
-  .finally(() => {
-    clearTimeout(timeout);
-  });
 ```
 
 ##### Default Headers
