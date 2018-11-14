@@ -258,7 +258,7 @@ You may cancel requests with `AbortController`. A suggested implementation is [`
 An example of timing out a request after 150ms could be achieved as follows:
 
 ```js
-import AbortContoller from 'abort-controller';
+import AbortController from 'abort-controller';
 
 const controller = new AbortController();
 const timeout = setTimeout(
