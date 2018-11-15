@@ -34,25 +34,26 @@ export default function Body(body, {
 	if (body == null) {
 		// body is undefined or null
 		body = null;
-	} else if (typeof body === 'string') {
-		// body is string
 	} else if (isURLSearchParams(body)) {
-		body = Buffer.from(body.toString());
 		// body is a URLSearchParams
+		body = Buffer.from(body.toString());
 	} else if (body instanceof Blob) {
 		// body is blob
+		body = body[BUFFER];
 	} else if (Buffer.isBuffer(body)) {
 		// body is Buffer
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
 		// body is ArrayBuffer
+		body = Buffer.from(body);
 	} else if (ArrayBuffer.isView(body)) {
 		// body is ArrayBufferView
+		body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 	} else if (body instanceof Stream) {
 		// body is stream
 	} else {
 		// none of the above
-		// coerce to string
-		body = String(body);
+		// coerce to string then buffer
+		body = Buffer.from(String(body));
 	}
 	this[INTERNALS] = {
 		body,
@@ -149,9 +150,7 @@ Body.prototype = {
 	 */
 	textConverted() {
 		return consumeBody.call(this).then(buffer => convertBody(buffer, this.headers));
-	},
-
-
+	}
 };
 
 // In browsers, all properties are enumerable.
@@ -197,29 +196,9 @@ function consumeBody() {
 		return Body.Promise.resolve(Buffer.alloc(0));
 	}
 
-	// body is string
-	if (typeof this.body === 'string') {
-		return Body.Promise.resolve(Buffer.from(this.body));
-	}
-
-	// body is blob
-	if (this.body instanceof Blob) {
-		return Body.Promise.resolve(this.body[BUFFER]);
-	}
-
 	// body is buffer
 	if (Buffer.isBuffer(this.body)) {
 		return Body.Promise.resolve(this.body);
-	}
-
-	// body is ArrayBuffer
-	if (Object.prototype.toString.call(this.body) === '[object ArrayBuffer]') {
-		return Body.Promise.resolve(Buffer.from(this.body));
-	}
-
-	// body is ArrayBufferView
-	if (ArrayBuffer.isView(this.body)) {
-		return Body.Promise.resolve(Buffer.from(this.body.buffer, this.body.byteOffset, this.body.byteLength));
 	}
 
 	// istanbul ignore if: should never happen
@@ -426,7 +405,7 @@ export function extractContentType(body) {
 		// body is string
 		return 'text/plain;charset=UTF-8';
 	} else if (isURLSearchParams(body)) {
-	 	// body is a URLSearchParams
+		// body is a URLSearchParams
 		return 'application/x-www-form-urlencoded;charset=UTF-8';
 	} else if (body instanceof Blob) {
 		// body is blob
@@ -469,24 +448,9 @@ export function getTotalBytes(instance) {
 	if (body === null) {
 		// body is null
 		return 0;
-	} else if (typeof body === 'string') {
-		// body is string
-		return Buffer.byteLength(body);
-	} else if (isURLSearchParams(body)) {
-		// body is URLSearchParams
-		return Buffer.byteLength(String(body));
-	} else if (body instanceof Blob) {
-		// body is blob
-		return body.size;
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is ArrayBuffer
-		return body.byteLength;
-	} else if (ArrayBuffer.isView(body)) {
-		// body is ArrayBufferView
-		return body.byteLength;
 	} else if (body && typeof body.getLengthSync === 'function') {
 		// detect form data input from form-data module
 		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
@@ -513,29 +477,9 @@ export function writeToStream(dest, instance) {
 	if (body === null) {
 		// body is null
 		dest.end();
-	} else if (typeof body === 'string') {
-		// body is string
-		dest.write(body);
-		dest.end();
-	} else if (isURLSearchParams(body)) {
-		// body is URLSearchParams
-		dest.write(Buffer.from(String(body)));
-		dest.end();
-	} else if (body instanceof Blob) {
-		// body is blob
-		dest.write(body[BUFFER]);
-		dest.end();
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		dest.write(body);
-		dest.end()
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is ArrayBuffer
-		dest.write(Buffer.from(body));
-		dest.end()
-	} else if (ArrayBuffer.isView(body)) {
-		// body is ArrayBufferView
-		dest.write(Buffer.from(body.buffer, body.byteOffset, body.byteLength));
 		dest.end()
 	} else {
 		// body is stream
