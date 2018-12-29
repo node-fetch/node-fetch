@@ -10,7 +10,7 @@ const invalidHeaderCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
 
 function validateName(name) {
 	name = `${name}`;
-	if (invalidTokenRegex.test(name)) {
+	if (invalidTokenRegex.test(name) || name === '') {
 		throw new TypeError(`${name} is not a legal HTTP header name`);
 	}
 }

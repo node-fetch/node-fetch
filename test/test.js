@@ -2008,6 +2008,8 @@ describe('Headers', function () {
 		expect(() => headers.get('Hé-y'))          .to.throw(TypeError);
 		expect(() => headers.has('Hé-y'))          .to.throw(TypeError);
 		expect(() => headers.set('Hé-y', 'ok'))    .to.throw(TypeError);
+		// should reject empty header
+		expect(() => headers.append('', 'ok'))     .to.throw(TypeError);
 
 		// 'o k' is valid value but invalid name
 		new Headers({ 'He-y': 'o k' });
