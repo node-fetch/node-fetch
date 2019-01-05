@@ -1703,7 +1703,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal highWaterMark', function () {
-		this.timeout(500);
+		this.timeout(200);
 		local.mockResponse = res => {
 			// Observed behavior of TCP packets splitting:
 			// - response body size <= 65438 → single packet sent
@@ -1721,7 +1721,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than highWaterMark', function () {
-		this.timeout(500);
+		this.timeout(200);
 		local.mockResponse = res => {
 			const firstPacketMaxSize = 65438;
 			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
