@@ -1698,6 +1698,19 @@ describe('node-fetch', () => {
 		);
 	});
 
+	it('should timeout on cloning response without consuming one of the streams when the second packet is equal highWaterMark', function () {
+		const url = `${base}too-big-second-chunk`;
+		return new Promise((resolve, reject) => {
+			const timer = setTimeout(() => resolve(), 200)
+			fetch(url)
+				.then(res => res.clone().buffer())
+				.then(chunk => {
+					clearTimeout(timer)
+					reject(new Error('Response should not have been resolved.'))
+				});
+		})
+	});
+
 	it('should allow get all responses of a header', function() {
 		const url = `${base}cookie`;
 		return fetch(url).then(res => {
