@@ -2,7 +2,6 @@ import * as http from 'http';
 import { parse } from 'url';
 import * as zlib from 'zlib';
 import * as stream from 'stream';
-import crypto  from 'crypto';
 import { multipart as Multipart } from 'parted';
 
 let convert;
@@ -32,8 +31,21 @@ export default class TestServer {
 		this.server.close(cb);
 	}
 
+	set mockResponse(responseHandler) {
+		this.server.nextResponseHandler = responseHandler;
+	}
+
 	router(req, res) {
 		let p = parse(req.url).pathname;
+
+		if (p === '/mocked') {
+			if (this.nextResponseHandler) {
+				this.nextResponseHandler(res);
+				this.nextResponseHandler = undefined;
+			} else {
+				throw new Error('No mocked response. Set response handler to \'TestServer.mockResponse\'.');
+			}
+		}
 
 		if (p === '/hello') {
 			res.statusCode = 200;
@@ -153,17 +165,6 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Set-Cookie', ['a=1', 'b=1']);
 			res.end('cookie');
-		}
-
-		if (p === '/too-big-second-chunk') {
-			// Observed behavior of TCP packets splitting:
-			// - response body size <= 65438 → single packet sent
-			// - response body size  > 65438 → multiple packets sent
-			// Max TCP packet size is 64kB (https://stackoverflow.com/a/2614188/5763764),
-			// but first packet probably transfers more than the response body.
-			const firstPacketMaxSize = 65438
-			const secondPacketSize = 16 * 1024 // = defaultHighWaterMark
-			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		}
 
 		if (p === '/size/chunk') {
