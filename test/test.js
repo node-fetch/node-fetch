@@ -34,6 +34,23 @@ try { convert = require('encoding').convert; } catch(e) { }
 chai.use(chaiPromised);
 chai.use(chaiIterator);
 chai.use(chaiString);
+chai.use((_, utils) => {
+	utils.addProperty(chai.Assertion.prototype, 'timeout', function () {
+		return new Promise(resolve => {
+			const timer = setTimeout(() => resolve(true), 200);
+			this._obj.then(() => {
+				clearTimeout(timer);
+				resolve(false);
+			});
+		}).then(timeouted => {
+			this.assert(
+				timeouted,
+				'expected promise to timeout but it was resolved',
+				'expected promise not to timeout but it timed out'
+			);
+		})
+	});
+});
 const expect = chai.expect;
 
 import TestServer from './server';
@@ -1700,44 +1717,34 @@ describe('node-fetch', () => {
 	});
 
 	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal highWaterMark', function () {
-		this.timeout(500)
+		this.timeout(500);
 		local.mockResponse = res => {
 			// Observed behavior of TCP packets splitting:
 			// - response body size <= 65438 → single packet sent
 			// - response body size  > 65438 → multiple packets sent
 			// Max TCP packet size is 64kB (https://stackoverflow.com/a/2614188/5763764),
 			// but first packet probably transfers more than the response body.
-			const firstPacketMaxSize = 65438
-			const secondPacketSize = 16 * 1024 // = defaultHighWaterMark
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		}
-		return new Promise((resolve, reject) => {
-			const timer = setTimeout(() => resolve(), 200)
+		return expect(
 			fetch(`${base}mocked`)
 				.then(res => res.clone().buffer())
-				.then(chunk => {
-					clearTimeout(timer)
-					reject(new Error('Response should not have been resolved.'))
-				});
-		})
+		).to.timeout;
 	});
 
-	it('should resolve on cloning response without consuming one of the streams when the second packet size is less than highWaterMark', function () {
-		this.timeout(500)
+	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than highWaterMark', function () {
+		this.timeout(500);
 		local.mockResponse = res => {
-			const firstPacketMaxSize = 65438
-			const secondPacketSize = 16 * 1024 // = defaultHighWaterMark
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		}
-		return new Promise((resolve, reject) => {
-			const timer = setTimeout(() => reject(new Error('Response should have been resolved.')), 200)
+		return expect(
 			fetch(`${base}mocked`)
 				.then(res => res.clone().buffer())
-				.then(chunk => {
-					clearTimeout(timer)
-					resolve()
-				});
-		})
+		).not.to.timeout;
 	});
 
 	it('should allow get all responses of a header', function() {
