@@ -1702,7 +1702,7 @@ describe('node-fetch', () => {
 		);
 	});
 
-	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal highWaterMark', function () {
+	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', function () {
 		this.timeout(200);
 		const url = local.mockResponse(res => {
 			// Observed behavior of TCP packets splitting:
@@ -1719,7 +1719,19 @@ describe('node-fetch', () => {
 		).to.timeout;
 	});
 
-	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than highWaterMark', function () {
+	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal custom highWaterMark', function () {
+		this.timeout(200);
+		const url = local.mockResponse(res => {
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 10;
+			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
+		});
+		return expect(
+			fetch(url).then(res => res.clone(10).buffer())
+		).to.timeout;
+	});
+
+	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than default highWaterMark', function () {
 		this.timeout(200);
 		const url = local.mockResponse(res => {
 			const firstPacketMaxSize = 65438;
@@ -1728,6 +1740,28 @@ describe('node-fetch', () => {
 		});
 		return expect(
 			fetch(url).then(res => res.clone().buffer())
+		).not.to.timeout;
+	});
+
+	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than custom highWaterMark', function () {
+		this.timeout(200);
+		const url = local.mockResponse(res => {
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 10;
+			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
+		});
+		return expect(
+			fetch(url).then(res => res.clone(10).buffer())
+		).not.to.timeout;
+	});
+
+	it('should not timeout on cloning response without consuming one of the streams when the response size is smaller than custom large highWaterMark', function () {
+		this.timeout(200);
+		const url = local.mockResponse(res => {
+			res.end(crypto.randomBytes(1024 * 1024 - 1));
+		});
+		return expect(
+			fetch(url).then(res => res.clone(1024 * 1024).buffer())
 		).not.to.timeout;
 	});
 

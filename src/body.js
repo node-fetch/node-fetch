@@ -358,10 +358,11 @@ function isURLSearchParams(obj) {
 /**
  * Clone body given Res/Req instance
  *
- * @param   Mixed  instance  Response or Request instance
+ * @param   Mixed   instance       Response or Request instance
+ * @param   String  highWaterMark  highWaterMark for both PassThrough body streams
  * @return  Mixed
  */
-export function clone(instance) {
+export function clone(instance, highWaterMark) {
 	let p1, p2;
 	let body = instance.body;
 
@@ -374,8 +375,8 @@ export function clone(instance) {
 	// note: we can't clone the form-data object without having it as a dependency
 	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
 		// tee instance body
-		p1 = new PassThrough();
-		p2 = new PassThrough();
+		p1 = new PassThrough({ highWaterMark });
+		p2 = new PassThrough({ highWaterMark });
 		body.pipe(p1);
 		body.pipe(p2);
 		// set instance body to teed body and return the other teed body

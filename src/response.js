@@ -70,10 +70,11 @@ export default class Response {
 	/**
 	 * Clone this response
 	 *
+	 * @param   String  highWaterMark  highWaterMark for both PassThrough body streams
 	 * @return  Response
 	 */
-	clone() {
-		return new Response(clone(this), {
+	clone(highWaterMark) {
+		return new Response(clone(this, highWaterMark), {
 			url: this.url,
 			status: this.status,
 			statusText: this.statusText,
