@@ -31,26 +31,12 @@ const {
 let convert;
 try { convert = require('encoding').convert; } catch(e) { }
 
+import chaiTimeout from './chai-timeout';
+
 chai.use(chaiPromised);
 chai.use(chaiIterator);
 chai.use(chaiString);
-chai.use((_, utils) => {
-	utils.addProperty(chai.Assertion.prototype, 'timeout', function () {
-		return new Promise(resolve => {
-			const timer = setTimeout(() => resolve(true), 200);
-			this._obj.then(() => {
-				clearTimeout(timer);
-				resolve(false);
-			});
-		}).then(timeouted => {
-			this.assert(
-				timeouted,
-				'expected promise to timeout but it was resolved',
-				'expected promise not to timeout but it timed out'
-			);
-		})
-	});
-});
+chai.use(chaiTimeout);
 const expect = chai.expect;
 
 import TestServer from './server';
