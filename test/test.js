@@ -1722,6 +1722,24 @@ describe('node-fetch', () => {
 		})
 	});
 
+	it('should resolve on cloning response without consuming one of the streams when the second packet size is less than highWaterMark', function () {
+		this.timeout(500)
+		local.mockResponse = res => {
+			const firstPacketMaxSize = 65438
+			const secondPacketSize = 16 * 1024 // = defaultHighWaterMark
+			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
+		}
+		return new Promise((resolve, reject) => {
+			const timer = setTimeout(() => reject(new Error('Response should have been resolved.')), 200)
+			fetch(`${base}mocked`)
+				.then(res => res.clone().buffer())
+				.then(chunk => {
+					clearTimeout(timer)
+					resolve()
+				});
+		})
+	});
+
 	it('should allow get all responses of a header', function() {
 		const url = `${base}cookie`;
 		return fetch(url).then(res => {
