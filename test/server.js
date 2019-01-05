@@ -31,8 +31,9 @@ export default class TestServer {
 		this.server.close(cb);
 	}
 
-	set mockResponse(responseHandler) {
+	mockResponse(responseHandler) {
 		this.server.nextResponseHandler = responseHandler;
+		return `http://${this.hostname}:${this.port}/mocked`
 	}
 
 	router(req, res) {
@@ -43,7 +44,7 @@ export default class TestServer {
 				this.nextResponseHandler(res);
 				this.nextResponseHandler = undefined;
 			} else {
-				throw new Error('No mocked response. Set response handler to \'TestServer.mockResponse\'.');
+				throw new Error('No mocked response. Use \'TestServer.mockResponse()\'.');
 			}
 		}
 

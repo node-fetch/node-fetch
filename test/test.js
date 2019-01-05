@@ -1704,7 +1704,7 @@ describe('node-fetch', () => {
 
 	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal highWaterMark', function () {
 		this.timeout(200);
-		local.mockResponse = res => {
+		const url = local.mockResponse(res => {
 			// Observed behavior of TCP packets splitting:
 			// - response body size <= 65438 → single packet sent
 			// - response body size  > 65438 → multiple packets sent
@@ -1713,23 +1713,21 @@ describe('node-fetch', () => {
 			const firstPacketMaxSize = 65438;
 			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
-		}
+		});
 		return expect(
-			fetch(`${base}mocked`)
-				.then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().buffer())
 		).to.timeout;
 	});
 
 	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than highWaterMark', function () {
 		this.timeout(200);
-		local.mockResponse = res => {
+		const url = local.mockResponse(res => {
 			const firstPacketMaxSize = 65438;
 			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
-		}
+		});
 		return expect(
-			fetch(`${base}mocked`)
-				.then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().buffer())
 		).not.to.timeout;
 	});
 
