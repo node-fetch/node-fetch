@@ -1703,7 +1703,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', function () {
-		this.timeout(200);
+		this.timeout(300);
 		const url = local.mockResponse(res => {
 			// Observed behavior of TCP packets splitting:
 			// - response body size <= 65438 → single packet sent
@@ -1720,7 +1720,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal custom highWaterMark', function () {
-		this.timeout(200);
+		this.timeout(300);
 		const url = local.mockResponse(res => {
 			const firstPacketMaxSize = 65438;
 			const secondPacketSize = 10;
@@ -1732,7 +1732,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than default highWaterMark', function () {
-		this.timeout(200);
+		this.timeout(300);
 		const url = local.mockResponse(res => {
 			const firstPacketMaxSize = 65438;
 			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
@@ -1744,7 +1744,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than custom highWaterMark', function () {
-		this.timeout(200);
+		this.timeout(300);
 		const url = local.mockResponse(res => {
 			const firstPacketMaxSize = 65438;
 			const secondPacketSize = 10;
@@ -1755,13 +1755,13 @@ describe('node-fetch', () => {
 		).not.to.timeout;
 	});
 
-	it('should not timeout on cloning response without consuming one of the streams when the response size is smaller than custom large highWaterMark', function () {
-		this.timeout(200);
+	it('should not timeout on cloning response without consuming one of the streams when the response size is double the custom large highWaterMark - 1', function () {
+		this.timeout(300);
 		const url = local.mockResponse(res => {
-			res.end(crypto.randomBytes(1024 * 1024 - 1));
+			res.end(crypto.randomBytes(2 * 512 * 1024 - 1));
 		});
 		return expect(
-			fetch(url).then(res => res.clone(1024 * 1024).buffer())
+			fetch(url).then(res => res.clone(512 * 1024).buffer())
 		).not.to.timeout;
 	});
 

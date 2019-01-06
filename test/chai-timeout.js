@@ -1,7 +1,7 @@
 module.exports = (chai, utils) => {
 	utils.addProperty(chai.Assertion.prototype, 'timeout', function () {
 		return new Promise(resolve => {
-			const timer = setTimeout(() => resolve(true), 50);
+			const timer = setTimeout(() => resolve(true), 150);
 			this._obj.then(() => {
 				clearTimeout(timer);
 				resolve(false);
