@@ -1478,7 +1478,9 @@ describe('node-fetch', function() {
 		this.timeout(5000);
 		url = 'https://github.com/';
 		opts = {
-			method: 'HEAD'
+			method: 'HEAD',
+			servername: 'github.com',
+			checkServerIdentity: (host,cert) => undefined
 		};
 		return fetch(url, opts).then(function(res) {
 			expect(res.status).to.equal(200);
