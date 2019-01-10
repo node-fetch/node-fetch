@@ -1480,7 +1480,7 @@ describe('node-fetch', function() {
 		opts = {
 			method: 'HEAD',
 			servername: 'github.com',
-			checkServerIdentity: (host,cert) => undefined
+			checkServerIdentity: (host,cert) => { return undefined }
 		};
 		return fetch(url, opts).then(function(res) {
 			expect(res.status).to.equal(200);
