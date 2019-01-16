@@ -8,7 +8,7 @@ node-fetch
 
 A light-weight module that brings `window.fetch` to Node.js
 
-(We are looking for [v2 maintainers and collaborators](https://github.com/bitinn/node-fetch/issues/252))
+(We are looking for [v2 maintainers and collaborators](https://github.com/bitinn/node-fetch/issues/567))
 
 <!-- TOC -->
 
