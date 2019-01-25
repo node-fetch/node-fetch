@@ -109,7 +109,7 @@ export default function fetch(url, opts) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : resolve_url(request.url, location);
+				let locationURL = location === null ? null : resolve_url(request.url, location);
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -144,7 +144,7 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 6 (counter increment)
 						// Create a new Request object.
-						const requestOpts = {
+						let requestOpts = {
 							headers: new Headers(request.headers),
 							follow: request.follow,
 							counter: request.counter + 1,
@@ -153,6 +153,7 @@ export default function fetch(url, opts) {
 							method: request.method,
 							body: request.body,
 							signal: request.signal,
+							onRedirect: request.onRedirect
 						};
 
 						// HTTP-redirect fetch step 9
@@ -167,6 +168,18 @@ export default function fetch(url, opts) {
 							requestOpts.method = 'GET';
 							requestOpts.body = undefined;
 							requestOpts.headers.delete('content-length');
+						}
+
+						if (request.onRedirect) {
+							let overridden = request.onRedirect({ 
+								prev: request.url,
+								url: locationURL, 
+								opts: requestOpts 
+							});
+							if (overridden) {
+								locationURL = overridden.url || locationURL;
+								requestOpts = overridden.opts || requestOpts;
+							}
 						}
 
 						// HTTP-redirect fetch step 15

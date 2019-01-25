@@ -242,6 +242,19 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should call hook on redirect', function() {
+		const url = `${base}redirect/301`;
+		const onRedirect = (data) => {
+			expect(data.prev).to.be.equal(url);
+			expect(data.url).to.be.equal(`${base}inspect`);
+			isHookCalled = true;
+		};
+		let isHookCalled = false;
+		return fetch(url, { onRedirect }).then(res => {
+			expect(isHookCalled).to.be.true;
+		});
+	});
+
 	it('should follow redirect code 302', function() {
 		const url = `${base}redirect/302`;
 		return fetch(url).then(res => {
