@@ -268,5 +268,6 @@ export {
 	Headers,
 	Request,
 	Response,
-	FetchError
+	FetchError,
+	fetch.isRedirect as isRedirect
 };
