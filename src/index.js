@@ -260,7 +260,8 @@ export default function fetch(url, opts) {
  * @param   Number   code  Status code
  * @return  Boolean
  */
-fetch.isRedirect = code => code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
+const isRedirect = code => code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
+fetch.isRedirect = isRedirect;
 
 // expose Promise
 fetch.Promise = global.Promise;
@@ -269,5 +270,5 @@ export {
 	Request,
 	Response,
 	FetchError,
-	fetch.isRedirect as isRedirect
+	isRedirect
 };
