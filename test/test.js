@@ -826,8 +826,9 @@ describe('node-fetch', () => {
 			.to.eventually.be.rejected
 			.and.be.an.instanceOf(Error)
 			.and.include({
-				type: 'aborted',
+				code: 20,
 				name: 'AbortError',
+				message: 'The user aborted a request.'
 			})
 		));
 	});
@@ -843,8 +844,9 @@ describe('node-fetch', () => {
 		return expect(fetched).to.eventually.be.rejected
 			.and.be.an.instanceOf(Error)
 			.and.include({
-				type: 'aborted',
+				code: 20,
 				name: 'AbortError',
+				message: 'The user aborted a request.'
 			});
 	});
 
