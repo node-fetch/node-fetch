@@ -13,8 +13,9 @@
 export default function AbortError(message) {
 	Error.call(this, message);
 
-	this.type = 'aborted';
 	this.message = message;
+	this.name = 'AbortError';
+	this.code = 20;
 
 	// hide custom error implementation details from end-users
 	Error.captureStackTrace(this, this.constructor);
