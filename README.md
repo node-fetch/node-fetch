@@ -87,6 +87,8 @@ const Bluebird = require('bluebird');
 fetch.Promise = Bluebird;
 ```
 
+There's a `Promise` property on `Response` as well, which you should set beforehand if you are constructing one of those explicitly with a non-native Promise library.
+
 ## Common Usage
 
 NOTE: The documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](UPGRADE-GUIDE.md) for the differences.

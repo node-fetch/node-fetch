@@ -85,6 +85,15 @@ describe('node-fetch', () => {
 		fetch.Promise = old;
 	});
 
+	it('should allow custom promise with Response', function() {
+		const body = "hello";
+		const old = Response.Promise;
+		Response.Promise = then;
+		expect(new Response(body).text()).to.be.an.instanceof(then);
+		expect(new Response(body).text()).to.not.be.an.instanceof(old);
+		Response.Promise = old;
+	});
+
 	it('should throw error when no promise implementation are found', function() {
 		const url = `${base}hello`;
 		const old = fetch.Promise;
@@ -93,6 +102,16 @@ describe('node-fetch', () => {
 			fetch(url)
 		}).to.throw(Error);
 		fetch.Promise = old;
+	});
+
+	it('should throw error when no promise implementation are found with Response', function() {
+		const body = "hello";
+		const old = Response.Promise;
+		Response.Promise = undefined;
+		expect(() => {
+			new Response(url)
+		}).to.throw(Error);
+		Response.Promise = old;
 	});
 
 	it('should expose Headers, Response and Request constructors', function() {

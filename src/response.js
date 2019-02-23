@@ -24,6 +24,13 @@ const STATUS_CODES = http.STATUS_CODES;
  */
 export default class Response {
 	constructor(body = null, opts = {}) {
+		// allow custom promise
+		if (!Response.Promise) {
+			throw new Error('native promise missing, set Response.Promise to your favorite alternative');
+		}
+
+		Body.Promise = Response.Promise;
+
 		Body.call(this, body, opts);
 
 		const status = opts.status || 200;
@@ -101,3 +108,5 @@ Object.defineProperty(Response.prototype, Symbol.toStringTag, {
 	enumerable: false,
 	configurable: true
 });
+
+Response.Promise = global.Promise;
