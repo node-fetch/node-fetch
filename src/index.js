@@ -19,6 +19,7 @@ import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 import AbortError from './abort-error';
+import Blob from './blob'
 
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough = Stream.PassThrough;
@@ -268,5 +269,6 @@ export {
 	Headers,
 	Request,
 	Response,
-	FetchError
+	FetchError,
+	Blob
 };
