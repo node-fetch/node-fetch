@@ -12,6 +12,7 @@ export default class Blob {
 		const options = arguments[1];
 
 		const buffers = [];
+		buffers._size = 0;
 
 		if (blobParts) {
 			const a = blobParts;
@@ -30,11 +31,12 @@ export default class Blob {
 				} else {
 					buffer = Buffer.from(typeof element === 'string' ? element : String(element));
 				}
+				buffers._size += buffer.length;
 				buffers.push(buffer);
 			}
 		}
 
-		this[BUFFER] = Buffer.concat(buffers);
+		this[BUFFER] = Buffer.concat(buffers, buffers._size);
 
 		let type = options && options.type !== undefined && String(options.type).toLowerCase();
 		if (type && !/[^\u0020-\u007E]/.test(type)) {
