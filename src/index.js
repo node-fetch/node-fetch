@@ -142,8 +142,8 @@ export default function fetch(url, opts) {
 							return;
 						}
 
-            // Update host due to redirection
-            request.headers.set('host', [locationURL.host]);
+						// Update host due to redirection
+						request.headers.set('host', [locationURL.host]);
 
 						// HTTP-redirect fetch step 6 (counter increment)
 						// Create a new Request object.
