@@ -97,11 +97,20 @@ export default class TestServer {
 		if (p === '/brotli') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
-			res.setHeader('Content-Encoding', 'br');
-			zlib.brotliCompress('hello world', function(err, buffer) {
-				res.end(buffer);
-			});
+			if (typeof zlib.createBrotliDecompress === 'function') {
+				res.setHeader('Content-Encoding', 'br');
+				zlib.brotliCompress('hello world', function (err, buffer) {
+					res.end(buffer);
+				});
+			// if node version not support brotli compress fallback to gzip
+			} else {
+				res.setHeader('Content-Encoding', 'gzip');
+				zlib.gzip('hello world', function (err, buffer) {
+					res.end(buffer);
+				});
+			}
 		}
+
 
 		if (p === '/deflate-raw') {
 			res.statusCode = 200;
@@ -333,7 +342,12 @@ export default class TestServer {
 
 		if (p === '/no-content/brotli') {
 			res.statusCode = 204;
-			res.setHeader('Content-Encoding', 'br');
+			if(typeof zlib.createBrotliDecompress === 'function'){
+				res.setHeader('Content-Encoding', 'br');
+			// if node version not support brotli compress fallback to gzip
+			}else{
+				res.setHeader('Content-Encoding', 'gzip');
+			}
 			res.end();
 		}
 

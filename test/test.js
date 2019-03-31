@@ -50,6 +50,7 @@ import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body from '../src/body.js';
 import Blob from '../src/blob.js';
+import zlib from "zlib";
 
 const supportToString = ({
 	[Symbol.toStringTag]: 'z'
@@ -682,7 +683,13 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(204);
 			expect(res.statusText).to.equal('No Content');
-			expect(res.headers.get('content-encoding')).to.equal('br');
+			if(typeof zlib.createBrotliDecompress === 'function'){
+				expect(res.headers.get('content-encoding')).to.equal('br');
+			// if node version not support brotli compress fallback to gzip
+			}else{
+				expect(res.headers.get('content-encoding')).to.equal('gzip');
+			}
+
 			expect(res.ok).to.be.true;
 			return res.text().then(result => {
 				expect(result).to.be.a('string');
