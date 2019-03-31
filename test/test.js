@@ -666,6 +666,31 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should decompress brotli response', function() {
+		const url = `${base}brotli`;
+		return fetch(url).then(res => {
+			expect(res.headers.get('content-type')).to.equal('text/plain');
+			return res.text().then(result => {
+				expect(result).to.be.a('string');
+				expect(result).to.equal('hello world');
+			});
+		});
+	});
+
+	it('should handle no content response with brotli encoding', function() {
+		const url = `${base}no-content/brotli`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(204);
+			expect(res.statusText).to.equal('No Content');
+			expect(res.headers.get('content-encoding')).to.equal('br');
+			expect(res.ok).to.be.true;
+			return res.text().then(result => {
+				expect(result).to.be.a('string');
+				expect(result).to.be.empty;
+			});
+		});
+	});
+
 	it('should skip decompression if unsupported', function() {
 		const url = `${base}sdch`;
 		return fetch(url).then(res => {

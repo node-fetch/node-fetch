@@ -94,6 +94,15 @@ export default class TestServer {
 			});
 		}
 
+		if (p === '/brotli') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.setHeader('Content-Encoding', 'br');
+			zlib.brotliCompress('hello world', function(err, buffer) {
+				res.end(buffer);
+			});
+		}
+
 		if (p === '/deflate-raw') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
@@ -319,6 +328,12 @@ export default class TestServer {
 		if (p === '/no-content/gzip') {
 			res.statusCode = 204;
 			res.setHeader('Content-Encoding', 'gzip');
+			res.end();
+		}
+
+		if (p === '/no-content/brotli') {
+			res.statusCode = 204;
+			res.setHeader('Content-Encoding', 'br');
 			res.end();
 		}
 
