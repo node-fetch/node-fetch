@@ -14,6 +14,7 @@ import zlib from 'zlib';
 import Stream from 'stream';
 
 import Body, { writeToStream, getTotalBytes } from './body';
+import Blob, { BUFFER } from './blob';
 import Response from './response';
 import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
@@ -268,5 +269,7 @@ export {
 	Headers,
 	Request,
 	Response,
-	FetchError
+	FetchError,
+	Blob,
+	BUFFER
 };
