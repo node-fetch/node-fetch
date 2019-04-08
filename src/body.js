@@ -425,7 +425,7 @@ export function extractContentType(body) {
 	} else if (typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	} else if (body.stream instanceof Readable && typeof body.boundary === "string") {
+	} else if (body.stream instanceof Readable && typeof body.boundary === 'string') {
 		return `multipart/form-data;boundary=${body.boundary}`;
 	} else if (body instanceof Stream) {
 		// body is stream
