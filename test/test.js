@@ -7,6 +7,7 @@ import chaiString from 'chai-string';
 import then from 'promise';
 import resumer from 'resumer';
 import FormData from 'form-data';
+import FormDataNode from "formdata-node";
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import URLSearchParams_Polyfill from 'url-search-params';
 import { URL } from 'whatwg-url';
@@ -1346,6 +1347,28 @@ describe('node-fetch', () => {
 			expect(res.body).to.equal('a=1');
 		});
 	});
+
+  it('should support formdata-node as POST body', function() {
+    const form = new FormDataNode();
+
+    form.set('field', "some text");
+    form.set('file', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
+
+    const url = `${base}multipart`;
+    const opts = {
+      method: 'POST',
+      body: form
+    };
+
+    return fetch(url, opts)
+      .then(res => res.json())
+      .then(res => {
+        expect(res.method).to.equal('POST');
+        expect(res.headers['content-type']).to.equal(`multipart/form-data;boundary=${form.boundary}`);
+        expect(res.body).to.contain('field=');
+        expect(res.body).to.contain('file=');
+      });
+  });
 
 	it('should allow POST request with object body', function() {
 		const url = `${base}inspect`;
