@@ -5,7 +5,7 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, { Readable } from 'stream';
+import Stream from 'stream';
 
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
@@ -50,7 +50,7 @@ export default function Body(body, {
 		body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 	} else if (body instanceof Stream) {
 		// body is stream
-	} else if (body.stream instanceof Readable && typeof body.boundary === 'string') {
+	} else if (body.stream instanceof Stream.Readable && typeof body.boundary === 'string') {
 		// body is an instance of formdata-node
 		body = body.stream
 	} else {
@@ -425,7 +425,7 @@ export function extractContentType(body) {
 	} else if (typeof body.getBoundary === 'function') {
 		// detect form data input from form-data module
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	} else if (body.stream instanceof Readable && typeof body.boundary === 'string') {
+	} else if (body.stream instanceof Stream.Readable && typeof body.boundary === 'string') {
 		return `multipart/form-data;boundary=${body.boundary}`;
 	} else if (body instanceof Stream) {
 		// body is stream
