@@ -249,6 +249,25 @@ fetch('https://httpbin.org/post', options)
     .then(json => console.log(json));
 ```
 
+node-fetch support [formdata-node](https://github.com/octet-stream/form-data) as an alternative:
+
+```js
+import FormData from 'formdata-node';
+
+const form = new FormData();
+
+form.set('greeting', 'Hello, world!');
+
+const options = {
+    method: 'POST',
+    body: form
+};
+
+fetch('https://httpbin.org/post', options)
+    .then(res => res.json())
+    .then(json => console.log(json));
+```
+
 #### Request cancellation with AbortSignal
 
 > NOTE: You may only cancel streamed requests on Node >= v8.0.0
