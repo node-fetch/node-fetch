@@ -12,6 +12,7 @@ export default class Blob {
 		const options = arguments[1];
 
 		const buffers = [];
+		let size = 0;
 
 		if (blobParts) {
 			const a = blobParts;
@@ -30,6 +31,7 @@ export default class Blob {
 				} else {
 					buffer = Buffer.from(typeof element === 'string' ? element : String(element));
 				}
+				size += buffer.length;
 				buffers.push(buffer);
 			}
 		}
