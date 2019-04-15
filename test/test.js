@@ -1773,6 +1773,25 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should support reading blob as text', function() {
+		return new Response(`hello`)
+			.blob()
+			.then(blob => blob.text())
+			.then(body => {
+				expect(body).to.equal('hello');
+			})
+	})
+
+	it('should support reading blob as arrayBuffer', function() {
+		return new Response(`hello`)
+			.blob()
+			.then(blob => blob.arrayBuffer())
+			.then(ab => {
+				const str = String.fromCharCode.apply(null, new Uint8Array(ab));
+				expect(str).to.equal('hello');
+			})
+	})
+
 	it('should support blob round-trip', function() {
 		const url = `${base}hello`;
 

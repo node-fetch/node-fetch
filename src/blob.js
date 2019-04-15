@@ -49,6 +49,21 @@ export default class Blob {
 	get type() {
 		return this[TYPE];
 	}
+	text() {
+		return Promise.resolve(this[BUFFER].toString())
+	}
+	arrayBuffer() {
+		const buf = this[BUFFER];
+		const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+		return Promise.resolve(ab);
+	}
+	// stream() {
+	//	 const readable = new Readable()
+	//	 readable._read = () => {}
+	//	 readable.push(this[BUFFER])
+	//	 readable.push(null)
+	//	 return readable || whatwg stream? not decided
+	// }
 	slice() {
 		const size = this.size;
 
