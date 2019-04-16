@@ -1,6 +1,8 @@
 // Based on https://github.com/tmpvar/jsdom/blob/aa85b2abf07766ff7bf5c1f6daafb3726f2f2db5/lib/jsdom/living/blob.js
 // (MIT licensed)
 
+import { Readable } from 'stream';
+
 export const BUFFER = Symbol('buffer');
 const TYPE = Symbol('type');
 
@@ -57,13 +59,16 @@ export default class Blob {
 		const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 		return Promise.resolve(ab);
 	}
-	// stream() {
-	//	 const readable = new Readable()
-	//	 readable._read = () => {}
-	//	 readable.push(this[BUFFER])
-	//	 readable.push(null)
-	//	 return readable || whatwg stream? not decided
-	// }
+	stream() {
+		 const readable = new Readable();
+		 readable._read = () => {};
+		 readable.push(this[BUFFER]);
+		 readable.push(null);
+		 return readable;
+	}
+	toString() {
+		return '[object Blob]'
+	}
 	slice() {
 		const size = this.size;
 
