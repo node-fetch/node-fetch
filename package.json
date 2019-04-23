@@ -2,13 +2,13 @@
   "name": "node-fetch",
   "version": "2.3.0",
   "description": "A light-weight module that brings window.fetch to node.js",
-  "main": "lib/index",
+  "main": "src/index",
   "browser": "./browser.js",
-  "module": "lib/index.mjs",
+  "module": "src/index.mjs",
   "files": [
-    "lib/index.js",
-    "lib/index.mjs",
-    "lib/index.es.js",
+    "src/index.js",
+    "src/index.mjs",
+    "src/index.es.js",
     "browser.js"
   ],
   "engines": {
