@@ -37,9 +37,10 @@ export default function Body(body, {
 	} else if (isURLSearchParams(body)) {
 		// body is a URLSearchParams
 		body = Buffer.from(body.toString());
-	} else if (body instanceof Blob) {
+	} else if (isBlob(body)) {
 		// body is blob
-		body = body[BUFFER];
+		this.blobSize = body.size;
+		body = body.stream();
 	} else if (Buffer.isBuffer(body)) {
 		// body is Buffer
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
@@ -356,6 +357,24 @@ function isURLSearchParams(obj) {
 }
 
 /**
+ * Check if `obj` is a W3C `Blob` object (which `File` inherits from)
+ * @param  {*} obj
+ * @return {boolean}
+ */
+function isBlob(obj) {
+		return typeof obj === 'object' &&
+				typeof obj.arrayBuffer === 'function' &&
+				typeof obj.slice === 'function' &&
+				typeof obj.text === 'function' &&
+				typeof obj.type === 'string' &&
+				typeof obj.stream === 'function' &&
+				typeof obj.constructor === 'function' &&
+				typeof obj.constructor.name === 'string' &&
+				/^(Blob|File)$/.test(obj.constructor.name) &&
+				/^(Blob|File)$/.test(obj[Symbol.toStringTag])
+}
+
+/**
  * Clone body given Res/Req instance
  *
  * @param   Mixed  instance  Response or Request instance
@@ -460,8 +479,7 @@ export function getTotalBytes(instance) {
 		return null;
 	} else {
 		// body is stream
-		// can't really do much about this
-		return null;
+		return instance.blobSize || null;
 	}
 }
 
