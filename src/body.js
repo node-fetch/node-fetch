@@ -39,8 +39,6 @@ export default function Body(body, {
 		body = Buffer.from(body.toString());
 	} else if (isBlob(body)) {
 		// body is blob
-		this.blobSize = body.size;
-		body = body.stream();
 	} else if (Buffer.isBuffer(body)) {
 		// body is Buffer
 	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
@@ -192,18 +190,25 @@ function consumeBody() {
 		return Body.Promise.reject(this[INTERNALS].error);
 	}
 
+	let body = this.body;
+
 	// body is null
-	if (this.body === null) {
+	if (body === null) {
 		return Body.Promise.resolve(Buffer.alloc(0));
 	}
 
+	// body is blob
+	if (isBlob(body)) {
+		body = body.stream();
+	}
+
 	// body is buffer
-	if (Buffer.isBuffer(this.body)) {
-		return Body.Promise.resolve(this.body);
+	if (Buffer.isBuffer(body)) {
+		return Body.Promise.resolve(body);
 	}
 
 	// istanbul ignore if: should never happen
-	if (!(this.body instanceof Stream)) {
+	if (!(body instanceof Stream)) {
 		return Body.Promise.resolve(Buffer.alloc(0));
 	}
 
@@ -225,7 +230,7 @@ function consumeBody() {
 		}
 
 		// handle stream errors
-		this.body.on('error', err => {
+		body.on('error', err => {
 			if (err.name === 'AbortError') {
 				// if the request was aborted, reject with this Error
 				abort = true;
@@ -236,7 +241,7 @@ function consumeBody() {
 			}
 		});
 
-		this.body.on('data', chunk => {
+		body.on('data', chunk => {
 			if (abort || chunk === null) {
 				return;
 			}
@@ -251,7 +256,7 @@ function consumeBody() {
 			accum.push(chunk);
 		});
 
-		this.body.on('end', () => {
+		body.on('end', () => {
 			if (abort) {
 				return;
 			}
@@ -426,7 +431,7 @@ export function extractContentType(body) {
 	} else if (isURLSearchParams(body)) {
 		// body is a URLSearchParams
 		return 'application/x-www-form-urlencoded;charset=UTF-8';
-	} else if (body instanceof Blob) {
+	} else if (isBlob(body)) {
 		// body is blob
 		return body.type || null;
 	} else if (Buffer.isBuffer(body)) {
@@ -467,6 +472,8 @@ export function getTotalBytes(instance) {
 	if (body === null) {
 		// body is null
 		return 0;
+	} else if (isBlob(body)) {
+		return body.size;
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		return body.length;
@@ -479,7 +486,7 @@ export function getTotalBytes(instance) {
 		return null;
 	} else {
 		// body is stream
-		return instance.blobSize || null;
+		return instance.size || null;
 	}
 }
 
@@ -495,6 +502,8 @@ export function writeToStream(dest, instance) {
 	if (body === null) {
 		// body is null
 		dest.end();
+	} else if (isBlob(body)) {
+		body.stream().pipe(dest);
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		dest.write(body);
