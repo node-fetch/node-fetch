@@ -102,12 +102,6 @@ export default class TestServer {
 				zlib.brotliCompress('hello world', function (err, buffer) {
 					res.end(buffer);
 				});
-			// if node version not support brotli compress fallback to gzip
-			} else {
-				res.setHeader('Content-Encoding', 'gzip');
-				zlib.gzip('hello world', function (err, buffer) {
-					res.end(buffer);
-				});
 			}
 		}
 
@@ -342,12 +336,7 @@ export default class TestServer {
 
 		if (p === '/no-content/brotli') {
 			res.statusCode = 204;
-			if(typeof zlib.createBrotliDecompress === 'function'){
-				res.setHeader('Content-Encoding', 'br');
-			// if node version not support brotli compress fallback to gzip
-			}else{
-				res.setHeader('Content-Encoding', 'gzip');
-			}
+			res.setHeader('Content-Encoding', 'br');
 			res.end();
 		}
 
