@@ -522,7 +522,7 @@ MIT
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
 [codecov-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
-[install-size-image]: https://packagephobia.now.sh/badge?p=node-fetch
+[install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
