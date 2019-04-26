@@ -153,6 +153,7 @@ export default function fetch(url, opts) {
 							method: request.method,
 							body: request.body,
 							signal: request.signal,
+							timeout: request.timeout
 						};
 
 						// HTTP-redirect fetch step 9
