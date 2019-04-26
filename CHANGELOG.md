@@ -5,9 +5,17 @@ Changelog
 
 # 2.x release
 
+## v2.4.0
+
+- Enhance: added `Brotli` compression support (using node's zlib).
+- Enhance: updated `Blob` implementation per spec.
+- Fix: set content type automatically for `URLSearchParams`.
+- Fix: `Headers` now reject empty header names.
+- Fix: test cases, as node 12+ no longer accepts invalid header response.
+
 ## v2.3.0
 
-- New: `AbortSignal` support, with README example.
+- Enhance: added `AbortSignal` support, with README example.
 - Enhance: handle invalid `Location` header during redirect by rejecting them explicitly with `FetchError`.
 - Fix: update `browser.js` to support react-native environment, where `self` isn't available globally.
 
