@@ -45,7 +45,7 @@ import fetch, {
 	Response
 } from '../src/';
 import FetchErrorOrig from '../src/fetch-error.js';
-import HeadersOrig from '../src/headers.js';
+import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body from '../src/body.js';
@@ -489,17 +489,15 @@ describe('node-fetch', () => {
 	});
 
 	it('should ignore invalid headers', function() {
-		const url = `${base}invalid-header`;
-		return fetch(url).then(res => {
-			expect(res.headers.get('Invalid-Header')).to.be.null;
-			expect(res.headers.get('Invalid-Header-Value')).to.be.null;
-			expect(res.headers.get('Set-Cookie')).to.be.null;
-			expect(Array.from(res.headers.keys()).length).to.equal(4);
-			expect(res.headers.has('Connection')).to.be.true;
-			expect(res.headers.has('Content-Type')).to.be.true;
-			expect(res.headers.has('Date')).to.be.true;
-			expect(res.headers.has('Transfer-Encoding')).to.be.true;
-		});
+		var headers = {
+			'Invalid-Header ': 'abc\r\n',
+			'Invalid-Header-Value': '\x07k\r\n',
+			'Set-Cookie': ['\x07k\r\n', '\x07kk\r\n']
+		};
+		headers = createHeadersLenient(headers);
+		expect(headers).to.not.have.property('Invalid-Header ');
+		expect(headers).to.not.have.property('Invalid-Header-Value');
+		expect(headers).to.not.have.property('Set-Cookie');
 	});
 
 	it('should handle client-error response', function() {
