@@ -275,6 +275,14 @@ export default class TestServer {
 			}, 1000);
 		}
 
+		if (p === '/redirect/slow-chain') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/redirect/slow');
+			setTimeout(function() {
+				res.end();
+			}, 100);
+		}
+
 		if (p === '/redirect/slow-stream') {
 			res.statusCode = 301;
 			res.setHeader('Location', '/slow');
