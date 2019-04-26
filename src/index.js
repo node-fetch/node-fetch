@@ -244,6 +244,14 @@ export default function fetch(url, opts) {
 				return;
 			}
 
+			// for br
+			if (codings == 'br' && typeof zlib.createBrotliDecompress === 'function') {
+				body = body.pipe(zlib.createBrotliDecompress());
+				response = new Response(body, response_options);
+				resolve(response);
+				return;
+			}
+
 			// otherwise, use response as-is
 			response = new Response(body, response_options);
 			resolve(response);
