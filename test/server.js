@@ -117,20 +117,6 @@ export default class TestServer {
 			res.end('fake gzip string');
 		}
 
-		if (p === '/invalid-header') {
-			res.setHeader('Content-Type', 'text/plain');
-			res.writeHead(200);
-			// HACK: add a few invalid headers to the generated header string before
-			// it is actually sent to the socket.
-			res._header = res._header.replace(/\r\n$/, [
-				'Invalid-Header : abc\r\n',
-				'Invalid-Header-Value: \x07k\r\n',
-				'Set-Cookie: \x07k\r\n',
-				'Set-Cookie: \x07kk\r\n',
-			].join('') + '\r\n');
-			res.end('hello world\n');
-		}
-
 		if (p === '/timeout') {
 			setTimeout(function() {
 				res.statusCode = 200;
