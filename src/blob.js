@@ -1,7 +1,10 @@
 // Based on https://github.com/tmpvar/jsdom/blob/aa85b2abf07766ff7bf5c1f6daafb3726f2f2db5/lib/jsdom/living/blob.js
 // (MIT licensed)
 
-import { Readable } from 'stream';
+import Stream from 'stream';
+
+// fix for "Readable" isn't a named export issue
+const Readable = Stream.Readable;
 
 export const BUFFER = Symbol('buffer');
 const TYPE = Symbol('type');
