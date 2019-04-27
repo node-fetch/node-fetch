@@ -5,6 +5,10 @@ Changelog
 
 # 2.x release
 
+## v2.4.1
+
+- Fix: `Blob` import rule for node < 10, as `Readable` isn't a named export.
+
 ## v2.4.0
 
 - Enhance: added `Brotli` compression support (using node's zlib).
