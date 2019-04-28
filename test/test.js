@@ -8,7 +8,7 @@ import then from 'promise';
 import resumer from 'resumer';
 import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
-import URLSearchParams_Polyfill from 'url-search-params';
+import URLSearchParams_Polyfill from '@ungap/url-search-params';
 import { URL } from 'whatwg-url';
 import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
 import AbortController2 from 'abort-controller';
