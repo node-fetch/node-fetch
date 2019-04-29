@@ -368,10 +368,6 @@ function isURLSearchParams(obj) {
  */
 function isBlob(obj) {
 		return typeof obj === 'object' &&
-				typeof obj.arrayBuffer === 'function' &&
-				typeof obj.slice === 'function' &&
-				typeof obj.text === 'function' &&
-				typeof obj.type === 'string' &&
 				typeof obj.stream === 'function' &&
 				typeof obj.constructor === 'function' &&
 				typeof obj.constructor.name === 'string' &&
