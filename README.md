@@ -510,17 +510,17 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 
 Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid implementation reference.
 
-`node-fetch` v1 was maintained by [@bitinn](https://github.com/bitinn), v2 is currently maintained by [@TimothyGu](https://github.com/timothygu), v2 readme is written by [@jkantr](https://github.com/jkantr).
+`node-fetch` v1 was maintained by [@bitinn](https://github.com/bitinn); v2 was maintained by [@TimothyGu](https://github.com/timothygu), [@bitinn](https://github.com/bitinn) and [@jimmywarting](https://github.com/jimmywarting); v2 readme is written by [@jkantr](https://github.com/jkantr).
 
 ## License
 
 MIT
 
-[npm-image]: https://img.shields.io/npm/v/node-fetch.svg?style=flat-square
+[npm-image]: https://flat.badgen.net/npm/v/node-fetch
 [npm-url]: https://www.npmjs.com/package/node-fetch
-[travis-image]: https://img.shields.io/travis/bitinn/node-fetch.svg?style=flat-square
+[travis-image]: https://flat.badgen.net/travis/bitinn/node-fetch
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
-[codecov-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
+[codecov-image]: https://flat.badgen.net/codecov/c/github/bitinn/node-fetch/master
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
