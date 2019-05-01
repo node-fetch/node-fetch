@@ -489,6 +489,20 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should set redirected property on response when redirect', function() {
+		const url = `${base}redirect/301`;
+		return fetch(url).then(res => {
+			expect(res.redirected).to.be.true;
+		});
+	});
+
+	it('should not set redirected property on response without redirect', function() {
+	const url = `${base}hello`;
+		return fetch(url).then(res => {
+			expect(res.redirected).to.be.false;
+		});
+	});
+
 	it('should ignore invalid headers', function() {
 		var headers = {
 			'Invalid-Header ': 'abc\r\n',
@@ -2196,12 +2210,12 @@ describe('Response', function () {
 		}
 		for (const toCheck of [
 			'body', 'bodyUsed', 'arrayBuffer', 'blob', 'json', 'text',
-			'url', 'status', 'ok', 'statusText', 'headers', 'clone'
+			'url', 'status', 'ok', 'redirected', 'statusText', 'headers', 'clone'
 		]) {
 			expect(enumerableProperties).to.contain(toCheck);
 		}
 		for (const toCheck of [
-			'body', 'bodyUsed', 'url', 'status', 'ok', 'statusText',
+			'body', 'bodyUsed', 'url', 'status', 'ok', 'redirected', 'statusText',
 			'headers'
 		]) {
 			expect(() => {

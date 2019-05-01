@@ -40,7 +40,8 @@ export default class Response {
 			url: opts.url,
 			status,
 			statusText: opts.statusText || STATUS_CODES[status],
-			headers
+			headers,
+			counter: opts.counter
 		};
 	}
 
@@ -57,6 +58,10 @@ export default class Response {
 	 */
 	get ok() {
 		return this[INTERNALS].status >= 200 && this[INTERNALS].status < 300;
+	}
+
+	get redirected() {
+		return this[INTERNALS].counter > 0;
 	}
 
 	get statusText() {
@@ -78,9 +83,9 @@ export default class Response {
 			status: this.status,
 			statusText: this.statusText,
 			headers: this.headers,
-			ok: this.ok
+			ok: this.ok,
+			redirected: this.redirected
 		});
-
 	}
 }
 
@@ -90,6 +95,7 @@ Object.defineProperties(Response.prototype, {
 	url: { enumerable: true },
 	status: { enumerable: true },
 	ok: { enumerable: true },
+	redirected: { enumerable: true },
 	statusText: { enumerable: true },
 	headers: { enumerable: true },
 	clone: { enumerable: true }

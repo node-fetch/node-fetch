@@ -381,7 +381,6 @@ The following properties are not implemented in node-fetch at this moment:
 - `Response.error()`
 - `Response.redirect()`
 - `type`
-- `redirected`
 - `trailer`
 
 #### new Response([body[, options]])
@@ -400,6 +399,12 @@ Because Node.js does not implement service workers (for which this class was des
 <small>*(spec-compliant)*</small>
 
 Convenience property representing if the request ended normally. Will evaluate to true if the response status was greater than or equal to 200 but smaller than 300.
+
+#### response.redirected
+
+<small>*(spec-compliant)*</small>
+
+Convenience property representing if the request has been redirected at least once. Will evaluate to true if the internal redirect counter is greater than 0.
 
 <a id="class-headers"></a>
 ### Class: Headers
@@ -510,17 +515,17 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 
 Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid implementation reference.
 
-`node-fetch` v1 was maintained by [@bitinn](https://github.com/bitinn), v2 is currently maintained by [@TimothyGu](https://github.com/timothygu), v2 readme is written by [@jkantr](https://github.com/jkantr).
+`node-fetch` v1 was maintained by [@bitinn](https://github.com/bitinn); v2 was maintained by [@TimothyGu](https://github.com/timothygu), [@bitinn](https://github.com/bitinn) and [@jimmywarting](https://github.com/jimmywarting); v2 readme is written by [@jkantr](https://github.com/jkantr).
 
 ## License
 
 MIT
 
-[npm-image]: https://img.shields.io/npm/v/node-fetch.svg?style=flat-square
+[npm-image]: https://flat.badgen.net/npm/v/node-fetch
 [npm-url]: https://www.npmjs.com/package/node-fetch
-[travis-image]: https://img.shields.io/travis/bitinn/node-fetch.svg?style=flat-square
+[travis-image]: https://flat.badgen.net/travis/bitinn/node-fetch
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
-[codecov-image]: https://img.shields.io/codecov/c/github/bitinn/node-fetch.svg?style=flat-square
+[codecov-image]: https://flat.badgen.net/codecov/c/github/bitinn/node-fetch/master
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch

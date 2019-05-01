@@ -5,6 +5,14 @@ Changelog
 
 # 2.x release
 
+## v2.5.0
+
+- Enhance: `Response` object now includes `redirected` property.
+- Enhance: `fetch()` now accepts third-party `Blob` implementation as body.
+- Other: disable `package-lock.json` generation as we never commit them.
+- Other: dev dependency update.
+- Other: readme update.
+
 ## v2.4.1
 
 - Fix: `Blob` import rule for node < 10, as `Readable` isn't a named export.
