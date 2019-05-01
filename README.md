@@ -381,7 +381,6 @@ The following properties are not implemented in node-fetch at this moment:
 - `Response.error()`
 - `Response.redirect()`
 - `type`
-- `redirected`
 - `trailer`
 
 #### new Response([body[, options]])
@@ -400,6 +399,12 @@ Because Node.js does not implement service workers (for which this class was des
 <small>*(spec-compliant)*</small>
 
 Convenience property representing if the request ended normally. Will evaluate to true if the response status was greater than or equal to 200 but smaller than 300.
+
+#### response.redirected
+
+<small>*(spec-compliant)*</small>
+
+Convenience property representing if the request has been redirected at least once. Will evaluate to true if the internal redirect counter is greater than 0.
 
 <a id="class-headers"></a>
 ### Class: Headers

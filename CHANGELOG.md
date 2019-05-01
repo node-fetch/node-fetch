@@ -7,6 +7,7 @@ Changelog
 
 ## v2.5.0
 
+- Enhance: `Response` object now includes `redirected` property.
 - Enhance: `fetch()` now accepts third-party `Blob` implementation as body.
 - Other: disable `package-lock.json` generation as we never commit them.
 - Other: dev dependency update.
