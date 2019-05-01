@@ -230,7 +230,12 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept-Encoding', 'gzip,deflate');
 	}
 
-	if (!headers.has('Connection') && !request.agent) {
+	let agent = request.agent;
+	if (typeof agent === 'function') {
+		agent = agent(parsedURL);
+	}
+
+	if (!headers.has('Connection') && !agent) {
 		headers.set('Connection', 'close');
 	}
 
@@ -240,6 +245,6 @@ export function getNodeRequestOptions(request) {
 	return Object.assign({}, parsedURL, {
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
-		agent: request.agent
+		agent
 	});
 }
