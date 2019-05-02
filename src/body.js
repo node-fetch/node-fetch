@@ -295,8 +295,8 @@ function convertBody(buffer, headers) {
 		res = /charset=([^;]*)/i.exec(ct);
 	}
 
-	// no charset in content type, peek at response body for at most 1024 bytes
-	str = buffer.slice(0, 1024).toString();
+	// no charset in content type, peek at response body for at most 2048 bytes
+	str = buffer.slice(0, 2048).toString();
 
 	// html5
 	if (!res && str) {
