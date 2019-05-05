@@ -1978,6 +1978,30 @@ describe('node-fetch', () => {
 			expect(families[1]).to.equal(family);
 		});
 	});
+
+	it('should allow a function supplying the agent', function() {
+		const url = `${base}inspect`;
+
+		const agent = http.Agent({
+			keepAlive: true
+		});
+
+		let parsedURL;
+
+		return fetch(url, {
+			agent: function(_parsedURL) {
+				parsedURL = _parsedURL;
+				return agent;
+			}
+		}).then(res => {
+			return res.json();
+		}).then(res => {
+			// the agent provider should have been called
+			expect(parsedURL.protocol).to.equal('http:');
+			// the agent we returned should have been used
+			expect(res.headers['connection']).to.equal('keep-alive');
+		});
+	});
 });
 
 describe('Headers', function () {
