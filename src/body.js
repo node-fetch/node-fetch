@@ -484,7 +484,8 @@ export function getTotalBytes(instance) {
 		return null;
 	} else {
 		// body is stream
-		return instance.size || null;
+		// Since there's no standard way if getting a stream's size before reading it, return nothing.
+		return null;
 	}
 }
 

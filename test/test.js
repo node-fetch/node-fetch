@@ -48,7 +48,7 @@ import FetchErrorOrig from '../src/fetch-error.js';
 import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body from '../src/body.js';
+import Body, { getTotalBytes } from '../src/body.js';
 import Blob from '../src/blob.js';
 import zlib from "zlib";
 
@@ -1323,6 +1323,27 @@ describe('node-fetch', () => {
 		const opts = {
 			method: 'POST',
 			body
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.equal('chunked');
+			expect(res.headers['content-type']).to.be.undefined;
+			expect(res.headers['content-length']).to.be.undefined;
+		});
+	});
+
+	it('should resolve POST requests with readable stream as body when size is passed as a parameter', function() {
+		let body = resumer().queue('a=1').end();
+		body = body.pipe(new stream.PassThrough());
+
+		const url = `${base}inspect`;
+		const opts = {
+			method: 'POST',
+			body,
+			size: 2048
 		};
 		return fetch(url, opts).then(res => {
 			return res.json();
@@ -2631,6 +2652,15 @@ describe('Request', function () {
 		return req.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
+	});
+});
+
+describe('Body', function () {
+	it('should return null for a stream\'s total bytes, ignoring size', () => {
+		const fetchBody = new Body(fs.createReadStream(path.join(__dirname, 'dummy.txt')), {
+			size: 2048
+		});
+		expect(getTotalBytes(fetchBody)).to.equal(null);
 	});
 });
 
