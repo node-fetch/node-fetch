@@ -1915,7 +1915,7 @@ describe('node-fetch', () => {
 		expect(err.stack).to.include('funcName').and.to.startWith(`${err.name}: ${err.message}`);
 	});
 
-	it.skip('should support https request', function() {
+	it('should support https request', function() {
 		this.timeout(5000);
 		const url = 'https://github.com/';
 		const opts = {
