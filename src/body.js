@@ -466,7 +466,6 @@ export function extractContentType(body) {
 export function getTotalBytes(instance) {
 	const {body} = instance;
 
-	// istanbul ignore if: included for completion
 	if (body === null) {
 		// body is null
 		return 0;
@@ -484,7 +483,7 @@ export function getTotalBytes(instance) {
 		return null;
 	} else {
 		// body is stream
-		return instance.size || null;
+		return null;
 	}
 }
 

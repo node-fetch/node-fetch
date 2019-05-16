@@ -48,7 +48,7 @@ import FetchErrorOrig from '../src/fetch-error.js';
 import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body from '../src/body.js';
+import Body, { getTotalBytes } from '../src/body.js';
 import Blob from '../src/blob.js';
 import zlib from "zlib";
 
@@ -1914,8 +1914,7 @@ describe('node-fetch', () => {
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
-		expect(err.stack).to.include('funcName')
-			.and.to.startWith(`${err.name}: ${err.message}`);
+		expect(err.stack).to.include('funcName').and.to.startWith(`${err.name}: ${err.message}`);
 	});
 
 	it('should support https request', function() {
@@ -1982,7 +1981,7 @@ describe('node-fetch', () => {
 	it('should allow a function supplying the agent', function() {
 		const url = `${base}inspect`;
 
-		const agent = http.Agent({
+		const agent = new http.Agent({
 			keepAlive: true
 		});
 
@@ -2001,6 +2000,60 @@ describe('node-fetch', () => {
 			// the agent we returned should have been used
 			expect(res.headers['connection']).to.equal('keep-alive');
 		});
+	});
+
+	it('should calculate proper content length for each body type', function () {
+		const url = `${base}hello`;
+		const bodyContent = 'a=1';
+
+		let streamBody = resumer().queue(bodyContent).end();
+		streamBody = streamBody.pipe(new stream.PassThrough());
+		const streamRequest = new Request(url, {
+			method: 'POST',
+			body: streamBody,
+			size: 1024
+		});
+
+		let blobBody = new Blob([bodyContent]);
+		const blobRequest = new Request(url, {
+			method: 'POST',
+			body: blobBody,
+			size: 1024
+		});
+
+		let formBody = new FormData();
+		formBody.append('a', '1');
+		const formRequest = new Request(url, {
+			method: 'POST',
+			body: formBody,
+			size: 1024
+		});
+
+		let bufferBody = Buffer.from(bodyContent);
+		const bufferRequest = new Request(url, {
+			method: 'POST',
+			body: bufferBody,
+			size: 1024
+		});
+
+		const stringRequest = new Request(url, {
+			method: 'POST',
+			body: bodyContent,
+			size: 1024
+		});
+
+		const nullRequest = new Request(url, {
+			method: 'GET',
+			body: null,
+			size: 1024
+		});
+
+		expect(getTotalBytes(streamRequest)).to.be.null;
+		expect(getTotalBytes(blobRequest)).to.equal(blobBody.size);
+		expect(getTotalBytes(formRequest)).to.not.be.null;
+		expect(getTotalBytes(bufferRequest)).to.equal(bufferBody.length);
+		expect(getTotalBytes(stringRequest)).to.equal(bodyContent.length);
+		expect(getTotalBytes(nullRequest)).to.equal(0);
 	});
 });
 

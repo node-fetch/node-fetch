@@ -317,7 +317,7 @@ The default values are shown after each option key.
     timeout: 0,         // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
     compress: true,     // support gzip/deflate content encoding. false to disable
     size: 0,            // maximum response body size in bytes. 0 to disable
-    agent: null         // http(s).Agent instance (or function providing one), allows custom proxy, certificate, dns lookup etc.
+    agent: null         // http(s).Agent instance or function that returns an instance (see below)
 }
 ```
 
@@ -333,6 +333,39 @@ Header              | Value
 `Content-Length`    | _(automatically calculated, if possible)_
 `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_
 `User-Agent`        | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
+
+Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
+
+##### Custom Agent
+
+The `agent` option allows you to specify networking related options that's out of the scope of Fetch. Including and not limit to:
+
+- Support self-signed certificate
+- Use only IPv4 or IPv6
+- Custom DNS Lookup
+
+See [`http.Agent`](https://nodejs.org/api/http.html#http_new_agent_options) for more information.
+
+In addition, `agent` option accepts a function that returns http(s).Agent instance given current [URL](https://nodejs.org/api/url.html), this is useful during a redirection chain across HTTP and HTTPS protocol.
+
+```js
+const httpAgent = new http.Agent({
+    keepAlive: true
+});
+const httpsAgent = new https.Agent({
+    keepAlive: true
+});
+
+const options = {
+    agent: function (_parsedURL) {
+        if (_parsedURL.protocol == 'http:') {
+            return httpAgent;
+        } else {
+            return httpsAgent;
+        }
+    }
+}
+```
 
 <a id="class-request"></a>
 ### Class: Request

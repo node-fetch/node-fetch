@@ -5,6 +5,11 @@ Changelog
 
 # 2.x release
 
+## v2.6.0
+
+- Enhance: `options.agent`, it now accepts a function that returns custom http(s).Agent instance based on current URL, see readme for more information.
+- Fix: incorrect `Content-Length` was returned for stream body in 2.5.0 release; note that `node-fetch` doesn't calculate content length for stream body.
+
 ## v2.5.0
 
 - Enhance: `Response` object now includes `redirected` property.
