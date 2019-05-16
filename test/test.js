@@ -1915,7 +1915,7 @@ describe('node-fetch', () => {
 		expect(err.stack).to.include('funcName').and.to.startWith(`${err.name}: ${err.message}`);
 	});
 
-	it('should support https request', function() {
+	it.skip('should support https request', function() {
 		this.timeout(5000);
 		const url = 'https://github.com/';
 		const opts = {
@@ -2444,6 +2444,11 @@ describe('Response', function () {
 	it('should default to 200 as status code', function() {
 		const res = new Response(null);
 		expect(res.status).to.equal(200);
+	});
+
+	it('should default to empty string as url', function() {
+		const res = new Response();
+		expect(res.url).to.equal('');
 	});
 });
 

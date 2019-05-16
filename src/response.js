@@ -46,7 +46,7 @@ export default class Response {
 	}
 
 	get url() {
-		return this[INTERNALS].url;
+		return this[INTERNALS].url || '';
 	}
 
 	get status() {
