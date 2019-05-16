@@ -415,11 +415,9 @@ export function clone(instance) {
  *
  * This function assumes that instance.body is present.
  *
- * @param   Mixed  instance  Response or Request instance
+ * @param   Mixed  instance  Any options.body input
  */
 export function extractContentType(body) {
-	// istanbul ignore if: Currently, because of a guard in Request, body
-	// can never be null. Included here for completeness.
 	if (body === null) {
 		// body is null
 		return null;

@@ -48,7 +48,7 @@ import FetchErrorOrig from '../src/fetch-error.js';
 import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body, { getTotalBytes } from '../src/body.js';
+import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import Blob from '../src/blob.js';
 import zlib from "zlib";
 
@@ -2002,7 +2002,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should calculate proper content length for each body type', function () {
+	it('should calculate content length and extract content type for each body type', function () {
 		const url = `${base}hello`;
 		const bodyContent = 'a=1';
 
@@ -2014,7 +2014,7 @@ describe('node-fetch', () => {
 			size: 1024
 		});
 
-		let blobBody = new Blob([bodyContent]);
+		let blobBody = new Blob([bodyContent], { type: 'text/plain' });
 		const blobRequest = new Request(url, {
 			method: 'POST',
 			body: blobBody,
@@ -2054,6 +2054,13 @@ describe('node-fetch', () => {
 		expect(getTotalBytes(bufferRequest)).to.equal(bufferBody.length);
 		expect(getTotalBytes(stringRequest)).to.equal(bodyContent.length);
 		expect(getTotalBytes(nullRequest)).to.equal(0);
+
+		expect(extractContentType(streamBody)).to.be.null;
+		expect(extractContentType(blobBody)).to.equal('text/plain');
+		expect(extractContentType(formBody)).to.startWith('multipart/form-data');
+		expect(extractContentType(bufferBody)).to.be.null;
+		expect(extractContentType(bodyContent)).to.equal('text/plain;charset=UTF-8');
+		expect(extractContentType(null)).to.be.null;
 	});
 });
 
