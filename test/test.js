@@ -738,7 +738,7 @@ describe('node-fetch', () => {
 				// Wait a few ms to see if a uncaught error occurs
 				setTimeout(() => {
 					done();
-				}, 50);
+				}, 20);
 			});
 	});
 
@@ -748,7 +748,7 @@ describe('node-fetch', () => {
 			return new Promise((resolve) => {
 				setTimeout(() => {
 					resolve(value)
-				}, 100);
+				}, 20);
 			});
 		}
 
@@ -789,10 +789,9 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow custom timeout', function() {
-		this.timeout(500);
 		const url = `${base}timeout`;
 		const opts = {
-			timeout: 100
+			timeout: 20
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -800,10 +799,9 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow custom timeout on response body', function() {
-		this.timeout(500);
 		const url = `${base}slow`;
 		const opts = {
-			timeout: 100
+			timeout: 20
 		};
 		return fetch(url, opts).then(res => {
 			expect(res.ok).to.be.true;
@@ -814,10 +812,9 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow custom timeout on redirected requests', function() {
-		this.timeout(2000);
 		const url = `${base}redirect/slow-chain`;
 		const opts = {
-			timeout: 200
+			timeout: 20
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -908,7 +905,7 @@ describe('node-fetch', () => {
 				'${base}timeout',
 				{ signal: controller.signal, timeout: 10000 }
 			);
-			setTimeout(function () { controller.abort(); }, 100);
+			setTimeout(function () { controller.abort(); }, 20);
 		`
 		spawn('node', ['-e', script])
 			.on('exit', () => {
@@ -940,7 +937,7 @@ describe('node-fetch', () => {
 		});
 		setTimeout(() => {
 			abortController.abort();
-		}, 50);
+		}, 20);
 		return expect(fetch(request)).to.be.eventually.rejected
 			.and.be.an.instanceOf(Error)
 			.and.have.property('name', 'AbortError');
@@ -1914,6 +1911,7 @@ describe('node-fetch', () => {
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
+		// reading the stack is quite slow (~30-50ms)
 		expect(err.stack).to.include('funcName').and.to.startWith(`${err.name}: ${err.message}`);
 	});
 

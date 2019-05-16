@@ -157,10 +157,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			setTimeout(function() {
 				res.write('test');
-			}, 50);
+			}, 10);
 			setTimeout(function() {
 				res.end('test');
-			}, 100);
+			}, 20);
 		}
 
 		if (p === '/size/long') {
@@ -280,7 +280,7 @@ export default class TestServer {
 			res.setHeader('Location', '/redirect/slow');
 			setTimeout(function() {
 				res.end();
-			}, 100);
+			}, 10);
 		}
 
 		if (p === '/redirect/slow-stream') {
