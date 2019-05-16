@@ -48,7 +48,7 @@ import FetchErrorOrig from '../src/fetch-error.js';
 import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body from '../src/body.js';
+import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import Blob from '../src/blob.js';
 import zlib from "zlib";
 
@@ -738,7 +738,7 @@ describe('node-fetch', () => {
 				// Wait a few ms to see if a uncaught error occurs
 				setTimeout(() => {
 					done();
-				}, 50);
+				}, 20);
 			});
 	});
 
@@ -748,7 +748,7 @@ describe('node-fetch', () => {
 			return new Promise((resolve) => {
 				setTimeout(() => {
 					resolve(value)
-				}, 100);
+				}, 20);
 			});
 		}
 
@@ -789,10 +789,9 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow custom timeout', function() {
-		this.timeout(500);
 		const url = `${base}timeout`;
 		const opts = {
-			timeout: 100
+			timeout: 20
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -800,10 +799,9 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow custom timeout on response body', function() {
-		this.timeout(500);
 		const url = `${base}slow`;
 		const opts = {
-			timeout: 100
+			timeout: 20
 		};
 		return fetch(url, opts).then(res => {
 			expect(res.ok).to.be.true;
@@ -814,10 +812,9 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow custom timeout on redirected requests', function() {
-		this.timeout(2000);
 		const url = `${base}redirect/slow-chain`;
 		const opts = {
-			timeout: 200
+			timeout: 20
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -908,7 +905,7 @@ describe('node-fetch', () => {
 				'${base}timeout',
 				{ signal: controller.signal, timeout: 10000 }
 			);
-			setTimeout(function () { controller.abort(); }, 100);
+			setTimeout(function () { controller.abort(); }, 20);
 		`
 		spawn('node', ['-e', script])
 			.on('exit', () => {
@@ -940,7 +937,7 @@ describe('node-fetch', () => {
 		});
 		setTimeout(() => {
 			abortController.abort();
-		}, 50);
+		}, 20);
 		return expect(fetch(request)).to.be.eventually.rejected
 			.and.be.an.instanceOf(Error)
 			.and.have.property('name', 'AbortError');
@@ -1914,8 +1911,8 @@ describe('node-fetch', () => {
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
 		expect(err.errno).to.equal('ESOMEERROR');
-		expect(err.stack).to.include('funcName')
-			.and.to.startWith(`${err.name}: ${err.message}`);
+		// reading the stack is quite slow (~30-50ms)
+		expect(err.stack).to.include('funcName').and.to.startWith(`${err.name}: ${err.message}`);
 	});
 
 	it('should support https request', function() {
@@ -1982,7 +1979,7 @@ describe('node-fetch', () => {
 	it('should allow a function supplying the agent', function() {
 		const url = `${base}inspect`;
 
-		const agent = http.Agent({
+		const agent = new http.Agent({
 			keepAlive: true
 		});
 
@@ -2001,6 +1998,67 @@ describe('node-fetch', () => {
 			// the agent we returned should have been used
 			expect(res.headers['connection']).to.equal('keep-alive');
 		});
+	});
+
+	it('should calculate content length and extract content type for each body type', function () {
+		const url = `${base}hello`;
+		const bodyContent = 'a=1';
+
+		let streamBody = resumer().queue(bodyContent).end();
+		streamBody = streamBody.pipe(new stream.PassThrough());
+		const streamRequest = new Request(url, {
+			method: 'POST',
+			body: streamBody,
+			size: 1024
+		});
+
+		let blobBody = new Blob([bodyContent], { type: 'text/plain' });
+		const blobRequest = new Request(url, {
+			method: 'POST',
+			body: blobBody,
+			size: 1024
+		});
+
+		let formBody = new FormData();
+		formBody.append('a', '1');
+		const formRequest = new Request(url, {
+			method: 'POST',
+			body: formBody,
+			size: 1024
+		});
+
+		let bufferBody = Buffer.from(bodyContent);
+		const bufferRequest = new Request(url, {
+			method: 'POST',
+			body: bufferBody,
+			size: 1024
+		});
+
+		const stringRequest = new Request(url, {
+			method: 'POST',
+			body: bodyContent,
+			size: 1024
+		});
+
+		const nullRequest = new Request(url, {
+			method: 'GET',
+			body: null,
+			size: 1024
+		});
+
+		expect(getTotalBytes(streamRequest)).to.be.null;
+		expect(getTotalBytes(blobRequest)).to.equal(blobBody.size);
+		expect(getTotalBytes(formRequest)).to.not.be.null;
+		expect(getTotalBytes(bufferRequest)).to.equal(bufferBody.length);
+		expect(getTotalBytes(stringRequest)).to.equal(bodyContent.length);
+		expect(getTotalBytes(nullRequest)).to.equal(0);
+
+		expect(extractContentType(streamBody)).to.be.null;
+		expect(extractContentType(blobBody)).to.equal('text/plain');
+		expect(extractContentType(formBody)).to.startWith('multipart/form-data');
+		expect(extractContentType(bufferBody)).to.be.null;
+		expect(extractContentType(bodyContent)).to.equal('text/plain;charset=UTF-8');
+		expect(extractContentType(null)).to.be.null;
 	});
 });
 
@@ -2386,6 +2444,11 @@ describe('Response', function () {
 	it('should default to 200 as status code', function() {
 		const res = new Response(null);
 		expect(res.status).to.equal(200);
+	});
+
+	it('should default to empty string as url', function() {
+		const res = new Response();
+		expect(res.url).to.equal('');
 	});
 });
 
