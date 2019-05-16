@@ -32,6 +32,7 @@ A light-weight module that brings `window.fetch` to Node.js
     - [Post data using a file stream](#post-data-using-a-file-stream)
     - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
     - [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
+    - [Extract Set-Cookie Header](#extract-set-cookie-header)
 - [API](#api)
     - [fetch(url[, options])](#fetchurl-options)
     - [Options](#options)
@@ -206,6 +207,17 @@ fetch('https://github.com/')
         console.log(res.headers.raw());
         console.log(res.headers.get('content-type'));
     });
+```
+
+#### Extract Set-Cookie Header
+
+Unlike browsers, you can access raw `Set-Cookie` headers manually using `Headers.raw()`, this is a `node-fetch` only API.
+
+```js
+fetch(url).then(res => {
+    // returns an array of values, instead of a string of comma-separated values
+    console.log(res.headers.raw()['set-cookie']);
+});
 ```
 
 #### Post data using a file stream
