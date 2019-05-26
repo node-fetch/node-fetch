@@ -175,13 +175,17 @@ fetch('https://httpbin.org/status/400')
 ## Advanced Usage
 
 #### Streams
-The "Node.js way" is to use streams when possible:
+The "Node.js way" is to use streams when possible. You can pipe `res.body` to another stream. This example uses [stream.pipeline](https://nodejs.org/api/stream.html#stream_stream_pipeline_streams_callback) (requires node 10+) to attach stream error handlers and wait for the download to complete.
 
 ```js
+const util = require('util');
+const fs = require('fs');
+const streamPipeline = util.promisify(require('stream').pipeline);
+
 fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
     .then(res => {
-        const dest = fs.createWriteStream('./octocat.png');
-        res.body.pipe(dest);
+        if (!res.ok) throw new Error(`unexpected response ${res.statusText}`);
+        return streamPipeline(res.body, fs.createWriteStream('./octocat.png'));
     });
 ```
 
