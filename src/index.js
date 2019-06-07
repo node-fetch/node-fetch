@@ -14,10 +14,10 @@ import zlib from 'zlib';
 import Stream from 'stream';
 
 import Body, { writeToStream, getTotalBytes } from './body';
-import Response from './response';
+const Response = require('./response');
 import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
-import FetchError from './fetch-error';
+const FetchError = require('./fetch-error');
 import AbortError from './abort-error';
 
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10

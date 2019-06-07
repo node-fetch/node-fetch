@@ -47,7 +47,7 @@ import fetch, {
 const FetchErrorOrig = require('../src/fetch-error.js');
 import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
-import ResponseOrig from '../src/response.js';
+const ResponseOrig = require('../src/response.js');
 import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import Blob from '../src/blob.js';
 const zlib = require('zlib');
