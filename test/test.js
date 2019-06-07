@@ -1,17 +1,17 @@
 
 // test tools
-import chai from 'chai';
-import chaiPromised from 'chai-as-promised';
-import chaiIterator from 'chai-iterator';
-import chaiString from 'chai-string';
-import then from 'promise';
-import resumer from 'resumer';
-import FormData from 'form-data';
-import stringToArrayBuffer from 'string-to-arraybuffer';
-import URLSearchParams_Polyfill from '@ungap/url-search-params';
-import { URL } from 'whatwg-url';
-import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
-import AbortController2 from 'abort-controller';
+const chai = require('chai');
+const chaiPromised = require('chai-as-promised');
+const chaiIterator = require('chai-iterator');
+const chaiString = require('chai-string');
+const then = require('promise');
+const resumer = require('resumer');
+const FormData = require('form-data');
+const stringToArrayBuffer = require('string-to-arraybuffer');
+const URLSearchParams_Polyfill = require('@ungap/url-search-params');
+const { URL } = require('whatwg-url');
+const { AbortController } = require('abortcontroller-polyfill/dist/abortcontroller');
+const AbortController2 = require('abort-controller');
 
 const { spawn } = require('child_process');
 const http = require('http');
@@ -50,7 +50,7 @@ import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import Blob from '../src/blob.js';
-import zlib from "zlib";
+const zlib = require('zlib');
 
 const supportToString = ({
 	[Symbol.toStringTag]: 'z'
