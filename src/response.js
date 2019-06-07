@@ -22,7 +22,7 @@ const STATUS_CODES = http.STATUS_CODES;
  * @param   Object  opts  Response options
  * @return  Void
  */
-export default class Response {
+class Response {
 	constructor(body = null, opts = {}) {
 		Body.call(this, body, opts);
 
@@ -107,3 +107,5 @@ Object.defineProperty(Response.prototype, Symbol.toStringTag, {
 	enumerable: false,
 	configurable: true
 });
+
+module.exports = Response;
