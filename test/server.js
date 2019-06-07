@@ -1,13 +1,13 @@
-import * as http from 'http';
-import { parse } from 'url';
-import * as zlib from 'zlib';
-import * as stream from 'stream';
-import { multipart as Multipart } from 'parted';
+const http = require('http');
+const { parse } = require('url');
+const zlib = require('zlib');
+const stream = require('stream');
+const { multipart: Multipart } = require('parted');
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) {}
 
-export default class TestServer {
+class TestServer {
 	constructor() {
 		this.server = http.createServer(this.router);
 		this.port = 30001;
@@ -387,3 +387,5 @@ if (require.main === module) {
 		console.log(`Server started listening at port ${server.port}`);
 	});
 }
+
+module.exports = TestServer;

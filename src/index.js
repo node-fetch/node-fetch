@@ -18,7 +18,7 @@ const Response = require('./response');
 import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
 const FetchError = require('./fetch-error');
-import AbortError from './abort-error';
+const AbortError = require('./abort-error');
 
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough = Stream.PassThrough;
