@@ -1,23 +1,26 @@
 "use strict";
 
-// ref: https://github.com/tc39/proposal-global
-var getGlobal = function () {
-	// the only reliable means to get the global object is
-	// `Function('return this')()`
-	// However, this causes CSP violations in Chrome apps.
-	if (typeof self !== 'undefined') { return self; }
-	if (typeof window !== 'undefined') { return window; }
-	if (typeof global !== 'undefined') { return global; }
-	throw new Error('unable to locate global object');
-}
-
-var global = getGlobal();
-
-module.exports = exports = global.fetch;
-
-// Needed for TypeScript and Webpack.
-exports.default = global.fetch.bind(global);
-
-exports.Headers = global.Headers;
-exports.Request = global.Request;
-exports.Response = global.Response;
+(function(root, factory) {
+  if (typeof define === "function" && define.amd) {
+    define([], factory);
+  } else if (typeof module === "object" && module.exports) {
+    module.exports = factory();
+  } else {
+    root.returnExports = factory();
+  }
+})(
+  typeof self !== "undefined"
+    ? self
+    : typeof window !== "undefined"
+    ? window
+    : global,
+  function() {
+    var exports = global.fetch;
+    // Needed for TypeScript and Webpack.
+    exports.default = global.fetch.bind(global);
+    exports.Headers = global.Headers;
+    exports.Request = global.Request;
+    exports.Response = global.Response;
+    return exports;
+  }
+);
