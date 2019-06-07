@@ -44,7 +44,7 @@ import fetch, {
 	Request,
 	Response
 } from '../src/';
-import FetchErrorOrig from '../src/fetch-error.js';
+const FetchErrorOrig = require('../src/fetch-error.js');
 import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
