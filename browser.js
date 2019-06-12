@@ -13,7 +13,7 @@ var getGlobal = function () {
 
 var global = getGlobal();
 
-module.exports = exports = global.fetch;
+module.exports = exports = global.fetch.bind(global);
 
 // Needed for TypeScript and Webpack.
 exports.default = global.fetch.bind(global);
