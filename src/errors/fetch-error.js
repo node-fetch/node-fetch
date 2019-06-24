@@ -1,3 +1,4 @@
+
 /**
  * Fetch-error.js
  *
@@ -20,9 +21,10 @@ export default class FetchError extends Error {
 		this.type = type;
 		this.name = 'FetchError';
 
-		// When err.type is `system`, err.code contains system error code
+	    // When err.type is `system`, err.erroredSysCall contains system error and err.code contains system error code
 		if (systemError) {
 			this.code = this.errno = systemError.code;
+		    this.erroredSysCall = systemError;
 		}
 
 		// Hide custom error implementation details from end-users
