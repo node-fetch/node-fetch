@@ -41,7 +41,7 @@ export default function fetch(url, opts) {
 	if (/^data:/.test(url)) {
 		const request = new Request(url, opts);
 		try  {
-			const data = Buffer.from(url.split(",")[1], 'base64')
+			const data = Buffer.from(url.split(',')[1], 'base64')
 			const res = new Response(data.body, {headers: {'Content-Type': data.mimeType}});
 			return fetch.Promise.resolve(res);
 		} catch (err) {
