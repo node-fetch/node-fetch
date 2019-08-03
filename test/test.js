@@ -2834,4 +2834,29 @@ describe('external encoding', () => {
 			});
 		});
 	});
+
+	describe('data uri', function() {
+		const dataUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
+
+		const invalidDataUrl = 'data:@@@@';
+
+		it('should accept data uri', function() {
+			return fetch(dataUrl).then(r => {
+				console.assert(r.status == 200);
+				console.assert(r.headers.get('Content-Type') == 'image/gif');
+
+				return r.buffer().then(b => {
+					console.assert(b instanceof Buffer);
+				});
+			});
+		});
+
+		it('should reject invalid data uri', function() {
+			return fetch(invalidDataUrl)
+			.catch(e => {
+				console.assert(e);
+				console.assert(e.message.includes('invalid URL'));
+			});
+		});
+	});
 });
