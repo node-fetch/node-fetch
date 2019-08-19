@@ -84,7 +84,9 @@ export default class Response {
 			statusText: this.statusText,
 			headers: this.headers,
 			ok: this.ok,
-			redirected: this.redirected
+			redirected: this.redirected,
+			size: this.size,
+			timeout: this.timeout
 		});
 	}
 }
