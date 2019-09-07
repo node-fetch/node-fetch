@@ -5,10 +5,7 @@ node_js:
   - "lts/*" # 10
   - "node" # 12
 
-cache:
-  - npm
-  directories:
-    - node_modules
+cache: npm
 
 script:
   - npm run coverage
