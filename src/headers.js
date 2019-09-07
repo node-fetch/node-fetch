@@ -5,7 +5,7 @@
  * Headers class offers convenient helpers
  */
 
-const invalidTokenRegex = /[^\^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
+const invalidTokenRegex = /[^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
 const invalidHeaderCharRegex = /[^\t\u0020-\u007e\u0080-\u00ff]/;
 
 function validateName(name) {
@@ -252,15 +252,15 @@ Object.defineProperty(Headers.prototype, Symbol.toStringTag, {
 });
 
 Object.defineProperties(Headers.prototype, {
-	get: { enumerable: true },
-	forEach: { enumerable: true },
-	set: { enumerable: true },
-	append: { enumerable: true },
-	has: { enumerable: true },
-	delete: { enumerable: true },
-	keys: { enumerable: true },
-	values: { enumerable: true },
-	entries: { enumerable: true }
+	get: {enumerable: true},
+	forEach: {enumerable: true},
+	set: {enumerable: true},
+	append: {enumerable: true},
+	has: {enumerable: true},
+	delete: {enumerable: true},
+	keys: {enumerable: true},
+	values: {enumerable: true},
+	entries: {enumerable: true}
 });
 
 function getHeaders(headers, kind = 'key+value') {
@@ -333,7 +333,7 @@ Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
  * @return  Object
  */
 export function exportNodeCompatibleHeaders(headers) {
-	const obj = Object.assign({ __proto__: null }, headers[MAP]);
+	const obj = Object.assign({__proto__: null}, headers[MAP]);
 
 	// Http.request() only supports string as Host header. This hack makes
 	// specifying custom Host header possible.

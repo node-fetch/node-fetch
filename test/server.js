@@ -1,11 +1,11 @@
 import * as http from 'http';
-import { parse } from 'url';
+import {parse} from 'url';
 import * as zlib from 'zlib';
-import * as stream from 'stream';
-import { multipart as Multipart } from 'parted';
+import {multipart as Multipart} from 'parted';
 
 let convert;
 try {
+	/* eslint-disable-next-line import/no-unresolved */
 	convert = require('encoding').convert;
 } catch (error) {}
 

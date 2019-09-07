@@ -1,4 +1,3 @@
-
 // Test tools
 import zlib from 'zlib';
 import chai from 'chai';
@@ -21,12 +20,12 @@ import fetch, {
 	Request,
 	Response
 } from '../src';
-import FetchErrorOrig from '../src/fetch-error.js';
-import HeadersOrig, { createHeadersLenient } from '../src/headers.js';
-import RequestOrig from '../src/request.js';
-import ResponseOrig from '../src/response.js';
-import Body, { getTotalBytes, extractContentType } from '../src/body.js';
-import Blob from '../src/blob.js';
+import FetchErrorOrig from '../src/fetch-error';
+import HeadersOrig, { createHeadersLenient } from '../src/headers';
+import RequestOrig from '../src/request';
+import ResponseOrig from '../src/response';
+import Body, { getTotalBytes, extractContentType } from '../src/body';
+import Blob from '../src/blob';
 import TestServer from './server';
 
 const { spawn } = require('child_process');
@@ -1638,7 +1637,7 @@ describe('node-fetch', () => {
 		const url = `${base}plain`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
-			return res.text().then(result => {
+			return res.text().then(() => {
 				expect(res.bodyUsed).to.be.true;
 				return expect(res.text()).to.eventually.be.rejectedWith(Error);
 			});
@@ -1748,7 +1747,7 @@ describe('node-fetch', () => {
 	it('should not allow cloning a response after its been used', () => {
 		const url = `${base}hello`;
 		return fetch(url).then(res =>
-			res.text().then(result => {
+			res.text().then(() => {
 				expect(() => {
 					res.clone();
 				}).to.throw(Error);
@@ -1862,7 +1861,8 @@ describe('node-fetch', () => {
 	it('should support blob round-trip', () => {
 		const url = `${base}hello`;
 
-		let length; let type;
+		let length;
+		let type;
 
 		return fetch(url).then(res => res.blob()).then(blob => {
 			const url = `${base}inspect`;
@@ -1909,6 +1909,7 @@ describe('node-fetch', () => {
 		expect(body).to.have.property('buffer');
 	});
 
+	/* eslint-disable-next-line func-names */
 	it('should create custom FetchError', function funcName() {
 		const systemError = new Error('system');
 		systemError.code = 'ESOMEERROR';
@@ -2081,6 +2082,7 @@ describe('Headers', () => {
 		const headers = new Headers();
 		expect(Object.getOwnPropertyNames(headers)).to.be.empty;
 		const enumerableProperties = [];
+
 		for (const property in headers) {
 			enumerableProperties.push(property);
 		}

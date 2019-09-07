@@ -4,7 +4,7 @@
 import Stream from 'stream';
 
 // Fix for "Readable" isn't a named export issue
-const { Readable } = Stream;
+const {Readable} = Stream;
 
 export const BUFFER = Symbol('buffer');
 const TYPE = Symbol('type');
@@ -17,6 +17,7 @@ export default class Blob {
 		const options = arguments[1];
 
 		const buffers = [];
+		/* eslint-disable-next-line no-unused-vars */
 		let size = 0;
 
 		if (blobParts) {
@@ -81,11 +82,13 @@ export default class Blob {
 	}
 
 	slice() {
-		const { size } = this;
+		const {size} = this;
 
 		const start = arguments[0];
 		const end = arguments[1];
-		let relativeStart; let relativeEnd;
+		let relativeStart;
+		let relativeEnd;
+
 		if (start === undefined) {
 			relativeStart = 0;
 		} else if (start < 0) {
@@ -109,16 +112,16 @@ export default class Blob {
 			relativeStart,
 			relativeStart + span
 		);
-		const blob = new Blob([], { type: arguments[2] });
+		const blob = new Blob([], {type: arguments[2]});
 		blob[BUFFER] = slicedBuffer;
 		return blob;
 	}
 }
 
 Object.defineProperties(Blob.prototype, {
-	size: { enumerable: true },
-	type: { enumerable: true },
-	slice: { enumerable: true }
+	size: {enumerable: true},
+	type: {enumerable: true},
+	slice: {enumerable: true}
 });
 
 Object.defineProperty(Blob.prototype, Symbol.toStringTag, {

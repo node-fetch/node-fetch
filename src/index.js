@@ -13,16 +13,16 @@ import https from 'https';
 import zlib from 'zlib';
 import Stream from 'stream';
 
-import Body, { writeToStream, getTotalBytes } from './body';
+import Body, {writeToStream, getTotalBytes} from './body';
 import Response from './response';
-import Headers, { createHeadersLenient } from './headers';
-import Request, { getNodeRequestOptions } from './request';
+import Headers, {createHeadersLenient} from './headers';
+import Request, {getNodeRequestOptions} from './request';
 import FetchError from './fetch-error';
 import AbortError from './abort-error';
 
 // Fix an issue where "PassThrough", "resolve" aren't a named export for node <10
-const { PassThrough } = Stream;
-const resolve_url = Url.resolve;
+const {PassThrough} = Stream;
+const resolveUrl = Url.resolve;
 
 /**
  * Fetch function
@@ -46,7 +46,7 @@ export default function fetch(url, opts) {
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
-		const { signal } = request;
+		const {signal} = request;
 		let response = null;
 
 		const abort = () => {
@@ -91,7 +91,7 @@ export default function fetch(url, opts) {
 		}
 
 		if (request.timeout) {
-			req.once('socket', socket => {
+			req.once('socket', () => {
 				reqTimeout = setTimeout(() => {
 					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
 					finalize();
@@ -115,7 +115,7 @@ export default function fetch(url, opts) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : resolve_url(request.url, location);
+				const locationURL = location === null ? null : resolveUrl(request.url, location);
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -136,7 +136,7 @@ export default function fetch(url, opts) {
 						}
 
 						break;
-					case 'follow':
+					case 'follow': {
 						// HTTP-redirect fetch step 2
 						if (locationURL === null) {
 							break;
@@ -181,6 +181,10 @@ export default function fetch(url, opts) {
 						resolve(fetch(new Request(locationURL, requestOpts)));
 						finalize();
 						return;
+					}
+
+					default:
+						// Do nothing
 				}
 			}
 
@@ -192,7 +196,7 @@ export default function fetch(url, opts) {
 			});
 			let body = res.pipe(new PassThrough());
 
-			const response_options = {
+			const responseOptions = {
 				url: request.url,
 				status: res.statusCode,
 				statusText: res.statusMessage,
@@ -214,7 +218,7 @@ export default function fetch(url, opts) {
 			// 4. no content response (204)
 			// 5. content not modified response (304)
 			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
-				response = new Response(body, response_options);
+				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
 			}
@@ -230,15 +234,15 @@ export default function fetch(url, opts) {
 			};
 
 			// For gzip
-			if (codings == 'gzip' || codings == 'x-gzip') {
+			if (codings === 'gzip' || codings === 'x-gzip') {
 				body = body.pipe(zlib.createGunzip(zlibOptions));
-				response = new Response(body, response_options);
+				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
 			}
 
 			// For deflate
-			if (codings == 'deflate' || codings == 'x-deflate') {
+			if (codings === 'deflate' || codings === 'x-deflate') {
 				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
 				const raw = res.pipe(new PassThrough());
@@ -250,22 +254,22 @@ export default function fetch(url, opts) {
 						body = body.pipe(zlib.createInflateRaw());
 					}
 
-					response = new Response(body, response_options);
+					response = new Response(body, responseOptions);
 					resolve(response);
 				});
 				return;
 			}
 
 			// For br
-			if (codings == 'br' && typeof zlib.createBrotliDecompress === 'function') {
+			if (codings === 'br' && typeof zlib.createBrotliDecompress === 'function') {
 				body = body.pipe(zlib.createBrotliDecompress());
-				response = new Response(body, response_options);
+				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
 			}
 
 			// Otherwise, use response as-is
-			response = new Response(body, response_options);
+			response = new Response(body, responseOptions);
 			resolve(response);
 		});
 

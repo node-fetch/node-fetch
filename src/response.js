@@ -8,12 +8,12 @@
 import http from 'http';
 
 import Headers from './headers';
-import Body, { clone, extractContentType } from './body';
+import Body, {clone, extractContentType} from './body';
 
 const INTERNALS = Symbol('Response internals');
 
 // Fix an issue where "STATUS_CODES" aren't a named export for node <10
-const { STATUS_CODES } = http;
+const {STATUS_CODES} = http;
 
 /**
  * Response class
@@ -29,7 +29,7 @@ export default class Response {
 		const status = opts.status || 200;
 		const headers = new Headers(opts.headers);
 
-		if (body != null && !headers.has('Content-Type')) {
+		if (body !== null && !headers.has('Content-Type')) {
 			const contentType = extractContentType(body);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
@@ -92,13 +92,13 @@ export default class Response {
 Body.mixIn(Response.prototype);
 
 Object.defineProperties(Response.prototype, {
-	url: { enumerable: true },
-	status: { enumerable: true },
-	ok: { enumerable: true },
-	redirected: { enumerable: true },
-	statusText: { enumerable: true },
-	headers: { enumerable: true },
-	clone: { enumerable: true }
+	url: {enumerable: true},
+	status: {enumerable: true},
+	ok: {enumerable: true},
+	redirected: {enumerable: true},
+	statusText: {enumerable: true},
+	headers: {enumerable: true},
+	clone: {enumerable: true}
 });
 
 Object.defineProperty(Response.prototype, Symbol.toStringTag, {
