@@ -5,6 +5,7 @@ node-fetch
 [![build status][travis-image]][travis-url]
 [![coverage status][codecov-image]][codecov-url]
 [![install size][install-size-image]][install-size-url]
+[![Discord][discord-image]][discord-url]
 
 A light-weight module that brings `window.fetch` to Node.js
 
@@ -574,6 +575,8 @@ MIT
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
+[discord-image]: https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square
+[discord-url]: https://discord.gg/Zxbndcm
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
