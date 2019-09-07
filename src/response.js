@@ -39,7 +39,7 @@ export default class Response {
 		this[INTERNALS] = {
 			url: opts.url,
 			status,
-			statusText: opts.statusText || STATUS_CODES[status],
+			statusText: opts.statusText || '',
 			headers,
 			counter: opts.counter
 		};
