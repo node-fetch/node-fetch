@@ -40,10 +40,10 @@
   },
   "homepage": "https://github.com/bitinn/node-fetch",
   "devDependencies": {
-    "@babel/core": "^7.6.0",
     "@ungap/url-search-params": "^0.1.2",
     "abort-controller": "^3.0.0",
     "abortcontroller-polyfill": "^1.3.0",
+    "babel-core": "^6.26.3",
     "babel-plugin-istanbul": "^5.2.0",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.16.3",
@@ -68,15 +68,27 @@
   },
   "dependencies": {},
   "xo": {
+    "envs": [
+      "node",
+      "browser",
+      "mocha"
+    ],
     "rules": {
-      "object-curly-spacing": [
-        "error",
-        "always"
-      ],
       "valid-jsdoc": 0,
       "no-multi-assign": 0,
       "complexity": 0,
-      "unicorn/prefer-spread": 0
-    }
+      "unicorn/prefer-spread": 0,
+      "prefer-object-spread": 0,
+      "promise/prefer-await-to-then": 0,
+      "no-mixed-operators": 0,
+      "eqeqeq": 0,
+      "no-eq-null": 0,
+      "no-negated-condition": 0,
+      "prefer-rest-params": 0
+    },
+    "ignores": [
+      "lib",
+      "test/test.js"
+    ]
   }
 }
