@@ -20,7 +20,7 @@ const getGlobal = function () {
 	throw new Error('unable to locate global object');
 };
 
-var global = getGlobal();
+const global = getGlobal();
 
 module.exports = exports = global.fetch;
 

@@ -9,14 +9,14 @@
 
 import Url from 'url';
 import Stream from 'stream';
-import Headers, { exportNodeCompatibleHeaders } from './headers';
-import Body, { clone, extractContentType, getTotalBytes } from './body';
+import Headers, {exportNodeCompatibleHeaders} from './headers';
+import Body, {clone, extractContentType, getTotalBytes} from './body';
 
 const INTERNALS = Symbol('Request internals');
 
 // Fix an issue where "format", "parse" aren't a named export for node <10
-const parse_url = Url.parse;
-const format_url = Url.format;
+const parseUrl = Url.parse;
+const formatUrl = Url.format;
 
 const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
@@ -59,15 +59,15 @@ export default class Request {
 				// In order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
 				// `href` property anyway)
-				parsedURL = parse_url(input.href);
+				parsedURL = parseUrl(input.href);
 			} else {
 				// Coerce input to a string before attempting to parse
-				parsedURL = parse_url(`${input}`);
+				parsedURL = parseUrl(`${input}`);
 			}
 
 			input = {};
 		} else {
-			parsedURL = parse_url(input.url);
+			parsedURL = parseUrl(input.url);
 		}
 
 		let method = init.method || input.method || 'GET';
@@ -133,7 +133,7 @@ export default class Request {
 	}
 
 	get url() {
-		return format_url(this[INTERNALS].parsedURL);
+		return formatUrl(this[INTERNALS].parsedURL);
 	}
 
 	get headers() {
@@ -168,12 +168,12 @@ Object.defineProperty(Request.prototype, Symbol.toStringTag, {
 });
 
 Object.defineProperties(Request.prototype, {
-	method: { enumerable: true },
-	url: { enumerable: true },
-	headers: { enumerable: true },
-	redirect: { enumerable: true },
-	clone: { enumerable: true },
-	signal: { enumerable: true }
+	method: {enumerable: true},
+	url: {enumerable: true},
+	headers: {enumerable: true},
+	redirect: {enumerable: true},
+	clone: {enumerable: true},
+	signal: {enumerable: true}
 });
 
 /**
@@ -183,7 +183,7 @@ Object.defineProperties(Request.prototype, {
  * @return  Object   The options object to be passed to http.request
  */
 export function getNodeRequestOptions(request) {
-	const { parsedURL } = request[INTERNALS];
+	const {parsedURL} = request[INTERNALS];
 	const headers = new Headers(request[INTERNALS].headers);
 
 	// Fetch step 1.3
@@ -235,7 +235,7 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept-Encoding', 'gzip,deflate');
 	}
 
-	let { agent } = request;
+	let {agent} = request;
 	if (typeof agent === 'function') {
 		agent = agent(parsedURL);
 	}

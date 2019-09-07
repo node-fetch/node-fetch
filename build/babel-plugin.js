@@ -2,7 +2,7 @@
 
 const walked = Symbol('walked');
 
-module.exports = ({ types: t }) => ({
+module.exports = ({types: t}) => ({
 	visitor: {
 		Program: {
 			exit(program) {
@@ -16,7 +16,7 @@ module.exports = ({ types: t }) => ({
 						if (expr.isAssignmentExpression() &&
                 expr.get('left').matchesPattern('exports.*')) {
 							const prop = expr.get('left').get('property');
-							if (prop.isIdentifier({ name: 'default' })) {
+							if (prop.isIdentifier({name: 'default'})) {
 								program.unshiftContainer('body', [
 									t.expressionStatement(
 										t.assignmentExpression('=',

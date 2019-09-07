@@ -7,18 +7,19 @@
 
 import Stream from 'stream';
 
-import Blob, { BUFFER } from './blob';
+import Blob, {BUFFER} from './blob';
 import FetchError from './fetch-error';
 
 let convert;
 try {
+	/* eslint-disable-next-line import/no-unresolved */
 	convert = require('encoding').convert;
 } catch (error) {}
 
 const INTERNALS = Symbol('Body internals');
 
 // Fix an issue where "PassThrough" isn't a named export for node <10
-const { PassThrough } = Stream;
+const {PassThrough} = Stream;
 
 /**
  * Body mixin
@@ -157,12 +158,12 @@ Body.prototype = {
 
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
-	body: { enumerable: true },
-	bodyUsed: { enumerable: true },
-	arrayBuffer: { enumerable: true },
-	blob: { enumerable: true },
-	json: { enumerable: true },
-	text: { enumerable: true }
+	body: {enumerable: true},
+	bodyUsed: {enumerable: true},
+	arrayBuffer: {enumerable: true},
+	blob: {enumerable: true},
+	json: {enumerable: true},
+	text: {enumerable: true}
 });
 
 Body.mixIn = function (proto) {
@@ -193,7 +194,7 @@ function consumeBody() {
 		return Body.Promise.reject(this[INTERNALS].error);
 	}
 
-	let { body } = this;
+	let {body} = this;
 
 	// Body is null
 	if (body === null) {
@@ -291,7 +292,8 @@ function convertBody(buffer, headers) {
 
 	const ct = headers.get('content-type');
 	let charset = 'utf-8';
-	let res; let str;
+	let res;
+	let str;
 
 	// Header
 	if (ct) {
@@ -299,6 +301,7 @@ function convertBody(buffer, headers) {
 	}
 
 	// No charset in content type, peek at response body for at most 1024 bytes
+	/* eslint-disable-next-line prefer-const */
 	str = buffer.slice(0, 1024).toString();
 
 	// Html5
@@ -387,8 +390,9 @@ function isBlob(obj) {
  * @return  Mixed
  */
 export function clone(instance) {
-	let p1; let p2;
-	let { body } = instance;
+	let p1;
+	let p2;
+	let {body} = instance;
 
 	// Don't allow cloning a used body
 	if (instance.bodyUsed) {
@@ -481,7 +485,7 @@ export function extractContentType(body) {
  * @return  Number?            Number of bytes, or null if not possible
  */
 export function getTotalBytes(instance) {
-	const { body } = instance;
+	const {body} = instance;
 
 	if (body === null) {
 		// Body is null
@@ -518,7 +522,7 @@ export function getTotalBytes(instance) {
  * @return  Void
  */
 export function writeToStream(dest, instance) {
-	const { body } = instance;
+	const {body} = instance;
 
 	if (body === null) {
 		// Body is null
