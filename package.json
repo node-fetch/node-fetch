@@ -2,24 +2,21 @@
   "name": "node-fetch",
   "version": "2.6.0",
   "description": "A light-weight module that brings window.fetch to node.js",
-  "main": "lib/index",
-  "browser": "./browser.js",
-  "module": "lib/index.mjs",
-  "types": "./types/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "types/index.d.ts",
   "files": [
-    "lib/index.js",
-    "lib/index.mjs",
-    "lib/index.es.js",
-    "browser.js",
+    "src/*",
+    "dist/*",
     "types/*.d.ts"
   ],
   "engines": {
     "node": ">=8.0.0"
   },
   "scripts": {
-    "build": "cross-env BABEL_ENV=rollup rollup -c",
+    "build": "microbundle --external http,https,stream,zlib --name fetch --target node --format es,cjs",
     "prepare": "npm run build",
-    "test": "cross-env BABEL_ENV=test mocha --require babel-register --throw-deprecation test/test.js",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/test.js",
     "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
     "coverage": "cross-env BABEL_ENV=coverage nyc --reporter json --reporter text mocha -R spec test/test.js && codecov -f coverage/coverage-final.json",
     "lint": "xo src"
@@ -41,12 +38,11 @@
   "homepage": "https://github.com/bitinn/node-fetch",
   "devDependencies": {
     "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/register": "^7.6.0",
     "@ungap/url-search-params": "^0.1.2",
     "abort-controller": "^3.0.0",
     "abortcontroller-polyfill": "^1.3.0",
-    "babel-plugin-istanbul": "^5.2.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.16.3",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-iterator": "^3.0.2",
@@ -55,18 +51,24 @@
     "cross-env": "^5.2.0",
     "form-data": "^2.3.3",
     "is-builtin-module": "^3.0.0",
+    "microbundle": "^0.11.0",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
     "parted": "^0.1.1",
     "promise": "^8.0.3",
     "resumer": "0.0.0",
-    "rollup": "^1.20.3",
-    "rollup-plugin-babel": "^4.3.3",
     "string-to-arraybuffer": "^1.0.2",
     "whatwg-url": "^7.0.0",
     "xo": "^0.24.0"
   },
   "dependencies": {},
+  "optionalDependencies": {
+    "encoding": "^0.1.12"
+  },
+  "resolutions": {
+      "microbundle/rollup-plugin-typescript2/rollup-pluginutils/micromatch/braces": "^2.3.1",
+      "microbundle/rollup-plugin-postcss/cssnano/postcss-svgo/svgo/js-yaml": "^3.13.1"
+  },
   "xo": {
     "rules": {
       "object-curly-spacing": [
@@ -78,5 +80,17 @@
       "complexity": 0,
       "unicorn/prefer-spread": 0
     }
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": true
+          }
+        }
+      ]
+    ]
   }
 }
