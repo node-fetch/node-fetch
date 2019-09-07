@@ -75,7 +75,8 @@
         ],
         "valid-jsdoc": 0,
         "no-multi-assign": 0,
-        "complexity": 0
+        "complexity": 0,
+        "unicorn/prefer-spread": 0
     }
   }
 }

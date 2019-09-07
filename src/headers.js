@@ -84,7 +84,7 @@ export default class Headers {
 						throw new TypeError('Each header pair must be iterable');
 					}
 
-					pairs.push([...pair]);
+					pairs.push(Array.from(pair));
 				}
 
 				for (const pair of pairs) {

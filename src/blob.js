@@ -69,11 +69,11 @@ export default class Blob {
 	}
 
 	stream() {
-		 const readable = new Readable();
-		 readable._read = () => {};
-		 readable.push(this[BUFFER]);
-		 readable.push(null);
-		 return readable;
+		const readable = new Readable();
+		readable._read = () => {};
+		readable.push(this[BUFFER]);
+		readable.push(null);
+		return readable;
 	}
 
 	toString() {
