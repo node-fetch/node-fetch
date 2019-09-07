@@ -21,7 +21,8 @@
     "prepare": "npm run build",
     "test": "cross-env BABEL_ENV=test mocha --require babel-register --throw-deprecation test/test.js",
     "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
-    "coverage": "cross-env BABEL_ENV=coverage nyc --reporter json --reporter text mocha -R spec test/test.js && codecov -f coverage/coverage-final.json"
+    "coverage": "cross-env BABEL_ENV=coverage nyc --reporter json --reporter text mocha -R spec test/test.js && codecov -f coverage/coverage-final.json",
+    "lint": "xo src"
   },
   "repository": {
     "type": "git",
@@ -62,7 +63,19 @@
     "rollup": "^0.63.4",
     "rollup-plugin-babel": "^3.0.7",
     "string-to-arraybuffer": "^1.0.2",
-    "whatwg-url": "^5.0.0"
+    "whatwg-url": "^5.0.0",
+    "xo": "^0.24.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "xo": {
+    "rules": {
+        "object-curly-spacing": [
+            "error",
+            "always"
+        ],
+        "valid-jsdoc": 0,
+        "no-multi-assign": 0,
+        "complexity": 0
+    }
+  }
 }

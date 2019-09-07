@@ -1,6 +1,6 @@
 
 /**
- * fetch-error.js
+ * Fetch-error.js
  *
  * FetchError interface for operational errors
  */
@@ -19,12 +19,12 @@ export default function FetchError(message, type, systemError) {
 	this.message = message;
 	this.type = type;
 
-	// when err.type is `system`, err.code contains system error code
+	// When err.type is `system`, err.code contains system error code
 	if (systemError) {
 		this.code = this.errno = systemError.code;
 	}
 
-	// hide custom error implementation details from end-users
+	// Hide custom error implementation details from end-users
 	Error.captureStackTrace(this, this.constructor);
 }
 

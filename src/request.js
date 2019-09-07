@@ -1,6 +1,6 @@
 
 /**
- * request.js
+ * Request.js
  *
  * Request class contains server only options
  *
@@ -9,12 +9,12 @@
 
 import Url from 'url';
 import Stream from 'stream';
-import Headers, { exportNodeCompatibleHeaders } from './headers.js';
+import Headers, { exportNodeCompatibleHeaders } from './headers';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const INTERNALS = Symbol('Request internals');
 
-// fix an issue where "format", "parse" aren't a named export for node <10
+// Fix an issue where "format", "parse" aren't a named export for node <10
 const parse_url = Url.parse;
 const format_url = Url.format;
 
@@ -35,11 +35,11 @@ function isRequest(input) {
 
 function isAbortSignal(signal) {
 	const proto = (
-		signal
-		&& typeof signal === 'object'
-		&& Object.getPrototypeOf(signal)
+		signal &&
+		typeof signal === 'object' &&
+		Object.getPrototypeOf(signal)
 	);
-	return !!(proto && proto.constructor.name === 'AbortSignal');
+	return Boolean(proto && proto.constructor.name === 'AbortSignal');
 }
 
 /**
@@ -53,17 +53,18 @@ export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// normalize input
+		// Normalize input
 		if (!isRequest(input)) {
 			if (input && input.href) {
-				// in order to support Node.js' Url objects; though WHATWG's URL objects
+				// In order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
 				// `href` property anyway)
 				parsedURL = parse_url(input.href);
 			} else {
-				// coerce input to a string before attempting to parse
+				// Coerce input to a string before attempting to parse
 				parsedURL = parse_url(`${input}`);
 			}
+
 			input = {};
 		} else {
 			parsedURL = parse_url(input.url);
@@ -77,7 +78,7 @@ export default class Request {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
-		let inputBody = init.body != null ?
+		const inputBody = init.body != null ?
 			init.body :
 			isRequest(input) && input.body !== null ?
 				clone(input) :
@@ -97,10 +98,12 @@ export default class Request {
 			}
 		}
 
-		let signal = isRequest(input)
-			? input.signal
-			: null;
-		if ('signal' in init) signal = init.signal
+		let signal = isRequest(input) ?
+			input.signal :
+			null;
+		if ('signal' in init) {
+			signal = init.signal;
+		}
 
 		if (signal != null && !isAbortSignal(signal)) {
 			throw new TypeError('Expected signal to be an instanceof AbortSignal');
@@ -111,16 +114,16 @@ export default class Request {
 			redirect: init.redirect || input.redirect || 'follow',
 			headers,
 			parsedURL,
-			signal,
+			signal
 		};
 
-		// node-fetch-only options
+		// Node-fetch-only options
 		this.follow = init.follow !== undefined ?
 			init.follow : input.follow !== undefined ?
-			input.follow : 20;
+				input.follow : 20;
 		this.compress = init.compress !== undefined ?
 			init.compress : input.compress !== undefined ?
-			input.compress : true;
+				input.compress : true;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 	}
@@ -170,7 +173,7 @@ Object.defineProperties(Request.prototype, {
 	headers: { enumerable: true },
 	redirect: { enumerable: true },
 	clone: { enumerable: true },
-	signal: { enumerable: true },
+	signal: { enumerable: true }
 });
 
 /**
@@ -180,10 +183,10 @@ Object.defineProperties(Request.prototype, {
  * @return  Object   The options object to be passed to http.request
  */
 export function getNodeRequestOptions(request) {
-	const parsedURL = request[INTERNALS].parsedURL;
+	const { parsedURL } = request[INTERNALS];
 	const headers = new Headers(request[INTERNALS].headers);
 
-	// fetch step 1.3
+	// Fetch step 1.3
 	if (!headers.has('Accept')) {
 		headers.set('Accept', '*/*');
 	}
@@ -198,9 +201,9 @@ export function getNodeRequestOptions(request) {
 	}
 
 	if (
-		request.signal
-		&& request.body instanceof Stream.Readable
-		&& !streamDestructionSupported
+		request.signal &&
+		request.body instanceof Stream.Readable &&
+		!streamDestructionSupported
 	) {
 		throw new Error('Cancellation of streamed requests with AbortSignal is not supported in node < 8');
 	}
@@ -210,12 +213,14 @@ export function getNodeRequestOptions(request) {
 	if (request.body == null && /^(POST|PUT)$/i.test(request.method)) {
 		contentLengthValue = '0';
 	}
+
 	if (request.body != null) {
 		const totalBytes = getTotalBytes(request);
 		if (typeof totalBytes === 'number') {
 			contentLengthValue = String(totalBytes);
 		}
 	}
+
 	if (contentLengthValue) {
 		headers.set('Content-Length', contentLengthValue);
 	}
@@ -230,7 +235,7 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept-Encoding', 'gzip,deflate');
 	}
 
-	let agent = request.agent;
+	let { agent } = request;
 	if (typeof agent === 'function') {
 		agent = agent(parsedURL);
 	}

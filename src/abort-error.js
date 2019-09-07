@@ -1,5 +1,5 @@
 /**
- * abort-error.js
+ * Abort-error.js
  *
  * AbortError interface for cancelled requests
  */
@@ -16,7 +16,7 @@ export default function AbortError(message) {
 	this.type = 'aborted';
 	this.message = message;
 
-	// hide custom error implementation details from end-users
+	// Hide custom error implementation details from end-users
 	Error.captureStackTrace(this, this.constructor);
 }
 

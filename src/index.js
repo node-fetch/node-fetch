@@ -1,6 +1,6 @@
 
 /**
- * index.js
+ * Index.js
  *
  * a request API compatible with window.fetch
  *
@@ -20,8 +20,8 @@ import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 import AbortError from './abort-error';
 
-// fix an issue where "PassThrough", "resolve" aren't a named export for node <10
-const PassThrough = Stream.PassThrough;
+// Fix an issue where "PassThrough", "resolve" aren't a named export for node <10
+const { PassThrough } = Stream;
 const resolve_url = Url.resolve;
 
 /**
@@ -32,17 +32,16 @@ const resolve_url = Url.resolve;
  * @return  Promise
  */
 export default function fetch(url, opts) {
-
-	// allow custom promise
+	// Allow custom promise
 	if (!fetch.Promise) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
 	}
 
 	Body.Promise = fetch.Promise;
 
-	// wrap http.request into fetch
+	// Wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {
-		// build request object
+		// Build request object
 		const request = new Request(url, opts);
 		const options = getNodeRequestOptions(request);
 
@@ -50,15 +49,19 @@ export default function fetch(url, opts) {
 		const { signal } = request;
 		let response = null;
 
-		const abort = ()  => {
-			let error = new AbortError('The user aborted a request.');
+		const abort = () => {
+			const error = new AbortError('The user aborted a request.');
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
 				request.body.destroy(error);
 			}
-			if (!response || !response.body) return;
+
+			if (!response || !response.body) {
+				return;
+			}
+
 			response.body.emit('error', error);
-		}
+		};
 
 		if (signal && signal.aborted) {
 			abort();
@@ -68,9 +71,9 @@ export default function fetch(url, opts) {
 		const abortAndFinalize = () => {
 			abort();
 			finalize();
-		}
+		};
 
-		// send request
+		// Send request
 		const req = send(options);
 		let reqTimeout;
 
@@ -80,7 +83,10 @@ export default function fetch(url, opts) {
 
 		function finalize() {
 			req.abort();
-			if (signal) signal.removeEventListener('abort', abortAndFinalize);
+			if (signal) {
+				signal.removeEventListener('abort', abortAndFinalize);
+			}
+
 			clearTimeout(reqTimeout);
 		}
 
@@ -118,16 +124,17 @@ export default function fetch(url, opts) {
 						finalize();
 						return;
 					case 'manual':
-						// node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
+						// Node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
 						if (locationURL !== null) {
-							// handle corrupted header
+							// Handle corrupted header
 							try {
 								headers.set('Location', locationURL);
-							} catch (err) {
+							} catch (error) {
 								// istanbul ignore next: nodejs server prevent invalid response headers, we can't test this through normal request
-								reject(err);
+								reject(error);
 							}
 						}
+
 						break;
 					case 'follow':
 						// HTTP-redirect fetch step 2
@@ -177,9 +184,11 @@ export default function fetch(url, opts) {
 				}
 			}
 
-			// prepare response
+			// Prepare response
 			res.once('end', () => {
-				if (signal) signal.removeEventListener('abort', abortAndFinalize);
+				if (signal) {
+					signal.removeEventListener('abort', abortAndFinalize);
+				}
 			});
 			let body = res.pipe(new PassThrough());
 
@@ -187,7 +196,7 @@ export default function fetch(url, opts) {
 				url: request.url,
 				status: res.statusCode,
 				statusText: res.statusMessage,
-				headers: headers,
+				headers,
 				size: request.size,
 				timeout: request.timeout,
 				counter: request.counter
@@ -220,7 +229,7 @@ export default function fetch(url, opts) {
 				finishFlush: zlib.Z_SYNC_FLUSH
 			};
 
-			// for gzip
+			// For gzip
 			if (codings == 'gzip' || codings == 'x-gzip') {
 				body = body.pipe(zlib.createGunzip(zlibOptions));
 				response = new Response(body, response_options);
@@ -228,25 +237,26 @@ export default function fetch(url, opts) {
 				return;
 			}
 
-			// for deflate
+			// For deflate
 			if (codings == 'deflate' || codings == 'x-deflate') {
-				// handle the infamous raw deflate response from old servers
+				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
 				const raw = res.pipe(new PassThrough());
 				raw.once('data', chunk => {
-					// see http://stackoverflow.com/questions/37519828
+					// See http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
 						body = body.pipe(zlib.createInflate());
 					} else {
 						body = body.pipe(zlib.createInflateRaw());
 					}
+
 					response = new Response(body, response_options);
 					resolve(response);
 				});
 				return;
 			}
 
-			// for br
+			// For br
 			if (codings == 'br' && typeof zlib.createBrotliDecompress === 'function') {
 				body = body.pipe(zlib.createBrotliDecompress());
 				response = new Response(body, response_options);
@@ -254,15 +264,14 @@ export default function fetch(url, opts) {
 				return;
 			}
 
-			// otherwise, use response as-is
+			// Otherwise, use response as-is
 			response = new Response(body, response_options);
 			resolve(response);
 		});
 
 		writeToStream(req, request);
 	});
-
-};
+}
 
 /**
  * Redirect code matching
@@ -272,7 +281,7 @@ export default function fetch(url, opts) {
  */
 fetch.isRedirect = code => code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
 
-// expose Promise
+// Expose Promise
 fetch.Promise = global.Promise;
 export {
 	Headers,

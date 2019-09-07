@@ -3,8 +3,8 @@
 
 import Stream from 'stream';
 
-// fix for "Readable" isn't a named export issue
-const Readable = Stream.Readable;
+// Fix for "Readable" isn't a named export issue
+const { Readable } = Stream;
 
 export const BUFFER = Symbol('buffer');
 const TYPE = Symbol('type');
@@ -36,6 +36,7 @@ export default class Blob {
 				} else {
 					buffer = Buffer.from(typeof element === 'string' ? element : String(element));
 				}
+
 				size += buffer.length;
 				buffers.push(buffer);
 			}
@@ -43,25 +44,30 @@ export default class Blob {
 
 		this[BUFFER] = Buffer.concat(buffers);
 
-		let type = options && options.type !== undefined && String(options.type).toLowerCase();
+		const type = options && options.type !== undefined && String(options.type).toLowerCase();
 		if (type && !/[^\u0020-\u007E]/.test(type)) {
 			this[TYPE] = type;
 		}
 	}
+
 	get size() {
 		return this[BUFFER].length;
 	}
+
 	get type() {
 		return this[TYPE];
 	}
+
 	text() {
-		return Promise.resolve(this[BUFFER].toString())
+		return Promise.resolve(this[BUFFER].toString());
 	}
+
 	arrayBuffer() {
 		const buf = this[BUFFER];
 		const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 		return Promise.resolve(ab);
 	}
+
 	stream() {
 		 const readable = new Readable();
 		 readable._read = () => {};
@@ -69,15 +75,17 @@ export default class Blob {
 		 readable.push(null);
 		 return readable;
 	}
+
 	toString() {
-		return '[object Blob]'
+		return '[object Blob]';
 	}
+
 	slice() {
-		const size = this.size;
+		const { size } = this;
 
 		const start = arguments[0];
 		const end = arguments[1];
-		let relativeStart, relativeEnd;
+		let relativeStart; let relativeEnd;
 		if (start === undefined) {
 			relativeStart = 0;
 		} else if (start < 0) {
@@ -85,6 +93,7 @@ export default class Blob {
 		} else {
 			relativeStart = Math.min(start, size);
 		}
+
 		if (end === undefined) {
 			relativeEnd = size;
 		} else if (end < 0) {
@@ -92,6 +101,7 @@ export default class Blob {
 		} else {
 			relativeEnd = Math.min(end, size);
 		}
+
 		const span = Math.max(relativeEnd - relativeStart, 0);
 
 		const buffer = this[BUFFER];
