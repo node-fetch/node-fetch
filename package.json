@@ -5,11 +5,13 @@
   "main": "lib/index",
   "browser": "./browser.js",
   "module": "lib/index.mjs",
+  "types": "./types/index.d.ts",
   "files": [
     "lib/index.js",
     "lib/index.mjs",
     "lib/index.es.js",
-    "browser.js"
+    "browser.js",
+    "types/*.d.ts"
   ],
   "engines": {
     "node": "4.x || >=6.0.0"
