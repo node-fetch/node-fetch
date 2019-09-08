@@ -1,19 +1,13 @@
-
 /**
  * Response.js
  *
  * Response class provides content decoding
  */
 
-import http from 'http';
-
 import Headers from './headers';
 import Body, {clone, extractContentType} from './body';
 
 const INTERNALS = Symbol('Response internals');
-
-// Fix an issue where "STATUS_CODES" aren't a named export for node <10
-const {STATUS_CODES} = http;
 
 /**
  * Response class
