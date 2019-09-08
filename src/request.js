@@ -9,6 +9,7 @@
 
 import Url from 'url';
 import Stream from 'stream';
+import utf8 from 'utf8';
 import Headers, {exportNodeCompatibleHeaders} from './headers';
 import Body, {clone, extractContentType, getTotalBytes} from './body';
 
@@ -53,21 +54,21 @@ export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// Normalize input
+		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
 		if (!isRequest(input)) {
 			if (input && input.href) {
 				// In order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
 				// `href` property anyway)
-				parsedURL = parseUrl(input.href);
+				parsedURL = parseUrl(utf8.encode(input.href));
 			} else {
 				// Coerce input to a string before attempting to parse
-				parsedURL = parseUrl(`${input}`);
+				parsedURL = parseUrl(utf8.encode(`${input}`));
 			}
 
 			input = {};
 		} else {
-			parsedURL = parseUrl(input.url);
+			parsedURL = parseUrl(utf8.encode(input.url));
 		}
 
 		let method = init.method || input.method || 'GET';
@@ -190,6 +191,8 @@ export function getNodeRequestOptions(request) {
 	if (!headers.has('Accept')) {
 		headers.set('Accept', '*/*');
 	}
+
+	// Console.log(parsedURL.protocol, parsedURL.hostname)
 
 	// Basic fetch
 	if (!parsedURL.protocol || !parsedURL.hostname) {
