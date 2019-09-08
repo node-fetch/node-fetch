@@ -48,6 +48,7 @@
     "chai-string": "^1.5.0",
     "codecov": "^3.3.0",
     "cross-env": "^5.2.0",
+    "form-data": "^2.5.1",
     "microbundle": "^0.11.0",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",

@@ -6,6 +6,7 @@ import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import then from 'promise';
 import resumer from 'resumer';
+import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
 import AbortController2 from 'abort-controller';
