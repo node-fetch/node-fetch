@@ -6,10 +6,7 @@ import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import then from 'promise';
 import resumer from 'resumer';
-import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
-import URLSearchParams_Polyfill from '@ungap/url-search-params';
-import { URL } from 'whatwg-url';
 import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
 import AbortController2 from 'abort-controller';
 
@@ -739,7 +736,7 @@ describe('node-fetch', () => {
 			.then(res => {
 				expect(res.status).to.equal(200);
 			})
-			.catch(() => {})
+			.catch(() => { })
 			.then(() => {
 				// Wait a few ms to see if a uncaught error occurs
 				setTimeout(() => {
@@ -1033,7 +1030,7 @@ describe('node-fetch', () => {
 	(supportStreamDestroy ? it : it.skip)('should cancel request body of type Stream with AbortError when aborted', () => {
 		const controller = new AbortController();
 		const body = new stream.Readable({ objectMode: true });
-		body._read = () => {};
+		body._read = () => { };
 		const promise = fetch(
 			`${base}slow`,
 			{ signal: controller.signal, body, method: 'POST' }
@@ -1063,7 +1060,7 @@ describe('node-fetch', () => {
 	(supportStreamDestroy ? it.skip : it)('should immediately reject when attempting to cancel streamed Requests in node < 8', () => {
 		const controller = new AbortController();
 		const body = new stream.Readable({ objectMode: true });
-		body._read = () => {};
+		body._read = () => { };
 		const promise = fetch(
 			`${base}slow`,
 			{ signal: controller.signal, body, method: 'POST' }
@@ -1472,7 +1469,7 @@ describe('node-fetch', () => {
 	});
 
 	itUSP('should still recognize URLSearchParams when extended', () => {
-		class CustomSearchParams extends URLSearchParams {}
+		class CustomSearchParams extends URLSearchParams { }
 		const params = new CustomSearchParams();
 		params.append('a', '1');
 
@@ -1494,7 +1491,7 @@ describe('node-fetch', () => {
 	/* For 100% code coverage, checks for duck-typing-only detection
 	 * where both constructor.name and brand tests fail */
 	it('should still recognize URLSearchParams when extended from polyfill', () => {
-		class CustomPolyfilledSearchParams extends URLSearchParams_Polyfill {}
+		class CustomPolyfilledSearchParams extends URLSearchParams { }
 		const params = new CustomPolyfilledSearchParams();
 		params.append('a', '1');
 
@@ -2202,7 +2199,7 @@ describe('Headers', () => {
 	});
 
 	it('should ignore unsupported attributes while reading headers', () => {
-		const FakeHeader = function () {};
+		const FakeHeader = function () { };
 		// Prototypes are currently ignored
 		// This might change in the future: #181
 		FakeHeader.prototype.z = 'fake';
