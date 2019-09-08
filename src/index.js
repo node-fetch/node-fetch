@@ -13,15 +13,15 @@ import https from 'https';
 import zlib from 'zlib';
 import Stream from 'stream';
 
-import Body, { writeToStream, getTotalBytes } from './body';
+import Body, {writeToStream, getTotalBytes} from './body';
 import Response from './response';
-import Headers, { createHeadersLenient } from './headers';
-import Request, { getNodeRequestOptions } from './request';
+import Headers, {createHeadersLenient} from './headers';
+import Request, {getNodeRequestOptions} from './request';
 import FetchError from './fetch-error';
 import AbortError from './abort-error';
 
 // Fix an issue where "PassThrough", "resolve" aren't a named export for node <10
-const { PassThrough } = Stream;
+const {PassThrough} = Stream;
 const resolveUrl = Url.resolve;
 
 /**
@@ -46,7 +46,7 @@ export default function fetch(url, opts) {
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
-		const { signal } = request;
+		const {signal} = request;
 		let response = null;
 
 		const abort = () => {
