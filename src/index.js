@@ -50,7 +50,7 @@ export default function fetch(url, opts) {
 		let response = null;
 
 		const abort = () => {
-			const error = new AbortError('The user aborted a request.');
+			const error = new AbortError('The operation was aborted.');
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
 				request.body.destroy(error);
@@ -184,7 +184,7 @@ export default function fetch(url, opts) {
 					}
 
 					default:
-						// Do nothing
+					// Do nothing
 				}
 			}
 
