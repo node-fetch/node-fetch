@@ -195,7 +195,9 @@ export default function fetch(url, opts) {
 				}
 			});
 
-			let body = pump(res, new PassThrough());
+			let body = pump(res, new PassThrough(), error => {
+				reject(error);
+			});
 
 			const responseOptions = {
 				url: request.url,
@@ -236,7 +238,9 @@ export default function fetch(url, opts) {
 
 			// For gzip
 			if (codings === 'gzip' || codings === 'x-gzip') {
-				body = pump(body, zlib.createGunzip(zlibOptions));
+				body = pump(body, zlib.createGunzip(zlibOptions), error => {
+					reject(error);
+				});
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
@@ -246,13 +250,19 @@ export default function fetch(url, opts) {
 			if (codings === 'deflate' || codings === 'x-deflate') {
 				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = pump(res, new PassThrough());
+				const raw = pump(res, new PassThrough(), error => {
+					reject(error);
+				});
 				raw.once('data', chunk => {
 					// See http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
-						body = pump(body, zlib.createInflate());
+						body = pump(body, zlib.createInflate(), error => {
+							reject(error);
+						});
 					} else {
-						body = pump(body, zlib.createInflateRaw());
+						body = pump(body, zlib.createInflateRaw(), error => {
+							reject(error);
+						});
 					}
 
 					response = new Response(body, responseOptions);
@@ -263,7 +273,9 @@ export default function fetch(url, opts) {
 
 			// For br
 			if (codings === 'br' && typeof zlib.createBrotliDecompress === 'function') {
-				body = pump(body, zlib.createBrotliDecompress());
+				body = pump(body, zlib.createBrotliDecompress(), error => {
+					reject(error);
+				});
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
