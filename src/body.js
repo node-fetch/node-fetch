@@ -12,7 +12,6 @@ import FetchError from './fetch-error';
 
 let convert;
 try {
-	/* eslint-disable-next-line import/no-unresolved */
 	convert = require('encoding').convert;
 } catch (error) {}
 
