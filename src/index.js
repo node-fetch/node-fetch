@@ -203,7 +203,8 @@ export default function fetch(url, opts) {
 				headers,
 				size: request.size,
 				timeout: request.timeout,
-				counter: request.counter
+				counter: request.counter,
+				highWaterMark: request.highWaterMark
 			};
 
 			// HTTP-network fetch step 12.1.1.3
