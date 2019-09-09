@@ -12,6 +12,7 @@ import stringToArrayBuffer from 'string-to-arraybuffer';
 import { URL } from 'whatwg-url';
 import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
 import AbortController2 from 'abort-controller';
+import crypto from 'crypto';
 
 // Test subjects
 import fetch, {
@@ -47,9 +48,12 @@ try {
 	convert = require('encoding').convert;
 } catch (error) { }
 
+import chaiTimeout from './chai-timeout';
+
 chai.use(chaiPromised);
 chai.use(chaiIterator);
 chai.use(chaiString);
+chai.use(chaiTimeout);
 const { expect } = chai;
 
 const supportToString = ({
@@ -1754,6 +1758,73 @@ describe('node-fetch', () => {
 			})
 		);
 	});
+
+	// start
+
+		it('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', function () {
+		this.timeout(300);
+		const url = local.mockResponse(res => {
+			// Observed behavior of TCP packets splitting:
+			// - response body size <= 65438 → single packet sent
+			// - response body size  > 65438 → multiple packets sent
+			// Max TCP packet size is 64kB (https://stackoverflow.com/a/2614188/5763764),
+			// but first packet probably transfers more than the response body.
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
+			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
+		});
+		return expect(
+			fetch(url).then(res => res.clone().buffer())
+		).to.timeout;
+	});
+
+	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal custom highWaterMark', function () {
+		this.timeout(300);
+		const url = local.mockResponse(res => {
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 10;
+			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
+		});
+		return expect(
+			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+		).to.timeout;
+	});
+
+	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than default highWaterMark', function () {
+		this.timeout(300);
+		const url = local.mockResponse(res => {
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
+			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
+		});
+		return expect(
+			fetch(url).then(res => res.clone().buffer())
+		).not.to.timeout;
+	});
+
+	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than custom highWaterMark', function () {
+		this.timeout(300);
+		const url = local.mockResponse(res => {
+			const firstPacketMaxSize = 65438;
+			const secondPacketSize = 10;
+			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
+		});
+		return expect(
+			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+		).not.to.timeout;
+	});
+
+	it('should not timeout on cloning response without consuming one of the streams when the response size is double the custom large highWaterMark - 1', function () {
+		this.timeout(300);
+		const url = local.mockResponse(res => {
+			res.end(crypto.randomBytes(2 * 512 * 1024 - 1));
+		});
+		return expect(
+			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
+		).not.to.timeout;
+	});
+
+	// stop
 
 	it('should allow get all responses of a header', () => {
 		const url = `${base}cookie`;
