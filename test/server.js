@@ -33,8 +33,22 @@ export default class TestServer {
 		this.server.close(cb);
 	}
 
+	mockResponse(responseHandler) {
+		this.server.nextResponseHandler = responseHandler;
+		return `http://${this.hostname}:${this.port}/mocked`;
+	}
+
 	router(req, res) {
 		const p = parse(req.url).pathname;
+
+		if (p === '/mocked') {
+			if (this.nextResponseHandler) {
+				this.nextResponseHandler(res);
+				this.nextResponseHandler = undefined;
+			} else {
+				throw new Error('No mocked response. Use \'TestServer.mockResponse()\'.');
+			}
+		}
 
 		if (p === '/hello') {
 			res.statusCode = 200;
