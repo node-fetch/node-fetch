@@ -87,6 +87,15 @@ export default class TestServer {
 			});
 		}
 
+		if (p === '/gzip-capital') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.setHeader('Content-Encoding', 'GZip');
+			zlib.gzip('hello world', (err, buffer) => {
+				res.end(buffer);
+			});
+		}
+
 		if (p === '/deflate') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');

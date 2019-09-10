@@ -120,7 +120,12 @@ export default class Headers {
 			return null;
 		}
 
-		return this[MAP][key].join(', ');
+		let val = this[MAP][key].join(', ');
+		if (name.toLowerCase() === 'content-encoding') {
+			val = val.toLowerCase();
+		}
+
+		return val;
 	}
 
 	/**
