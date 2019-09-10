@@ -85,7 +85,8 @@
       "eqeqeq": 0,
       "no-eq-null": 0,
       "no-negated-condition": 0,
-      "prefer-rest-params": 0
+      "prefer-rest-params": 0,
+      "node/no-deprecated-api": 1
     },
     "ignores": [
       "dist",
