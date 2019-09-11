@@ -657,6 +657,17 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should make capitalised Content-Encoding lowercase', () => {
+		const url = `${base}gzip-capital`;
+		return fetch(url).then(res => {
+			expect(res.headers.get('content-encoding')).to.equal("gzip");
+			return res.text().then(result => {
+				expect(result).to.be.a('string');
+				expect(result).to.equal('hello world');
+			});
+		})
+	})
+
 	it('should decompress deflate response', () => {
 		const url = `${base}deflate`;
 		return fetch(url).then(res => {
