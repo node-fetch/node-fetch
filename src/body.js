@@ -9,6 +9,7 @@ import Stream from 'stream';
 
 import Blob, {BUFFER} from './blob';
 import FetchError from './fetch-error';
+import {isBlob, isURLSearchParams} from './utils/is';
 
 let convert;
 try {
@@ -36,10 +37,10 @@ export default function Body(body, {
 	if (body == null) {
 		// Body is undefined or null
 		body = null;
-	} else if (body instanceof URLSearchParams) {
+	} else if (isURLSearchParams(body)) {
 		// Body is a URLSearchParams
 		body = Buffer.from(body.toString());
-	} else if (body instanceof Blob) {
+	} else if (isBlob(body)) {
 		// Body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// Body is Buffer
@@ -201,7 +202,7 @@ function consumeBody() {
 	}
 
 	// Body is blob
-	if (body instanceof Blob) {
+	if (isBlob(body)) {
 		body = body.stream();
 	}
 
@@ -393,12 +394,12 @@ export function extractContentType(body) {
 		return 'text/plain;charset=UTF-8';
 	}
 
-	if (body instanceof URLSearchParams) {
+	if (isURLSearchParams(body)) {
 		// Body is a URLSearchParams
 		return 'application/x-www-form-urlencoded;charset=UTF-8';
 	}
 
-	if (body instanceof Blob) {
+	if (isBlob(body)) {
 		// Body is blob
 		return body.type || null;
 	}
@@ -450,7 +451,7 @@ export function getTotalBytes(instance) {
 		return 0;
 	}
 
-	if (body instanceof Blob) {
+	if (isBlob(body)) {
 		return body.size;
 	}
 
@@ -485,7 +486,7 @@ export function writeToStream(dest, instance) {
 	if (body === null) {
 		// Body is null
 		dest.end();
-	} else if (body instanceof Blob) {
+	} else if (isBlob(body)) {
 		body.stream().pipe(dest);
 	} else if (Buffer.isBuffer(body)) {
 		// Body is buffer

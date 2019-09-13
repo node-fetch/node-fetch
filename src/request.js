@@ -12,6 +12,7 @@ import Stream from 'stream';
 import utf8 from 'utf8';
 import Headers, {exportNodeCompatibleHeaders} from './headers';
 import Body, {clone, extractContentType, getTotalBytes} from './body';
+import {isAbortSignal} from './utils/is';
 
 const INTERNALS = Symbol('Request internals');
 
@@ -22,29 +23,15 @@ const formatUrl = Url.format;
 const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
- * Check if a value is an instance of Request.
+ * Check if `obj` is an instance of Request.
  *
- * @param   Mixed   input
- * @return  Boolean
+ * @param  {*} obj
+ * @return {boolean}
  */
-function isRequest(input) {
+function isRequest(obj) {
 	return (
-		typeof input === 'object' &&
-    typeof input[INTERNALS] === 'object'
-	);
-}
-
-/**
- * Check if a value is an instance of AbortSignal. This function ponyfills `signal instanceof AbortSignal`.
- *
- * @param   Mixed   signal
- * @return  Boolean
- */
-function isAbortSignal(signal) {
-	return (
-		signal &&
-    typeof signal === 'object' &&
-    signal[Symbol.toStringTag] === 'AbortSignal'
+		typeof obj === 'object' &&
+		typeof obj[INTERNALS] === 'object'
 	);
 }
 
@@ -80,7 +67,7 @@ export default class Request {
 		method = method.toUpperCase();
 
 		if ((init.body != null || isRequest(input) && input.body !== null) &&
-      (method === 'GET' || method === 'HEAD')) {
+			(method === 'GET' || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
@@ -210,8 +197,8 @@ export function getNodeRequestOptions(request) {
 
 	if (
 		request.signal &&
-    request.body instanceof Stream.Readable &&
-    !streamDestructionSupported
+		request.body instanceof Stream.Readable &&
+		!streamDestructionSupported
 	) {
 		throw new Error('Cancellation of streamed requests with AbortSignal is not supported in node < 8');
 	}
