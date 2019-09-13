@@ -30,17 +30,22 @@ const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 function isRequest(input) {
 	return (
 		typeof input === 'object' &&
-		typeof input[INTERNALS] === 'object'
+    typeof input[INTERNALS] === 'object'
 	);
 }
 
+/**
+ * Check if a value is an instance of AbortSignal. This function ponyfills `signal instanceof AbortSignal`.
+ *
+ * @param   Mixed   signal
+ * @return  Boolean
+ */
 function isAbortSignal(signal) {
-	const proto = (
+	return (
 		signal &&
-		typeof signal === 'object' &&
-		Object.getPrototypeOf(signal)
+    typeof signal === 'object' &&
+    signal[Symbol.toStringTag] === 'AbortSignal'
 	);
-	return Boolean(proto && proto.constructor.name === 'AbortSignal');
 }
 
 /**
@@ -75,7 +80,7 @@ export default class Request {
 		method = method.toUpperCase();
 
 		if ((init.body != null || isRequest(input) && input.body !== null) &&
-			(method === 'GET' || method === 'HEAD')) {
+      (method === 'GET' || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
@@ -205,8 +210,8 @@ export function getNodeRequestOptions(request) {
 
 	if (
 		request.signal &&
-		request.body instanceof Stream.Readable &&
-		!streamDestructionSupported
+    request.body instanceof Stream.Readable &&
+    !streamDestructionSupported
 	) {
 		throw new Error('Cancellation of streamed requests with AbortSignal is not supported in node < 8');
 	}

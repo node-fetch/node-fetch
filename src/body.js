@@ -13,7 +13,7 @@ import FetchError from './fetch-error';
 let convert;
 try {
 	convert = require('encoding').convert;
-} catch (error) {}
+} catch (error) { }
 
 const INTERNALS = Symbol('Body internals');
 
@@ -36,10 +36,10 @@ export default function Body(body, {
 	if (body == null) {
 		// Body is undefined or null
 		body = null;
-	} else if (isURLSearchParams(body)) {
+	} else if (body instanceof URLSearchParams) {
 		// Body is a URLSearchParams
 		body = Buffer.from(body.toString());
-	} else if (isBlob(body)) {
+	} else if (body instanceof Blob) {
 		// Body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// Body is Buffer
@@ -201,7 +201,7 @@ function consumeBody() {
 	}
 
 	// Body is blob
-	if (isBlob(body)) {
+	if (body instanceof Blob) {
 		body = body.stream();
 	}
 
@@ -342,47 +342,6 @@ function convertBody(buffer, headers) {
 }
 
 /**
- * Detect a URLSearchParams object
- * ref: https://github.com/bitinn/node-fetch/issues/296#issuecomment-307598143
- *
- * @param   Object  obj     Object to detect by type or brand
- * @return  String
- */
-function isURLSearchParams(obj) {
-	// Duck-typing as a necessary condition.
-	if (typeof obj !== 'object' ||
-		typeof obj.append !== 'function' ||
-		typeof obj.delete !== 'function' ||
-		typeof obj.get !== 'function' ||
-		typeof obj.getAll !== 'function' ||
-		typeof obj.has !== 'function' ||
-		typeof obj.set !== 'function') {
-		return false;
-	}
-
-	// Brand-checking and more duck-typing as optional condition.
-	return obj.constructor.name === 'URLSearchParams' ||
-		Object.prototype.toString.call(obj) === '[object URLSearchParams]' ||
-		typeof obj.sort === 'function';
-}
-
-/**
- * Check if `obj` is a W3C `Blob` object (which `File` inherits from)
- * @param  {*} obj
- * @return {boolean}
- */
-function isBlob(obj) {
-	return typeof obj === 'object' &&
-				typeof obj.arrayBuffer === 'function' &&
-				typeof obj.type === 'string' &&
-				typeof obj.stream === 'function' &&
-				typeof obj.constructor === 'function' &&
-				typeof obj.constructor.name === 'string' &&
-				/^(Blob|File)$/.test(obj.constructor.name) &&
-				/^(Blob|File)$/.test(obj[Symbol.toStringTag]);
-}
-
-/**
  * Clone body given Res/Req instance
  *
  * @param   Mixed  instance  Response or Request instance
@@ -434,12 +393,12 @@ export function extractContentType(body) {
 		return 'text/plain;charset=UTF-8';
 	}
 
-	if (isURLSearchParams(body)) {
+	if (body instanceof URLSearchParams) {
 		// Body is a URLSearchParams
 		return 'application/x-www-form-urlencoded;charset=UTF-8';
 	}
 
-	if (isBlob(body)) {
+	if (body instanceof Blob) {
 		// Body is blob
 		return body.type || null;
 	}
@@ -491,7 +450,7 @@ export function getTotalBytes(instance) {
 		return 0;
 	}
 
-	if (isBlob(body)) {
+	if (body instanceof Blob) {
 		return body.size;
 	}
 
@@ -526,7 +485,7 @@ export function writeToStream(dest, instance) {
 	if (body === null) {
 		// Body is null
 		dest.end();
-	} else if (isBlob(body)) {
+	} else if (body instanceof Blob) {
 		body.stream().pipe(dest);
 	} else if (Buffer.isBuffer(body)) {
 		// Body is buffer
