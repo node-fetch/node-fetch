@@ -12,6 +12,7 @@ import Stream from 'stream';
 import utf8 from 'utf8';
 import Headers, {exportNodeCompatibleHeaders} from './headers';
 import Body, {clone, extractContentType, getTotalBytes} from './body';
+import {isAbortSignal} from './utils/is';
 
 const INTERNALS = Symbol('Request internals');
 
@@ -22,25 +23,16 @@ const formatUrl = Url.format;
 const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
- * Check if a value is an instance of Request.
+ * Check if `obj` is an instance of Request.
  *
- * @param   Mixed   input
- * @return  Boolean
+ * @param  {*} obj
+ * @return {boolean}
  */
-function isRequest(input) {
+function isRequest(obj) {
 	return (
-		typeof input === 'object' &&
-		typeof input[INTERNALS] === 'object'
+		typeof obj === 'object' &&
+		typeof obj[INTERNALS] === 'object'
 	);
-}
-
-function isAbortSignal(signal) {
-	const proto = (
-		signal &&
-		typeof signal === 'object' &&
-		Object.getPrototypeOf(signal)
-	);
-	return Boolean(proto && proto.constructor.name === 'AbortSignal');
 }
 
 /**

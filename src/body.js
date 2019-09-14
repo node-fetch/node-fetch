@@ -9,11 +9,12 @@ import Stream from 'stream';
 
 import Blob, {BUFFER} from './blob';
 import FetchError from './fetch-error';
+import {isBlob, isURLSearchParams} from './utils/is';
 
 let convert;
 try {
 	convert = require('encoding').convert;
-} catch (error) {}
+} catch (error) { }
 
 const INTERNALS = Symbol('Body internals');
 
@@ -339,47 +340,6 @@ function convertBody(buffer, headers) {
 		'UTF-8',
 		charset
 	).toString();
-}
-
-/**
- * Detect a URLSearchParams object
- * ref: https://github.com/bitinn/node-fetch/issues/296#issuecomment-307598143
- *
- * @param   Object  obj     Object to detect by type or brand
- * @return  String
- */
-function isURLSearchParams(obj) {
-	// Duck-typing as a necessary condition.
-	if (typeof obj !== 'object' ||
-		typeof obj.append !== 'function' ||
-		typeof obj.delete !== 'function' ||
-		typeof obj.get !== 'function' ||
-		typeof obj.getAll !== 'function' ||
-		typeof obj.has !== 'function' ||
-		typeof obj.set !== 'function') {
-		return false;
-	}
-
-	// Brand-checking and more duck-typing as optional condition.
-	return obj.constructor.name === 'URLSearchParams' ||
-		Object.prototype.toString.call(obj) === '[object URLSearchParams]' ||
-		typeof obj.sort === 'function';
-}
-
-/**
- * Check if `obj` is a W3C `Blob` object (which `File` inherits from)
- * @param  {*} obj
- * @return {boolean}
- */
-function isBlob(obj) {
-	return typeof obj === 'object' &&
-				typeof obj.arrayBuffer === 'function' &&
-				typeof obj.type === 'string' &&
-				typeof obj.stream === 'function' &&
-				typeof obj.constructor === 'function' &&
-				typeof obj.constructor.name === 'string' &&
-				/^(Blob|File)$/.test(obj.constructor.name) &&
-				/^(Blob|File)$/.test(obj[Symbol.toStringTag]);
 }
 
 /**
