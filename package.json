@@ -14,7 +14,7 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "build": "microbundle --external http,https,stream,zlib --name fetch --target node --format es,cjs",
+    "build": "microbundle --external http,https,stream,zlib,pump --name fetch --target node --format es,cjs",
     "prepare": "npm run build",
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/test.js",
     "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
@@ -60,7 +60,9 @@
     "whatwg-url": "^7.0.0",
     "xo": "^0.24.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pump": "^3.0.0"
+  },
   "optionalDependencies": {
     "encoding": "^0.1.12"
   },
