@@ -56,4 +56,3 @@ export function isAbortSignal(obj) {
         obj[NAME] === 'AbortSignal'
     );
 }
-
