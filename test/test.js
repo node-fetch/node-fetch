@@ -1205,13 +1205,6 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBuffer body from a VM context', function () {
-		// TODO: Node.js v4 doesn't support ArrayBuffer from other contexts, so we skip this test, drop this check once Node.js v4 support is not needed
-		try {
-			Buffer.from(new VMArrayBuffer());
-		} catch (error) {
-			this.skip();
-		}
-
 		const url = `${base}inspect`;
 		const opts = {
 			method: 'POST',
@@ -1257,13 +1250,6 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (Uint8Array) body from a VM context', function () {
-		// TODO: Node.js v4 doesn't support ArrayBufferView from other contexts, so we skip this test, drop this check once Node.js v4 support is not needed
-		try {
-			Buffer.from(new VMArrayBuffer());
-		} catch (error) {
-			this.skip();
-		}
-
 		const url = `${base}inspect`;
 		const opts = {
 			method: 'POST',
@@ -1278,8 +1264,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	// TODO: Node.js v4 doesn't support necessary Buffer API, so we skip this test, drop this check once Node.js v4 support is not needed
-	(Buffer.from.length === 3 ? it : it.skip)('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', () => {
+	it('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', () => {
 		const url = `${base}inspect`;
 		const opts = {
 			method: 'POST',
