@@ -242,9 +242,10 @@ export function getNodeRequestOptions(request) {
 	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
 
-	return Object.assign({}, parsedURL, {
+	return {
+		...parsedURL,
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
 		agent
-	});
+	};
 }

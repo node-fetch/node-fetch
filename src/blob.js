@@ -10,21 +10,18 @@ export const BUFFER = Symbol('buffer');
 const TYPE = Symbol('type');
 
 export default class Blob {
-	constructor() {
+	constructor(...args) {
 		this[TYPE] = '';
 
-		const blobParts = arguments[0];
-		const options = arguments[1];
+		const blobParts = args[0];
+		const options = args[1];
 
 		const buffers = [];
 		/* eslint-disable-next-line no-unused-vars */
 		let size = 0;
 
 		if (blobParts) {
-			const a = blobParts;
-			const length = Number(a.length);
-			for (let i = 0; i < length; i++) {
-				const element = a[i];
+			blobParts.forEach(element => {
 				let buffer;
 				if (element instanceof Buffer) {
 					buffer = element;
@@ -40,7 +37,7 @@ export default class Blob {
 
 				size += buffer.length;
 				buffers.push(buffer);
-			}
+			});
 		}
 
 		this[BUFFER] = Buffer.concat(buffers);
@@ -71,7 +68,7 @@ export default class Blob {
 
 	stream() {
 		const readable = new Readable();
-		readable._read = () => {};
+		readable._read = () => { };
 		readable.push(this[BUFFER]);
 		readable.push(null);
 		return readable;
@@ -81,11 +78,11 @@ export default class Blob {
 		return '[object Blob]';
 	}
 
-	slice() {
+	slice(...args) {
 		const {size} = this;
 
-		const start = arguments[0];
-		const end = arguments[1];
+		const start = args[0];
+		const end = args[1];
 		let relativeStart;
 		let relativeEnd;
 
@@ -112,7 +109,7 @@ export default class Blob {
 			relativeStart,
 			relativeStart + span
 		);
-		const blob = new Blob([], {type: arguments[2]});
+		const blob = new Blob([], {type: args[2]});
 		blob[BUFFER] = slicedBuffer;
 		return blob;
 	}

@@ -91,7 +91,7 @@ Body.prototype = {
 	 * @return  Promise
 	 */
 	arrayBuffer() {
-		return consumeBody.call(this).then(buf => buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+		return consumeBody.call(this).then(({buffer, byteOffset, byteLength}) => buffer.slice(byteOffset, byteOffset + byteLength));
 	},
 
 	/**
@@ -166,7 +166,7 @@ Object.defineProperties(Body.prototype, {
 	text: {enumerable: true}
 });
 
-Body.mixIn = function (proto) {
+Body.mixIn = proto => {
 	for (const name of Object.getOwnPropertyNames(Body.prototype)) {
 		// istanbul ignore else: future proof
 		if (!(name in proto)) {

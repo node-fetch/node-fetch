@@ -10,16 +10,15 @@
  * @param   String      message      Error message for human
  * @return  AbortError
  */
-export default function AbortError(message) {
-	Error.call(this, message);
+export default class AbortError extends Error {
+	constructor(message) {
+		super(message);
 
-	this.type = 'aborted';
-	this.message = message;
+		this.type = 'aborted';
+		this.message = message;
+		this.name = 'AbortError';
 
-	// Hide custom error implementation details from end-users
-	Error.captureStackTrace(this, this.constructor);
+		// Hide custom error implementation details from end-users
+		Error.captureStackTrace(this, this.constructor);
+	}
 }
-
-AbortError.prototype = Object.create(Error.prototype);
-AbortError.prototype.constructor = AbortError;
-AbortError.prototype.name = 'AbortError';

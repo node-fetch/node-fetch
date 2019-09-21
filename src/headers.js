@@ -338,7 +338,7 @@ Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
  * @return  Object
  */
 export function exportNodeCompatibleHeaders(headers) {
-	const obj = Object.assign({__proto__: null}, headers[MAP]);
+	const obj = {__proto__: null, ...headers[MAP]};
 
 	// Http.request() only supports string as Host header. This hack makes
 	// specifying custom Host header possible.

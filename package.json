@@ -81,13 +81,11 @@
       "no-multi-assign": 0,
       "complexity": 0,
       "unicorn/prefer-spread": 0,
-      "prefer-object-spread": 0,
       "promise/prefer-await-to-then": 0,
       "no-mixed-operators": 0,
       "eqeqeq": 0,
       "no-eq-null": 0,
       "no-negated-condition": 0,
-      "prefer-rest-params": 0,
       "node/no-deprecated-api": 1
     },
     "ignores": [
