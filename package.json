@@ -14,7 +14,7 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "build": "microbundle --external http,https,stream,zlib,pump --name fetch --target node --format es,cjs",
+    "build": "microbundle --external http,https,stream,zlib,pump,utf8 --name fetch --target node --format es,cjs",
     "prepare": "npm run build",
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/test.js",
     "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
@@ -46,8 +46,8 @@
     "chai-as-promised": "^7.1.1",
     "chai-iterator": "^3.0.2",
     "chai-string": "^1.5.0",
-    "codecov": "^3.5.0",
-    "cross-env": "^5.2.1",
+    "codecov": "^3.6.1",
+    "cross-env": "^6.0.0",
     "form-data": "^2.5.1",
     "microbundle": "^0.11.0",
     "mocha": "^6.2.0",
@@ -56,12 +56,12 @@
     "promise": "^8.0.3",
     "resumer": "0.0.0",
     "string-to-arraybuffer": "^1.0.2",
-    "utf8": "^3.0.0",
     "whatwg-url": "^7.0.0",
     "xo": "^0.24.0"
   },
   "dependencies": {
-    "pump": "^3.0.0"
+    "pump": "^3.0.0",
+    "utf8": "^3.0.0"
   },
   "optionalDependencies": {
     "encoding": "^0.1.12"
