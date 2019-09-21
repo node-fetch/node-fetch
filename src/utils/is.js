@@ -14,8 +14,8 @@ const NAME = Symbol.toStringTag;
  * @return {boolean}
  */
 export function isURLSearchParams(obj) {
-	return (
-		typeof obj === 'object' &&
+    return (
+        typeof obj === 'object' &&
         typeof obj.append === 'function' &&
         typeof obj.delete === 'function' &&
         typeof obj.get === 'function' &&
@@ -24,7 +24,7 @@ export function isURLSearchParams(obj) {
         typeof obj.set === 'function' &&
         typeof obj.sort === 'function' &&
         obj[NAME] === 'URLSearchParams'
-	);
+    );
 }
 
 /**
@@ -34,14 +34,14 @@ export function isURLSearchParams(obj) {
  * @return {boolean}
  */
 export function isBlob(obj) {
-	return (
-		typeof obj === 'object' &&
+    return (
+        typeof obj === 'object' &&
         typeof obj.arrayBuffer === 'function' &&
         typeof obj.type === 'string' &&
         typeof obj.stream === 'function' &&
         typeof obj.constructor === 'function' &&
         /^(Blob|File)$/.test(obj[NAME])
-	);
+    );
 }
 
 /**
@@ -51,10 +51,9 @@ export function isBlob(obj) {
  * @return {boolean}
  */
 export function isAbortSignal(obj) {
-	return (
-		obj &&
+    return (
         typeof obj === 'object' &&
         obj[NAME] === 'AbortSignal'
-	);
+    );
 }
 
