@@ -24,6 +24,9 @@ import AbortError from './abort-error';
 const {PassThrough} = Stream;
 const resolveUrl = Url.resolve;
 
+const beforeRequest = [];
+const afterRequest = [];
+
 /**
  * Fetch function
  *
@@ -42,7 +45,7 @@ export default function fetch(url, opts) {
 	// Wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {
 		// Build request object
-		const request = new Request(url, opts);
+		let request = new Request(url, opts);
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
@@ -72,6 +75,13 @@ export default function fetch(url, opts) {
 			abort();
 			finalize();
 		};
+
+		beforeRequest.forEach(func => {
+			const res = func(request);
+			if (res) {
+				request = res;
+			}
+		});
 
 		// Send request
 		const req = send(options);
@@ -212,6 +222,16 @@ export default function fetch(url, opts) {
 			// HTTP-network fetch step 12.1.1.3
 			const codings = headers.get('Content-Encoding');
 
+			const resolveResponse = response => {
+				afterRequest.forEach(func => {
+					const res = func(request, response);
+					if (res) {
+						response = res;
+					}
+				});
+				resolve(response);
+			};
+
 			// HTTP-network fetch step 12.1.1.4: handle content codings
 
 			// in following scenarios we ignore compression support
@@ -222,7 +242,7 @@ export default function fetch(url, opts) {
 			// 5. content not modified response (304)
 			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
 				response = new Response(body, responseOptions);
-				resolve(response);
+				resolveResponse(response);
 				return;
 			}
 
@@ -242,7 +262,7 @@ export default function fetch(url, opts) {
 					reject(error);
 				});
 				response = new Response(body, responseOptions);
-				resolve(response);
+				resolveResponse(response);
 				return;
 			}
 
@@ -266,7 +286,7 @@ export default function fetch(url, opts) {
 					}
 
 					response = new Response(body, responseOptions);
-					resolve(response);
+					resolveResponse(response);
 				});
 				return;
 			}
@@ -277,13 +297,13 @@ export default function fetch(url, opts) {
 					reject(error);
 				});
 				response = new Response(body, responseOptions);
-				resolve(response);
+				resolveResponse(response);
 				return;
 			}
 
 			// Otherwise, use response as-is
 			response = new Response(body, responseOptions);
-			resolve(response);
+			resolveResponse(response);
 		});
 
 		writeToStream(req, request);
@@ -297,6 +317,22 @@ export default function fetch(url, opts) {
  * @return  Boolean
  */
 fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
+
+/**
+ * Before request.
+ *
+ * @param   Function   cb  Callback to fire
+ * @return  Void
+ */
+fetch.before = cb => beforeRequest.push(cb);
+
+/**
+ * After request.
+ *
+ * @param   Function   cb  Callback to fire
+ * @return  Void
+ */
+fetch.after = cb => afterRequest.push(cb);
 
 // Expose Promise
 fetch.Promise = global.Promise;

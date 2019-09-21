@@ -205,6 +205,8 @@ declare function fetch(
 
 declare namespace fetch {
     function isRedirect(code: number): boolean;
+    function before(cb: (request?: Request | any) => any): void;
+    function after(cb: (request?: Request | any, response?: Response) => any): void;
 }
 
 export default fetch;
