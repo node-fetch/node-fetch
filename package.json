@@ -6,9 +6,9 @@
   "module": "dist/index.mjs",
   "types": "types/index.d.ts",
   "files": [
-    "src/*",
-    "dist/*",
-    "types/*.d.ts"
+    "src/**/*",
+    "dist/**/*",
+    "types/**/*.d.ts"
   ],
   "engines": {
     "node": ">=8.0.0"
