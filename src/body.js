@@ -8,7 +8,7 @@
 import Stream from 'stream';
 
 import Blob from 'fetch-blob';
-import FetchError from './fetch-error';
+import FetchError from './errors/fetch-error';
 import {isBlob, isURLSearchParams} from './utils/is';
 
 let convert;

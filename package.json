@@ -105,5 +105,12 @@
         }
       ]
     ]
+  },
+  "nyc": {
+    "require": [
+      "@babel/register"
+    ],
+    "sourceMap": false,
+    "instrument": false
   }
 }

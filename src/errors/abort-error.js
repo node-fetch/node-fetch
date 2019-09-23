@@ -8,6 +8,8 @@
  * Create AbortError instance
  *
  * @param   String      message      Error message for human
+ * @param   String      type         Error type for machine
+ * @param   String      systemError  For Node.js system error
  * @return  AbortError
  */
 export default class AbortError extends Error {
