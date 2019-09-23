@@ -7,7 +7,7 @@
 
 import Stream from 'stream';
 
-import Blob from './blob';
+import Blob from 'fetch-blob';
 import FetchError from './fetch-error';
 import {isBlob, isURLSearchParams} from './utils/is';
 

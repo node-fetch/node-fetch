@@ -25,7 +25,7 @@ import HeadersOrig, { createHeadersLenient } from '../src/headers';
 import RequestOrig from '../src/request';
 import ResponseOrig from '../src/response';
 import Body, { getTotalBytes, extractContentType } from '../src/body';
-import Blob from '../src/blob';
+import Blob from 'fetch-blob';
 import TestServer from './server';
 
 const { spawn } = require('child_process');
