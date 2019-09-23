@@ -28,17 +28,16 @@ import Body, { getTotalBytes, extractContentType } from '../src/body';
 import Blob from '../src/blob';
 import TestServer from './server';
 
-const { spawn } = require('child_process');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const stream = require('stream');
-const { parse: parseURL, URLSearchParams } = require('url');
-const { lookup } = require('dns');
-const vm = require('vm');
+import { spawn } from 'child_process';
+import * as http from 'http';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as stream from 'stream';
+import { parse as parseURL, URLSearchParams } from 'url';
+import { lookup } from 'dns';
+import vm from 'vm';
 
 const {
-	ArrayBuffer: VMArrayBuffer,
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
 
@@ -124,7 +123,7 @@ describe('node-fetch', () => {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only HTTP(S) protocols are supported');
 	});
 
-	it('should reject with error on network failure', () => {
+	(process.platform !== "win32" ? it : it.skip)('should reject with error on network failure', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -1354,7 +1353,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow POST request with form-data using stream as body', () => {
+	(process.platform !== "win32" ? it : it.skip)('should allow POST request with form-data using stream as body', () => {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
@@ -1371,7 +1370,7 @@ describe('node-fetch', () => {
 			expect(res.headers['content-type']).to.startWith('multipart/form-data;boundary=');
 			expect(res.headers['content-length']).to.be.undefined;
 			expect(res.body).to.contain('my_field=');
-		});
+		})
 	});
 
 	it('should allow POST request with form-data as body and custom headers', () => {
