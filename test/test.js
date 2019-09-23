@@ -20,7 +20,7 @@ import fetch, {
 	Request,
 	Response
 } from '../src';
-import FetchErrorOrig from '../src/fetch-error';
+import FetchErrorOrig from '../src/errors/fetch-error';
 import HeadersOrig, { createHeadersLenient } from '../src/headers';
 import RequestOrig from '../src/request';
 import ResponseOrig from '../src/response';

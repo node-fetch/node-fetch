@@ -17,8 +17,8 @@ import Body, {writeToStream, getTotalBytes} from './body';
 import Response from './response';
 import Headers, {createHeadersLenient} from './headers';
 import Request, {getNodeRequestOptions} from './request';
-import FetchError from './fetch-error';
-import AbortError from './abort-error';
+import FetchError from './errors/fetch-error';
+import AbortError from './errors/abort-error';
 
 // Fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const {PassThrough} = Stream;
