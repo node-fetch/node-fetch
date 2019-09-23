@@ -6,7 +6,7 @@ import Stream from 'stream';
 // Fix for "Readable" isn't a named export issue
 const {Readable} = Stream;
 
-export const BUFFER = Symbol('buffer');
+const BUFFER = Symbol('buffer');
 const TYPE = Symbol('type');
 
 export default class Blob {
@@ -45,6 +45,10 @@ export default class Blob {
 		const type = options && options.type !== undefined && String(options.type).toLowerCase();
 		if (type && !/[^\u0020-\u007E]/.test(type)) {
 			this[TYPE] = type;
+		}
+
+		if (options && Buffer.isBuffer(options.buffer)) {
+			this[BUFFER] = options.buffer;
 		}
 	}
 

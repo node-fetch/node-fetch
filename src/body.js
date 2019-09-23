@@ -7,7 +7,7 @@
 
 import Stream from 'stream';
 
-import Blob, {BUFFER} from './blob';
+import Blob from './blob';
 import FetchError from './fetch-error';
 import {isBlob, isURLSearchParams} from './utils/is';
 
@@ -101,15 +101,10 @@ Body.prototype = {
 	 */
 	blob() {
 		const ct = this.headers && this.headers.get('content-type') || '';
-		return consumeBody.call(this).then(buf => Object.assign(
-			// Prevent copying
-			new Blob([], {
-				type: ct.toLowerCase()
-			}),
-			{
-				[BUFFER]: buf
-			}
-		));
+		return consumeBody.call(this).then(buf => new Blob([], {
+			type: ct.toLowerCase(),
+			buffer: buf
+		}));
 	},
 
 	/**
