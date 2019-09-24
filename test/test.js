@@ -1759,9 +1759,7 @@ describe('node-fetch', () => {
 		);
 	});
 
-	// start
-
-		it('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', function () {
+	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', function () {
 		this.timeout(300);
 		const url = local.mockResponse(res => {
 			// Observed behavior of TCP packets splitting:
@@ -1823,8 +1821,6 @@ describe('node-fetch', () => {
 			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
 		).not.to.timeout;
 	});
-
-	// stop
 
 	it('should allow get all responses of a header', () => {
 		const url = `${base}cookie`;
