@@ -51,12 +51,6 @@ chai.use(chaiIterator);
 chai.use(chaiString);
 const { expect } = chai;
 
-const supportToString = ({
-	[Symbol.toStringTag]: 'z'
-}).toString() === '[object z]';
-
-const supportStreamDestroy = 'destroy' in stream.Readable.prototype;
-
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
 
@@ -67,6 +61,8 @@ before(done => {
 after(done => {
 	local.stop(done);
 });
+
+const itIf = val => val ? it : it.skip
 
 describe('node-fetch', () => {
 	it('should return a promise', () => {
@@ -102,7 +98,7 @@ describe('node-fetch', () => {
 		expect(Request).to.equal(RequestOrig);
 	});
 
-	(supportToString ? it : it.skip)('should support proper toString output for Headers, Response and Request objects', () => {
+	it('should support proper toString output for Headers, Response and Request objects', () => {
 		expect(new Headers().toString()).to.equal('[object Headers]');
 		expect(new Response().toString()).to.equal('[object Response]');
 		expect(new Request(base).toString()).to.equal('[object Request]');
@@ -123,7 +119,7 @@ describe('node-fetch', () => {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only HTTP(S) protocols are supported');
 	});
 
-	(process.platform !== "win32" ? it : it.skip)('should reject with error on network failure', () => {
+	itIf(process.platform !== "win32")('should reject with error on network failure', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -1040,7 +1036,7 @@ describe('node-fetch', () => {
 			});
 	});
 
-	(supportStreamDestroy ? it : it.skip)('should cancel request body of type Stream with AbortError when aborted', () => {
+	it('should cancel request body of type Stream with AbortError when aborted', () => {
 		const controller = new AbortController();
 		const body = new stream.Readable({ objectMode: true });
 		body._read = () => { };
@@ -1068,20 +1064,6 @@ describe('node-fetch', () => {
 		controller.abort();
 
 		return result;
-	});
-
-	(supportStreamDestroy ? it.skip : it)('should immediately reject when attempting to cancel streamed Requests in node < 8', () => {
-		const controller = new AbortController();
-		const body = new stream.Readable({ objectMode: true });
-		body._read = () => { };
-		const promise = fetch(
-			`${base}slow`,
-			{ signal: controller.signal, body, method: 'POST' }
-		);
-
-		return expect(promise).to.eventually.be.rejected
-			.and.be.an.instanceof(Error)
-			.and.have.property('message').includes('not supported');
 	});
 
 	it('should throw a TypeError if a signal is not of type AbortSignal', () => {
@@ -1353,7 +1335,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	(process.platform !== "win32" ? it : it.skip)('should allow POST request with form-data using stream as body', () => {
+	itIf(process.platform !== "win32")('should allow POST request with form-data using stream as body', () => {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
@@ -2886,6 +2868,34 @@ describe('external encoding', () => {
 			return fetch(url).then(res => {
 				return expect(res.textConverted()).to.eventually.be.rejected
 					.and.have.property('message').which.includes('encoding');
+			});
+		});
+	});
+
+	describe('data uri', () => {
+		it('should accept data uri', () => {
+			return fetch('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=').then(r => {
+				expect(r.status).to.equal(200);
+				expect(r.headers.get('Content-Type')).to.equal("image/gif")
+
+				return r.buffer().then(b => {
+					expect(b).to.be.an.instanceOf(Buffer)
+				});
+			});
+		});
+
+		it('should accept data uri of plain text', () => {
+			return fetch("data:,Hello%20World!").then(r => {
+				expect(r.status).to.equal(200);
+				expect(r.headers.get('Content-Type')).to.equal("text/plain")
+				return r.text().then(t => expect(t).to.equal("Hello World!"))
+			});
+		})
+
+		it('should reject invalid data uri', () => {
+			return fetch('data:@@@@').catch(e => {
+				expect(e).to.exist;
+				expect(e.message).to.include('invalid URL')
 			});
 		});
 	});

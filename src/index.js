@@ -37,6 +37,22 @@ export default function fetch(url, opts) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
 	}
 
+	// Regex for data uri
+	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+,;=\-._~:@/?%\s]*\s*$/i;
+
+	// If valid data uri
+	if (dataUriRegex.test(url)) {
+		const data = Buffer.from(url.split(',')[1], 'base64');
+		const res = new Response(data.body, {headers: {'Content-Type': data.mimeType || url.match(dataUriRegex)[1] || 'text/plain'}});
+		return fetch.Promise.resolve(res);
+	}
+
+	// If invalid data uri
+	if (url.toString().startsWith('data:')) {
+		const request = new Request(url, opts);
+		return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system'));
+	}
+
 	Body.Promise = fetch.Promise;
 
 	// Wrap http.request into fetch
