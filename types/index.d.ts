@@ -36,6 +36,7 @@ export class Request extends Body {
     protocol: string;
     size: number;
     timeout: number;
+    highWaterMark?: number;
 }
 
 export interface RequestInit {
@@ -52,6 +53,7 @@ export interface RequestInit {
     follow?: number; // =20 maximum redirect count. 0 to not follow redirect
     size?: number; // =0 maximum response body size in bytes. 0 to disable
     timeout?: number; // =0 req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
+    highWaterMark?: number; // =16384 the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
 
     // node-fetch does not support mode, cache or credentials options
 }
