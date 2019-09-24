@@ -12,37 +12,54 @@ A light-weight module that brings `window.fetch` to Node.js
 
 <!-- TOC -->
 
-- [Motivation](#motivation)
-- [Features](#features)
-- [Difference from client-side fetch](#difference-from-client-side-fetch)
-- [Installation](#installation)
-- [Loading and configuring the module](#loading-and-configuring-the-module)
-- [Common Usage](#common-usage)
-    - [Plain text or HTML](#plain-text-or-html)
-    - [JSON](#json)
-    - [Simple Post](#simple-post)
-    - [Post with JSON](#post-with-json)
-    - [Post with form parameters](#post-with-form-parameters)
-    - [Handling exceptions](#handling-exceptions)
-    - [Handling client and server errors](#handling-client-and-server-errors)
-- [Advanced Usage](#advanced-usage)
-    - [Streams](#streams)
-    - [Buffer](#buffer)
-    - [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
-    - [Extract Set-Cookie Header](#extract-set-cookie-header)
-    - [Post data using a file stream](#post-data-using-a-file-stream)
-    - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
-    - [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
-- [API](#api)
+- [node-fetch](#node-fetch)
+  - [Motivation](#motivation)
+  - [Features](#features)
+  - [Difference from client-side fetch](#difference-from-client-side-fetch)
+  - [Installation](#installation)
+  - [Loading and configuring the module](#loading-and-configuring-the-module)
+  - [Common Usage](#common-usage)
+      - [Plain text or HTML](#plain-text-or-html)
+      - [JSON](#json)
+      - [Simple Post](#simple-post)
+      - [Post with JSON](#post-with-json)
+      - [Post with form parameters](#post-with-form-parameters)
+      - [Handling exceptions](#handling-exceptions)
+      - [Handling client and server errors](#handling-client-and-server-errors)
+  - [Advanced Usage](#advanced-usage)
+      - [Streams](#streams)
+      - [Buffer](#buffer)
+      - [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
+      - [Extract Set-Cookie Header](#extract-set-cookie-header)
+      - [Post data using a file stream](#post-data-using-a-file-stream)
+      - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
+      - [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
+  - [API](#api)
     - [fetch(url[, options])](#fetchurl-options)
     - [Options](#options)
+        - [Default Headers](#default-headers)
+        - [Custom Agent](#custom-agent)
     - [Class: Request](#class-request)
+      - [new Request(input[, options])](#new-requestinput-options)
     - [Class: Response](#class-response)
+      - [new Response([body[, options]])](#new-responsebody-options)
+      - [response.ok](#responseok)
+      - [response.redirected](#responseredirected)
     - [Class: Headers](#class-headers)
+      - [new Headers([init])](#new-headersinit)
     - [Interface: Body](#interface-body)
+      - [body.body](#bodybody)
+      - [body.bodyUsed](#bodybodyused)
+      - [body.arrayBuffer()](#bodyarraybuffer)
+      - [body.blob()](#bodyblob)
+      - [body.json()](#bodyjson)
+      - [body.text()](#bodytext)
+      - [body.buffer()](#bodybuffer)
+      - [body.textConverted()](#bodytextconverted)
     - [Class: FetchError](#class-fetcherror)
-- [License](#license)
-- [Acknowledgement](#acknowledgement)
+    - [Class: AbortError](#class-aborterror)
+  - [Acknowledgement](#acknowledgement)
+  - [License](#license)
 
 <!-- /TOC -->
 
@@ -319,17 +336,18 @@ The default values are shown after each option key.
 {
     // These properties are part of the Fetch Standard
     method: 'GET',
-    headers: {},        // request headers. format is the identical to that accepted by the Headers constructor (see below)
-    body: null,         // request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
-    redirect: 'follow', // set to `manual` to extract redirect headers, `error` to reject redirect
-    signal: null,       // pass an instance of AbortSignal to optionally abort requests
+    headers: {},            // request headers. format is the identical to that accepted by the Headers constructor (see below)
+    body: null,             // request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
+    redirect: 'follow',     // set to `manual` to extract redirect headers, `error` to reject redirect
+    signal: null,           // pass an instance of AbortSignal to optionally abort requests
 
     // The following properties are node-fetch extensions
-    follow: 20,         // maximum redirect count. 0 to not follow redirect
-    timeout: 0,         // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
-    compress: true,     // support gzip/deflate content encoding. false to disable
-    size: 0,            // maximum response body size in bytes. 0 to disable
-    agent: null         // http(s).Agent instance or function that returns an instance (see below)
+    follow: 20,             // maximum redirect count. 0 to not follow redirect
+    timeout: 0,             // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
+    compress: true,         // support gzip/deflate content encoding. false to disable
+    size: 0,                // maximum response body size in bytes. 0 to disable
+    agent: null             // http(s).Agent instance or function that returns an instance (see below)
+    highWaterMark: 16384    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
 }
 ```
 
@@ -402,6 +420,7 @@ The following node-fetch extension properties are provided:
 - `compress`
 - `counter`
 - `agent`
+- `highWaterMark`
 
 See [options](#fetch-options) for exact meaning of these extensions.
 

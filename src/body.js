@@ -340,10 +340,11 @@ function convertBody(buffer, headers) {
 /**
  * Clone body given Res/Req instance
  *
- * @param   Mixed  instance  Response or Request instance
+ * @param   Mixed   instance       Response or Request instance
+ * @param   String  highWaterMark  highWaterMark for both PassThrough body streams
  * @return  Mixed
  */
-export function clone(instance) {
+export function clone(instance, highWaterMark) {
 	let p1;
 	let p2;
 	let {body} = instance;
@@ -357,8 +358,8 @@ export function clone(instance) {
 	// note: we can't clone the form-data object without having it as a dependency
 	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
 		// Tee instance body
-		p1 = new PassThrough();
-		p2 = new PassThrough();
+		p1 = new PassThrough({highWaterMark});
+		p2 = new PassThrough({highWaterMark});
 		body.pipe(p1);
 		body.pipe(p2);
 		// Set instance body to teed body and return the other teed body
