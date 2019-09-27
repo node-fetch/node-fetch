@@ -1,5 +1,5 @@
-module.exports = (chai, utils) => {
-	utils.addProperty(chai.Assertion.prototype, 'timeout', function () {
+export default ({ Assertion }, utils) => {
+	utils.addProperty(Assertion.prototype, 'timeout', function () {
 		return new Promise(resolve => {
 			const timer = setTimeout(() => resolve(true), 150);
 			this._obj.then(() => {
@@ -15,3 +15,4 @@ module.exports = (chai, utils) => {
 		});
 	});
 };
+

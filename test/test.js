@@ -9,7 +9,6 @@ import resumer from 'resumer';
 import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 
-import { URL } from 'whatwg-url';
 import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
 import AbortController2 from 'abort-controller';
 import crypto from 'crypto';

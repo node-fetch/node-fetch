@@ -11,10 +11,10 @@
 		"types/**/*.d.ts"
 	],
 	"engines": {
-		"node": ">=8.0.0"
+		"node": ">=10.0.0"
 	},
 	"scripts": {
-		"build": "microbundle --external http,https,stream,zlib,pump,utf8,fetch-blob --name fetch --target node --format es,cjs",
+		"build": "microbundle --external http,https,stream,zlib,utf8,fetch-blob --name fetch --target node --format es,cjs",
 		"prepare": "npm run build",
 		"test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/test.js",
 		"report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
@@ -56,12 +56,10 @@
 		"promise": "^8.0.3",
 		"resumer": "0.0.0",
 		"string-to-arraybuffer": "^1.0.2",
-		"whatwg-url": "^7.0.0",
 		"xo": "^0.24.0"
 	},
 	"dependencies": {
 		"fetch-blob": "^1.0.4",
-		"pump": "^3.0.0",
 		"utf8": "^3.0.0"
 	},
 	"optionalDependencies": {

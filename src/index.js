@@ -6,23 +6,18 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import Url from 'url';
+import { resolve as resolveUrl } from 'url';
 import http from 'http';
 import https from 'https';
 import zlib from 'zlib';
-import Stream from 'stream';
-import pump from 'pump';
+import Stream, { PassThrough, pipeline as pump } from 'stream';
 
-import Body, {writeToStream, getTotalBytes} from './body';
+import Body, { writeToStream, getTotalBytes } from './body';
 import Response from './response';
-import Headers, {createHeadersLenient} from './headers';
-import Request, {getNodeRequestOptions} from './request';
+import Headers, { createHeadersLenient } from './headers';
+import Request, { getNodeRequestOptions } from './request';
 import FetchError from './errors/fetch-error';
 import AbortError from './errors/abort-error';
-
-// Fix an issue where "PassThrough", "resolve" aren't a named export for node <10
-const {PassThrough} = Stream;
-const resolveUrl = Url.resolve;
 
 /**
  * Fetch function
@@ -43,7 +38,7 @@ export default function fetch(url, opts) {
 	// If valid data uri
 	if (dataUriRegex.test(url)) {
 		const data = Buffer.from(url.split(',')[1], 'base64');
-		const res = new Response(data.body, {headers: {'Content-Type': data.mimeType || url.match(dataUriRegex)[1] || 'text/plain'}});
+		const res = new Response(data.body, { headers: { 'Content-Type': data.mimeType || url.match(dataUriRegex)[1] || 'text/plain' } });
 		return fetch.Promise.resolve(res);
 	}
 
@@ -62,7 +57,7 @@ export default function fetch(url, opts) {
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
-		const {signal} = request;
+		const { signal } = request;
 		let response = null;
 
 		const abort = () => {
