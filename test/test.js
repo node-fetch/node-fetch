@@ -130,7 +130,24 @@ describe('node-fetch', () => {
 			.and.include({ type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED' });
 	});
 
-	it('should resolve into response', () => {
+	it('error should contain system error if one occurred', function() {
+		const err = new FetchError('a message', 'system', new Error('an error'));
+		return expect(err).to.have.property('erroredSysCall');
+	});
+
+	it('error should not contain system error if none occurred', function() {
+		const err = new FetchError('a message', 'a type');
+		return expect(err).to.not.have.property('erroredSysCall');
+	});
+
+	it('system error is extracted from failed requests', function() {
+		const url = 'http://localhost:50000/';
+		return expect(fetch(url)).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('erroredSysCall');
+	})
+
+	it('should resolve into response', function() {
 		const url = `${base}hello`;
 		return fetch(url).then(res => {
 			expect(res).to.be.an.instanceof(Response);
