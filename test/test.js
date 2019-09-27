@@ -139,7 +139,7 @@ describe('node-fetch', () => {
 		return expect(err).to.not.have.property('erroredSysCall');
 	});
 
-	it('system error is extracted from failed requests', function() {
+	itIf(process.platform !== "win32")('system error is extracted from failed requests', function() {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)

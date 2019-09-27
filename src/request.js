@@ -7,7 +7,7 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import Url from 'url';
+import {parse as parseUrl, format as formatUrl} from 'url';
 import Stream from 'stream';
 import utf8 from 'utf8';
 import Headers, {exportNodeCompatibleHeaders} from './headers';
@@ -15,10 +15,6 @@ import Body, {clone, extractContentType, getTotalBytes} from './body';
 import {isAbortSignal} from './utils/is';
 
 const INTERNALS = Symbol('Request internals');
-
-// Fix an issue where "format", "parse" aren't a named export for node <10
-const parseUrl = Url.parse;
-const formatUrl = Url.format;
 
 const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
@@ -201,7 +197,7 @@ export function getNodeRequestOptions(request) {
 		request.body instanceof Stream.Readable &&
 		!streamDestructionSupported
 	) {
-		throw new Error('Cancellation of streamed requests with AbortSignal is not supported in node < 8');
+		throw new Error('Cancellation of streamed requests with AbortSignal is not supported');
 	}
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7
