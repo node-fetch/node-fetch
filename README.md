@@ -1,5 +1,4 @@
-node-fetch
-==========
+# node-fetch
 
 [![npm version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
@@ -19,26 +18,26 @@ A light-weight module that brings `window.fetch` to Node.js
   - [Installation](#installation)
   - [Loading and configuring the module](#loading-and-configuring-the-module)
   - [Common Usage](#common-usage)
-      - [Plain text or HTML](#plain-text-or-html)
-      - [JSON](#json)
-      - [Simple Post](#simple-post)
-      - [Post with JSON](#post-with-json)
-      - [Post with form parameters](#post-with-form-parameters)
-      - [Handling exceptions](#handling-exceptions)
-      - [Handling client and server errors](#handling-client-and-server-errors)
+    - [Plain text or HTML](#plain-text-or-html)
+    - [JSON](#json)
+    - [Simple Post](#simple-post)
+    - [Post with JSON](#post-with-json)
+    - [Post with form parameters](#post-with-form-parameters)
+    - [Handling exceptions](#handling-exceptions)
+    - [Handling client and server errors](#handling-client-and-server-errors)
   - [Advanced Usage](#advanced-usage)
-      - [Streams](#streams)
-      - [Buffer](#buffer)
-      - [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
-      - [Extract Set-Cookie Header](#extract-set-cookie-header)
-      - [Post data using a file stream](#post-data-using-a-file-stream)
-      - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
-      - [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
+    - [Streams](#streams)
+    - [Buffer](#buffer)
+    - [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
+    - [Extract Set-Cookie Header](#extract-set-cookie-header)
+    - [Post data using a file stream](#post-data-using-a-file-stream)
+    - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
+    - [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
   - [API](#api)
     - [fetch(url[, options])](#fetchurl-options)
     - [Options](#options)
-        - [Default Headers](#default-headers)
-        - [Custom Agent](#custom-agent)
+      - [Default Headers](#default-headers)
+      - [Custom Agent](#custom-agent)
     - [Class: Request](#class-request)
       - [new Request(input[, options])](#new-requestinput-options)
     - [Class: Response](#class-response)
@@ -89,18 +88,21 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 Current stable release (`2.x`)
 
 ```sh
-$ npm install node-fetch --save
+npm install node-fetch --save
 ```
 
 ## Loading and configuring the module
+
 We suggest you load the module via `require`, pending the stabalizing of es modules in node:
+
 ```js
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 ```
 
 If you are using a Promise library other than native, set it through fetch.Promise:
+
 ```js
-const Bluebird = require('bluebird');
+const Bluebird = require("bluebird");
 
 fetch.Promise = Bluebird;
 ```
@@ -109,176 +111,185 @@ fetch.Promise = Bluebird;
 
 NOTE: The documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](UPGRADE-GUIDE.md) for the differences.
 
-#### Plain text or HTML
-```js
-fetch('https://github.com/')
-    .then(res => res.text())
-    .then(body => console.log(body));
-```
-
-#### JSON
+### Plain text or HTML
 
 ```js
-
-fetch('https://api.github.com/users/github')
-    .then(res => res.json())
-    .then(json => console.log(json));
+fetch("https://github.com/")
+	.then(res => res.text())
+	.then(body => console.log(body));
 ```
 
-#### Simple Post
+### JSON
+
 ```js
-fetch('https://httpbin.org/post', { method: 'POST', body: 'a=1' })
-    .then(res => res.json()) // expecting a json response
-    .then(json => console.log(json));
+fetch("https://api.github.com/users/github")
+	.then(res => res.json())
+	.then(json => console.log(json));
 ```
 
-#### Post with JSON
+### Simple Post
+
+```js
+fetch("https://httpbin.org/post", { method: "POST", body: "a=1" })
+	.then(res => res.json()) // expecting a json response
+	.then(json => console.log(json));
+```
+
+### Post with JSON
 
 ```js
 const body = { a: 1 };
 
-fetch('https://httpbin.org/post', {
-        method: 'post',
-        body:    JSON.stringify(body),
-        headers: { 'Content-Type': 'application/json' },
-    })
-    .then(res => res.json())
-    .then(json => console.log(json));
+fetch("https://httpbin.org/post", {
+	method: "post",
+	body: JSON.stringify(body),
+	headers: { "Content-Type": "application/json" }
+})
+	.then(res => res.json())
+	.then(json => console.log(json));
 ```
 
-#### Post with form parameters
+### Post with form parameters
+
 `URLSearchParams` is available in Node.js as of v7.5.0. See [official documentation](https://nodejs.org/api/url.html#url_class_urlsearchparams) for more usage methods.
 
 NOTE: The `Content-Type` header is only set automatically to `x-www-form-urlencoded` when an instance of `URLSearchParams` is given as such:
 
 ```js
-const { URLSearchParams } = require('url');
+const { URLSearchParams } = require("url");
 
 const params = new URLSearchParams();
-params.append('a', 1);
+params.append("a", 1);
 
-fetch('https://httpbin.org/post', { method: 'POST', body: params })
-    .then(res => res.json())
-    .then(json => console.log(json));
+fetch("https://httpbin.org/post", { method: "POST", body: params })
+	.then(res => res.json())
+	.then(json => console.log(json));
 ```
 
-#### Handling exceptions
-NOTE: 3xx-5xx responses are *NOT* exceptions, and should be handled in `then()`, see the next section.
+### Handling exceptions
 
-Adding a catch to the fetch promise chain will catch *all* exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document](ERROR-HANDLING.md)  for more details.
+NOTE: 3xx-5xx responses are _NOT_ exceptions, and should be handled in `then()`, see the next section.
+
+Adding a catch to the fetch promise chain will catch _all_ exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document](ERROR-HANDLING.md) for more details.
 
 ```js
-fetch('https://domain.invalid/')
-    .catch(err => console.error(err));
+fetch("https://domain.invalid/").catch(err => console.error(err));
 ```
 
-#### Handling client and server errors
+### Handling client and server errors
+
 It is common to create a helper function to check that the response contains no client (4xx) or server (5xx) error responses:
 
 ```js
 function checkStatus(res) {
-    if (res.ok) { // res.status >= 200 && res.status < 300
-        return res;
-    } else {
-        throw MyCustomError(res.statusText);
-    }
+	if (res.ok) {
+		// res.status >= 200 && res.status < 300
+		return res;
+	} else {
+		throw MyCustomError(res.statusText);
+	}
 }
 
-fetch('https://httpbin.org/status/400')
-    .then(checkStatus)
-    .then(res => console.log('will not get here...'))
+fetch("https://httpbin.org/status/400")
+	.then(checkStatus)
+	.then(res => console.log("will not get here..."));
 ```
 
 ## Advanced Usage
 
-#### Streams
+### Streams
+
 The "Node.js way" is to use streams when possible:
 
 ```js
-fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
-    .then(res => {
-        const dest = fs.createWriteStream('./octocat.png');
-        res.body.pipe(dest);
-    });
+fetch(
+	"https://assets-cdn.github.com/images/modules/logos_page/Octocat.png"
+).then(res => {
+	const dest = fs.createWriteStream("./octocat.png");
+	res.body.pipe(dest);
+});
 ```
 
-#### Buffer
+### Buffer
+
 If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
 
 ```js
-const fileType = require('file-type');
+const fileType = require("file-type");
 
-fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
-    .then(res => res.buffer())
-    .then(buffer => fileType(buffer))
-    .then(type => { /* ... */ });
+fetch("https://assets-cdn.github.com/images/modules/logos_page/Octocat.png")
+	.then(res => res.buffer())
+	.then(buffer => fileType(buffer))
+	.then(type => {
+		/* ... */
+	});
 ```
 
-#### Accessing Headers and other Meta data
+### Accessing Headers and other Meta data
+
 ```js
-fetch('https://github.com/')
-    .then(res => {
-        console.log(res.ok);
-        console.log(res.status);
-        console.log(res.statusText);
-        console.log(res.headers.raw());
-        console.log(res.headers.get('content-type'));
-    });
+fetch("https://github.com/").then(res => {
+	console.log(res.ok);
+	console.log(res.status);
+	console.log(res.statusText);
+	console.log(res.headers.raw());
+	console.log(res.headers.get("content-type"));
+});
 ```
 
-#### Extract Set-Cookie Header
+### Extract Set-Cookie Header
 
 Unlike browsers, you can access raw `Set-Cookie` headers manually using `Headers.raw()`, this is a `node-fetch` only API.
 
 ```js
 fetch(url).then(res => {
-    // returns an array of values, instead of a string of comma-separated values
-    console.log(res.headers.raw()['set-cookie']);
+	// returns an array of values, instead of a string of comma-separated values
+	console.log(res.headers.raw()["set-cookie"]);
 });
 ```
 
-#### Post data using a file stream
+### Post data using a file stream
 
 ```js
-const { createReadStream } = require('fs');
+const { createReadStream } = require("fs");
 
-const stream = createReadStream('input.txt');
+const stream = createReadStream("input.txt");
 
-fetch('https://httpbin.org/post', { method: 'POST', body: stream })
-    .then(res => res.json())
-    .then(json => console.log(json));
+fetch("https://httpbin.org/post", { method: "POST", body: stream })
+	.then(res => res.json())
+	.then(json => console.log(json));
 ```
 
-#### Post with form-data (detect multipart)
+### Post with form-data (detect multipart)
 
 ```js
-const FormData = require('form-data');
+const FormData = require("form-data");
 
 const form = new FormData();
-form.append('a', 1);
+form.append("a", 1);
 
-fetch('https://httpbin.org/post', { method: 'POST', body: form })
-    .then(res => res.json())
-    .then(json => console.log(json));
+fetch("https://httpbin.org/post", { method: "POST", body: form })
+	.then(res => res.json())
+	.then(json => console.log(json));
 
 // OR, using custom headers
 // NOTE: getHeaders() is non-standard API
 
 const form = new FormData();
-form.append('a', 1);
+form.append("a", 1);
 
 const options = {
-    method: 'POST',
-    body: form,
-    headers: form.getHeaders()
-}
+	method: "POST",
+	body: form,
+	headers: form.getHeaders()
+};
 
-fetch('https://httpbin.org/post', options)
-    .then(res => res.json())
-    .then(json => console.log(json));
+fetch("https://httpbin.org/post", options)
+	.then(res => res.json())
+	.then(json => console.log(json));
 ```
 
-#### Request cancellation with AbortSignal
+### Request cancellation with AbortSignal
 
 > NOTE: You may only cancel streamed requests on Node >= v8.0.0
 
@@ -287,33 +298,31 @@ You may cancel requests with `AbortController`. A suggested implementation is [`
 An example of timing out a request after 150ms could be achieved as follows:
 
 ```js
-import AbortController from 'abort-controller';
+import AbortController from "abort-controller";
 
 const controller = new AbortController();
-const timeout = setTimeout(
-  () => { controller.abort(); },
-  150,
-);
+const timeout = setTimeout(() => {
+	controller.abort();
+}, 150);
 
 fetch(url, { signal: controller.signal })
-  .then(res => res.json())
-  .then(
-    data => {
-      useData(data)
-    },
-    err => {
-      if (err.name === 'AbortError') {
-        // request was aborted
-      }
-    },
-  )
-  .finally(() => {
-    clearTimeout(timeout);
-  });
+	.then(res => res.json())
+	.then(
+		data => {
+			useData(data);
+		},
+		err => {
+			if (err.name === "AbortError") {
+				// request was aborted
+			}
+		}
+	)
+	.finally(() => {
+		clearTimeout(timeout);
+	});
 ```
 
 See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for more examples.
-
 
 ## API
 
@@ -328,6 +337,7 @@ Perform an HTTP(S) fetch.
 `url` should be an absolute url, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected promise.
 
 <a id="fetch-options"></a>
+
 ### Options
 
 The default values are shown after each option key.
@@ -351,22 +361,22 @@ The default values are shown after each option key.
 }
 ```
 
-##### Default Headers
+#### Default Headers
 
 If no values are set, the following request headers will be sent automatically:
 
-Header              | Value
-------------------- | --------------------------------------------------------
-`Accept-Encoding`   | `gzip,deflate` _(when `options.compress === true`)_
-`Accept`            | `*/*`
-`Connection`        | `close` _(when no `options.agent` is present)_
-`Content-Length`    | _(automatically calculated, if possible)_
-`Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_
-`User-Agent`        | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
+| Header              | Value                                                    |
+| ------------------- | -------------------------------------------------------- |
+| `Accept-Encoding`   | `gzip,deflate` _(when `options.compress === true`)_      |
+| `Accept`            | `*/*`                                                    |
+| `Connection`        | `close` _(when no `options.agent` is present)_           |
+| `Content-Length`    | _(automatically calculated, if possible)_                |
+| `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_                |
+| `User-Agent`        | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)` |
 
 Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
 
-##### Custom Agent
+#### Custom Agent
 
 The `agent` option allows you to specify networking related options that's out of the scope of Fetch. Including and not limit to:
 
@@ -380,24 +390,25 @@ In addition, `agent` option accepts a function that returns http(s).Agent instan
 
 ```js
 const httpAgent = new http.Agent({
-    keepAlive: true
+	keepAlive: true
 });
 const httpsAgent = new https.Agent({
-    keepAlive: true
+	keepAlive: true
 });
 
 const options = {
-    agent: function (_parsedURL) {
-        if (_parsedURL.protocol == 'http:') {
-            return httpAgent;
-        } else {
-            return httpsAgent;
-        }
-    }
-}
+	agent: function(_parsedURL) {
+		if (_parsedURL.protocol == "http:") {
+			return httpAgent;
+		} else {
+			return httpsAgent;
+		}
+	}
+};
 ```
 
 <a id="class-request"></a>
+
 ### Class: Request
 
 An HTTP(S) request containing information about URL, method, headers, and the body. This class implements the [Body](#iface-body) interface.
@@ -426,7 +437,7 @@ See [options](#fetch-options) for exact meaning of these extensions.
 
 #### new Request(input[, options])
 
-<small>*(spec-compliant)*</small>
+<small>_(spec-compliant)_</small>
 
 - `input` A string representing a URL, or another `Request` (which will be cloned)
 - `options` [Options][#fetch-options] for the HTTP(S) request
@@ -436,6 +447,7 @@ Constructs a new `Request` object. The constructor is identical to that in the [
 In most cases, directly `fetch(url, options)` is simpler than creating a `Request` object.
 
 <a id="class-response"></a>
+
 ### Class: Response
 
 An HTTP(S) response. This class implements the [Body](#iface-body) interface.
@@ -449,7 +461,7 @@ The following properties are not implemented in node-fetch at this moment:
 
 #### new Response([body[, options]])
 
-<small>*(spec-compliant)*</small>
+<small>_(spec-compliant)_</small>
 
 - `body` A string or [Readable stream][node-readable]
 - `options` A [`ResponseInit`][response-init] options dictionary
@@ -460,24 +472,25 @@ Because Node.js does not implement service workers (for which this class was des
 
 #### response.ok
 
-<small>*(spec-compliant)*</small>
+<small>_(spec-compliant)_</small>
 
 Convenience property representing if the request ended normally. Will evaluate to true if the response status was greater than or equal to 200 but smaller than 300.
 
 #### response.redirected
 
-<small>*(spec-compliant)*</small>
+<small>_(spec-compliant)_</small>
 
 Convenience property representing if the request has been redirected at least once. Will evaluate to true if the internal redirect counter is greater than 0.
 
 <a id="class-headers"></a>
+
 ### Class: Headers
 
 This class allows manipulating and iterating over a set of HTTP headers. All methods specified in the [Fetch Standard][whatwg-fetch] are implemented.
 
 #### new Headers([init])
 
-<small>*(spec-compliant)*</small>
+<small>_(spec-compliant)_</small>
 
 - `init` Optional argument to pre-fill the `Headers` object
 
@@ -487,27 +500,25 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
 
 const meta = {
-  'Content-Type': 'text/xml',
-  'Breaking-Bad': '<3'
+	"Content-Type": "text/xml",
+	"Breaking-Bad": "<3"
 };
 const headers = new Headers(meta);
 
 // The above is equivalent to
-const meta = [
-  [ 'Content-Type', 'text/xml' ],
-  [ 'Breaking-Bad', '<3' ]
-];
+const meta = [["Content-Type", "text/xml"], ["Breaking-Bad", "<3"]];
 const headers = new Headers(meta);
 
 // You can in fact use any iterable objects, like a Map or even another Headers
 const meta = new Map();
-meta.set('Content-Type', 'text/xml');
-meta.set('Breaking-Bad', '<3');
+meta.set("Content-Type", "text/xml");
+meta.set("Breaking-Bad", "<3");
 const headers = new Headers(meta);
 const copyOfHeaders = new Headers(headers);
 ```
 
 <a id="iface-body"></a>
+
 ### Interface: Body
 
 `Body` is an abstract interface with methods that are applicable to both `Request` and `Response` classes.
@@ -518,60 +529,65 @@ The following methods are not yet implemented in node-fetch at this moment:
 
 #### body.body
 
-<small>*(deviation from spec)*</small>
+<small>_(deviation from spec)_</small>
 
-* Node.js [`Readable` stream][node-readable]
+- Node.js [`Readable` stream][node-readable]
 
 The data encapsulated in the `Body` object. Note that while the [Fetch Standard][whatwg-fetch] requires the property to always be a WHATWG `ReadableStream`, in node-fetch it is a Node.js [`Readable` stream][node-readable].
 
 #### body.bodyUsed
 
-<small>*(spec-compliant)*</small>
+<small>_(spec-compliant)_</small>
 
-* `Boolean`
+- `Boolean`
 
 A boolean property for if this body has been consumed. Per spec, a consumed body cannot be used again.
 
 #### body.arrayBuffer()
+
 #### body.blob()
+
 #### body.json()
+
 #### body.text()
 
-<small>*(spec-compliant)*</small>
+<small>_(spec-compliant)_</small>
 
-* Returns: <code>Promise</code>
+- Returns: `Promise`
 
 Consume the body and return a promise that will resolve to one of these formats.
 
 #### body.buffer()
 
-<small>*(node-fetch extension)*</small>
+<small>_(node-fetch extension)_</small>
 
-* Returns: <code>Promise&lt;Buffer&gt;</code>
+- Returns: `Promise<Buffer>`
 
 Consume the body and return a promise that will resolve to a Buffer.
 
 #### body.textConverted()
 
-<small>*(node-fetch extension)*</small>
+<small>_(node-fetch extension)_</small>
 
-* Returns: <code>Promise&lt;String&gt;</code>
+- Returns: `Promise<String>`
 
 Identical to `body.text()`, except instead of always converting to UTF-8, encoding sniffing will be performed and text converted to UTF-8, if possible.
 
 (This API requires an optional dependency on npm package [encoding](https://www.npmjs.com/package/encoding), which you need to install manually. `webpack` users may see [a warning message](https://github.com/bitinn/node-fetch/issues/412#issuecomment-379007792) due to this optional dependency.)
 
 <a id="class-fetcherror"></a>
+
 ### Class: FetchError
 
-<small>*(node-fetch extension)*</small>
+<small>_(node-fetch extension)_</small>
 
 An operational error in the fetching process. See [ERROR-HANDLING.md][] for more info.
 
 <a id="class-aborterror"></a>
+
 ### Class: AbortError
 
-<small>*(node-fetch extension)*</small>
+<small>_(node-fetch extension)_</small>
 
 An Error thrown when the request is aborted in response to an `AbortSignal`'s `abort` event. It has a `name` property of `AbortError`. See [ERROR-HANDLING.MD][] for more info.
 
@@ -597,6 +613,6 @@ MIT
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
-[LIMITS.md]: https://github.com/bitinn/node-fetch/blob/master/LIMITS.md
-[ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
-[UPGRADE-GUIDE.md]: https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md
+[limits.md]: https://github.com/bitinn/node-fetch/blob/master/LIMITS.md
+[error-handling.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
+[upgrade-guide.md]: https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md
