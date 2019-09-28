@@ -9,7 +9,7 @@ import Stream, {PassThrough} from 'stream';
 
 import Blob from 'fetch-blob';
 import FetchError from './errors/fetch-error';
-import {isBlob, isURLSearchParams} from './utils/is';
+import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
 
 let convert;
 try {
@@ -41,7 +41,7 @@ export default function Body(body, {
 		// Body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// Body is Buffer
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
+	} else if (isArrayBuffer(body)) {
 		// Body is ArrayBuffer
 		body = Buffer.from(body);
 	} else if (ArrayBuffer.isView(body)) {
@@ -65,7 +65,7 @@ export default function Body(body, {
 
 	if (body instanceof Stream) {
 		body.on('error', err => {
-			const error = err.name === 'AbortError' ?
+			const error = isAbortError(err) ?
 				err :
 				new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 			this[INTERNALS].error = error;
@@ -227,7 +227,7 @@ function consumeBody() {
 
 		// Handle stream errors
 		body.on('error', err => {
-			if (err.name === 'AbortError') {
+			if (isAbortError(err)) {
 				// If the request was aborted, reject with this Error
 				abort = true;
 				reject(err);
