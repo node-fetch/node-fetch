@@ -169,7 +169,9 @@ export class Response extends Body {
     status: number;
     statusText: string;
     type: ResponseType;
-    url: string;
+	url: string;
+	size: number;
+	timeout: number;
 }
 
 export type ResponseType =
