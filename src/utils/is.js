@@ -74,5 +74,5 @@ export function isArrayBuffer(obj) {
  * @return {boolean}
  */
 export function isAbortError(obj) {
-	return obj[NAME] === 'AbortError';
+	return obj.name === 'AbortError';
 }
