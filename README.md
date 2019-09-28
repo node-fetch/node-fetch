@@ -88,7 +88,7 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 Current stable release (`2.x`)
 
 ```sh
-npm install node-fetch --save
+$ npm install node-fetch
 ```
 
 ## Loading and configuring the module
