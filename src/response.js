@@ -1,19 +1,13 @@
-
 /**
- * response.js
+ * Response.js
  *
  * Response class provides content decoding
  */
 
-import http from 'http';
-
-import Headers from './headers.js';
-import Body, { clone, extractContentType } from './body';
+import Headers from './headers';
+import Body, {clone, extractContentType} from './body';
 
 const INTERNALS = Symbol('Response internals');
-
-// fix an issue where "STATUS_CODES" aren't a named export for node <10
-const STATUS_CODES = http.STATUS_CODES;
 
 /**
  * Response class
@@ -27,9 +21,9 @@ export default class Response {
 		Body.call(this, body, opts);
 
 		const status = opts.status || 200;
-		const headers = new Headers(opts.headers)
+		const headers = new Headers(opts.headers);
 
-		if (body != null && !headers.has('Content-Type')) {
+		if (body !== null && !headers.has('Content-Type')) {
 			const contentType = extractContentType(body);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
@@ -39,9 +33,10 @@ export default class Response {
 		this[INTERNALS] = {
 			url: opts.url,
 			status,
-			statusText: opts.statusText || STATUS_CODES[status],
+			statusText: opts.statusText || '',
 			headers,
-			counter: opts.counter
+			counter: opts.counter,
+			highWaterMark: opts.highWaterMark
 		};
 	}
 
@@ -72,13 +67,17 @@ export default class Response {
 		return this[INTERNALS].headers;
 	}
 
+	get highWaterMark() {
+		return this[INTERNALS].highWaterMark;
+	}
+
 	/**
 	 * Clone this response
 	 *
 	 * @return  Response
 	 */
 	clone() {
-		return new Response(clone(this), {
+		return new Response(clone(this, this.highWaterMark), {
 			url: this.url,
 			status: this.status,
 			statusText: this.statusText,
@@ -94,13 +93,13 @@ export default class Response {
 Body.mixIn(Response.prototype);
 
 Object.defineProperties(Response.prototype, {
-	url: { enumerable: true },
-	status: { enumerable: true },
-	ok: { enumerable: true },
-	redirected: { enumerable: true },
-	statusText: { enumerable: true },
-	headers: { enumerable: true },
-	clone: { enumerable: true }
+	url: {enumerable: true},
+	status: {enumerable: true},
+	ok: {enumerable: true},
+	redirected: {enumerable: true},
+	statusText: {enumerable: true},
+	headers: {enumerable: true},
+	clone: {enumerable: true}
 });
 
 Object.defineProperty(Response.prototype, Symbol.toStringTag, {

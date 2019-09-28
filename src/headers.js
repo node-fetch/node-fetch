@@ -1,12 +1,12 @@
 
 /**
- * headers.js
+ * Headers.js
  *
  * Headers class offers convenient helpers
  */
 
-const invalidTokenRegex = /[^\^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
-const invalidHeaderCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
+const invalidTokenRegex = /[^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
+const invalidHeaderCharRegex = /[^\t\u0020-\u007e\u0080-\u00ff]/;
 
 function validateName(name) {
 	name = `${name}`;
@@ -37,6 +37,7 @@ function find(map, name) {
 			return key;
 		}
 	}
+
 	return undefined;
 }
 
@@ -67,7 +68,7 @@ export default class Headers {
 		// We don't worry about converting prop to ByteString here as append()
 		// will handle it.
 		if (init == null) {
-			// no op
+			// No op
 		} else if (typeof init === 'object') {
 			const method = init[Symbol.iterator];
 			if (method != null) {
@@ -75,13 +76,14 @@ export default class Headers {
 					throw new TypeError('Header pairs must be iterable');
 				}
 
-				// sequence<sequence<ByteString>>
+				// Sequence<sequence<ByteString>>
 				// Note: per spec we have to first exhaust the lists then process them
 				const pairs = [];
 				for (const pair of init) {
 					if (typeof pair !== 'object' || typeof pair[Symbol.iterator] !== 'function') {
 						throw new TypeError('Each header pair must be iterable');
 					}
+
 					pairs.push(Array.from(pair));
 				}
 
@@ -89,10 +91,11 @@ export default class Headers {
 					if (pair.length !== 2) {
 						throw new TypeError('Each header pair must be a name/value tuple');
 					}
+
 					this.append(pair[0], pair[1]);
 				}
 			} else {
-				// record<ByteString, ByteString>
+				// Record<ByteString, ByteString>
 				for (const key of Object.keys(init)) {
 					const value = init[key];
 					this.append(key, value);
@@ -117,7 +120,12 @@ export default class Headers {
 			return null;
 		}
 
-		return this[MAP][key].join(', ');
+		let val = this[MAP][key].join(', ');
+		if (name.toLowerCase() === 'content-encoding') {
+			val = val.toLowerCase();
+		}
+
+		return val;
 	}
 
 	/**
@@ -199,7 +207,7 @@ export default class Headers {
 		if (key !== undefined) {
 			delete this[MAP][key];
 		}
-	};
+	}
 
 	/**
 	 * Return raw headers (non-spec api)
@@ -249,15 +257,15 @@ Object.defineProperty(Headers.prototype, Symbol.toStringTag, {
 });
 
 Object.defineProperties(Headers.prototype, {
-	get: { enumerable: true },
-	forEach: { enumerable: true },
-	set: { enumerable: true },
-	append: { enumerable: true },
-	has: { enumerable: true },
-	delete: { enumerable: true },
-	keys: { enumerable: true },
-	values: { enumerable: true },
-	entries: { enumerable: true }
+	get: {enumerable: true},
+	forEach: {enumerable: true},
+	set: {enumerable: true},
+	append: {enumerable: true},
+	has: {enumerable: true},
+	delete: {enumerable: true},
+	keys: {enumerable: true},
+	values: {enumerable: true},
+	entries: {enumerable: true}
 });
 
 function getHeaders(headers, kind = 'key+value') {
@@ -330,9 +338,9 @@ Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
  * @return  Object
  */
 export function exportNodeCompatibleHeaders(headers) {
-	const obj = Object.assign({ __proto__: null }, headers[MAP]);
+	const obj = {__proto__: null, ...headers[MAP]};
 
-	// http.request() only supports string as Host header. This hack makes
+	// Http.request() only supports string as Host header. This hack makes
 	// specifying custom Host header possible.
 	const hostHeaderKey = find(headers[MAP], 'Host');
 	if (hostHeaderKey !== undefined) {
@@ -355,11 +363,13 @@ export function createHeadersLenient(obj) {
 		if (invalidTokenRegex.test(name)) {
 			continue;
 		}
+
 		if (Array.isArray(obj[name])) {
 			for (const val of obj[name]) {
 				if (invalidHeaderCharRegex.test(val)) {
 					continue;
 				}
+
 				if (headers[MAP][name] === undefined) {
 					headers[MAP][name] = [val];
 				} else {
@@ -370,5 +380,6 @@ export function createHeadersLenient(obj) {
 			headers[MAP][name] = [obj[name]];
 		}
 	}
+
 	return headers;
 }
