@@ -5,11 +5,11 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, { PassThrough } from 'stream';
+import Stream, {PassThrough} from 'stream';
 
 import Blob from 'fetch-blob';
 import FetchError from './errors/fetch-error';
-import { isBlob, isURLSearchParams, isArrayBuffer, isAbortError } from './utils/is';
+import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
 
 let convert;
 try {
@@ -88,7 +88,7 @@ Body.prototype = {
 	 * @return  Promise
 	 */
 	arrayBuffer() {
-		return consumeBody.call(this).then(({ buffer, byteOffset, byteLength }) => buffer.slice(byteOffset, byteOffset + byteLength));
+		return consumeBody.call(this).then(({buffer, byteOffset, byteLength}) => buffer.slice(byteOffset, byteOffset + byteLength));
 	},
 
 	/**
@@ -150,12 +150,12 @@ Body.prototype = {
 
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
-	body: { enumerable: true },
-	bodyUsed: { enumerable: true },
-	arrayBuffer: { enumerable: true },
-	blob: { enumerable: true },
-	json: { enumerable: true },
-	text: { enumerable: true }
+	body: {enumerable: true},
+	bodyUsed: {enumerable: true},
+	arrayBuffer: {enumerable: true},
+	blob: {enumerable: true},
+	json: {enumerable: true},
+	text: {enumerable: true}
 });
 
 Body.mixIn = proto => {
@@ -186,7 +186,7 @@ function consumeBody() {
 		return Body.Promise.reject(this[INTERNALS].error);
 	}
 
-	let { body } = this;
+	let {body} = this;
 
 	// Body is null
 	if (body === null) {
@@ -344,7 +344,7 @@ function convertBody(buffer, headers) {
 export function clone(instance, highWaterMark) {
 	let p1;
 	let p2;
-	let { body } = instance;
+	let {body} = instance;
 
 	// Don't allow cloning a used body
 	if (instance.bodyUsed) {
@@ -355,8 +355,8 @@ export function clone(instance, highWaterMark) {
 	// note: we can't clone the form-data object without having it as a dependency
 	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
 		// Tee instance body
-		p1 = new PassThrough({ highWaterMark });
-		p2 = new PassThrough({ highWaterMark });
+		p1 = new PassThrough({highWaterMark});
+		p2 = new PassThrough({highWaterMark});
 		body.pipe(p1);
 		body.pipe(p2);
 		// Set instance body to teed body and return the other teed body
@@ -437,7 +437,7 @@ export function extractContentType(body) {
  * @return  Number?            Number of bytes, or null if not possible
  */
 export function getTotalBytes(instance) {
-	const { body } = instance;
+	const {body} = instance;
 
 	if (body === null) {
 		// Body is null
@@ -474,7 +474,7 @@ export function getTotalBytes(instance) {
  * @return  Void
  */
 export function writeToStream(dest, instance) {
-	const { body } = instance;
+	const {body} = instance;
 
 	if (body === null) {
 		// Body is null
