@@ -6,11 +6,12 @@ node-fetch
 [![coverage status][codecov-image]][codecov-url]
 [![install size][install-size-image]][install-size-url]
 [![Discord][discord-image]][discord-url]
-[![Opencollective][opencollective-image]][opencollective-url]
 
 A light-weight module that brings `window.fetch` to Node.js
 
 (We are looking for [v2 maintainers and collaborators](https://github.com/bitinn/node-fetch/issues/567))
+
+[![Backers][opencollective-image]][opencollective-url]
 
 <!-- TOC -->
 
@@ -578,7 +579,7 @@ MIT
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
 [discord-image]: https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square
 [discord-url]: https://discord.gg/Zxbndcm
-[opencollective-image]: https://img.shields.io/opencollective/all/node-fetch?label=Sponsors&style=flat-square
+[opencollective-image]: https://opencollective.com/node-fetch/backers.svg
 [opencollective-url]: https://opencollective.com/node-fetch
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
