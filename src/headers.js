@@ -6,7 +6,7 @@
  */
 
 const invalidTokenRegex = /[^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
-const invalidHeaderCharRegex = /[^\t\u0020-\u007e\u0080-\u00ff]/;
+const invalidHeaderCharRegex = /[^\t\u0020-\u007E\u0080-\u00FF]/;
 
 function validateName(name) {
 	name = `${name}`;
@@ -273,9 +273,9 @@ function getHeaders(headers, kind = 'key+value') {
 	return keys.map(
 		kind === 'key' ?
 			k => k.toLowerCase() :
-			kind === 'value' ?
+			(kind === 'value' ?
 				k => headers[MAP][k].join(', ') :
-				k => [k.toLowerCase(), headers[MAP][k].join(', ')]
+				k => [k.toLowerCase(), headers[MAP][k].join(', ')])
 	);
 }
 

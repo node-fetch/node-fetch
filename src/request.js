@@ -69,9 +69,9 @@ export default class Request {
 
 		const inputBody = init.body != null ?
 			init.body :
-			isRequest(input) && input.body !== null ?
+			(isRequest(input) && input.body !== null ?
 				clone(input) :
-				null;
+				null);
 
 		Body.call(this, inputBody, {
 			timeout: init.timeout || input.timeout || 0,
@@ -108,11 +108,11 @@ export default class Request {
 
 		// Node-fetch-only options
 		this.follow = init.follow !== undefined ?
-			init.follow : input.follow !== undefined ?
-				input.follow : 20;
+			init.follow : (input.follow !== undefined ?
+				input.follow : 20);
 		this.compress = init.compress !== undefined ?
-			init.compress : input.compress !== undefined ?
-				input.compress : true;
+			init.compress : (input.compress !== undefined ?
+				input.compress : true);
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark;

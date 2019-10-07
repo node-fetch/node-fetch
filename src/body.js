@@ -14,7 +14,7 @@ import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is
 let convert;
 try {
 	convert = require('encoding').convert;
-} catch (error) { }
+} catch (_) { }
 
 const INTERNALS = Symbol('Body internals');
 
