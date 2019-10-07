@@ -2767,6 +2767,16 @@ describe('external encoding', () => {
 			});
 		});
 
+		it('should support encoding decode, html4 detect reverse http-equiv', function() {
+			const url = `${base}encoding/gb2312-reverse`;
+			return fetch(url).then(res => {
+				expect(res.status).to.equal(200);
+				return res.textConverted().then(result => {
+					expect(result).to.equal('<meta content="text/html; charset=gb2312" http-equiv="Content-Type"><div>中文</div>');
+				});
+			});
+		});
+
 		it('should default to utf8 encoding', function() {
 			const url = `${base}encoding/utf8`;
 			return fetch(url).then(res => {

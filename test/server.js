@@ -181,6 +181,12 @@ export default class TestServer {
 			res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>', 'gb2312'));
 		}
 
+		if (p === '/encoding/gb2312-reverse') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/html');
+			res.end(convert('<meta content="text/html; charset=gb2312" http-equiv="Content-Type"><div>中文</div>', 'gb2312'));
+		}
+
 		if (p === '/encoding/shift-jis') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/html; charset=Shift-JIS');
