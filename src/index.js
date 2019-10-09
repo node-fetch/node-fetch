@@ -61,7 +61,7 @@ export default function fetch(url, opts) {
 		const { signal } = request;
 		let response = null;
 
-		const abort = ()  => {
+		const abort = () => {
 			let error = new AbortError('The user aborted a request.');
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
@@ -153,6 +153,13 @@ export default function fetch(url, opts) {
 							return;
 						}
 
+						// HTTP-redirect fetch step 9
+						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
+							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'));
+							finalize();
+							return;
+						}
+
 						// HTTP-redirect fetch step 6 (counter increment)
 						// Create a new Request object.
 						const requestOpts = {
@@ -166,13 +173,6 @@ export default function fetch(url, opts) {
 							signal: request.signal,
 							timeout: request.timeout
 						};
-
-						// HTTP-redirect fetch step 9
-						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
-							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'));
-							finalize();
-							return;
-						}
 
 						// HTTP-redirect fetch step 11
 						if (res.statusCode === 303 || ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST')) {
