@@ -61,7 +61,7 @@ export default function fetch(url, opts) {
 		const { signal } = request;
 		let response = null;
 
-		const abort = ()  => {
+		const abort = () => {
 			let error = new AbortError('The user aborted a request.');
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
@@ -84,6 +84,7 @@ export default function fetch(url, opts) {
 		// send request
 		const req = send(options);
 		let reqTimeout;
+		let startTime;
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
@@ -96,6 +97,7 @@ export default function fetch(url, opts) {
 		}
 
 		if (request.timeout) {
+			startTime = Date.now();
 			req.once('socket', socket => {
 				reqTimeout = setTimeout(() => {
 					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
@@ -151,6 +153,17 @@ export default function fetch(url, opts) {
 							reject(new FetchError(`maximum redirect reached at: ${request.url}`, 'max-redirect'));
 							finalize();
 							return;
+						}
+
+						if (request.timeout) {
+							request.timeout = request.timeout - (Date.now() - startTime);
+
+							// No time left to fetch the redirect, fail.
+							if (request.timeout <= 0) {
+								reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
+								finalize();
+								return;
+							}
 						}
 
 						// HTTP-redirect fetch step 6 (counter increment)
