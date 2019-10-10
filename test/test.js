@@ -811,10 +811,22 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow custom timeout on redirected requests', function() {
+	it('should succeed if there IS enough "timeout" time left for the redirect', function () {
 		const url = `${base}redirect/slow-chain`;
 		const opts = {
-			timeout: 20
+			timeout: 1500
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.url).to.equal(`${base}inspect`);
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+		});
+	});
+
+	it('should fail if there IS NOT enough "timeout" time left for the redirect', function () {
+		const url = `${base}redirect/slow-chain`;
+		const opts = {
+			timeout: 1000
 		};
 		return expect(fetch(url, opts)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
