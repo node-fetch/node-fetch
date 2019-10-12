@@ -107,6 +107,14 @@ const Bluebird = require("bluebird");
 fetch.Promise = Bluebird;
 ```
 
+If you want to patch the global object in node:
+
+```js
+if (!global.fetch) {
+    global.fetch = fetch;
+}
+```
+
 ## Common Usage
 
 NOTE: The documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](UPGRADE-GUIDE.md) for the differences.
