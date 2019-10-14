@@ -110,9 +110,25 @@ fetch.Promise = Bluebird;
 If you want to patch the global object in node:
 
 ```js
-if (!global.fetch) {
-    global.fetch = fetch;
+if (!globalThis.fetch) {
+    globalThis.fetch = fetch;
 }
+```
+
+For versions of node earlier than 12.x, use this `globalThis` [polyfill](https://mathiasbynens.be/notes/globalthis):
+
+```js
+(function() {
+	if (typeof globalThis === 'object') return;
+	Object.defineProperty(Object.prototype, '__magic__', {
+		get: function() {
+			return this;
+		},
+		configurable: true
+	});
+	__magic__.globalThis = __magic__;
+	delete Object.prototype.__magic__;
+}());
 ```
 
 ## Common Usage
