@@ -51,7 +51,7 @@ A light-weight module that brings `window.fetch` to Node.js
 
 ## Motivation
 
-Instead of implementing `XMLHttpRequest` in Node.js to run browser-specific [Fetch polyfill](https://github.com/github/fetch), why not go from native `http` to `fetch` API directly? Hence `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js runtime.
+Instead of implementing `XMLHttpRequest` in Node.js to run browser-specific [Fetch polyfill](https://github.com/github/fetch), why not go from native `http` to `fetch` API directly? Hence, `node-fetch`, minimal code for a `window.fetch` compatible API on Node.js runtime.
 
 See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) or Leonardo Quixada's [cross-fetch](https://github.com/lquixada/cross-fetch) for isomorphic usage (exports `node-fetch` for server-side, `whatwg-fetch` for client-side).
 
@@ -59,9 +59,9 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 
 - Stay consistent with `window.fetch` API.
 - Make conscious trade-off when following [WHATWG fetch spec][whatwg-fetch] and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known differences.
-- Use native promise, but allow substituting it with [insert your favorite promise library].
-- Use native Node streams for body, on both request and response.
-- Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
+- Use native promise but allow substituting it with [insert your favorite promise library].
+- Use native Node streams for body on both request and response.
+- Decode content encoding (gzip/deflate) properly and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
 - Useful extensions such as timeout, redirect limit, response size limit, [explicit errors](ERROR-HANDLING.md) for troubleshooting.
 
 ## Difference from client-side fetch
@@ -79,12 +79,12 @@ $ npm install node-fetch
 ```
 
 ## Loading and configuring the module
-We suggest you load the module via `require`, pending the stabalizing of es modules in node:
+We suggest you load the module via `require` until the stabilization of ES modules in node:
 ```js
 const fetch = require('node-fetch');
 ```
 
-If you are using a Promise library other than native, set it through fetch.Promise:
+If you are using a Promise library other than native, set it through `fetch.Promise`:
 ```js
 const Bluebird = require('bluebird');
 
@@ -93,7 +93,7 @@ fetch.Promise = Bluebird;
 
 ## Common Usage
 
-NOTE: The documentation below is up-to-date with `2.x` releases, [see `1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](UPGRADE-GUIDE.md) for the differences.
+NOTE: The documentation below is up-to-date with `2.x` releases; see the [`1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](UPGRADE-GUIDE.md) for the differences.
 
 #### Plain text or HTML
 ```js
@@ -149,9 +149,9 @@ fetch('https://httpbin.org/post', { method: 'POST', body: params })
 ```
 
 #### Handling exceptions
-NOTE: 3xx-5xx responses are *NOT* exceptions, and should be handled in `then()`, see the next section.
+NOTE: 3xx-5xx responses are *NOT* exceptions and should be handled in `then()`; see the next section for more information.
 
-Adding a catch to the fetch promise chain will catch *all* exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document](ERROR-HANDLING.md)  for more details.
+Adding a catch to the fetch promise chain will catch *all* exceptions, such as errors originating from node core libraries, network errors and operational errors, which are instances of FetchError. See the [error handling document](ERROR-HANDLING.md)  for more details.
 
 ```js
 fetch('https://domain.invalid/')
@@ -189,7 +189,7 @@ fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
 ```
 
 #### Buffer
-If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
+If you prefer to cache binary data in full, use buffer(). (NOTE: `buffer()` is a `node-fetch`-only API)
 
 ```js
 const fileType = require('file-type');
@@ -214,7 +214,7 @@ fetch('https://github.com/')
 
 #### Extract Set-Cookie Header
 
-Unlike browsers, you can access raw `Set-Cookie` headers manually using `Headers.raw()`, this is a `node-fetch` only API.
+Unlike browsers, you can access raw `Set-Cookie` headers manually using `Headers.raw()`. This is a `node-fetch` only API.
 
 ```js
 fetch(url).then(res => {
@@ -266,11 +266,11 @@ fetch('https://httpbin.org/post', options)
 
 #### Request cancellation with AbortSignal
 
-> NOTE: You may only cancel streamed requests on Node >= v8.0.0
+> NOTE: You may cancel streamed requests only on Node >= v8.0.0
 
 You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
 
-An example of timing out a request after 150ms could be achieved as follows:
+An example of timing out a request after 150ms could be achieved as the following:
 
 ```js
 import AbortController from 'abort-controller';
@@ -311,7 +311,7 @@ See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) 
 
 Perform an HTTP(S) fetch.
 
-`url` should be an absolute url, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected promise.
+`url` should be an absolute url, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected `Promise`.
 
 <a id="fetch-options"></a>
 ### Options
@@ -353,7 +353,7 @@ Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
 
 ##### Custom Agent
 
-The `agent` option allows you to specify networking related options that's out of the scope of Fetch. Including and not limit to:
+The `agent` option allows you to specify networking related options which are out of the scope of Fetch, including and not limited to the following:
 
 - Support self-signed certificate
 - Use only IPv4 or IPv6
@@ -361,7 +361,7 @@ The `agent` option allows you to specify networking related options that's out o
 
 See [`http.Agent`](https://nodejs.org/api/http.html#http_new_agent_options) for more information.
 
-In addition, `agent` option accepts a function that returns http(s).Agent instance given current [URL](https://nodejs.org/api/url.html), this is useful during a redirection chain across HTTP and HTTPS protocol.
+In addition, the `agent` option accepts a function that returns `http`(s)`.Agent` instance given current [URL](https://nodejs.org/api/url.html), this is useful during a redirection chain across HTTP and HTTPS protocol.
 
 ```js
 const httpAgent = new http.Agent({
@@ -435,7 +435,7 @@ The following properties are not implemented in node-fetch at this moment:
 
 <small>*(spec-compliant)*</small>
 
-- `body` A string or [Readable stream][node-readable]
+- `body` A `String` or [`Readable` stream][node-readable]
 - `options` A [`ResponseInit`][response-init] options dictionary
 
 Constructs a new `Response` object. The constructor is identical to that in the [browser](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response).
@@ -465,7 +465,7 @@ This class allows manipulating and iterating over a set of HTTP headers. All met
 
 - `init` Optional argument to pre-fill the `Headers` object
 
-Construct a new `Headers` object. `init` can be either `null`, a `Headers` object, an key-value map object, or any iterable object.
+Construct a new `Headers` object. `init` can be either `null`, a `Headers` object, an key-value map object or any iterable object.
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
@@ -506,7 +506,7 @@ The following methods are not yet implemented in node-fetch at this moment:
 
 * Node.js [`Readable` stream][node-readable]
 
-The data encapsulated in the `Body` object. Note that while the [Fetch Standard][whatwg-fetch] requires the property to always be a WHATWG `ReadableStream`, in node-fetch it is a Node.js [`Readable` stream][node-readable].
+Data are encapsulated in the `Body` object. Note that while the [Fetch Standard][whatwg-fetch] requires the property to always be a WHATWG `ReadableStream`, in node-fetch it is a Node.js [`Readable` stream][node-readable].
 
 #### body.bodyUsed
 
@@ -514,7 +514,7 @@ The data encapsulated in the `Body` object. Note that while the [Fetch Standard]
 
 * `Boolean`
 
-A boolean property for if this body has been consumed. Per spec, a consumed body cannot be used again.
+A boolean property for if this body has been consumed. Per the specs, a consumed body cannot be used again.
 
 #### body.arrayBuffer()
 #### body.blob()
@@ -541,9 +541,9 @@ Consume the body and return a promise that will resolve to a Buffer.
 
 * Returns: <code>Promise&lt;String&gt;</code>
 
-Identical to `body.text()`, except instead of always converting to UTF-8, encoding sniffing will be performed and text converted to UTF-8, if possible.
+Identical to `body.text()`, except instead of always converting to UTF-8, encoding sniffing will be performed and text converted to UTF-8 if possible.
 
-(This API requires an optional dependency on npm package [encoding](https://www.npmjs.com/package/encoding), which you need to install manually. `webpack` users may see [a warning message](https://github.com/bitinn/node-fetch/issues/412#issuecomment-379007792) due to this optional dependency.)
+(This API requires an optional dependency of the npm package [encoding](https://www.npmjs.com/package/encoding), which you need to install manually. `webpack` users may see [a warning message](https://github.com/bitinn/node-fetch/issues/412#issuecomment-379007792) due to this optional dependency.)
 
 <a id="class-fetcherror"></a>
 ### Class: FetchError
