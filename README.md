@@ -65,6 +65,8 @@ A light-weight module that brings `window.fetch` to Node.js
 		- [Class: AbortError](#class-aborterror)
 	- [TypeScript](#typescript)
 	- [Acknowledgement](#acknowledgement)
+	- [Team](#team)
+					- [Former](#former)
 	- [License](#license)
 
 <!-- /TOC -->
@@ -675,7 +677,16 @@ $ npm install --save-dev @types/node-fetch
 
 Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid implementation reference.
 
-`node-fetch` v1 was maintained by [@bitinn](https://github.com/bitinn); v2 was maintained by [@TimothyGu](https://github.com/timothygu), [@bitinn](https://github.com/bitinn) and [@jimmywarting](https://github.com/jimmywarting); v2 readme is written by [@jkantr](https://github.com/jkantr).
+## Team
+
+[![David Frank](https://github.com/bitinn.png?size=100)](https://github.com/bitinn) | [![Jimmy Wärting](https://github.com/jimmywarting.png?size=100)](https://github.com/jimmywarting) | [![Antoni Kepinski](https://github.com/xxczaki.png?size=100)](https://github.com/xxczaki) | [![Richie Bendall](https://github.com/Richienb.png?size=100)](https://github.com/Richienb) | [![Gregor Martynus](https://github.com/gr2m.png?size=100)](https://github.com/gr2m)
+---|---|---
+[David Frank](https://bitinn.net/) | [Jimmy Wärting](https://jimmy.warting.se/) | [Antoni Kepinski](https://kepinski.me) | [Richie Bendall](https://www.richie-bendall.ml/) | [Gregor Martynus](https://twitter.com/gr2m)
+
+###### Former
+
+- [Timothy Gu](https://github.com/timothygu)
+- [Jared Kantrowitz](https://github.com/jkantr)
 
 ## License
 
