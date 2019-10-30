@@ -36,6 +36,7 @@ A light-weight module that brings `window.fetch` to Node.js
 		- [Options](#options)
 			- [Default Headers](#default-headers)
 			- [Custom Agent](#custom-agent)
+			- [Custom highWaterMark](#custom-highwatermark)
 		- [Class: Request](#class-request)
 			- [new Request(input[, options])](#new-requestinput-options)
 		- [Class: Response](#class-response)
@@ -452,6 +453,20 @@ const options = {
 		}
 	}
 };
+```
+
+<a id="custom-highWaterMark"></a>
+
+#### Custom highWaterMark
+
+Stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers). Because of that, when you are writing an isomorphic app and using `res.clone()`, it will hang with large response in Node. 
+
+Since `3.x` you are able to modify the `highWaterMark` option:
+
+```js
+const fetch = require('node-fetch');
+
+fetch('https://example.com', {highWaterMark: 10}).then(res => res.clone().buffer());
 ```
 
 <a id="class-request"></a>
