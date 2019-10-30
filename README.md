@@ -100,6 +100,7 @@ const fetch = require('node-fetch');
 If you are using a Promise library other than native, set it through `fetch.Promise`:
 
 ```js
+const fetch = require('node-fetch');
 const Bluebird = require('bluebird');
 
 fetch.Promise = Bluebird;
@@ -108,6 +109,8 @@ fetch.Promise = Bluebird;
 If you want to patch the global object in node:
 
 ```js
+const fetch = require('node-fetch');
+
 if (!globalThis.fetch) {
     globalThis.fetch = fetch;
 }
@@ -136,6 +139,8 @@ NOTE: The documentation below is up-to-date with `3.x` releases, [see `2.x` read
 ### Plain text or HTML
 
 ```js
+const fetch = require('node-fetch');
+
 fetch('https://github.com/')
 	.then(res => res.text())
 	.then(body => console.log(body));
@@ -144,6 +149,8 @@ fetch('https://github.com/')
 ### JSON
 
 ```js
+const fetch = require('node-fetch');
+
 fetch('https://api.github.com/users/github')
 	.then(res => res.json())
 	.then(json => console.log(json));
@@ -152,6 +159,8 @@ fetch('https://api.github.com/users/github')
 ### Simple Post
 
 ```js
+const fetch = require('node-fetch');
+
 fetch('https://httpbin.org/post', {method: 'POST', body: 'a=1'})
 	.then(res => res.json()) // expecting a json response
 	.then(json => console.log(json));
@@ -160,6 +169,8 @@ fetch('https://httpbin.org/post', {method: 'POST', body: 'a=1'})
 ### Post with JSON
 
 ```js
+const fetch = require('node-fetch');
+
 const body = {a: 1};
 
 fetch('https://httpbin.org/post', {
@@ -178,6 +189,8 @@ fetch('https://httpbin.org/post', {
 NOTE: The `Content-Type` header is only set automatically to `x-www-form-urlencoded` when an instance of `URLSearchParams` is given as such:
 
 ```js
+const fetch = require('node-fetch');
+
 const params = new URLSearchParams();
 params.append('a', 1);
 
@@ -193,6 +206,8 @@ NOTE: 3xx-5xx responses are _NOT_ exceptions, and should be handled in `then()`,
 Adding a catch to the fetch promise chain will catch _all_ exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document](ERROR-HANDLING.md) for more details.
 
 ```js
+const fetch = require('node-fetch');
+
 fetch('https://domain.invalid/').catch(err => console.error(err));
 ```
 
@@ -201,6 +216,8 @@ fetch('https://domain.invalid/').catch(err => console.error(err));
 It is common to create a helper function to check that the response contains no client (4xx) or server (5xx) error responses:
 
 ```js
+const fetch = require('node-fetch');
+
 function checkStatus(res) {
 	if (res.ok) {
 		// res.status >= 200 && res.status < 300
@@ -222,8 +239,11 @@ fetch('https://httpbin.org/status/400')
 The "Node.js way" is to use streams when possible:
 
 ```js
+const {createWriteStream} = require('fs');
+const fetch = require('node-fetch');
+
 fetch(
-	'https://assets-cdn.github.com/images/modules/logos_page/Octocat.png'
+	'https://octodex.github.com/images/Fintechtocat.png'
 ).then(res => {
 	const dest = fs.createWriteStream('./octocat.png');
 	res.body.pipe(dest);
@@ -235,19 +255,22 @@ fetch(
 If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
 
 ```js
+const fetch = require('node-fetch');
 const fileType = require('file-type');
 
-fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
+fetch('https://octodex.github.com/images/Fintechtocat.png')
 	.then(res => res.buffer())
 	.then(buffer => fileType(buffer))
 	.then(type => {
-		/* ... */
+		console.log(type);
 	});
 ```
 
 ### Accessing Headers and other Meta data
 
 ```js
+const fetch = require('node-fetch');
+
 fetch('https://github.com/').then(res => {
 	console.log(res.ok);
 	console.log(res.status);
@@ -262,7 +285,9 @@ fetch('https://github.com/').then(res => {
 Unlike browsers, you can access raw `Set-Cookie` headers manually using `Headers.raw()`, this is a `node-fetch` only API.
 
 ```js
-fetch(url).then(res => {
+const fetch = require('node-fetch');
+
+fetch('https://example.com').then(res => {
 	// returns an array of values, instead of a string of comma-separated values
 	console.log(res.headers.raw()['set-cookie']);
 });
@@ -272,6 +297,7 @@ fetch(url).then(res => {
 
 ```js
 const {createReadStream} = require('fs');
+const fetch = require('node-fetch');
 
 const stream = createReadStream('input.txt');
 
@@ -283,6 +309,7 @@ fetch('https://httpbin.org/post', {method: 'POST', body: stream})
 ### Post with form-data (detect multipart)
 
 ```js
+const fetch = require('node-fetch');
 const FormData = require('form-data');
 
 const form = new FormData();
@@ -294,9 +321,6 @@ fetch('https://httpbin.org/post', {method: 'POST', body: form})
 
 // OR, using custom headers
 // NOTE: getHeaders() is non-standard API
-
-const form = new FormData();
-form.append('a', 1);
 
 const options = {
 	method: 'POST',
@@ -311,21 +335,20 @@ fetch('https://httpbin.org/post', options)
 
 ### Request cancellation with AbortSignal
 
-> NOTE: You may only cancel streamed requests on Node >= v8.0.0
-
 You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
 
 An example of timing out a request after 150ms could be achieved as follows:
 
 ```js
-import AbortController from 'abort-controller';
+const fetch = require('node-fetch');
+const AbortController = require('abort-controller');
 
 const controller = new AbortController();
 const timeout = setTimeout(() => {
 	controller.abort();
 }, 150);
 
-fetch(url, {signal: controller.signal})
+fetch('https://example.com', {signal: controller.signal})
 	.then(res => res.json())
 	.then(
 		data => {
@@ -333,7 +356,7 @@ fetch(url, {signal: controller.signal})
 		},
 		err => {
 			if (err.name === 'AbortError') {
-				// request was aborted
+                console.log('request was aborted');
 			}
 		}
 	)
@@ -409,6 +432,9 @@ See [`http.Agent`](https://nodejs.org/api/http.html#http_new_agent_options) for 
 In addition, `agent` option accepts a function that returns http(s).Agent instance given current [URL](https://nodejs.org/api/url.html), this is useful during a redirection chain across HTTP and HTTPS protocol.
 
 ```js
+const http = require('http');
+const https = require('https');
+
 const httpAgent = new http.Agent({
 	keepAlive: true
 });
@@ -518,6 +544,7 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
+const Headers = require('node-fetch');
 
 const meta = {
 	'Content-Type': 'text/xml',
