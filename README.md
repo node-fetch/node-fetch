@@ -55,6 +55,7 @@ A light-weight module that brings `window.fetch` to Node.js
 			- [body.textConverted()](#bodytextconverted)
 		- [Class: FetchError](#class-fetcherror)
 		- [Class: AbortError](#class-aborterror)
+	- [TypeScript](#typescript)
 	- [Acknowledgement](#acknowledgement)
 	- [License](#license)
 
@@ -637,6 +638,16 @@ An operational error in the fetching process. See [ERROR-HANDLING.md][] for more
 <small>_(node-fetch extension)_</small>
 
 An Error thrown when the request is aborted in response to an `AbortSignal`'s `abort` event. It has a `name` property of `AbortError`. See [ERROR-HANDLING.MD][] for more info.
+
+## TypeScript
+
+Since `3.x` types are bundled with `node-fetch`, so you don't need to install any additional packages.
+
+For older versions please use the type definitions from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped):
+
+```sh
+$ npm install --save-dev @types/node-fetch
+```
 
 ## Acknowledgement
 
