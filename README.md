@@ -8,11 +8,11 @@
 
 A light-weight module that brings `window.fetch` to Node.js
 
----
-
-If you and/or your company is using `node-fetch`, consider supporting us on our Open Collective:
+**Consider supporting us on our Open Collective:**
 
 [![Backers][opencollective-image]][opencollective-url]
+
+---
 
 <!-- TOC -->
 
