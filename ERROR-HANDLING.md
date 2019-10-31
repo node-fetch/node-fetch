@@ -9,11 +9,13 @@ The basics:
 - A cancelled request is rejected with an [`AbortError`](https://github.com/bitinn/node-fetch/blob/master/README.md#class-aborterror). You can check if the reason for rejection was that the request was aborted by checking the `Error`'s `name` is `AbortError`.
 
 ```js
-fetch(url, { signal }).catch(err => {
-  if (err.name === 'AbortError') {
-    // request was aborted
+const fetch = required('node-fetch');
+
+fetch(url, {signal}).catch(error => {
+  if (error.name === 'AbortError') {
+    console.log('request was aborted');
   }
-})
+});
 ```
 
 - All [operational errors][joyent-guide] *other than aborted requests* are rejected with a [FetchError](https://github.com/bitinn/node-fetch/blob/master/README.md#class-fetcherror). You can handle them all through the promise `catch` clause.
