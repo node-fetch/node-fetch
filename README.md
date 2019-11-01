@@ -468,9 +468,24 @@ const options = {
 
 #### Custom highWaterMark
 
-Stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers). Because of that, when you are writing an isomorphic app and using `res.clone()`, it will hang with large response in Node. 
+Stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers). Because of that, when you are writing an isomorphic app and using `res.clone()`, it will hang with large response in Node.
 
-Since `3.x` you are able to modify the `highWaterMark` option:
+The recommended way to fix this problem is to resolve cloned response in parallel:
+
+```js
+const fetch = require('node-fetch');
+
+fetch('https://example.com').then(res => {
+	const r1 = res.clone();
+
+	return Promise.all([res.json(), r1.text()]).then(results => {
+		console.log(results[0]);
+		console.log(results[1]);
+	});
+});
+```
+
+If for some reason you don't like the solution above, since `3.x` you are able to modify the `highWaterMark` option:
 
 ```js
 const fetch = require('node-fetch');
