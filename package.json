@@ -91,7 +91,8 @@
 		},
 		"ignores": [
 			"dist",
-			"test"
+			"test",
+			"example.js"
 		]
 	},
 	"babel": {
@@ -112,5 +113,6 @@
 		],
 		"sourceMap": false,
 		"instrument": false
-	}
+	},
+	"runkitExampleFilename": "example.js"
 }
