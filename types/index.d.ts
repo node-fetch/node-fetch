@@ -162,7 +162,7 @@ export class FetchError extends Error {
 export class AbortError extends Error {
 	name: "AbortError";
 	[Symbol.toStringTag]: "AbortError"
-	constructor(message: string, type: string, systemError?: string);
+	constructor(message: string);
 	type: string;
 	message: string;
 }
