@@ -112,5 +112,6 @@
 		],
 		"sourceMap": false,
 		"instrument": false
-	}
+	},
+	"runkitExample": "const fetch = require('node-fetch')"
 }
