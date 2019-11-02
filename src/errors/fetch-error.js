@@ -19,6 +19,7 @@ export default class FetchError extends Error {
 		this.message = message;
 		this.type = type;
 		this.name = 'FetchError';
+		this[Symbol.toStringTag] = 'FetchError';
 
 		// When err.type is `system`, err.erroredSysCall contains system error and err.code contains system error code
 		if (systemError) {

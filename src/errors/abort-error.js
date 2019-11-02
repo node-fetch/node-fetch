@@ -19,6 +19,7 @@ export default class AbortError extends Error {
 		this.type = 'aborted';
 		this.message = message;
 		this.name = 'AbortError';
+		this[Symbol.toStringTag] = 'AbortError';
 
 		// Hide custom error implementation details from end-users
 		Error.captureStackTrace(this, this.constructor);
