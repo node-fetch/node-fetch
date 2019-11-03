@@ -14,7 +14,7 @@
 		"node": ">=10.0.0"
 	},
 	"scripts": {
-		"build": "pika-pack",
+		"build": "pika-pack --out dist/",
 		"prepare": "npm run build",
 		"test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/test.js",
 		"report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
@@ -43,7 +43,6 @@
 		"@pika/pack": "^0.5.0",
 		"@pika/plugin-build-node": "^0.7.1",
 		"@pika/plugin-build-types": "^0.7.1",
-		"@pika/plugin-build-web": "^0.7.1",
 		"@pika/plugin-copy-assets": "^0.7.1",
 		"@pika/plugin-standard-pkg": "^0.7.1",
 		"abort-controller": "^3.0.0",
@@ -79,14 +78,14 @@
 				"@pika/plugin-build-node"
 			],
 			[
-				"@pika/plugin-build-web"
-			],
-			[
 				"@pika/plugin-build-types"
 			],
 			[
-				"@pika/plugin-copy-assets", {
-					"files": ["externals.d.ts"]
+				"@pika/plugin-copy-assets",
+				{
+					"files": [
+						"externals.d.ts"
+					]
 				}
 			]
 		]
