@@ -10,7 +10,9 @@ A light-weight module that brings `window.fetch` to Node.js
 
 **Consider supporting us on our Open Collective:**
 
-[![Backers][opencollective-image]][opencollective-url]
+<a href="https://opencollective.com/node-fetch">
+  <img src="https://opencollective.com/node-fetch/donate/button@2x.png?color=blue" width=300/>
+</a>
 
 ---
 
@@ -717,8 +719,6 @@ MIT
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
 [discord-image]: https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square
 [discord-url]: https://discord.gg/Zxbndcm
-[opencollective-image]: https://opencollective.com/node-fetch/backers.svg
-[opencollective-url]: https://opencollective.com/node-fetch
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
