@@ -14,7 +14,7 @@
 		"node": ">=10.0.0"
 	},
 	"scripts": {
-		"build": "microbundle --external http,https,stream,zlib,utf8,fetch-blob --name fetch --target node --format es,cjs",
+		"build": "pika-pack --out dist/",
 		"prepare": "npm run build",
 		"test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/test.js",
 		"report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/test.js",
@@ -40,6 +40,11 @@
 		"@babel/core": "^7.6.4",
 		"@babel/preset-env": "^7.6.3",
 		"@babel/register": "^7.6.2",
+		"@pika/pack": "^0.5.0",
+		"@pika/plugin-build-node": "^0.7.1",
+		"@pika/plugin-build-types": "^0.7.1",
+		"@pika/plugin-copy-assets": "^0.7.1",
+		"@pika/plugin-standard-pkg": "^0.7.1",
 		"abort-controller": "^3.0.0",
 		"abortcontroller-polyfill": "^1.3.0",
 		"chai": "^4.2.0",
@@ -49,7 +54,6 @@
 		"codecov": "^3.6.1",
 		"cross-env": "^6.0.3",
 		"form-data": "^2.5.1",
-		"microbundle": "^0.11.0",
 		"mocha": "^6.2.2",
 		"nyc": "^14.1.1",
 		"parted": "^0.1.1",
@@ -65,9 +69,26 @@
 	"optionalDependencies": {
 		"encoding": "^0.1.12"
 	},
-	"resolutions": {
-		"microbundle/rollup-plugin-typescript2/rollup-pluginutils/micromatch/braces": "^2.3.1",
-		"microbundle/rollup-plugin-postcss/cssnano/postcss-svgo/svgo/js-yaml": "^3.13.1"
+	"@pika/pack": {
+		"pipeline": [
+			[
+				"@pika/plugin-standard-pkg"
+			],
+			[
+				"@pika/plugin-build-node"
+			],
+			[
+				"@pika/plugin-build-types"
+			],
+			[
+				"@pika/plugin-copy-assets",
+				{
+					"files": [
+						"externals.d.ts"
+					]
+				}
+			]
+		]
 	},
 	"xo": {
 		"envs": [
@@ -90,7 +111,7 @@
 			"node/no-deprecated-api": 1
 		},
 		"ignores": [
-			"dist",
+			"pkg",
 			"test"
 		]
 	},
