@@ -21,7 +21,7 @@ Changelog
 - Fix: convert `Content-Encoding` to lowercase.
 - Fix: propagate size and timeout to cloned response.
 - Other: bundle TypeScript types.
-- Other: replace Rollup with Microbundle.
+- Other: replace Rollup with @pika/pack.
 - Other: introduce linting to the project.
 - Other: simplify Travis CI build matrix.
 - Other: dev dependency update.
