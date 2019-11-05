@@ -217,7 +217,9 @@ export default function fetch(url, opts) {
 				size: request.size,
 				timeout: request.timeout,
 				counter: request.counter,
-				highWaterMark: request.highWaterMark
+				highWaterMark: request.highWaterMark,
+				trailer: new Promise(resolve =>
+					res.on('end', () => resolve(createHeadersLenient(res.trailers))))
 			};
 
 			// HTTP-network fetch step 12.1.1.3
