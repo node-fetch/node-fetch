@@ -111,7 +111,7 @@
 			"node/no-deprecated-api": 1
 		},
 		"ignores": [
-			"pkg",
+			"dist",
 			"test"
 		]
 	},
