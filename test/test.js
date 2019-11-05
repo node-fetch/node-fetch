@@ -1648,8 +1648,8 @@ describe('node-fetch', () => {
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('Trailer')).to.equal('X-Node-Fetch');
 			return res.trailer.then(trailers => {
-				expect(Array.from(trailers.keys())).to.have.lengthOf(1);
-				expect(trailers.get('X-Node-Fetch')).to.equal('hello world!');
+				expect(Array.from(trailers.keys())).to.deep.equal(['x-node-fetch']);
+				expect(trailers.get('x-node-fetch')).to.equal('hello world!');
 			});
 		});
 	});
@@ -2552,10 +2552,15 @@ describe('Response', () => {
 	});
 
 	it('should support trailer in Response constructor', function() {
-		const res = new Response();
-		return res.trailer.then(result => {
-			expect(Array.from(result.keys())).to.be.empty;
-		});
+		const res = new Response(null, {
+		  trailer: createHeadersLenient({
+			'X-Node-Fetch': 'hello world!'
+		  })
+		})
+		return res.trailer.then(trailers => {
+		  expect(Array.from(trailers.keys())).to.deep.equal(['x-node-fetch']),
+		  expect(trailers.get('x-node-fetch')).to.equal('hello world!')
+		})
 	});
 
 	it('should default to null as body', () => {
