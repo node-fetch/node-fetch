@@ -36,8 +36,13 @@ export default class Response {
 			statusText: opts.statusText || '',
 			headers,
 			counter: opts.counter,
-			highWaterMark: opts.highWaterMark
+			highWaterMark: opts.highWaterMark,
+			trailer: Promise.resolve(opts.trailer || new Headers())
 		};
+	}
+
+	get trailer() {
+		return this[INTERNALS].trailer;
 	}
 
 	get url() {
@@ -85,7 +90,8 @@ export default class Response {
 			ok: this.ok,
 			redirected: this.redirected,
 			size: this.size,
-			timeout: this.timeout
+			timeout: this.timeout,
+			trailer: this.trailer
 		});
 	}
 }
