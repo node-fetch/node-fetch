@@ -10,9 +10,7 @@ A light-weight module that brings `window.fetch` to Node.js
 
 **Consider supporting us on our Open Collective:**
 
-<a href="https://opencollective.com/node-fetch">
-  <img src="https://opencollective.com/node-fetch/donate/button@2x.png?color=blue" width=300/>
-</a>
+[![Donate to our collective][opencollective-image]][opencollective-url]
 
 ---
 
@@ -715,6 +713,8 @@ MIT
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
 [codecov-image]: https://flat.badgen.net/codecov/c/github/bitinn/node-fetch/master
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
+[opencollective-image]: https://opencollective.com/node-fetch/donate/button.png?color=blue
+[opencollective-url]: https://opencollective.com/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
 [discord-image]: https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square
