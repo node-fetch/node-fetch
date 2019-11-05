@@ -1641,6 +1641,19 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow trailers', function() {
+		const url = `${base}trailers`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.statusText).to.equal('OK');
+			expect(res.headers.get('Trailer')).to.equal('X-Node-Fetch');
+			return res.trailer.then(trailers => {
+				expect(Array.from(trailers.keys())).to.have.lengthOf(1);
+				expect(trailers.get('X-Node-Fetch')).to.equal('hello world!');
+			});
+		});
+	});
+
 	it('should support maximum response size, multiple chunk', () => {
 		const url = `${base}size/chunk`;
 		const opts = {
@@ -2535,6 +2548,13 @@ describe('Response', () => {
 		const res = new Response(new DataView(stringToArrayBuffer('a=1')));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
+		});
+	});
+
+	it('should support trailer in Response constructor', function() {
+		const res = new Response();
+		return res.trailer.then(result => {
+			expect(Array.from(result.keys())).to.be.empty;
 		});
 	});
 
