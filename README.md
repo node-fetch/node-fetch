@@ -22,6 +22,7 @@ A light-weight module that brings `window.fetch` to Node.js
 	- [Difference from client-side fetch](#difference-from-client-side-fetch)
 	- [Installation](#installation)
 	- [Loading and configuring the module](#loading-and-configuring-the-module)
+	- [Upgrading](#upgrading)
 	- [Common Usage](#common-usage)
 		- [Plain text or HTML](#plain-text-or-html)
 		- [JSON](#json)
@@ -143,9 +144,17 @@ For versions of node earlier than 12.x, use this `globalThis` [polyfill](https:/
 }());
 ```
 
+## Upgrading
+
+Using an old version of node-fetch? Check out the following files:
+
+- [2.x to 3.x upgrade guide](v3-UPGRADE-GUIDE.md)
+- [1.x to 2.x upgrade guide](v2-UPGRADE-GUIDE.md)
+- [Changelog](CHANGELOG.md)
+
 ## Common Usage
 
-NOTE: The documentation below is up-to-date with `3.x` releases, [see `2.x` readme](https://github.com/bitinn/node-fetch/blob/2.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/2.x/CHANGELOG.md) and [3.x upgrade guide](UPGRADE-GUIDE.md) for the differences.
+NOTE: The documentation below is up-to-date with `3.x` releases, if you are using an older version, please check how to [upgrade](#upgrading).
 
 ### Plain text or HTML
 
