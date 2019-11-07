@@ -33,13 +33,11 @@ function isRequest(input) {
 	);
 }
 
-function isAbortSignal(signal) {
-	const proto = (
-		signal
-		&& typeof signal === 'object'
-		&& Object.getPrototypeOf(signal)
-	);
-	return !!(proto && proto.constructor.name === 'AbortSignal');
+function isEventTarget(signal) {
+	return signal 
+		&& typeof signal === 'object' 
+		&& typeof signal.addEventListener == 'function' 
+		&& typeof signal.removeEventListener == 'function';
 }
 
 /**
@@ -102,8 +100,8 @@ export default class Request {
 			: null;
 		if ('signal' in init) signal = init.signal
 
-		if (signal != null && !isAbortSignal(signal)) {
-			throw new TypeError('Expected signal to be an instanceof AbortSignal');
+		if (signal != null && !isEventTarget(signal)) {
+			throw new TypeError('Expected signal to be an instanceof EventTarget');
 		}
 
 		this[INTERNALS] = {

@@ -1069,21 +1069,26 @@ describe('node-fetch', () => {
 			.and.have.property('message').includes('not supported');
 	});
 
-	it('should throw a TypeError if a signal is not of type AbortSignal', () => {
+	it('should throw a TypeError if a signal is not of type EventTarget', () => {
 		return Promise.all([
 			expect(fetch(`${base}inspect`, { signal: {} }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
-				.and.have.property('message').includes('AbortSignal'),
+				.and.have.property('message').includes('EventTarget'),
 			expect(fetch(`${base}inspect`, { signal: '' }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
-				.and.have.property('message').includes('AbortSignal'),
+				.and.have.property('message').includes('EventTarget'),
 			expect(fetch(`${base}inspect`, { signal: Object.create(null) }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
-				.and.have.property('message').includes('AbortSignal'),
+				.and.have.property('message').includes('EventTarget'),
 		]);
+	});
+
+	it('accepts a custom EventTarget implementation as a signal if all used methods are implemented', () => {
+		expect(fetch(`${base}inspect`, { signal: Object.create({ addEventListener: () => {}, removeEventListener: () => {} }) }))
+			.to.be.eventually.resolved
 	});
 
 	it('should set default User-Agent', function () {
