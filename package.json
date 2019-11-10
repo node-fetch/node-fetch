@@ -72,8 +72,7 @@
 	"xo": {
 		"envs": [
 			"node",
-			"browser",
-			"mocha"
+			"browser"
 		],
 		"rules": {
 			"valid-jsdoc": 0,
@@ -90,9 +89,30 @@
 			"node/no-deprecated-api": 1
 		},
 		"ignores": [
-			"dist",
-			"test",
-			"example.js"
+			"dist"
+		],
+		"overrides": [
+			{
+				"files": "test/**/*.js",
+				"envs": [
+					"node",
+					"mocha"
+				],
+				"rules": {
+					"max-nested-callbacks": 0,
+					"no-unused-expressions": 0,
+					"eslint-comments/no-unused-disable": 0,
+					"new-cap": 0,
+					"guard-for-in": 0,
+					"no-new": 0
+				}
+			},
+			{
+				"files": "example.js",
+				"rules": {
+					"import/no-extraneous-dependencies": 0
+				}
+			}
 		]
 	},
 	"babel": {

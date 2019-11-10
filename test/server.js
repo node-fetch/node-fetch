@@ -5,9 +5,8 @@ import {multipart as Multipart} from 'parted';
 
 let convert;
 try {
-	/* eslint-disable-next-line import/no-unresolved */
-	convert = require('encoding').convert;
-} catch (error) {}
+	convert = require('encoding').convert; // eslint-disable-line import/no-unresolved
+} catch (_) { }
 
 export default class TestServer {
 	constructor() {
@@ -87,6 +86,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'gzip');
 			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -96,6 +99,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'gzip');
 			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				// Truncate the CRC checksum and size check at the end of the stream
 				res.end(buffer.slice(0, buffer.length - 8));
 			});
@@ -106,6 +113,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'GZip');
 			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -115,6 +126,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'deflate');
 			zlib.deflate('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -125,6 +140,10 @@ export default class TestServer {
 			if (typeof zlib.createBrotliDecompress === 'function') {
 				res.setHeader('Content-Encoding', 'br');
 				zlib.brotliCompress('hello world', (err, buffer) => {
+					if (err) {
+						throw err;
+					}
+
 					res.end(buffer);
 				});
 			}
@@ -135,6 +154,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'deflate');
 			zlib.deflateRaw('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}

@@ -1,4 +1,4 @@
-export default ({ Assertion }, utils) => {
+export default ({Assertion}, utils) => {
 	utils.addProperty(Assertion.prototype, 'timeout', function () {
 		return new Promise(resolve => {
 			const timer = setTimeout(() => resolve(true), 150);
