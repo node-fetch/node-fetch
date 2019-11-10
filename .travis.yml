@@ -1,18 +1,16 @@
 language: node_js
 
 node_js:
-  - "lts/*" # 10 (Latest LTS)
-  - "node" # 12 (Latest Stable)
+    - "lts/*" # 10 (Latest LTS)
+    - "node" # 12 (Latest Stable)
 
 matrix:
-  include:
-    - # Linting stage
-      node_js: "lts/*" # Latest LTS
-      script: npm run lint
+    include:
+        - # Linting stage
+          node_js: "lts/*" # Latest LTS
+          script: npm run lint
 
 cache: npm
 
 script:
-  - npm run coverage
-  - npm install encoding
-  - npm run coverage
+    - npm run coverage

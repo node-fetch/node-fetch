@@ -8,13 +8,11 @@
 import Stream, {PassThrough} from 'stream';
 
 import Blob from 'fetch-blob';
+import {convertBody} from 'fetch-charset-detection';
 import FetchError from './errors/fetch-error';
 import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
 
-let convert;
-try {
-	convert = require('encoding').convert;
-} catch (_) { }
+export {getTotalBytes, writeToStream, extractContentType} from 'fetch-charset-detection';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -270,71 +268,6 @@ function consumeBody() {
 }
 
 /**
- * Detect buffer encoding and convert to target encoding
- * ref: http://www.w3.org/TR/2011/WD-html5-20110113/parsing.html#determining-the-character-encoding
- *
- * @param   Buffer  buffer    Incoming buffer
- * @param   String  encoding  Target encoding
- * @return  String
- */
-function convertBody(buffer, headers) {
-	if (typeof convert !== 'function') {
-		throw new TypeError('The package `encoding` must be installed to use the textConverted() function');
-	}
-
-	const ct = headers.get('content-type');
-	let charset = 'utf-8';
-	let res;
-	let str;
-
-	// Header
-	if (ct) {
-		res = /charset=([^;]*)/i.exec(ct);
-	}
-
-	// No charset in content type, peek at response body for at most 1024 bytes
-	/* eslint-disable-next-line prefer-const */
-	str = buffer.slice(0, 1024).toString();
-
-	// Html5
-	if (!res && str) {
-		res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
-	}
-
-	// Html4
-	if (!res && str) {
-		res = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(str);
-
-		if (res) {
-			res = /charset=(.*)/i.exec(res.pop());
-		}
-	}
-
-	// Xml
-	if (!res && str) {
-		res = /<\?xml.+?encoding=(['"])(.+?)\1/i.exec(str);
-	}
-
-	// Found charset
-	if (res) {
-		charset = res.pop();
-
-		// Prevent decode issues when sites use incorrect encoding
-		// ref: https://hsivonen.fi/encoding-menu/
-		if (charset === 'gb2312' || charset === 'gbk') {
-			charset = 'gb18030';
-		}
-	}
-
-	// Turn raw buffers into a single utf-8 buffer
-	return convert(
-		buffer,
-		'UTF-8',
-		charset
-	).toString();
-}
-
-/**
  * Clone body given Res/Req instance
  *
  * @param   Mixed   instance       Response or Request instance
@@ -365,130 +298,6 @@ export function clone(instance, highWaterMark) {
 	}
 
 	return body;
-}
-
-/**
- * Performs the operation "extract a `Content-Type` value from |object|" as
- * specified in the specification:
- * https://fetch.spec.whatwg.org/#concept-bodyinit-extract
- *
- * This function assumes that instance.body is present.
- *
- * @param   Mixed  instance  Any options.body input
- */
-export function extractContentType(body) {
-	if (body === null) {
-		// Body is null
-		return null;
-	}
-
-	if (typeof body === 'string') {
-		// Body is string
-		return 'text/plain;charset=UTF-8';
-	}
-
-	if (isURLSearchParams(body)) {
-		// Body is a URLSearchParams
-		return 'application/x-www-form-urlencoded;charset=UTF-8';
-	}
-
-	if (isBlob(body)) {
-		// Body is blob
-		return body.type || null;
-	}
-
-	if (Buffer.isBuffer(body)) {
-		// Body is buffer
-		return null;
-	}
-
-	if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// Body is ArrayBuffer
-		return null;
-	}
-
-	if (ArrayBuffer.isView(body)) {
-		// Body is ArrayBufferView
-		return null;
-	}
-
-	if (typeof body.getBoundary === 'function') {
-		// Detect form data input from form-data module
-		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	}
-
-	if (body instanceof Stream) {
-		// Body is stream
-		// can't really do much about this
-		return null;
-	}
-
-	// Body constructor defaults other things to string
-	return 'text/plain;charset=UTF-8';
-}
-
-/**
- * The Fetch Standard treats this as if "total bytes" is a property on the body.
- * For us, we have to explicitly get it with a function.
- *
- * ref: https://fetch.spec.whatwg.org/#concept-body-total-bytes
- *
- * @param   Body    instance   Instance of Body
- * @return  Number?            Number of bytes, or null if not possible
- */
-export function getTotalBytes(instance) {
-	const {body} = instance;
-
-	if (body === null) {
-		// Body is null
-		return 0;
-	}
-
-	if (isBlob(body)) {
-		return body.size;
-	}
-
-	if (Buffer.isBuffer(body)) {
-		// Body is buffer
-		return body.length;
-	}
-
-	if (body && typeof body.getLengthSync === 'function') {
-		// Detect form data input from form-data module
-		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
-			body.hasKnownLength && body.hasKnownLength()) { // 2.x
-			return body.getLengthSync();
-		}
-
-		return null;
-	}
-
-	// Body is stream
-	return null;
-}
-
-/**
- * Write a Body to a Node.js WritableStream (e.g. http.Request) object.
- *
- * @param   Body    instance   Instance of Body
- * @return  Void
- */
-export function writeToStream(dest, instance) {
-	const {body} = instance;
-
-	if (body === null) {
-		// Body is null
-		dest.end();
-	} else if (isBlob(body)) {
-		body.stream().pipe(dest);
-	} else if (Buffer.isBuffer(body)) {
-		// Body is buffer
-		dest.write(body);
-		dest.end();
-	} else {
-		// Body is stream
-		body.pipe(dest);
-	}
 }
 
 // Expose Promise
