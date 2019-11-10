@@ -6,23 +6,17 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import Url from 'url';
 import http from 'http';
 import https from 'https';
 import zlib from 'zlib';
-import Stream from 'stream';
-import pump from 'pump';
+import Stream, {PassThrough, pipeline as pump} from 'stream';
 
 import Body, {writeToStream, getTotalBytes} from './body';
 import Response from './response';
 import Headers, {createHeadersLenient} from './headers';
 import Request, {getNodeRequestOptions} from './request';
-import FetchError from './fetch-error';
-import AbortError from './abort-error';
-
-// Fix an issue where "PassThrough", "resolve" aren't a named export for node <10
-const {PassThrough} = Stream;
-const resolveUrl = Url.resolve;
+import FetchError from './errors/fetch-error';
+import AbortError from './errors/abort-error';
 
 const beforeRequest = [];
 const afterRequest = [];
@@ -38,6 +32,22 @@ export default function fetch(url, opts) {
 	// Allow custom promise
 	if (!fetch.Promise) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
+	}
+
+	// Regex for data uri
+	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+,;=\-._~:@/?%\s]*\s*$/i;
+
+	// If valid data uri
+	if (dataUriRegex.test(url)) {
+		const data = Buffer.from(url.split(',')[1], 'base64');
+		const res = new Response(data.body, {headers: {'Content-Type': data.mimeType || url.match(dataUriRegex)[1] || 'text/plain'}});
+		return fetch.Promise.resolve(res);
+	}
+
+	// If invalid data uri
+	if (url.toString().startsWith('data:')) {
+		const request = new Request(url, opts);
+		return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system'));
 	}
 
 	Body.Promise = fetch.Promise;
@@ -125,7 +135,7 @@ export default function fetch(url, opts) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : resolveUrl(request.url, location);
+				const locationURL = location === null ? null : new URL(location, request.url);
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -216,7 +226,8 @@ export default function fetch(url, opts) {
 				headers,
 				size: request.size,
 				timeout: request.timeout,
-				counter: request.counter
+				counter: request.counter,
+				highWaterMark: request.highWaterMark
 			};
 
 			// HTTP-network fetch step 12.1.1.3

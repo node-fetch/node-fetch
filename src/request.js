@@ -7,7 +7,7 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import Url from 'url';
+import {parse as parseUrl, format as formatUrl} from 'url';
 import Stream from 'stream';
 import utf8 from 'utf8';
 import Headers, {exportNodeCompatibleHeaders} from './headers';
@@ -15,10 +15,6 @@ import Body, {clone, extractContentType, getTotalBytes} from './body';
 import {isAbortSignal} from './utils/is';
 
 const INTERNALS = Symbol('Request internals');
-
-// Fix an issue where "format", "parse" aren't a named export for node <10
-const parseUrl = Url.parse;
-const formatUrl = Url.format;
 
 const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
@@ -73,9 +69,9 @@ export default class Request {
 
 		const inputBody = init.body != null ?
 			init.body :
-			isRequest(input) && input.body !== null ?
+			(isRequest(input) && input.body !== null ?
 				clone(input) :
-				null;
+				null);
 
 		Body.call(this, inputBody, {
 			timeout: init.timeout || input.timeout || 0,
@@ -112,13 +108,14 @@ export default class Request {
 
 		// Node-fetch-only options
 		this.follow = init.follow !== undefined ?
-			init.follow : input.follow !== undefined ?
-				input.follow : 20;
+			init.follow : (input.follow !== undefined ?
+				input.follow : 20);
 		this.compress = init.compress !== undefined ?
-			init.compress : input.compress !== undefined ?
-				input.compress : true;
+			init.compress : (input.compress !== undefined ?
+				input.compress : true);
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
+		this.highWaterMark = init.highWaterMark || input.highWaterMark;
 	}
 
 	get method() {
@@ -200,7 +197,7 @@ export function getNodeRequestOptions(request) {
 		request.body instanceof Stream.Readable &&
 		!streamDestructionSupported
 	) {
-		throw new Error('Cancellation of streamed requests with AbortSignal is not supported in node < 8');
+		throw new Error('Cancellation of streamed requests with AbortSignal is not supported');
 	}
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7

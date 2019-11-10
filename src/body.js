@@ -5,21 +5,18 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream from 'stream';
+import Stream, {PassThrough} from 'stream';
 
-import Blob, {BUFFER} from './blob';
-import FetchError from './fetch-error';
-import {isBlob, isURLSearchParams} from './utils/is';
+import Blob from 'fetch-blob';
+import FetchError from './errors/fetch-error';
+import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
 
 let convert;
 try {
 	convert = require('encoding').convert;
-} catch (error) { }
+} catch (_) { }
 
 const INTERNALS = Symbol('Body internals');
-
-// Fix an issue where "PassThrough" isn't a named export for node <10
-const {PassThrough} = Stream;
 
 /**
  * Body mixin
@@ -44,7 +41,7 @@ export default function Body(body, {
 		// Body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// Body is Buffer
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
+	} else if (isArrayBuffer(body)) {
 		// Body is ArrayBuffer
 		body = Buffer.from(body);
 	} else if (ArrayBuffer.isView(body)) {
@@ -68,7 +65,7 @@ export default function Body(body, {
 
 	if (body instanceof Stream) {
 		body.on('error', err => {
-			const error = err.name === 'AbortError' ?
+			const error = isAbortError(err) ?
 				err :
 				new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 			this[INTERNALS].error = error;
@@ -100,16 +97,11 @@ Body.prototype = {
 	 * @return Promise
 	 */
 	blob() {
-		const ct = this.headers && this.headers.get('content-type') || '';
-		return consumeBody.call(this).then(buf => Object.assign(
-			// Prevent copying
-			new Blob([], {
-				type: ct.toLowerCase()
-			}),
-			{
-				[BUFFER]: buf
-			}
-		));
+		const ct = this.headers && this.headers.get('content-type') || this[INTERNALS].body && this[INTERNALS].body.type || '';
+		return consumeBody.call(this).then(buf => new Blob([], {
+			type: ct.toLowerCase(),
+			buffer: buf
+		}));
 	},
 
 	/**
@@ -235,7 +227,7 @@ function consumeBody() {
 
 		// Handle stream errors
 		body.on('error', err => {
-			if (err.name === 'AbortError') {
+			if (isAbortError(err)) {
 				// If the request was aborted, reject with this Error
 				abort = true;
 				reject(err);
@@ -345,10 +337,11 @@ function convertBody(buffer, headers) {
 /**
  * Clone body given Res/Req instance
  *
- * @param   Mixed  instance  Response or Request instance
+ * @param   Mixed   instance       Response or Request instance
+ * @param   String  highWaterMark  highWaterMark for both PassThrough body streams
  * @return  Mixed
  */
-export function clone(instance) {
+export function clone(instance, highWaterMark) {
 	let p1;
 	let p2;
 	let {body} = instance;
@@ -362,8 +355,8 @@ export function clone(instance) {
 	// note: we can't clone the form-data object without having it as a dependency
 	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
 		// Tee instance body
-		p1 = new PassThrough();
-		p2 = new PassThrough();
+		p1 = new PassThrough({highWaterMark});
+		p2 = new PassThrough({highWaterMark});
 		body.pipe(p1);
 		body.pipe(p2);
 		// Set instance body to teed body and return the other teed body

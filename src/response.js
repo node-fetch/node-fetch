@@ -35,7 +35,8 @@ export default class Response {
 			status,
 			statusText: opts.statusText || '',
 			headers,
-			counter: opts.counter
+			counter: opts.counter,
+			highWaterMark: opts.highWaterMark
 		};
 	}
 
@@ -66,19 +67,25 @@ export default class Response {
 		return this[INTERNALS].headers;
 	}
 
+	get highWaterMark() {
+		return this[INTERNALS].highWaterMark;
+	}
+
 	/**
 	 * Clone this response
 	 *
 	 * @return  Response
 	 */
 	clone() {
-		return new Response(clone(this), {
+		return new Response(clone(this, this.highWaterMark), {
 			url: this.url,
 			status: this.status,
 			statusText: this.statusText,
 			headers: this.headers,
 			ok: this.ok,
-			redirected: this.redirected
+			redirected: this.redirected,
+			size: this.size,
+			timeout: this.timeout
 		});
 	}
 }
