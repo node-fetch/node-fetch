@@ -12,7 +12,7 @@ import {convertBody} from 'fetch-charset-detection';
 import FetchError from './errors/fetch-error';
 import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
 
-export {getTotalBytes, writeToStream, extractContentType} from 'fetch-charset-detection';
+export {getTotalBytes, extractContentType} from 'fetch-charset-detection';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -298,6 +298,29 @@ export function clone(instance, highWaterMark) {
 	}
 
 	return body;
+}
+
+/**
+ * Write a Body to a Node.js WritableStream (e.g. http.Request) object.
+ *
+ * @param {Stream.Writable} dest The stream to write to.
+ * @param obj.body Body object from the Body instance.
+ */
+export function writeToStream(dest, {body}) {
+	if (body == null) {
+		// Body is null
+		dest.end();
+	} else if (isBlob(body)) {
+		// Body is Blob
+		body.stream().pipe(dest);
+	} else if (Buffer.isBuffer(body)) {
+		// Body is buffer
+		dest.write(body);
+		dest.end();
+	} else {
+		// Body is stream
+		body.pipe(dest);
+	}
 }
 
 // Expose Promise
