@@ -85,11 +85,13 @@ See Matt Andrews' [isomorphic-fetch](https://github.com/matthew-andrews/isomorph
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native Node streams for body, on both request and response.
 - Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
-- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors](ERROR-HANDLING.md) for troubleshooting.
+- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
 
 ## Difference from client-side fetch
 
-- See [Known Differences](LIMITS.md) for details.
+- See known differences:
+	- [As of v3.x](docs/v3-LIMITS.md)
+	- [As of v2.x](docs/v2-LIMITS.md)
 - If you happen to use a missing feature that `window.fetch` offers, feel free to open an issue.
 - Pull requests are welcomed too!
 
@@ -148,9 +150,9 @@ For versions of node earlier than 12.x, use this `globalThis` [polyfill](https:/
 
 Using an old version of node-fetch? Check out the following files:
 
-- [2.x to 3.x upgrade guide](v3-UPGRADE-GUIDE.md)
-- [1.x to 2.x upgrade guide](v2-UPGRADE-GUIDE.md)
-- [Changelog](CHANGELOG.md)
+- [2.x to 3.x upgrade guide](docs/v3-UPGRADE-GUIDE.md)
+- [1.x to 2.x upgrade guide](docs/v2-UPGRADE-GUIDE.md)
+- [Changelog](docs/CHANGELOG.md)
 
 ## Common Usage
 
@@ -223,7 +225,7 @@ fetch('https://httpbin.org/post', {method: 'POST', body: params})
 
 NOTE: 3xx-5xx responses are _NOT_ exceptions, and should be handled in `then()`, see the next section.
 
-Adding a catch to the fetch promise chain will catch _all_ exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document](ERROR-HANDLING.md) for more details.
+Adding a catch to the fetch promise chain will catch _all_ exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document][error-handling.md] for more details.
 
 ```js
 const fetch = require('node-fetch');
@@ -732,6 +734,4 @@ MIT
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
-[limits.md]: https://github.com/bitinn/node-fetch/blob/master/LIMITS.md
-[error-handling.md]: https://github.com/bitinn/node-fetch/blob/master/ERROR-HANDLING.md
-[upgrade-guide.md]: https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md
+[error-handling.md]: https://github.com/bitinn/node-fetch/blob/master/docs/ERROR-HANDLING.md
