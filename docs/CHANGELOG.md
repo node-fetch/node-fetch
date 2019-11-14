@@ -2,6 +2,31 @@
 Changelog
 =========
 
+# 3.x release
+
+## v3.0.0
+
+<!--- Not completed yet, since the v3 roadmap is not fully finished -->
+
+- **Breaking:** minimum supported Node.js version is now 10.
+- Enhance: added new node-fetch-only option: `highWaterMark`.
+- Enhance: `AbortError` now uses a w3c defined message.
+- Enhance: data URI support.
+- Enhance: drop existing blob implementation code and use fetch-blob as dependency instead.
+- Enhance: modernise the code behind `FetchError` and `AbortError`.
+- Enhance: replace deprecated `url.parse()` and `url.replace()` with the new WHATWG `new URL()`
+- Fix: `Response.statusText` no longer sets a default message derived from the HTTP status code.
+- Fix: missing response stream error events.
+- Fix: do not use constructor.name to check object.
+- Fix: convert `Content-Encoding` to lowercase.
+- Fix: propagate size and timeout to cloned response.
+- Other: bundle TypeScript types.
+- Other: replace Rollup with @pika/pack.
+- Other: introduce linting to the project.
+- Other: simplify Travis CI build matrix.
+- Other: dev dependency update.
+- Other: readme update.
+
 
 # 2.x release
 
