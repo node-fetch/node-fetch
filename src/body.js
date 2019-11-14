@@ -1,22 +1,22 @@
 
 /**
- * body.js
+ * Body.js
  *
  * Body interface provides common methods for Request and Response
  */
 
-import Stream from 'stream';
+import Stream, {PassThrough} from 'stream';
 
-import Blob, { BUFFER } from './blob.js';
-import FetchError from './fetch-error.js';
+import Blob from 'fetch-blob';
+import FetchError from './errors/fetch-error';
+import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
 
 let convert;
-try { convert = require('encoding').convert; } catch(e) {}
+try {
+	convert = require('encoding').convert;
+} catch (_) { }
 
 const INTERNALS = Symbol('Body internals');
-
-// fix an issue where "PassThrough" isn't a named export for node <10
-const PassThrough = Stream.PassThrough;
 
 /**
  * Body mixin
@@ -32,21 +32,20 @@ export default function Body(body, {
 	timeout = 0
 } = {}) {
 	if (body == null) {
-		// body is undefined or null
+		// Body is undefined or null
 		body = null;
 	} else if (isURLSearchParams(body)) {
-		// body is a URLSearchParams
+		// Body is a URLSearchParams
 		body = Buffer.from(body.toString());
-	} else if (body instanceof Blob) {
-		// body is blob
-		body = body[BUFFER];
+	} else if (isBlob(body)) {
+		// Body is blob
 	} else if (Buffer.isBuffer(body)) {
-		// body is Buffer
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is ArrayBuffer
+		// Body is Buffer
+	} else if (isArrayBuffer(body)) {
+		// Body is ArrayBuffer
 		body = Buffer.from(body);
 	} else if (ArrayBuffer.isView(body)) {
-		// body is ArrayBufferView
+		// Body is ArrayBufferView
 		body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 	} else if (body instanceof Stream) {
 		// body is stream
@@ -54,10 +53,11 @@ export default function Body(body, {
 		// body is an instance of formdata-node
 		body = body.stream
 	} else {
-		// none of the above
+		// None of the above
 		// coerce to string then buffer
 		body = Buffer.from(String(body));
 	}
+
 	this[INTERNALS] = {
 		body,
 		disturbed: false,
@@ -68,9 +68,9 @@ export default function Body(body, {
 
 	if (body instanceof Stream) {
 		body.on('error', err => {
-			const error = err.name === 'AbortError'
-				? err
-				: new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+			const error = isAbortError(err) ?
+				err :
+				new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 			this[INTERNALS].error = error;
 		});
 	}
@@ -91,7 +91,7 @@ Body.prototype = {
 	 * @return  Promise
 	 */
 	arrayBuffer() {
-		return consumeBody.call(this).then(buf => buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+		return consumeBody.call(this).then(({buffer, byteOffset, byteLength}) => buffer.slice(byteOffset, byteOffset + byteLength));
 	},
 
 	/**
@@ -100,16 +100,11 @@ Body.prototype = {
 	 * @return Promise
 	 */
 	blob() {
-		let ct = this.headers && this.headers.get('content-type') || '';
-		return consumeBody.call(this).then(buf => Object.assign(
-			// Prevent copying
-			new Blob([], {
-				type: ct.toLowerCase()
-			}),
-			{
-				[BUFFER]: buf
-			}
-		));
+		const ct = this.headers && this.headers.get('content-type') || this[INTERNALS].body && this[INTERNALS].body.type || '';
+		return consumeBody.call(this).then(buf => new Blob([], {
+			type: ct.toLowerCase(),
+			buffer: buf
+		}));
 	},
 
 	/**
@@ -118,13 +113,13 @@ Body.prototype = {
 	 * @return  Promise
 	 */
 	json() {
-		return consumeBody.call(this).then((buffer) => {
+		return consumeBody.call(this).then(buffer => {
 			try {
 				return JSON.parse(buffer.toString());
-			} catch (err) {
-				return Body.Promise.reject(new FetchError(`invalid json response body at ${this.url} reason: ${err.message}`, 'invalid-json'));
+			} catch (error) {
+				return Body.Promise.reject(new FetchError(`invalid json response body at ${this.url} reason: ${error.message}`, 'invalid-json'));
 			}
-		})
+		});
 	},
 
 	/**
@@ -158,15 +153,15 @@ Body.prototype = {
 
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
-	body: { enumerable: true },
-	bodyUsed: { enumerable: true },
-	arrayBuffer: { enumerable: true },
-	blob: { enumerable: true },
-	json: { enumerable: true },
-	text: { enumerable: true }
+	body: {enumerable: true},
+	bodyUsed: {enumerable: true},
+	arrayBuffer: {enumerable: true},
+	blob: {enumerable: true},
+	json: {enumerable: true},
+	text: {enumerable: true}
 });
 
-Body.mixIn = function (proto) {
+Body.mixIn = proto => {
 	for (const name of Object.getOwnPropertyNames(Body.prototype)) {
 		// istanbul ignore else: future proof
 		if (!(name in proto)) {
@@ -194,31 +189,38 @@ function consumeBody() {
 		return Body.Promise.reject(this[INTERNALS].error);
 	}
 
-	// body is null
-	if (this.body === null) {
+	let {body} = this;
+
+	// Body is null
+	if (body === null) {
 		return Body.Promise.resolve(Buffer.alloc(0));
 	}
 
-	// body is buffer
-	if (Buffer.isBuffer(this.body)) {
-		return Body.Promise.resolve(this.body);
+	// Body is blob
+	if (isBlob(body)) {
+		body = body.stream();
+	}
+
+	// Body is buffer
+	if (Buffer.isBuffer(body)) {
+		return Body.Promise.resolve(body);
 	}
 
 	// istanbul ignore if: should never happen
-	if (!(this.body instanceof Stream)) {
+	if (!(body instanceof Stream)) {
 		return Body.Promise.resolve(Buffer.alloc(0));
 	}
 
-	// body is stream
+	// Body is stream
 	// get ready to actually consume the body
-	let accum = [];
+	const accum = [];
 	let accumBytes = 0;
 	let abort = false;
 
 	return new Body.Promise((resolve, reject) => {
 		let resTimeout;
 
-		// allow timeout on slow response body
+		// Allow timeout on slow response body
 		if (this.timeout) {
 			resTimeout = setTimeout(() => {
 				abort = true;
@@ -226,19 +228,19 @@ function consumeBody() {
 			}, this.timeout);
 		}
 
-		// handle stream errors
-		this.body.on('error', err => {
-			if (err.name === 'AbortError') {
-				// if the request was aborted, reject with this Error
+		// Handle stream errors
+		body.on('error', err => {
+			if (isAbortError(err)) {
+				// If the request was aborted, reject with this Error
 				abort = true;
 				reject(err);
 			} else {
-				// other errors, such as incorrect content-encoding
+				// Other errors, such as incorrect content-encoding
 				reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
 			}
 		});
 
-		this.body.on('data', chunk => {
+		body.on('data', chunk => {
 			if (abort || chunk === null) {
 				return;
 			}
@@ -253,7 +255,7 @@ function consumeBody() {
 			accum.push(chunk);
 		});
 
-		this.body.on('end', () => {
+		body.on('end', () => {
 			if (abort) {
 				return;
 			}
@@ -261,10 +263,10 @@ function consumeBody() {
 			clearTimeout(resTimeout);
 
 			try {
-				resolve(Buffer.concat(accum));
-			} catch (err) {
-				// handle streams that have accumulated too much data (issue #414)
-				reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${err.message}`, 'system', err));
+				resolve(Buffer.concat(accum, accumBytes));
+			} catch (error) {
+				// Handle streams that have accumulated too much data (issue #414)
+				reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${error.message}`, 'system', error));
 			}
 		});
 	});
@@ -280,27 +282,29 @@ function consumeBody() {
  */
 function convertBody(buffer, headers) {
 	if (typeof convert !== 'function') {
-		throw new Error('The package `encoding` must be installed to use the textConverted() function');
+		throw new TypeError('The package `encoding` must be installed to use the textConverted() function');
 	}
 
 	const ct = headers.get('content-type');
 	let charset = 'utf-8';
-	let res, str;
+	let res;
+	let str;
 
-	// header
+	// Header
 	if (ct) {
 		res = /charset=([^;]*)/i.exec(ct);
 	}
 
-	// no charset in content type, peek at response body for at most 1024 bytes
+	// No charset in content type, peek at response body for at most 1024 bytes
+	/* eslint-disable-next-line prefer-const */
 	str = buffer.slice(0, 1024).toString();
 
-	// html5
+	// Html5
 	if (!res && str) {
 		res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
 	}
 
-	// html4
+	// Html4
 	if (!res && str) {
 		res = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(str);
 
@@ -309,23 +313,23 @@ function convertBody(buffer, headers) {
 		}
 	}
 
-	// xml
+	// Xml
 	if (!res && str) {
 		res = /<\?xml.+?encoding=(['"])(.+?)\1/i.exec(str);
 	}
 
-	// found charset
+	// Found charset
 	if (res) {
 		charset = res.pop();
 
-		// prevent decode issues when sites use incorrect encoding
+		// Prevent decode issues when sites use incorrect encoding
 		// ref: https://hsivonen.fi/encoding-menu/
 		if (charset === 'gb2312' || charset === 'gbk') {
 			charset = 'gb18030';
 		}
 	}
 
-	// turn raw buffers into a single utf-8 buffer
+	// Turn raw buffers into a single utf-8 buffer
 	return convert(
 		buffer,
 		'UTF-8',
@@ -334,54 +338,31 @@ function convertBody(buffer, headers) {
 }
 
 /**
- * Detect a URLSearchParams object
- * ref: https://github.com/bitinn/node-fetch/issues/296#issuecomment-307598143
- *
- * @param   Object  obj     Object to detect by type or brand
- * @return  String
- */
-function isURLSearchParams(obj) {
-	// Duck-typing as a necessary condition.
-	if (typeof obj !== 'object' ||
-		typeof obj.append !== 'function' ||
-		typeof obj.delete !== 'function' ||
-		typeof obj.get !== 'function' ||
-		typeof obj.getAll !== 'function' ||
-		typeof obj.has !== 'function' ||
-		typeof obj.set !== 'function') {
-		return false;
-	}
-
-	// Brand-checking and more duck-typing as optional condition.
-	return obj.constructor.name === 'URLSearchParams' ||
-		Object.prototype.toString.call(obj) === '[object URLSearchParams]' ||
-		typeof obj.sort === 'function';
-}
-
-/**
  * Clone body given Res/Req instance
  *
- * @param   Mixed  instance  Response or Request instance
+ * @param   Mixed   instance       Response or Request instance
+ * @param   String  highWaterMark  highWaterMark for both PassThrough body streams
  * @return  Mixed
  */
-export function clone(instance) {
-	let p1, p2;
-	let body = instance.body;
+export function clone(instance, highWaterMark) {
+	let p1;
+	let p2;
+	let {body} = instance;
 
-	// don't allow cloning a used body
+	// Don't allow cloning a used body
 	if (instance.bodyUsed) {
 		throw new Error('cannot clone body after it is used');
 	}
 
-	// check that body is a stream and not form-data object
+	// Check that body is a stream and not form-data object
 	// note: we can't clone the form-data object without having it as a dependency
 	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
-		// tee instance body
-		p1 = new PassThrough();
-		p2 = new PassThrough();
+		// Tee instance body
+		p1 = new PassThrough({highWaterMark});
+		p2 = new PassThrough({highWaterMark});
 		body.pipe(p1);
 		body.pipe(p2);
-		// set instance body to teed body and return the other teed body
+		// Set instance body to teed body and return the other teed body
 		instance[INTERNALS].body = p1;
 		body = p2;
 	}
@@ -396,34 +377,46 @@ export function clone(instance) {
  *
  * This function assumes that instance.body is present.
  *
- * @param   Mixed  instance  Response or Request instance
+ * @param   Mixed  instance  Any options.body input
  */
 export function extractContentType(body) {
-	// istanbul ignore if: Currently, because of a guard in Request, body
-	// can never be null. Included here for completeness.
 	if (body === null) {
-		// body is null
+		// Body is null
 		return null;
-	} else if (typeof body === 'string') {
-		// body is string
+	}
+
+	if (typeof body === 'string') {
+		// Body is string
 		return 'text/plain;charset=UTF-8';
-	} else if (isURLSearchParams(body)) {
-		// body is a URLSearchParams
+	}
+
+	if (isURLSearchParams(body)) {
+		// Body is a URLSearchParams
 		return 'application/x-www-form-urlencoded;charset=UTF-8';
-	} else if (body instanceof Blob) {
-		// body is blob
+	}
+
+	if (isBlob(body)) {
+		// Body is blob
 		return body.type || null;
-	} else if (Buffer.isBuffer(body)) {
-		// body is buffer
+	}
+
+	if (Buffer.isBuffer(body)) {
+		// Body is buffer
 		return null;
-	} else if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
-		// body is ArrayBuffer
+	}
+
+	if (Object.prototype.toString.call(body) === '[object ArrayBuffer]') {
+		// Body is ArrayBuffer
 		return null;
-	} else if (ArrayBuffer.isView(body)) {
-		// body is ArrayBufferView
+	}
+
+	if (ArrayBuffer.isView(body)) {
+		// Body is ArrayBufferView
 		return null;
-	} else if (typeof body.getBoundary === 'function') {
-		// detect form data input from form-data module
+	}
+
+	if (typeof body.getBoundary === 'function') {
+		// Detect form data input from form-data module
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
 	} else if (body.stream instanceof Stream.Readable && typeof body.boundary === 'string') {
 		return `multipart/form-data;boundary=${body.boundary}`;
@@ -431,10 +424,10 @@ export function extractContentType(body) {
 		// body is stream
 		// can't really do much about this
 		return null;
-	} else {
-		// Body constructor defaults other things to string
-		return 'text/plain;charset=UTF-8';
 	}
+
+	// Body constructor defaults other things to string
+	return 'text/plain;charset=UTF-8';
 }
 
 /**
@@ -449,25 +442,32 @@ export function extractContentType(body) {
 export function getTotalBytes(instance) {
 	const {body} = instance;
 
-	// istanbul ignore if: included for completion
 	if (body === null) {
-		// body is null
+		// Body is null
 		return 0;
-	} else if (Buffer.isBuffer(body)) {
-		// body is buffer
+	}
+
+	if (isBlob(body)) {
+		return body.size;
+	}
+
+	if (Buffer.isBuffer(body)) {
+		// Body is buffer
 		return body.length;
-	} else if (body && typeof body.getLengthSync === 'function') {
-		// detect form data input from form-data module
+	}
+
+	if (body && typeof body.getLengthSync === 'function') {
+		// Detect form data input from form-data module
 		if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
 			body.hasKnownLength && body.hasKnownLength()) { // 2.x
 			return body.getLengthSync();
 		}
-		return null;
-	} else {
-		// body is stream
-		// can't really do much about this
+
 		return null;
 	}
+
+	// Body is stream
+	return null;
 }
 
 /**
@@ -480,17 +480,19 @@ export function writeToStream(dest, instance) {
 	const {body} = instance;
 
 	if (body === null) {
-		// body is null
+		// Body is null
 		dest.end();
+	} else if (isBlob(body)) {
+		body.stream().pipe(dest);
 	} else if (Buffer.isBuffer(body)) {
-		// body is buffer
+		// Body is buffer
 		dest.write(body);
-		dest.end()
+		dest.end();
 	} else {
-		// body is stream
+		// Body is stream
 		body.pipe(dest);
 	}
 }
 
-// expose Promise
+// Expose Promise
 Body.Promise = global.Promise;

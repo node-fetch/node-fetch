@@ -2,12 +2,63 @@
 Changelog
 =========
 
+# 3.x release
+
+## v3.0.0
+
+<!--- Not completed yet, since the v3 roadmap is not fully finished -->
+
+- **Breaking:** minimum supported Node.js version is now 10.
+- Enhance: added new node-fetch-only option: `highWaterMark`.
+- Enhance: `AbortError` now uses a w3c defined message.
+- Enhance: data URI support.
+- Enhance: drop existing blob implementation code and use fetch-blob as dependency instead.
+- Enhance: modernise the code behind `FetchError` and `AbortError`.
+- Enhance: replace deprecated `url.parse()` and `url.replace()` with the new WHATWG `new URL()`
+- Fix: `Response.statusText` no longer sets a default message derived from the HTTP status code.
+- Fix: missing response stream error events.
+- Fix: do not use constructor.name to check object.
+- Fix: convert `Content-Encoding` to lowercase.
+- Fix: propagate size and timeout to cloned response.
+- Other: bundle TypeScript types.
+- Other: replace Rollup with @pika/pack.
+- Other: introduce linting to the project.
+- Other: simplify Travis CI build matrix.
+- Other: dev dependency update.
+- Other: readme update.
+
 
 # 2.x release
 
+## v2.6.0
+
+- Enhance: `options.agent`, it now accepts a function that returns custom http(s).Agent instance based on current URL, see readme for more information.
+- Fix: incorrect `Content-Length` was returned for stream body in 2.5.0 release; note that `node-fetch` doesn't calculate content length for stream body.
+- Fix: `Response.url` should return empty string instead of `null` by default.
+
+## v2.5.0
+
+- Enhance: `Response` object now includes `redirected` property.
+- Enhance: `fetch()` now accepts third-party `Blob` implementation as body.
+- Other: disable `package-lock.json` generation as we never commit them.
+- Other: dev dependency update.
+- Other: readme update.
+
+## v2.4.1
+
+- Fix: `Blob` import rule for node < 10, as `Readable` isn't a named export.
+
+## v2.4.0
+
+- Enhance: added `Brotli` compression support (using node's zlib).
+- Enhance: updated `Blob` implementation per spec.
+- Fix: set content type automatically for `URLSearchParams`.
+- Fix: `Headers` now reject empty header names.
+- Fix: test cases, as node 12+ no longer accepts invalid header response.
+
 ## v2.3.0
 
-- New: `AbortSignal` support, with README example.
+- Enhance: added `AbortSignal` support, with README example.
 - Enhance: handle invalid `Location` header during redirect by rejecting them explicitly with `FetchError`.
 - Fix: update `browser.js` to support react-native environment, where `self` isn't available globally.
 

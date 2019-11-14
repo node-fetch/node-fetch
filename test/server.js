@@ -1,24 +1,25 @@
 import * as http from 'http';
-import { parse } from 'url';
+import {parse} from 'url';
 import * as zlib from 'zlib';
-import * as stream from 'stream';
-import { multipart as Multipart } from 'parted';
+import {multipart as Multipart} from 'parted';
 
 let convert;
-try { convert = require('encoding').convert; } catch(e) {}
+try {
+	convert = require('encoding').convert; // eslint-disable-line import/no-unresolved
+} catch (_) { }
 
 export default class TestServer {
 	constructor() {
 		this.server = http.createServer(this.router);
 		this.port = 30001;
 		this.hostname = 'localhost';
-		// node 8 default keepalive timeout is 5000ms
+		// Node 8 default keepalive timeout is 5000ms
 		// make it shorter here as we want to close server quickly at the end of tests
 		this.server.keepAliveTimeout = 1000;
-		this.server.on('error', function(err) {
+		this.server.on('error', err => {
 			console.log(err.stack);
 		});
-		this.server.on('connection', function(socket) {
+		this.server.on('connection', socket => {
 			socket.setTimeout(1500);
 		});
 	}
@@ -31,8 +32,22 @@ export default class TestServer {
 		this.server.close(cb);
 	}
 
+	mockResponse(responseHandler) {
+		this.server.nextResponseHandler = responseHandler;
+		return `http://${this.hostname}:${this.port}/mocked`;
+	}
+
 	router(req, res) {
-		let p = parse(req.url).pathname;
+		const p = parse(req.url).pathname;
+
+		if (p === '/mocked') {
+			if (this.nextResponseHandler) {
+				this.nextResponseHandler(res);
+				this.nextResponseHandler = undefined;
+			} else {
+				throw new Error('No mocked response. Use \'TestServer.mockResponse()\'.');
+			}
+		}
 
 		if (p === '/hello') {
 			res.statusCode = 200;
@@ -70,7 +85,11 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'gzip');
-			zlib.gzip('hello world', function(err, buffer) {
+			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -79,9 +98,26 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'gzip');
-			zlib.gzip('hello world', function(err, buffer) {
-				// truncate the CRC checksum and size check at the end of the stream
+			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
+				// Truncate the CRC checksum and size check at the end of the stream
 				res.end(buffer.slice(0, buffer.length - 8));
+			});
+		}
+
+		if (p === '/gzip-capital') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.setHeader('Content-Encoding', 'GZip');
+			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
+				res.end(buffer);
 			});
 		}
 
@@ -89,16 +125,39 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'deflate');
-			zlib.deflate('hello world', function(err, buffer) {
+			zlib.deflate('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
+		}
+
+		if (p === '/brotli') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			if (typeof zlib.createBrotliDecompress === 'function') {
+				res.setHeader('Content-Encoding', 'br');
+				zlib.brotliCompress('hello world', (err, buffer) => {
+					if (err) {
+						throw err;
+					}
+
+					res.end(buffer);
+				});
+			}
 		}
 
 		if (p === '/deflate-raw') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'deflate');
-			zlib.deflateRaw('hello world', function(err, buffer) {
+			zlib.deflateRaw('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -117,22 +176,8 @@ export default class TestServer {
 			res.end('fake gzip string');
 		}
 
-		if (p === '/invalid-header') {
-			res.setHeader('Content-Type', 'text/plain');
-			res.writeHead(200);
-			// HACK: add a few invalid headers to the generated header string before
-			// it is actually sent to the socket.
-			res._header = res._header.replace(/\r\n$/, [
-				'Invalid-Header : abc\r\n',
-				'Invalid-Header-Value: \x07k\r\n',
-				'Set-Cookie: \x07k\r\n',
-				'Set-Cookie: \x07kk\r\n',
-			].join('') + '\r\n');
-			res.end('hello world\n');
-		}
-
 		if (p === '/timeout') {
-			setTimeout(function() {
+			setTimeout(() => {
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'text/plain');
 				res.end('text');
@@ -143,7 +188,7 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.write('test');
-			setTimeout(function() {
+			setTimeout(() => {
 				res.end('test');
 			}, 1000);
 		}
@@ -157,12 +202,12 @@ export default class TestServer {
 		if (p === '/size/chunk') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
-			setTimeout(function() {
+			setTimeout(() => {
 				res.write('test');
-			}, 50);
-			setTimeout(function() {
+			}, 10);
+			setTimeout(() => {
 				res.end('test');
-			}, 100);
+			}, 20);
 		}
 
 		if (p === '/size/long') {
@@ -272,9 +317,17 @@ export default class TestServer {
 		if (p === '/redirect/slow') {
 			res.statusCode = 301;
 			res.setHeader('Location', '/redirect/301');
-			setTimeout(function() {
+			setTimeout(() => {
 				res.end();
 			}, 1000);
+		}
+
+		if (p === '/redirect/slow-chain') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/redirect/slow');
+			setTimeout(() => {
+				res.end();
+			}, 10);
 		}
 
 		if (p === '/redirect/slow-stream') {
@@ -322,6 +375,12 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/no-content/brotli') {
+			res.statusCode = 204;
+			res.setHeader('Content-Encoding', 'br');
+			res.end();
+		}
+
 		if (p === '/not-modified') {
 			res.statusCode = 304;
 			res.end();
@@ -337,8 +396,10 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
 			let body = '';
-			req.on('data', function(c) { body += c });
-			req.on('end', function() {
+			req.on('data', c => {
+				body += c;
+			});
+			req.on('end', () => {
 				res.end(JSON.stringify({
 					method: req.method,
 					url: req.url,
@@ -353,15 +414,15 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'application/json');
 			const parser = new Multipart(req.headers['content-type']);
 			let body = '';
-			parser.on('part', function(field, part) {
+			parser.on('part', (field, part) => {
 				body += field + '=' + part;
 			});
-			parser.on('end', function() {
+			parser.on('end', () => {
 				res.end(JSON.stringify({
 					method: req.method,
 					url: req.url,
 					headers: req.headers,
-					body: body
+					body
 				}));
 			});
 			req.pipe(parser);
@@ -370,7 +431,7 @@ export default class TestServer {
 }
 
 if (require.main === module) {
-	const server = new TestServer;
+	const server = new TestServer();
 	server.start(() => {
 		console.log(`Server started listening at port ${server.port}`);
 	});

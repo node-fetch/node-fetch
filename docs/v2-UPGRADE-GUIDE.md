@@ -45,7 +45,7 @@ spec-compliant. These changes are done in conjunction with GitHub's
 
 const headers = new Headers({
   'Abc': 'string',
-  'Multi': [ 'header1', 'header2' ]
+  'Multi': ['header1', 'header2']
 });
 
 // before                             after
@@ -63,14 +63,14 @@ headers.get('Multi') =>               headers.get('Multi') =>
 
 const headers = new Headers({
   'Abc': 'string',
-  'Multi': [ 'header1', 'header2' ]
+  'Multi': ['header1', 'header2']
 });
 
 // before                             after
 headers.getAll('Multi') =>            headers.getAll('Multi') =>
   [ 'header1', 'header2' ];             throws ReferenceError
                                       headers.get('Multi').split(',') =>
-                                        [ 'header1', 'header2' ];
+                                        ['header1', 'header2'];
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ headers.get(undefined)                headers.get(undefined)
 const headers = new Headers();
 headers.set('Héy', 'ok');          // now throws
 headers.get('Héy');                // now throws
-new Headers({ 'Héy': 'ok' });      // now throws
+new Headers({'Héy': 'ok'});      // now throws
 ```
 
 ## Node.js v0.x support dropped
