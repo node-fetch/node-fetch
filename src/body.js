@@ -11,11 +11,6 @@ import Blob from 'fetch-blob';
 import FetchError from './errors/fetch-error';
 import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
 
-let convertBody;
-try {
-	convertBody = require('fetch-charset-detection').convertBody;
-} catch (_) { }
-
 const INTERNALS = Symbol('Body internals');
 
 /**
@@ -135,20 +130,6 @@ Body.prototype = {
 	 */
 	buffer() {
 		return consumeBody.call(this);
-	},
-
-	/**
-	 * Decode response as text, while automatically detecting the encoding and
-	 * trying to decode to UTF-8 (non-spec api)
-	 *
-	 * @return  Promise
-	 */
-	textConverted() {
-		if (!convertBody) {
-			throw new ReferenceError('Install fetch-charset-detection before using!');
-		}
-
-		return consumeBody.call(this).then(buffer => convertBody(buffer, this.headers));
 	}
 };
 

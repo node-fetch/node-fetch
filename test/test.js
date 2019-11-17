@@ -40,11 +40,6 @@ const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
 
-let convertBody;
-try {
-	convertBody = require('fetch-charset-detection').convertBody;
-} catch (_) { }
-
 import chaiTimeout from './chai-timeout';
 
 chai.use(chaiPromised);
@@ -2826,127 +2821,6 @@ function streamToPromise(stream, dataHandler) {
 }
 
 describe('external encoding', () => {
-	describe('encoding', () => {
-		const hasBodyConversion = typeof convertBody === 'function';
-
-		describe('with optional `fetch-charset-detection`', () => {
-			before(function () {
-				if (!hasBodyConversion) {
-					this.skip();
-				}
-			});
-
-			it('should only use UTF-8 decoding with text()', () => {
-				const url = `${base}encoding/euc-jp`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					return res.text().then(result => {
-						expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>\uFFFD\uFFFD\uFFFD\u0738\ufffd</title>');
-					});
-				});
-			});
-
-			it('should support encoding decode, xml dtd detect', () => {
-				const url = `${base}encoding/euc-jp`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					return res.textConverted().then(result => {
-						expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
-					});
-				});
-			});
-
-			it('should support encoding decode, content-type detect', () => {
-				const url = `${base}encoding/shift-jis`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					return res.textConverted().then(result => {
-						expect(result).to.equal('<div>日本語</div>');
-					});
-				});
-			});
-
-			it('should support encoding decode, html5 detect', () => {
-				const url = `${base}encoding/gbk`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					return res.textConverted().then(result => {
-						expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
-					});
-				});
-			});
-
-			it('should support encoding decode, html4 detect', () => {
-				const url = `${base}encoding/gb2312`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					return res.textConverted().then(result => {
-						expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
-					});
-				});
-			});
-
-			it('should default to utf8 encoding', () => {
-				const url = `${base}encoding/utf8`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					expect(res.headers.get('content-type')).to.be.null;
-					return res.textConverted().then(result => {
-						expect(result).to.equal('中文');
-					});
-				});
-			});
-
-			it('should support uncommon content-type order, end with qs', () => {
-				const url = `${base}encoding/qs`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					return res.textConverted().then(result => {
-						expect(result).to.equal('中文');
-					});
-				});
-			});
-
-			it('should support chunked encoding, html4 detect', () => {
-				const url = `${base}encoding/chunked`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					const padding = 'a'.repeat(10);
-					return res.textConverted().then(result => {
-						expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
-					});
-				});
-			});
-
-			it('should only do encoding detection up to 1024 bytes', () => {
-				const url = `${base}encoding/invalid`;
-				return fetch(url).then(res => {
-					expect(res.status).to.equal(200);
-					const padding = 'a'.repeat(1200);
-					return res.textConverted().then(result => {
-						expect(result).to.not.equal(`${padding}中文`);
-					});
-				});
-			});
-		});
-
-		describe('without optional `fetch-charset-detection`', () => {
-			before(function () {
-				if (hasBodyConversion) {
-					this.skip();
-				}
-			});
-
-			it('should throw a FetchError if res.textConverted() is called without `fetch-charset-detection` in require cache', () => {
-				const url = `${base}hello`;
-				return fetch(url).then(res => {
-					return expect(res.textConverted()).to.eventually.be.rejected
-						.and.have.property('message').which.includes('convertBody');
-				});
-			});
-		});
-	});
-
 	describe('data uri', () => {
 		it('should accept data uri', () => {
 			return fetch('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=').then(r => {

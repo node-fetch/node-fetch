@@ -146,7 +146,6 @@ export class Body {
 	json(): Promise<any>;
 	size: number;
 	text(): Promise<string>;
-	textConverted(): Promise<string>;
 	timeout: number;
 }
 

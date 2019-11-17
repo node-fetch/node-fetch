@@ -33,7 +33,16 @@ Prior to v3.x, we included a `browser` field in the package.json file. Since nod
 
 ## Dropped the `res.textConverted()` function
 
-If you want charset encoding detection, please use [fetch-charset-detection] package.
+If you want charset encoding detection, please use the [fetch-charset-detection] package ([documentation][fetch-charset-detection-docs]).
+
+```js
+const fetch = require("node-fetch");
+const {convertBody} = require("fetch-charset-detection");
+
+fetch("https://somewebsite.com").then(res => {
+	const text = convertBody(res.buffer(), res.headers);
+});
+```
 
 # Enhancements
 
@@ -66,6 +75,7 @@ Since v3.x you no longer need to install `@types/node-fetch` package in order to
 [LTS plan]: https://github.com/nodejs/LTS#lts-plan
 [cross-fetch]: https://github.com/lquixada/cross-fetch
 [fetch-charset-detection]: https://github.com/Richienb/fetch-charset-detection
+[fetch-charset-detection-docs]: https://richienb.github.io/fetch-charset-detection/globals.html#convertbody
 [fetch-blob]: https://github.com/bitinn/fetch-blob#readme
 [whatwg-nodejs-url]: https://nodejs.org/api/url.html#url_the_whatwg_url_api
 [changelog]: CHANGELOG.md
