@@ -33,7 +33,7 @@ import FetchErrorOrig from '../src/errors/fetch-error';
 import HeadersOrig, {createHeadersLenient} from '../src/headers';
 import RequestOrig from '../src/request';
 import ResponseOrig from '../src/response';
-import Body, {getTotalBytes, extractContentType} from '../src/body';
+import Body from '../src/body';
 import TestServer from './server';
 
 const {
@@ -2074,67 +2074,6 @@ describe('node-fetch', () => {
 			expect(res.headers.connection).to.equal('keep-alive');
 		});
 	});
-
-	it('should calculate content length and extract content type for each body type', () => {
-		const url = `${base}hello`;
-		const bodyContent = 'a=1';
-
-		let streamBody = resumer().queue(bodyContent).end();
-		streamBody = streamBody.pipe(new stream.PassThrough());
-		const streamRequest = new Request(url, {
-			method: 'POST',
-			body: streamBody,
-			size: 1024
-		});
-
-		const blobBody = new Blob([bodyContent], {type: 'text/plain'});
-		const blobRequest = new Request(url, {
-			method: 'POST',
-			body: blobBody,
-			size: 1024
-		});
-
-		const formBody = new FormData();
-		formBody.append('a', '1');
-		const formRequest = new Request(url, {
-			method: 'POST',
-			body: formBody,
-			size: 1024
-		});
-
-		const bufferBody = Buffer.from(bodyContent);
-		const bufferRequest = new Request(url, {
-			method: 'POST',
-			body: bufferBody,
-			size: 1024
-		});
-
-		const stringRequest = new Request(url, {
-			method: 'POST',
-			body: bodyContent,
-			size: 1024
-		});
-
-		const nullRequest = new Request(url, {
-			method: 'GET',
-			body: null,
-			size: 1024
-		});
-
-		expect(getTotalBytes(streamRequest)).to.be.null;
-		expect(getTotalBytes(blobRequest)).to.equal(blobBody.size);
-		expect(getTotalBytes(formRequest)).to.not.be.null;
-		expect(getTotalBytes(bufferRequest)).to.equal(bufferBody.length);
-		expect(getTotalBytes(stringRequest)).to.equal(bodyContent.length);
-		expect(getTotalBytes(nullRequest)).to.equal(0);
-
-		expect(extractContentType(streamBody)).to.be.null;
-		expect(extractContentType(blobBody)).to.equal('text/plain');
-		expect(extractContentType(formBody)).to.startWith('multipart/form-data');
-		expect(extractContentType(bufferBody)).to.be.null;
-		expect(extractContentType(bodyContent)).to.equal('text/plain;charset=UTF-8');
-		expect(extractContentType(null)).to.be.null;
-	});
 });
 
 describe('Headers', () => {
@@ -2826,121 +2765,123 @@ function streamToPromise(stream, dataHandler) {
 }
 
 describe('external encoding', () => {
-	const hasBodyConversion = typeof convertBody === 'function';
+	describe('encoding', () => {
+		const hasBodyConversion = typeof convertBody === 'function';
 
-	describe('with optional `fetch-charset-detection`', () => {
-		before(function () {
-			if (!hasBodyConversion) {
-				this.skip();
-			}
-		});
+		describe('with optional `fetch-charset-detection`', () => {
+			before(function () {
+				if (!hasBodyConversion) {
+					this.skip();
+				}
+			});
 
-		it('should only use UTF-8 decoding with text()', () => {
-			const url = `${base}encoding/euc-jp`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.text().then(result => {
-					expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>\uFFFD\uFFFD\uFFFD\u0738\ufffd</title>');
+			it('should only use UTF-8 decoding with text()', () => {
+				const url = `${base}encoding/euc-jp`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					return res.text().then(result => {
+						expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>\uFFFD\uFFFD\uFFFD\u0738\ufffd</title>');
+					});
+				});
+			});
+
+			it('should support encoding decode, xml dtd detect', () => {
+				const url = `${base}encoding/euc-jp`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					return res.textConverted().then(result => {
+						expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
+					});
+				});
+			});
+
+			it('should support encoding decode, content-type detect', () => {
+				const url = `${base}encoding/shift-jis`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					return res.textConverted().then(result => {
+						expect(result).to.equal('<div>日本語</div>');
+					});
+				});
+			});
+
+			it('should support encoding decode, html5 detect', () => {
+				const url = `${base}encoding/gbk`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					return res.textConverted().then(result => {
+						expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
+					});
+				});
+			});
+
+			it('should support encoding decode, html4 detect', () => {
+				const url = `${base}encoding/gb2312`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					return res.textConverted().then(result => {
+						expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
+					});
+				});
+			});
+
+			it('should default to utf8 encoding', () => {
+				const url = `${base}encoding/utf8`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					expect(res.headers.get('content-type')).to.be.null;
+					return res.textConverted().then(result => {
+						expect(result).to.equal('中文');
+					});
+				});
+			});
+
+			it('should support uncommon content-type order, end with qs', () => {
+				const url = `${base}encoding/qs`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					return res.textConverted().then(result => {
+						expect(result).to.equal('中文');
+					});
+				});
+			});
+
+			it('should support chunked encoding, html4 detect', () => {
+				const url = `${base}encoding/chunked`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					const padding = 'a'.repeat(10);
+					return res.textConverted().then(result => {
+						expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
+					});
+				});
+			});
+
+			it('should only do encoding detection up to 1024 bytes', () => {
+				const url = `${base}encoding/invalid`;
+				return fetch(url).then(res => {
+					expect(res.status).to.equal(200);
+					const padding = 'a'.repeat(1200);
+					return res.textConverted().then(result => {
+						expect(result).to.not.equal(`${padding}中文`);
+					});
 				});
 			});
 		});
 
-		it('should support encoding decode, xml dtd detect', () => {
-			const url = `${base}encoding/euc-jp`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
-				});
+		describe('without optional `fetch-charset-detection`', () => {
+			before(function () {
+				if (hasBodyConversion) {
+					this.skip();
+				}
 			});
-		});
 
-		it('should support encoding decode, content-type detect', () => {
-			const url = `${base}encoding/shift-jis`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<div>日本語</div>');
+			it('should throw a FetchError if res.textConverted() is called without `fetch-charset-detection` in require cache', () => {
+				const url = `${base}hello`;
+				return fetch(url).then(res => {
+					return expect(res.textConverted()).to.eventually.be.rejected
+						.and.have.property('message').which.includes('convertBody');
 				});
-			});
-		});
-
-		it('should support encoding decode, html5 detect', () => {
-			const url = `${base}encoding/gbk`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
-				});
-			});
-		});
-
-		it('should support encoding decode, html4 detect', () => {
-			const url = `${base}encoding/gb2312`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
-				});
-			});
-		});
-
-		it('should default to utf8 encoding', () => {
-			const url = `${base}encoding/utf8`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('content-type')).to.be.null;
-				return res.textConverted().then(result => {
-					expect(result).to.equal('中文');
-				});
-			});
-		});
-
-		it('should support uncommon content-type order, end with qs', () => {
-			const url = `${base}encoding/qs`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('中文');
-				});
-			});
-		});
-
-		it('should support chunked encoding, html4 detect', () => {
-			const url = `${base}encoding/chunked`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				const padding = 'a'.repeat(10);
-				return res.textConverted().then(result => {
-					expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
-				});
-			});
-		});
-
-		it('should only do encoding detection up to 1024 bytes', () => {
-			const url = `${base}encoding/invalid`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				const padding = 'a'.repeat(1200);
-				return res.textConverted().then(result => {
-					expect(result).to.not.equal(`${padding}中文`);
-				});
-			});
-		});
-	});
-
-	describe('without optional `fetch-charset-detection`', () => {
-		before(function () {
-			if (hasBodyConversion) {
-				this.skip();
-			}
-		});
-
-		it('should throw a FetchError if res.textConverted() is called without `fetch-charset-detection` in require cache', () => {
-			const url = `${base}hello`;
-			return fetch(url).then(res => {
-				return expect(res.textConverted()).to.eventually.be.rejected
-					.and.have.property('message').which.includes('convertBody');
 			});
 		});
 	});
