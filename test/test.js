@@ -40,9 +40,9 @@ const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
 
-let convert;
+let convertBody;
 try {
-	convert = require('encoding').convert;
+	convertBody = require('fetch-charset-detection').convertBody;
 } catch (_) { }
 
 import chaiTimeout from './chai-timeout';
@@ -2826,11 +2826,11 @@ function streamToPromise(stream, dataHandler) {
 }
 
 describe('external encoding', () => {
-	const hasEncoding = typeof convert === 'function';
+	const hasBodyConversion = typeof convertBody === 'function';
 
-	describe('with optional `encoding`', () => {
+	describe('with optional `fetch-charset-detection`', () => {
 		before(function () {
-			if (!hasEncoding) {
+			if (!hasBodyConversion) {
 				this.skip();
 			}
 		});
@@ -2896,18 +2896,8 @@ describe('external encoding', () => {
 			});
 		});
 
-		it('should support uncommon content-type order, charset in front', () => {
-			const url = `${base}encoding/order1`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('中文');
-				});
-			});
-		});
-
 		it('should support uncommon content-type order, end with qs', () => {
-			const url = `${base}encoding/order2`;
+			const url = `${base}encoding/qs`;
 			return fetch(url).then(res => {
 				expect(res.status).to.equal(200);
 				return res.textConverted().then(result => {
@@ -2939,18 +2929,18 @@ describe('external encoding', () => {
 		});
 	});
 
-	describe('without optional `encoding`', () => {
+	describe('without optional `fetch-charset-detection`', () => {
 		before(function () {
-			if (hasEncoding) {
+			if (hasBodyConversion) {
 				this.skip();
 			}
 		});
 
-		it('should throw a FetchError if res.textConverted() is called without `encoding` in require cache', () => {
+		it('should throw a FetchError if res.textConverted() is called without `fetch-charset-detection` in require cache', () => {
 			const url = `${base}hello`;
 			return fetch(url).then(res => {
 				return expect(res.textConverted()).to.eventually.be.rejected
-					.and.have.property('message').which.includes('encoding');
+					.and.have.property('message').which.includes('convertBody');
 			});
 		});
 	});

@@ -14,5 +14,5 @@ cache: npm
 
 script:
   - npm run coverage
-  - npm install encoding
+  - npm install fetch-charset-detection
   - npm run coverage

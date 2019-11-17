@@ -54,6 +54,7 @@
 		"codecov": "^3.6.1",
 		"cross-env": "^6.0.3",
 		"form-data": "^2.5.1",
+		"iconv-lite": "^0.5.0",
 		"mocha": "^6.2.2",
 		"nyc": "^14.1.1",
 		"parted": "^0.1.1",
@@ -67,7 +68,7 @@
 		"utf8": "^3.0.0"
 	},
 	"optionalDependencies": {
-		"encoding": "^0.1.12"
+		"fetch-charset-detection": "^0.2.0"
 	},
 	"@pika/pack": {
 		"pipeline": [
