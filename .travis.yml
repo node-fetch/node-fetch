@@ -14,5 +14,3 @@ cache: npm
 
 script:
   - npm run coverage
-  - npm install fetch-charset-detection
-  - npm run coverage
