@@ -37,7 +37,7 @@ If you want charset encoding detection, please use the [fetch-charset-detection]
 
 ```js
 const fetch = require("node-fetch");
-const {convertBody} = require("fetch-charset-detection");
+const convertBody = require("fetch-charset-detection");
 
 fetch("https://somewebsite.com").then(res => {
 	const text = convertBody(res.buffer(), res.headers);
