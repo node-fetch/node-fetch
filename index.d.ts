@@ -153,7 +153,7 @@ export class Body {
 export class FetchError extends Error {
 	name: "FetchError";
 	[Symbol.toStringTag]: "FetchError"
-	constructor(message: string, type: string, systemError?: string);
+	constructor(message: string, type: string, systemError?: object);
 	type: string;
 	code?: string;
 	errno?: string;
