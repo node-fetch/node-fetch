@@ -10,7 +10,7 @@
  *
  * @param   String      message      Error message for human
  * @param   String      type         Error type for machine
- * @param   String      systemError  For Node.js system error
+ * @param   Object      systemError  For Node.js system error
  * @return  FetchError
  */
 export default function FetchError(message, type, systemError) {
