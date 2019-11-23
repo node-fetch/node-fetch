@@ -66,9 +66,6 @@
 		"fetch-blob": "^1.0.4",
 		"utf8": "^3.0.0"
 	},
-	"optionalDependencies": {
-		"encoding": "^0.1.12"
-	},
 	"@pika/pack": {
 		"pipeline": [
 			[
