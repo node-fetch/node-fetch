@@ -83,7 +83,6 @@ export default function fetch(url, opts) {
 
 		// send request
 		const req = send(options);
-		let reqTimeout;
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
@@ -92,16 +91,13 @@ export default function fetch(url, opts) {
 		function finalize() {
 			req.abort();
 			if (signal) signal.removeEventListener('abort', abortAndFinalize);
-			clearTimeout(reqTimeout);
 		}
 
 		if (request.timeout) {
-			req.once('socket', socket => {
-				reqTimeout = setTimeout(() => {
-					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-					finalize();
-				}, request.timeout);
-			});
+			req.setTimeout(request.timeout, () => {
+				finalize();
+				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
+			})
 		}
 
 		req.on('error', err => {
@@ -110,8 +106,6 @@ export default function fetch(url, opts) {
 		});
 
 		req.on('response', res => {
-			clearTimeout(reqTimeout);
-
 			const headers = createHeadersLenient(res.headers);
 
 			// HTTP fetch step 5
