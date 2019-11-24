@@ -56,7 +56,7 @@ Blob implementation is now [fetch-blob] and hence is exposed, unlikely previousl
 
 ## Better UTF-8 URL handling
 
-We now use the new Node.js [WHATWG-compliant URL API][whatwg-nodejs-url], so UTF-8 URLs are handles properly.
+We now use the new Node.js [WHATWG-compliant URL API][whatwg-nodejs-url], so UTF-8 URLs are handled properly.
 
 ## Request errors are now piped using `stream.pipeline`
 
