@@ -17,6 +17,7 @@ module.exports = exports = global.fetch;
 
 // Needed for TypeScript and Webpack.
 if (global.fetch) {
+	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = global.fetch.bind(global);
 }
 
