@@ -572,9 +572,7 @@ describe('node-fetch', () => {
 		const url = `${base}error/json`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('application/json');
-			return expect(res.json()).to.eventually.be.rejected
-				.and.be.an.instanceOf(FetchError)
-				.and.include({type: 'invalid-json'});
+			return expect(res.json()).to.eventually.be.rejectedWith(Error);
 		});
 	});
 
@@ -597,9 +595,7 @@ describe('node-fetch', () => {
 			expect(res.status).to.equal(204);
 			expect(res.statusText).to.equal('No Content');
 			expect(res.ok).to.be.true;
-			return expect(res.json()).to.eventually.be.rejected
-				.and.be.an.instanceOf(FetchError)
-				.and.include({type: 'invalid-json'});
+			return expect(res.json()).to.eventually.be.rejectedWith(Error);
 		});
 	});
 
