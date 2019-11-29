@@ -44,6 +44,17 @@ fetch("https://somewebsite.com").then(res => {
 });
 ```
 
+## JSON parsing errors from `res.json()` are of type `SyntaxError` instead of `FetchError`
+
+When attemping to parse invalid json via `res.json()`, a `SyntaxError` will now be thrown instead of a `FetchError` to align better with the spec.
+
+```js
+const fetch = require("node-fetch");
+
+fetch("https://somewebsitereturninginvalidjson.com").then(res => res.json())
+// Throws 'Uncaught SyntaxError: Unexpected end of JSON input' or similar.
+```
+
 # Enhancements
 
 ## Data URI support

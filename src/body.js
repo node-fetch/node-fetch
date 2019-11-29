@@ -105,13 +105,7 @@ Body.prototype = {
 	 * @return  Promise
 	 */
 	json() {
-		return consumeBody.call(this).then(buffer => {
-			try {
-				return JSON.parse(buffer.toString());
-			} catch (error) {
-				return Body.Promise.reject(new FetchError(`invalid json response body at ${this.url} reason: ${error.message}`, 'invalid-json'));
-			}
-		});
+		return consumeBody.call(this).then(buffer => JSON.parse(buffer.toString()));
 	},
 
 	/**
