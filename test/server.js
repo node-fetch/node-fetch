@@ -1,5 +1,4 @@
 import * as http from 'http';
-import {parse} from 'url';
 import * as zlib from 'zlib';
 import {multipart as Multipart} from 'parted';
 
@@ -33,7 +32,7 @@ export default class TestServer {
 	}
 
 	router(req, res) {
-		const p = parse(req.url).pathname;
+		const p = req.url;
 
 		if (p === '/mocked') {
 			if (this.nextResponseHandler) {
