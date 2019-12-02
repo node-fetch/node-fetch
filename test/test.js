@@ -6,7 +6,6 @@ import * as http from 'http';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as stream from 'stream';
-import {parse as parseURL} from 'url';
 import {lookup} from 'dns';
 import vm from 'vm';
 import chai from 'chai';
@@ -1858,7 +1857,7 @@ describe('node-fetch', () => {
 
 	it('should support fetch with Node.js URL object', () => {
 		const url = `${base}hello`;
-		const urlObj = parseURL(url);
+		const urlObj = new URL(url);
 		const req = new Request(urlObj);
 		return fetch(req).then(res => {
 			expect(res.url).to.equal(url);
