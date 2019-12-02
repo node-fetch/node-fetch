@@ -48,7 +48,7 @@ export default class Request {
 				// In order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
 				// `href` property anyway)
-				parsedURL = parseUrl(utf8.encode(input.href));
+				parsedURL = new URL(input.href);
 			} else {
 				// Coerce input to a string before attempting to parse
 				parsedURL = parseUrl(utf8.encode(`${input}`));
