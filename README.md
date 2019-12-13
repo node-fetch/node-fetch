@@ -61,7 +61,6 @@ A light-weight module that brings `window.fetch` to Node.js
 			- [body.json()](#bodyjson)
 			- [body.text()](#bodytext)
 			- [body.buffer()](#bodybuffer)
-			- [body.textConverted()](#bodytextconverted)
 		- [Class: FetchError](#class-fetcherror)
 		- [Class: AbortError](#class-aborterror)
 	- [TypeScript](#typescript)
@@ -680,16 +679,6 @@ Consume the body and return a promise that will resolve to one of these formats.
 - Returns: `Promise<Buffer>`
 
 Consume the body and return a promise that will resolve to a Buffer.
-
-#### body.textConverted()
-
-<small>_(node-fetch extension)_</small>
-
-- Returns: `Promise<String>`
-
-Identical to `body.text()`, except instead of always converting to UTF-8, encoding sniffing will be performed and text converted to UTF-8, if possible.
-
-(This API requires an optional dependency on npm package [encoding](https://www.npmjs.com/package/encoding), which you need to install manually. `webpack` users may see [a warning message](https://github.com/bitinn/node-fetch/issues/412#issuecomment-379007792) due to this optional dependency.)
 
 <a id="class-fetcherror"></a>
 

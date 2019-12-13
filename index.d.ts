@@ -146,14 +146,13 @@ export class Body {
 	json(): Promise<any>;
 	size: number;
 	text(): Promise<string>;
-	textConverted(): Promise<string>;
 	timeout: number;
 }
 
 export class FetchError extends Error {
 	name: "FetchError";
 	[Symbol.toStringTag]: "FetchError"
-	constructor(message: string, type: string, systemError?: string);
+	constructor(message: string, type: string, systemError?: object);
 	type: string;
 	code?: string;
 	errno?: string;
