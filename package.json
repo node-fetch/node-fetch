@@ -54,7 +54,7 @@
 		"codecov": "^3.6.1",
 		"cross-env": "^6.0.3",
 		"form-data": "^2.5.1",
-		"formdata-node": "^1.5.2",
+		"formdata-node": "^2.0.0",
 		"mocha": "^6.2.2",
 		"nyc": "^14.1.1",
 		"parted": "^0.1.1",
