@@ -1378,9 +1378,7 @@ describe('node-fetch', () => {
 			body: form,
 			headers
 		};
-		return fetch(url, opts).then(res => {
-			return res.json();
-		}).then(res => {
+		return fetch(url, opts).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.headers['content-type']).to.startWith('multipart/form-data; boundary=');
 			expect(res.headers['content-length']).to.be.a('string');
@@ -1389,29 +1387,27 @@ describe('node-fetch', () => {
 		});
 	});
 
-  it('should support formdata-node as POST body', function() {
-    const form = new FormDataNode();
+	it('should support formdata-node as POST body', () => {
+		const form = new FormDataNode();
+		
+		form.set('field', "some text");
+		form.set('file', fs.createReadStream(path.join(__dirname, 'dummy.txt')))
+		
+		const url = `${base}multipart`;
+		const opts = {
+			method: 'POST',
+			body: form
+		};
+		
+		return fetch(url, opts).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.equal(`multipart/form-data;boundary=${form.boundary}`);
+			expect(res.body).to.contain('field=');
+			expect(res.body).to.contain('file=');
+		});
+	});
 
-    form.set('field', "some text");
-    form.set('file', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
-
-    const url = `${base}multipart`;
-    const opts = {
-      method: 'POST',
-      body: form
-    };
-
-    return fetch(url, opts)
-      .then(res => res.json())
-      .then(res => {
-        expect(res.method).to.equal('POST');
-        expect(res.headers['content-type']).to.equal(`multipart/form-data;boundary=${form.boundary}`);
-        expect(res.body).to.contain('field=');
-        expect(res.body).to.contain('file=');
-      });
-  });
-
-	it('should allow POST request with object body', function() {
+	it('should allow POST request with object body', () => {
 		const url = `${base}inspect`;
 		// Note that fetch simply calls tostring on an object
 		const opts = {
