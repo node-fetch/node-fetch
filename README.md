@@ -369,10 +369,6 @@ fetch('https://httpbin.org/post', {method: 'POST', body: form})
 	.then(json => console.log(json));
 ```
 
-#### Request cancellation with AbortSignal
-
-> NOTE: You may only cancel streamed requests on Node >= v8.0.0
-
 ### Request cancellation with AbortSignal
 
 You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
