@@ -181,8 +181,6 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept', '*/*');
 	}
 
-	// Console.log(parsedURL.protocol, parsedURL.hostname)
-
 	// Basic fetch
 	if (!parsedURL.protocol || !parsedURL.hostname) {
 		throw new TypeError('Only absolute URLs are supported');
