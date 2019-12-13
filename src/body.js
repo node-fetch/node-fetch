@@ -43,9 +43,9 @@ export default function Body(body, {
 		// Body is ArrayBufferView
 		body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 	} else if (body instanceof Stream) {
-		// body is stream
+		// Body is stream
 	} else if (body.stream instanceof Stream.Readable && typeof body.boundary === 'string') {
-		// body is an instance of formdata-node
+		// Body is an instance of formdata-node
 		body = body.stream
 	} else {
 		// None of the above
