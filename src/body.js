@@ -140,7 +140,7 @@ Object.defineProperties(Body.prototype, {
 Body.mixIn = proto => {
 	for (const name of Object.getOwnPropertyNames(Body.prototype)) {
 		// istanbul ignore else: future proof
-		if (!proto.hasOwnProperty(name)) {
+		if (!Object.prototype.hasOwnProperty.call(proto, name)) {
 			const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
 			Object.defineProperty(proto, name, desc);
 		}
