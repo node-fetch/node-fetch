@@ -212,7 +212,8 @@ export function getNodeRequestOptions(request) {
 	}
 	if (request.body != null) {
 		const totalBytes = getTotalBytes(request);
-		if (typeof totalBytes === 'number') {
+		// set Content-Length if totalBytes is a number (that is not NaN)
+		if (typeof totalBytes === 'number' && totalBytes === totalBytes) {
 			contentLengthValue = String(totalBytes);
 		}
 	}
