@@ -55,6 +55,10 @@ fetch("https://somewebsitereturninginvalidjson.com").then(res => res.json())
 // Throws 'Uncaught SyntaxError: Unexpected end of JSON input' or similar.
 ```
 
+## A stream pipeline is now used to forward errors
+
+If you are listening for errors via `res.body.on('error', () => ...)`, replace it with `res.body.once('error', () => ...)` so that your callback is not [fired twice](https://github.com/bitinn/node-fetch/issues/668#issuecomment-569386115) in NodeJS >=13.5.
+
 # Enhancements
 
 ## Data URI support

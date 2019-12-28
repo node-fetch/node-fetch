@@ -1035,7 +1035,7 @@ describe('node-fetch', () => {
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
-				res.body.on('error', err => {
+				res.body.once('error', err => {
 					expect(err)
 						.to.be.an.instanceof(Error)
 						.and.have.property('name', 'AbortError');
