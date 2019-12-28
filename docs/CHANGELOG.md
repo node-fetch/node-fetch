@@ -65,7 +65,7 @@ Changelog
 ## v2.2.1
 
 - Fix: `compress` flag shouldn't overwrite existing `Accept-Encoding` header.
-- Fix: multiple `import` rules, where `PassThrough` etc. doesn't have a named export when using node <10 and `--exerimental-modules` flag.
+- Fix: multiple `import` rules, where `PassThrough` etc. doesn't have a named export when using node <10 and `--experimental-modules` flag.
 - Other: Better README.
 
 ## v2.2.0
@@ -124,7 +124,7 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 ### Response and Request classes
 
 - Major: `response.text()` no longer attempts to detect encoding, instead always opting for UTF-8 (per spec); use `response.textConverted()` for the v1 behavior
-- Major: make `response.json()` throw error instead of returning an empty object on 204 no-content respose (per spec; reverts behavior changed in v1.6.2)
+- Major: make `response.json()` throw error instead of returning an empty object on 204 no-content response (per spec; reverts behavior changed in v1.6.2)
 - Major: internal methods are no longer exposed
 - Major: throw error when a `GET` or `HEAD` Request is constructed with a non-null body (per spec)
 - Enhance: add `response.arrayBuffer()` (also applies to Requests)
@@ -149,7 +149,7 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 
 # 1.x release
 
-## backport releases (v1.7.0 and beyond)
+## Backport releases (v1.7.0 and beyond)
 
 See [changelog on 1.x branch](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) for details.
 
