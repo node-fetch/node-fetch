@@ -10,6 +10,7 @@ import http from 'http';
 import https from 'https';
 import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
+import dataURIToBuffer from 'data-uri-to-buffer';
 
 import Body, {writeToStream, getTotalBytes} from './body';
 import Response from './response';
@@ -36,8 +37,8 @@ export default function fetch(url, opts) {
 
 	// If valid data uri
 	if (dataUriRegex.test(url)) {
-		const data = Buffer.from(url.split(',')[1], 'base64');
-		const res = new Response(data.body, {headers: {'Content-Type': data.mimeType || url.match(dataUriRegex)[1] || 'text/plain'}});
+		const data = dataURIToBuffer(url);
+		const res = new Response(data, {headers: {'Content-Type': data.type}});
 		return fetch.Promise.resolve(res);
 	}
 
