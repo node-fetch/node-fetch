@@ -36,6 +36,10 @@
 		"url": "https://github.com/bitinn/node-fetch/issues"
 	},
 	"homepage": "https://github.com/bitinn/node-fetch",
+	"funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/node-fetch"
+    },
 	"devDependencies": {
 		"@babel/core": "^7.6.4",
 		"@babel/preset-env": "^7.6.3",
