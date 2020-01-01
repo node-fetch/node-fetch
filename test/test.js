@@ -1394,7 +1394,7 @@ describe('node-fetch', () => {
 
 		form.set('field', 'some text');
 		form.set('file', fs.createReadStream(filename), {
-			size: await fs.promises.stat(filename)
+			size: await fs.promises.stat(filename).then(({size}) => size)
 		});
 
 		const url = `${base}multipart`;
