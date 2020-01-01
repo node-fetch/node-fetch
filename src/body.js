@@ -8,8 +8,10 @@
 import Stream, {PassThrough} from 'stream';
 
 import Blob from 'fetch-blob';
+import getBoundary from './utils/boundary';
 import FetchError from './errors/fetch-error';
-import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
+import FormDataStream from './utils/FormDataStream';
+import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError, isFormData} from './utils/is';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -26,6 +28,8 @@ export default function Body(body, {
 	size = 0,
 	timeout = 0
 } = {}) {
+	let boundary = null;
+
 	if (body == null) {
 		// Body is undefined or null
 		body = null;
@@ -44,9 +48,10 @@ export default function Body(body, {
 		body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 	} else if (body instanceof Stream) {
 		// Body is stream
-	} else if (body.stream instanceof Stream.Readable && typeof body.boundary === 'string') {
+	} else if (isFormData(body)) {
 		// Body is an instance of formdata-node
-		body = body.stream
+		boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
+		body = new FormDataStream(body, boundary)
 	} else {
 		// None of the above
 		// coerce to string then buffer
@@ -55,6 +60,7 @@ export default function Body(body, {
 
 	this[INTERNALS] = {
 		body,
+		boundary,
 		disturbed: false,
 		error: null
 	};
@@ -155,7 +161,7 @@ Body.mixIn = proto => {
  *
  * Ref: https://fetch.spec.whatwg.org/#concept-body-consume-body
  *
- * @return  Promise
+ * @return Promise
  */
 function consumeBody() {
 	if (this[INTERNALS].disturbed) {
@@ -323,8 +329,10 @@ export function extractContentType(body) {
 	// Detect form data input from form-data module
 	if (body && typeof body.getBoundary === 'function') {
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	} else if (body.stream instanceof Stream.Readable && typeof body.boundary === 'string') {
-		return `multipart/form-data;boundary=${body.boundary}`;
+	}
+
+	if (isFormData(body)) {
+		return `multipart/form-data; boundary=${this[INTERNALS].boundary}`;
 	}
 
 	// Body is stream - can't really do much about this
@@ -377,7 +385,7 @@ export function getTotalBytes({body}) {
  * @param obj.body Body object from the Body instance.
  * @returns {void}
  */
-export function writeToStream(dest, {body}) {
+export function writeToStream(dest, {body, headers}) {
 	if (body == null) {
 		// Body is null
 		dest.end();
