@@ -15,7 +15,7 @@ import chaiString from 'chai-string';
 import then from 'promise';
 import resumer from 'resumer';
 import FormData from 'form-data';
-import FormDataNode from "formdata-node";
+import FormDataNode from 'formdata-node';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 
 import {AbortController} from 'abortcontroller-polyfill/dist/abortcontroller';
@@ -1392,10 +1392,10 @@ describe('node-fetch', () => {
 
 		const filename = path.join(__dirname, 'dummy.txt');
 
-		form.set('field', "some text");
+		form.set('field', 'some text');
 		form.set('file', fs.createReadStream(filename), {
 			size: await fs.promises.stat(filename)
-		})
+		});
 
 		const url = `${base}multipart`;
 		const opts = {
@@ -1405,7 +1405,7 @@ describe('node-fetch', () => {
 
 		return fetch(url, opts).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
-			// expect(res.headers['content-type']).to.equal(`multipart/form-data; boundary=${form.boundary}`);
+			expect(res.headers['content-type']).to.startWith('multipart/form-data');
 			expect(res.body).to.contain('field=');
 			expect(res.body).to.contain('file=');
 		});

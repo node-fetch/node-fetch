@@ -10,7 +10,7 @@ import Stream, {PassThrough} from 'stream';
 import Blob from 'fetch-blob';
 import getBoundary from './utils/boundary';
 import FetchError from './errors/fetch-error';
-import FormDataStream from './utils/FormDataStream';
+import FormDataStream from './utils/form-data-stream';
 import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError, isFormData} from './utils/is';
 
 const INTERNALS = Symbol('Body internals');
@@ -51,7 +51,7 @@ export default function Body(body, {
 	} else if (isFormData(body)) {
 		// Body is an instance of formdata-node
 		boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
-		body = new FormDataStream(body, boundary)
+		body = new FormDataStream(body, boundary);
 	} else {
 		// None of the above
 		// coerce to string then buffer
@@ -385,7 +385,7 @@ export function getTotalBytes({body}) {
  * @param obj.body Body object from the Body instance.
  * @returns {void}
  */
-export function writeToStream(dest, {body, headers}) {
+export function writeToStream(dest, {body}) {
 	if (body == null) {
 		// Body is null
 		dest.end();
