@@ -354,7 +354,7 @@ fetch('https://httpbin.org/post', options)
 	.then(json => console.log(json));
 ```
 
-node-fetch also supports [formdata-node](https://github.com/octet-stream/form-data) as an alternative:
+node-fetch also supports spec-compliant FormData implementations such as [formdata-node](https://github.com/octet-stream/form-data):
 
 ```js
 const fetch = require('node-fetch');
