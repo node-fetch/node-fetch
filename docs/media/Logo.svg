@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <desc>Created with Lunacy</desc>
+  <defs>
+    <rect width="512" height="512" id="artboard_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#artboard_1" clip-rule="evenodd" />
+    </clipPath>
+  </defs>
+  <g id="Logo" clip-path="url(#clip_1)">
+    <use xlink:href="#artboard_1" stroke="none" fill="#FFFFFF" />
+    <g id="Headline-1" transform="translate(1 0)">
+      <g id="N" fill="#000000" fill-opacity="0.870588243">
+        <path d="M251.625 380.634L256.525 380.634L256.525 140.534L210.675 140.534L210.675 240.284C210.675 256.734 213.825 283.684 213.825 283.684C213.825 283.684 197.375 261.984 185.825 251.134L65.775 138.434L60.875 138.434L60.875 378.534L106.725 378.534L106.725 278.784C106.725 261.634 103.225 235.384 103.225 235.384C103.225 235.384 119.675 256.734 131.575 267.934L251.625 380.634Z" />
+      </g>
+      <g id="F" fill="#4CAF50" fill-opacity="0.870588243">
+        <path d="M306.225 378.534L355.225 378.534L355.225 306.084L450.075 306.084L450.075 262.334L355.225 262.334L355.225 183.584L459.525 183.584L459.525 140.534L306.225 140.534L306.225 378.534Z" />
+      </g>
+    </g>
+  </g>
+</svg>
