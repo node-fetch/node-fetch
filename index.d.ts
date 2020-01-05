@@ -1,5 +1,5 @@
 // Type definitions for node-fetch 2.5
-// Project: https://github.com/bitinn/node-fetch
+// Project: https://github.com/node-fetch/node-fetch
 // Definitions by: Torsten Werner <https://github.com/torstenwerner>
 //                 Niklas Lindgren <https://github.com/nikcorg>
 //                 Vinay Bedre <https://github.com/vinaybedre>

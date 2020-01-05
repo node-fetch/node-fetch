@@ -42,7 +42,7 @@ export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
+		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/node-fetch/node-fetch/issues/245)
 		if (!isRequest(input)) {
 			if (input && input.href) {
 				// In order to support Node.js' Url objects; though WHATWG's URL objects
@@ -218,7 +218,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.11
 	if (!headers.has('User-Agent')) {
-		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+		headers.set('User-Agent', 'node-fetch (+https://github.com/node-fetch/node-fetch)');
 	}
 
 	// HTTP-network-or-cache fetch step 2.15

@@ -99,7 +99,7 @@ Fix packaging errors in v2.1.0.
 
 ## v2.0.0
 
-This is a major release. Check [our upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
+This is a major release. Check [our upgrade guide](https://github.com/node-fetch/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
 
 ### General changes
 
@@ -151,7 +151,7 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 
 ## Backport releases (v1.7.0 and beyond)
 
-See [changelog on 1.x branch](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) for details.
+See [changelog on 1.x branch](https://github.com/node-fetch/node-fetch/blob/1.x/CHANGELOG.md) for details.
 
 ## v1.6.3
 

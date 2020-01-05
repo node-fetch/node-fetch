@@ -27,5 +27,5 @@ Known differences
 - Because Node.js stream doesn't expose a [*disturbed*](https://fetch.spec.whatwg.org/#concept-readablestream-disturbed) property like Stream spec, using a consumed stream for `new Response(body)` will not set `bodyUsed` flag correctly.
 
 [readable-stream]: https://nodejs.org/api/stream.html#stream_readable_streams
-[ERROR-HANDLING.md]: https://github.com/bitinn/node-fetch/blob/master/docs/ERROR-HANDLING.md
-[highwatermark-fix]: https://github.com/bitinn/node-fetch/blob/master/README.md#custom-highwatermark
+[ERROR-HANDLING.md]: https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md
+[highwatermark-fix]: https://github.com/node-fetch/node-fetch/blob/master/README.md#custom-highwatermark

@@ -388,7 +388,7 @@ fetch('https://example.com', {signal: controller.signal})
 	});
 ```
 
-See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for more examples.
+See [test cases](https://github.com/node-fetch/node-fetch/blob/master/test/test.js) for more examples.
 
 ## API
 
@@ -438,7 +438,7 @@ If no values are set, the following request headers will be sent automatically:
 | `Connection`        | `close` _(when no `options.agent` is present)_           |
 | `Content-Length`    | _(automatically calculated, if possible)_                |
 | `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_                |
-| `User-Agent`        | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)` |
+| `User-Agent`        | `node-fetch (+https://github.com/node-fetch/node-fetch)` |
 
 Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
 
@@ -709,10 +709,10 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 MIT
 
-[travis-image]: https://img.shields.io/travis/bitinn/node-fetch/master?style=flat-square
-[travis-url]: https://travis-ci.org/bitinn/node-fetch
-[codecov-image]: https://img.shields.io/codecov/c/gh/bitinn/node-fetch/master?style=flat-square
-[codecov-url]: https://codecov.io/gh/bitinn/node-fetch
+[travis-image]: https://img.shields.io/travis/node-fetch/node-fetch/master?style=flat-square
+[travis-url]: https://travis-ci.org/node-fetch/node-fetch
+[codecov-image]: https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square
+[codecov-url]: https://codecov.io/gh/node-fetch/node-fetch
 [opencollective-image]: https://opencollective.com/node-fetch/donate/button.png?color=blue
 [opencollective-url]: https://opencollective.com/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
@@ -723,4 +723,4 @@ MIT
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
-[error-handling.md]: https://github.com/bitinn/node-fetch/blob/master/docs/ERROR-HANDLING.md
+[error-handling.md]: https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md
