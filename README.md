@@ -1,12 +1,15 @@
-# node-fetch
+<div align="center">
+  <img src="docs/media/Banner.svg" alt="Node Fetch"/>
+  <br>
+  <p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
+</div>
 
-[![npm version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![coverage status][codecov-image]][codecov-url]
 [![install size][install-size-image]][install-size-url]
 [![Discord][discord-image]][discord-url]
 
-A light-weight module that brings `window.fetch` to Node.js
+[![NPM](https://nodei.co/npm/node-fetch.png)](https://nodei.co/npm/node-fetch/)
 
 **Consider supporting us on our Open Collective:**
 
@@ -16,58 +19,57 @@ A light-weight module that brings `window.fetch` to Node.js
 
 <!-- TOC -->
 
-- [node-fetch](#node-fetch)
-	- [Motivation](#motivation)
-	- [Features](#features)
-	- [Difference from client-side fetch](#difference-from-client-side-fetch)
-	- [Installation](#installation)
-	- [Loading and configuring the module](#loading-and-configuring-the-module)
-	- [Upgrading](#upgrading)
-	- [Common Usage](#common-usage)
-		- [Plain text or HTML](#plain-text-or-html)
-		- [JSON](#json)
-		- [Simple Post](#simple-post)
-		- [Post with JSON](#post-with-json)
-		- [Post with form parameters](#post-with-form-parameters)
-		- [Handling exceptions](#handling-exceptions)
-		- [Handling client and server errors](#handling-client-and-server-errors)
-	- [Advanced Usage](#advanced-usage)
-		- [Streams](#streams)
-		- [Buffer](#buffer)
-		- [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
-		- [Extract Set-Cookie Header](#extract-set-cookie-header)
-		- [Post data using a file stream](#post-data-using-a-file-stream)
-		- [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
-		- [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
-	- [API](#api)
-		- [fetch(url[, options])](#fetchurl-options)
-		- [Options](#options)
-			- [Default Headers](#default-headers)
-			- [Custom Agent](#custom-agent)
-			- [Custom highWaterMark](#custom-highwatermark)
-		- [Class: Request](#class-request)
-			- [new Request(input[, options])](#new-requestinput-options)
-		- [Class: Response](#class-response)
-			- [new Response([body[, options]])](#new-responsebody-options)
-			- [response.ok](#responseok)
-			- [response.redirected](#responseredirected)
-		- [Class: Headers](#class-headers)
-			- [new Headers([init])](#new-headersinit)
-		- [Interface: Body](#interface-body)
-			- [body.body](#bodybody)
-			- [body.bodyUsed](#bodybodyused)
-			- [body.arrayBuffer()](#bodyarraybuffer)
-			- [body.blob()](#bodyblob)
-			- [body.json()](#bodyjson)
-			- [body.text()](#bodytext)
-			- [body.buffer()](#bodybuffer)
-		- [Class: FetchError](#class-fetcherror)
-		- [Class: AbortError](#class-aborterror)
-	- [TypeScript](#typescript)
-	- [Acknowledgement](#acknowledgement)
-	- [Team](#team)
-					- [Former](#former)
-	- [License](#license)
+- [Motivation](#motivation)
+- [Features](#features)
+- [Difference from client-side fetch](#difference-from-client-side-fetch)
+- [Installation](#installation)
+- [Loading and configuring the module](#loading-and-configuring-the-module)
+- [Upgrading](#upgrading)
+- [Common Usage](#common-usage)
+    - [Plain text or HTML](#plain-text-or-html)
+    - [JSON](#json)
+    - [Simple Post](#simple-post)
+    - [Post with JSON](#post-with-json)
+    - [Post with form parameters](#post-with-form-parameters)
+    - [Handling exceptions](#handling-exceptions)
+    - [Handling client and server errors](#handling-client-and-server-errors)
+- [Advanced Usage](#advanced-usage)
+    - [Streams](#streams)
+    - [Buffer](#buffer)
+    - [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
+    - [Extract Set-Cookie Header](#extract-set-cookie-header)
+    - [Post data using a file stream](#post-data-using-a-file-stream)
+    - [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
+    - [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
+- [API](#api)
+    - [fetch(url[, options])](#fetchurl-options)
+    - [Options](#options)
+        - [Default Headers](#default-headers)
+        - [Custom Agent](#custom-agent)
+        - [Custom highWaterMark](#custom-highwatermark)
+    - [Class: Request](#class-request)
+        - [new Request(input[, options])](#new-requestinput-options)
+    - [Class: Response](#class-response)
+        - [new Response([body[, options]])](#new-responsebody-options)
+        - [response.ok](#responseok)
+        - [response.redirected](#responseredirected)
+    - [Class: Headers](#class-headers)
+        - [new Headers([init])](#new-headersinit)
+    - [Interface: Body](#interface-body)
+        - [body.body](#bodybody)
+        - [body.bodyUsed](#bodybodyused)
+        - [body.arrayBuffer()](#bodyarraybuffer)
+        - [body.blob()](#bodyblob)
+        - [body.json()](#bodyjson)
+        - [body.text()](#bodytext)
+        - [body.buffer()](#bodybuffer)
+    - [Class: FetchError](#class-fetcherror)
+    - [Class: AbortError](#class-aborterror)
+- [TypeScript](#typescript)
+- [Acknowledgement](#acknowledgement)
+- [Team](#team)
+                - [Former](#former)
+- [License](#license)
 
 <!-- /TOC -->
 
@@ -400,7 +402,7 @@ fetch('https://example.com', {signal: controller.signal})
 	});
 ```
 
-See [test cases](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for more examples.
+See [test cases](https://github.com/node-fetch/node-fetch/blob/master/test/test.js) for more examples.
 
 ## API
 
@@ -450,7 +452,7 @@ If no values are set, the following request headers will be sent automatically:
 | `Connection`        | `close` _(when no `options.agent` is present)_           |
 | `Content-Length`    | _(automatically calculated, if possible)_                |
 | `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_                |
-| `User-Agent`        | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)` |
+| `User-Agent`        | `node-fetch (+https://github.com/node-fetch/node-fetch)` |
 
 Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
 
@@ -721,12 +723,10 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 MIT
 
-[npm-image]: https://flat.badgen.net/npm/v/node-fetch
-[npm-url]: https://www.npmjs.com/package/node-fetch
-[travis-image]: https://flat.badgen.net/travis/bitinn/node-fetch
-[travis-url]: https://travis-ci.org/bitinn/node-fetch
-[codecov-image]: https://flat.badgen.net/codecov/c/github/bitinn/node-fetch/master
-[codecov-url]: https://codecov.io/gh/bitinn/node-fetch
+[travis-image]: https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square
+[travis-url]: https://travis-ci.com/node-fetch/node-fetch
+[codecov-image]: https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square
+[codecov-url]: https://codecov.io/gh/node-fetch/node-fetch
 [opencollective-image]: https://opencollective.com/node-fetch/donate/button.png?color=blue
 [opencollective-url]: https://opencollective.com/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
@@ -737,4 +737,4 @@ MIT
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
-[error-handling.md]: https://github.com/bitinn/node-fetch/blob/master/docs/ERROR-HANDLING.md
+[error-handling.md]: https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md

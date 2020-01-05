@@ -1,3 +1,6 @@
+# Sketch temporary file
+~*.sketch
+
 # Generated files
 dist/
 

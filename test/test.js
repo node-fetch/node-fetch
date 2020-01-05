@@ -1096,7 +1096,7 @@ describe('node-fetch', () => {
 	it('should set default User-Agent', () => {
 		const url = `${base}inspect`;
 		return fetch(url).then(res => res.json()).then(res => {
-			expect(res.headers['user-agent']).to.startWith('node-fetch/');
+			expect(res.headers['user-agent']).to.startWith('node-fetch');
 		});
 	});
 

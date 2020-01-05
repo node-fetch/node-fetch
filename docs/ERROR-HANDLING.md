@@ -6,7 +6,7 @@ Because `window.fetch` isn't designed to be transparent about the cause of reque
 
 The basics:
 
-- A cancelled request is rejected with an [`AbortError`](https://github.com/bitinn/node-fetch/blob/master/README.md#class-aborterror). You can check if the reason for rejection was that the request was aborted by checking the `Error`'s `name` is `AbortError`.
+- A cancelled request is rejected with an [`AbortError`](https://github.com/node-fetch/node-fetch/blob/master/README.md#class-aborterror). You can check if the reason for rejection was that the request was aborted by checking the `Error`'s `name` is `AbortError`.
 
 ```js
 const fetch = required('node-fetch');
@@ -18,7 +18,7 @@ fetch(url, {signal}).catch(error => {
 });
 ```
 
-- All [operational errors][joyent-guide] *other than aborted requests* are rejected with a [FetchError](https://github.com/bitinn/node-fetch/blob/master/README.md#class-fetcherror). You can handle them all through the promise `catch` clause.
+- All [operational errors][joyent-guide] *other than aborted requests* are rejected with a [FetchError](https://github.com/node-fetch/node-fetch/blob/master/README.md#class-fetcherror). You can handle them all through the promise `catch` clause.
 
 - All errors come with an `err.message` detailing the cause of errors.
 
@@ -30,6 +30,6 @@ fetch(url, {signal}).catch(error => {
 
 List of error types:
 
-- Because we maintain 100% coverage, see [test.js](https://github.com/bitinn/node-fetch/blob/master/test/test.js) for a full list of custom `FetchError` types, as well as some of the common errors from Node.js
+- Because we maintain 100% coverage, see [test.js](https://github.com/node-fetch/node-fetch/blob/master/test/test.js) for a full list of custom `FetchError` types, as well as some of the common errors from Node.js
 
 [joyent-guide]: https://www.joyent.com/node-js/production/design/errors#operational-errors-vs-programmer-errors
