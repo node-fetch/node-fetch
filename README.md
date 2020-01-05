@@ -709,8 +709,8 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 MIT
 
-[travis-image]: https://img.shields.io/travis/node-fetch/node-fetch/master?style=flat-square
-[travis-url]: https://travis-ci.org/node-fetch/node-fetch
+[travis-image]: https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square
+[travis-url]: https://travis-ci.com/node-fetch/node-fetch
 [codecov-image]: https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square
 [codecov-url]: https://codecov.io/gh/node-fetch/node-fetch
 [opencollective-image]: https://opencollective.com/node-fetch/donate/button.png?color=blue
