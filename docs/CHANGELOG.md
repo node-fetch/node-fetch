@@ -15,6 +15,7 @@ Changelog
 - Enhance: drop existing blob implementation code and use fetch-blob as dependency instead.
 - Enhance: modernise the code behind `FetchError` and `AbortError`.
 - Enhance: replace deprecated `url.parse()` and `url.replace()` with the new WHATWG `new URL()`
+- Enhance: allow excluding a `user-agent` in a fetch request by setting it's header to null.
 - Fix: `Response.statusText` no longer sets a default message derived from the HTTP status code.
 - Fix: missing response stream error events.
 - Fix: do not use constructor.name to check object.
