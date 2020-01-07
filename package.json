@@ -57,7 +57,7 @@
 		"chai-string": "^1.5.0",
 		"codecov": "^3.6.1",
 		"cross-env": "^6.0.3",
-		"form-data": "^2.5.1",
+		"form-data": "^3.0.0",
 		"mocha": "^7.0.0",
 		"nyc": "^15.0.0",
 		"parted": "^0.1.1",
