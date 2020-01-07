@@ -1035,7 +1035,7 @@ describe('node-fetch', () => {
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
-				res.body.on('error', err => {
+				res.body.once('error', err => {
 					expect(err)
 						.to.be.an.instanceof(Error)
 						.and.have.property('name', 'AbortError');
@@ -1095,7 +1095,7 @@ describe('node-fetch', () => {
 	it('should set default User-Agent', () => {
 		const url = `${base}inspect`;
 		return fetch(url).then(res => res.json()).then(res => {
-			expect(res.headers['user-agent']).to.startWith('node-fetch/');
+			expect(res.headers['user-agent']).to.startWith('node-fetch');
 		});
 	});
 
