@@ -7,9 +7,8 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import {parse as parseUrl, format as formatUrl} from 'url';
+import {format as formatUrl} from 'url';
 import Stream from 'stream';
-import utf8 from 'utf8';
 import Headers, {exportNodeCompatibleHeaders} from './headers';
 import Body, {clone, extractContentType, getTotalBytes} from './body';
 import {isAbortSignal} from './utils/is';
@@ -32,6 +31,16 @@ function isRequest(obj) {
 }
 
 /**
+ * Wrapper around `new URL` to handle relative URLs (https://github.com/nodejs/node/issues/12682)
+ *
+ * @param  {string} urlStr
+ * @return {void}
+ */
+function parseURL(urlStr) {
+	return new URL(urlStr, 'relative:///');
+}
+
+/**
  * Request class
  *
  * @param   Mixed   input  Url or Request instance
@@ -42,21 +51,21 @@ export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/node-fetch/node-fetch/issues/245)
+		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
 		if (!isRequest(input)) {
 			if (input && input.href) {
 				// In order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
 				// `href` property anyway)
-				parsedURL = new URL(input.href);
+				parsedURL = parseURL(input.href);
 			} else {
 				// Coerce input to a string before attempting to parse
-				parsedURL = parseUrl(utf8.encode(`${input}`));
+				parsedURL = parseURL(`${input}`);
 			}
 
 			input = {};
 		} else {
-			parsedURL = parseUrl(utf8.encode(input.url));
+			parsedURL = parseURL(input.url);
 		}
 
 		let method = init.method || input.method || 'GET';
@@ -206,8 +215,7 @@ export function getNodeRequestOptions(request) {
 
 	if (request.body != null) {
 		const totalBytes = getTotalBytes(request);
-		// Set Content-Length if totalBytes is a number (that is not NaN)
-		if (typeof totalBytes === 'number' && !Number.isNaN(totalBytes)) {
+		if (typeof totalBytes === 'number') {
 			contentLengthValue = String(totalBytes);
 		}
 	}
@@ -217,10 +225,8 @@ export function getNodeRequestOptions(request) {
 	}
 
 	// HTTP-network-or-cache fetch step 2.11
-	if (headers.get('User-Agent') === 'null') {
-		headers.delete('User-Agent');
-	} else if (!headers.has('User-Agent') && headers.get('User-Agent') !== 'null') {
-		headers.set('User-Agent', 'node-fetch (+https://github.com/node-fetch/node-fetch)');
+	if (!headers.has('User-Agent')) {
+		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
 	}
 
 	// HTTP-network-or-cache fetch step 2.15
@@ -240,10 +246,21 @@ export function getNodeRequestOptions(request) {
 	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
 
-	return {
-		...parsedURL,
+	// manually spread the URL object instead of spread syntax
+	const reqOptions = {
+		path: parsedURL.pathname,
+		pathname: parsedURL.pathname,
+		hostname: parsedURL.hostname,
+		protocol: parsedURL.protocol,
+		port: parsedURL.port,
+		hash: parsedURL.hash,
+		search: parsedURL.search,
+		query: parsedURL.query,
+		href: parsedURL.href,
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
 		agent
 	};
+
+	return reqOptions;
 }
