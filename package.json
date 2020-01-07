@@ -37,9 +37,9 @@
 	},
 	"homepage": "https://github.com/node-fetch/node-fetch",
 	"funding": {
-        "type": "opencollective",
-        "url": "https://opencollective.com/node-fetch"
-    },
+		"type": "opencollective",
+		"url": "https://opencollective.com/node-fetch"
+	},
 	"devDependencies": {
 		"@babel/core": "^7.6.4",
 		"@babel/preset-env": "^7.6.3",
