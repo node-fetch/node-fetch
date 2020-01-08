@@ -217,7 +217,9 @@ export function getNodeRequestOptions(request) {
 	}
 
 	// HTTP-network-or-cache fetch step 2.11
-	if (!headers.has('User-Agent')) {
+	if (headers.get('User-Agent') === 'null') {
+		headers.delete('User-Agent');
+	} else if (!headers.has('User-Agent') && headers.get('User-Agent') !== 'null') {
 		headers.set('User-Agent', 'node-fetch (+https://github.com/node-fetch/node-fetch)');
 	}
 
