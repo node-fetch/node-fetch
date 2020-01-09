@@ -9,7 +9,7 @@
  *
  * @param   String      message      Error message for human
  * @param   String      type         Error type for machine
- * @param   String      systemError  For Node.js system error
+ * @param   Object      systemError  For Node.js system error
  * @return  FetchError
  */
 export default class FetchError extends Error {
@@ -19,6 +19,7 @@ export default class FetchError extends Error {
 		this.message = message;
 		this.type = type;
 		this.name = 'FetchError';
+		this[Symbol.toStringTag] = 'FetchError';
 
 		// When err.type is `system`, err.erroredSysCall contains system error and err.code contains system error code
 		if (systemError) {

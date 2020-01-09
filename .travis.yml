@@ -14,5 +14,3 @@ cache: npm
 
 script:
   - npm run coverage
-  - npm install encoding
-  - npm run coverage

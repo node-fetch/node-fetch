@@ -1,13 +1,6 @@
 import * as http from 'http';
-import {parse} from 'url';
 import * as zlib from 'zlib';
 import {multipart as Multipart} from 'parted';
-
-let convert;
-try {
-	/* eslint-disable-next-line import/no-unresolved */
-	convert = require('encoding').convert;
-} catch (error) {}
 
 export default class TestServer {
 	constructor() {
@@ -39,7 +32,7 @@ export default class TestServer {
 	}
 
 	router(req, res) {
-		const p = parse(req.url).pathname;
+		const p = req.url;
 
 		if (p === '/mocked') {
 			if (this.nextResponseHandler) {
@@ -87,6 +80,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'gzip');
 			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -96,6 +93,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'gzip');
 			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				// Truncate the CRC checksum and size check at the end of the stream
 				res.end(buffer.slice(0, buffer.length - 8));
 			});
@@ -106,6 +107,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'GZip');
 			zlib.gzip('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -115,6 +120,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'deflate');
 			zlib.deflate('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -125,6 +134,10 @@ export default class TestServer {
 			if (typeof zlib.createBrotliDecompress === 'function') {
 				res.setHeader('Content-Encoding', 'br');
 				zlib.brotliCompress('hello world', (err, buffer) => {
+					if (err) {
+						throw err;
+					}
+
 					res.end(buffer);
 				});
 			}
@@ -135,6 +148,10 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.setHeader('Content-Encoding', 'deflate');
 			zlib.deflateRaw('hello world', (err, buffer) => {
+				if (err) {
+					throw err;
+				}
+
 				res.end(buffer);
 			});
 		}
@@ -191,63 +208,6 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.end('testtest');
-		}
-
-		if (p === '/encoding/gbk') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'text/html');
-			res.end(convert('<meta charset="gbk"><div>中文</div>', 'gbk'));
-		}
-
-		if (p === '/encoding/gb2312') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'text/html');
-			res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>', 'gb2312'));
-		}
-
-		if (p === '/encoding/shift-jis') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'text/html; charset=Shift-JIS');
-			res.end(convert('<div>日本語</div>', 'Shift_JIS'));
-		}
-
-		if (p === '/encoding/euc-jp') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'text/xml');
-			res.end(convert('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>', 'EUC-JP'));
-		}
-
-		if (p === '/encoding/utf8') {
-			res.statusCode = 200;
-			res.end('中文');
-		}
-
-		if (p === '/encoding/order1') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'charset=gbk; text/plain');
-			res.end(convert('中文', 'gbk'));
-		}
-
-		if (p === '/encoding/order2') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'text/plain; charset=gbk; qs=1');
-			res.end(convert('中文', 'gbk'));
-		}
-
-		if (p === '/encoding/chunked') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'text/html');
-			res.setHeader('Transfer-Encoding', 'chunked');
-			res.write('a'.repeat(10));
-			res.end(convert('<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>', 'Shift_JIS'));
-		}
-
-		if (p === '/encoding/invalid') {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'text/html');
-			res.setHeader('Transfer-Encoding', 'chunked');
-			res.write('a'.repeat(1200));
-			res.end(convert('中文', 'gbk'));
 		}
 
 		if (p === '/redirect/301') {

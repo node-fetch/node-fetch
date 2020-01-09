@@ -1,5 +1,13 @@
 // Test tools
 import zlib from 'zlib';
+import crypto from 'crypto';
+import {spawn} from 'child_process';
+import * as http from 'http';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as stream from 'stream';
+import {lookup} from 'dns';
+import vm from 'vm';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
@@ -9,11 +17,11 @@ import resumer from 'resumer';
 import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 
-import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
+import {AbortController} from 'abortcontroller-polyfill/dist/abortcontroller';
 import AbortController2 from 'abort-controller';
-import crypto from 'crypto';
 
 // Test subjects
+import Blob from 'fetch-blob';
 import fetch, {
 	FetchError,
 	Headers,
@@ -21,30 +29,15 @@ import fetch, {
 	Response
 } from '../src';
 import FetchErrorOrig from '../src/errors/fetch-error';
-import HeadersOrig, { createHeadersLenient } from '../src/headers';
+import HeadersOrig, {createHeadersLenient} from '../src/headers';
 import RequestOrig from '../src/request';
 import ResponseOrig from '../src/response';
-import Body, { getTotalBytes, extractContentType } from '../src/body';
-import Blob from 'fetch-blob';
+import Body, {getTotalBytes, extractContentType} from '../src/body';
 import TestServer from './server';
-
-import { spawn } from 'child_process';
-import * as http from 'http';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as stream from 'stream';
-import { parse as parseURL, URLSearchParams } from 'url';
-import { lookup } from 'dns';
-import vm from 'vm';
 
 const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
-
-let convert;
-try {
-	convert = require('encoding').convert;
-} catch (error) { }
 
 import chaiTimeout from './chai-timeout';
 
@@ -52,7 +45,7 @@ chai.use(chaiPromised);
 chai.use(chaiIterator);
 chai.use(chaiString);
 chai.use(chaiTimeout);
-const { expect } = chai;
+const {expect} = chai;
 
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
@@ -65,7 +58,7 @@ after(done => {
 	local.stop(done);
 });
 
-const itIf = val => val ? it : it.skip
+const itIf = val => val ? it : it.skip;
 
 describe('node-fetch', () => {
 	it('should return a promise', () => {
@@ -122,31 +115,31 @@ describe('node-fetch', () => {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only HTTP(S) protocols are supported');
 	});
 
-	itIf(process.platform !== "win32")('should reject with error on network failure', () => {
+	itIf(process.platform !== 'win32')('should reject with error on network failure', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({ type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED' });
+			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'});
 	});
 
-	it('error should contain system error if one occurred', function() {
+	it('error should contain system error if one occurred', () => {
 		const err = new FetchError('a message', 'system', new Error('an error'));
 		return expect(err).to.have.property('erroredSysCall');
 	});
 
-	it('error should not contain system error if none occurred', function() {
+	it('error should not contain system error if none occurred', () => {
 		const err = new FetchError('a message', 'a type');
 		return expect(err).to.not.have.property('erroredSysCall');
 	});
 
-	itIf(process.platform !== "win32")('system error is extracted from failed requests', function() {
+	itIf(process.platform !== 'win32')('system error is extracted from failed requests', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('erroredSysCall');
-	})
+	});
 
-	it('should resolve into response', function() {
+	it('should resolve into response', () => {
 		const url = `${base}hello`;
 		return fetch(url).then(res => {
 			expect(res).to.be.an.instanceof(Response);
@@ -192,7 +185,7 @@ describe('node-fetch', () => {
 			return res.json().then(result => {
 				expect(res.bodyUsed).to.be.true;
 				expect(result).to.be.an('object');
-				expect(result).to.deep.equal({ name: 'value' });
+				expect(result).to.deep.equal({name: 'value'});
 			});
 		});
 	});
@@ -200,7 +193,7 @@ describe('node-fetch', () => {
 	it('should send request with custom headers', () => {
 		const url = `${base}inspect`;
 		const opts = {
-			headers: { 'x-custom-header': 'abc' }
+			headers: {'x-custom-header': 'abc'}
 		};
 		return fetch(url, opts).then(res => {
 			return res.json();
@@ -212,7 +205,7 @@ describe('node-fetch', () => {
 	it('should accept headers instance', () => {
 		const url = `${base}inspect`;
 		const opts = {
-			headers: new Headers({ 'x-custom-header': 'abc' })
+			headers: new Headers({'x-custom-header': 'abc'})
 		};
 		return fetch(url, opts).then(res => {
 			return res.json();
@@ -473,7 +466,7 @@ describe('node-fetch', () => {
 	it('should follow redirect code 301 and keep existing headers', () => {
 		const url = `${base}redirect/301`;
 		const opts = {
-			headers: new Headers({ 'x-custom-header': 'abc' })
+			headers: new Headers({'x-custom-header': 'abc'})
 		};
 		return fetch(url, opts).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
@@ -578,9 +571,7 @@ describe('node-fetch', () => {
 		const url = `${base}error/json`;
 		return fetch(url).then(res => {
 			expect(res.headers.get('content-type')).to.equal('application/json');
-			return expect(res.json()).to.eventually.be.rejected
-				.and.be.an.instanceOf(FetchError)
-				.and.include({ type: 'invalid-json' });
+			return expect(res.json()).to.eventually.be.rejectedWith(Error);
 		});
 	});
 
@@ -603,9 +594,7 @@ describe('node-fetch', () => {
 			expect(res.status).to.equal(204);
 			expect(res.statusText).to.equal('No Content');
 			expect(res.ok).to.be.true;
-			return expect(res.json()).to.eventually.be.rejected
-				.and.be.an.instanceOf(FetchError)
-				.and.include({ type: 'invalid-json' });
+			return expect(res.json()).to.eventually.be.rejectedWith(Error);
 		});
 	});
 
@@ -675,13 +664,13 @@ describe('node-fetch', () => {
 	it('should make capitalised Content-Encoding lowercase', () => {
 		const url = `${base}gzip-capital`;
 		return fetch(url).then(res => {
-			expect(res.headers.get('content-encoding')).to.equal("gzip");
+			expect(res.headers.get('content-encoding')).to.equal('gzip');
 			return res.text().then(result => {
 				expect(result).to.be.a('string');
 				expect(result).to.equal('hello world');
 			});
-		})
-	})
+		});
+	});
 
 	it('should decompress deflate response', () => {
 		const url = `${base}deflate`;
@@ -882,8 +871,8 @@ describe('node-fetch', () => {
 		const controller2 = new AbortController2();
 
 		const fetches = [
-			fetch(`${base}timeout`, { signal: controller.signal }),
-			fetch(`${base}timeout`, { signal: controller2.signal }),
+			fetch(`${base}timeout`, {signal: controller.signal}),
+			fetch(`${base}timeout`, {signal: controller2.signal}),
 			fetch(
 				`${base}timeout`,
 				{
@@ -891,7 +880,7 @@ describe('node-fetch', () => {
 					signal: controller.signal,
 					headers: {
 						'Content-Type': 'application/json',
-						body: JSON.stringify({ hello: 'world' })
+						body: JSON.stringify({hello: 'world'})
 					}
 				}
 			)
@@ -946,10 +935,10 @@ describe('node-fetch', () => {
 
 	it('should remove internal AbortSignal event listener after request is aborted', () => {
 		const controller = new AbortController();
-		const { signal } = controller;
+		const {signal} = controller;
 		const promise = fetch(
 			`${base}timeout`,
-			{ signal }
+			{signal}
 		);
 		const result = expect(promise).to.eventually.be.rejected
 			.and.be.an.instanceof(Error)
@@ -991,11 +980,11 @@ describe('node-fetch', () => {
 
 	it('should remove internal AbortSignal event listener after request and response complete without aborting', () => {
 		const controller = new AbortController();
-		const { signal } = controller;
-		const fetchHtml = fetch(`${base}html`, { signal })
+		const {signal} = controller;
+		const fetchHtml = fetch(`${base}html`, {signal})
 			.then(res => res.text());
-		const fetchResponseError = fetch(`${base}error/reset`, { signal });
-		const fetchRedirect = fetch(`${base}redirect/301`, { signal }).then(res => res.json());
+		const fetchResponseError = fetch(`${base}error/reset`, {signal});
+		const fetchRedirect = fetch(`${base}redirect/301`, {signal}).then(res => res.json());
 		return Promise.all([
 			expect(fetchHtml).to.eventually.be.fulfilled.and.equal('<html></html>'),
 			expect(fetchResponseError).to.be.eventually.rejected,
@@ -1009,7 +998,7 @@ describe('node-fetch', () => {
 		const controller = new AbortController();
 		return expect(fetch(
 			`${base}slow`,
-			{ signal: controller.signal }
+			{signal: controller.signal}
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
@@ -1026,7 +1015,7 @@ describe('node-fetch', () => {
 		const controller = new AbortController();
 		return expect(fetch(
 			`${base}slow`,
-			{ signal: controller.signal }
+			{signal: controller.signal}
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
@@ -1042,11 +1031,11 @@ describe('node-fetch', () => {
 		const controller = new AbortController();
 		expect(fetch(
 			`${base}slow`,
-			{ signal: controller.signal }
+			{signal: controller.signal}
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
-				res.body.on('error', err => {
+				res.body.once('error', err => {
 					expect(err)
 						.to.be.an.instanceof(Error)
 						.and.have.property('name', 'AbortError');
@@ -1058,11 +1047,11 @@ describe('node-fetch', () => {
 
 	it('should cancel request body of type Stream with AbortError when aborted', () => {
 		const controller = new AbortController();
-		const body = new stream.Readable({ objectMode: true });
+		const body = new stream.Readable({objectMode: true});
 		body._read = () => { };
 		const promise = fetch(
 			`${base}slow`,
-			{ signal: controller.signal, body, method: 'POST' }
+			{signal: controller.signal, body, method: 'POST'}
 		);
 
 		const result = Promise.all([
@@ -1088,15 +1077,15 @@ describe('node-fetch', () => {
 
 	it('should throw a TypeError if a signal is not of type AbortSignal', () => {
 		return Promise.all([
-			expect(fetch(`${base}inspect`, { signal: {} }))
+			expect(fetch(`${base}inspect`, {signal: {}}))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal'),
-			expect(fetch(`${base}inspect`, { signal: '' }))
+			expect(fetch(`${base}inspect`, {signal: ''}))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal'),
-			expect(fetch(`${base}inspect`, { signal: Object.create(null) }))
+			expect(fetch(`${base}inspect`, {signal: Object.create(null)}))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal')
@@ -1106,7 +1095,7 @@ describe('node-fetch', () => {
 	it('should set default User-Agent', () => {
 		const url = `${base}inspect`;
 		return fetch(url).then(res => res.json()).then(res => {
-			expect(res.headers['user-agent']).to.startWith('node-fetch/');
+			expect(res.headers['user-agent']).to.startWith('node-fetch');
 		});
 	});
 
@@ -1205,7 +1194,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow POST request with ArrayBuffer body from a VM context', function () {
+	it('should allow POST request with ArrayBuffer body from a VM context', () => {
 		const url = `${base}inspect`;
 		const opts = {
 			method: 'POST',
@@ -1250,7 +1239,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow POST request with ArrayBufferView (Uint8Array) body from a VM context', function () {
+	it('should allow POST request with ArrayBufferView (Uint8Array) body from a VM context', () => {
 		const url = `${base}inspect`;
 		const opts = {
 			method: 'POST',
@@ -1355,7 +1344,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	itIf(process.platform !== "win32")('should allow POST request with form-data using stream as body', () => {
+	itIf(process.platform !== 'win32')('should allow POST request with form-data using stream as body', () => {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream(path.join(__dirname, 'dummy.txt')));
 
@@ -1372,7 +1361,7 @@ describe('node-fetch', () => {
 			expect(res.headers['content-type']).to.startWith('multipart/form-data;boundary=');
 			expect(res.headers['content-length']).to.be.undefined;
 			expect(res.body).to.contain('my_field=');
-		})
+		});
 	});
 
 	it('should allow POST request with form-data as body and custom headers', () => {
@@ -1404,7 +1393,7 @@ describe('node-fetch', () => {
 		// Note that fetch simply calls tostring on an object
 		const opts = {
 			method: 'POST',
-			body: { a: 1 }
+			body: {a: 1}
 		};
 		return fetch(url, opts).then(res => {
 			return res.json();
@@ -1416,22 +1405,20 @@ describe('node-fetch', () => {
 		});
 	});
 
-	const itUSP = typeof URLSearchParams === 'function' ? it : it.skip;
-
-	itUSP('constructing a Response with URLSearchParams as body should have a Content-Type', () => {
+	it('constructing a Response with URLSearchParams as body should have a Content-Type', () => {
 		const params = new URLSearchParams();
 		const res = new Response(params);
 		res.headers.get('Content-Type');
 		expect(res.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
 	});
 
-	itUSP('constructing a Request with URLSearchParams as body should have a Content-Type', () => {
+	it('constructing a Request with URLSearchParams as body should have a Content-Type', () => {
 		const params = new URLSearchParams();
-		const req = new Request(base, { method: 'POST', body: params });
+		const req = new Request(base, {method: 'POST', body: params});
 		expect(req.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
 	});
 
-	itUSP('Reading a body with URLSearchParams should echo back the result', () => {
+	it('Reading a body with URLSearchParams should echo back the result', () => {
 		const params = new URLSearchParams();
 		params.append('a', '1');
 		return new Response(params).text().then(text => {
@@ -1440,16 +1427,16 @@ describe('node-fetch', () => {
 	});
 
 	// Body should been cloned...
-	itUSP('constructing a Request/Response with URLSearchParams and mutating it should not affected body', () => {
+	it('constructing a Request/Response with URLSearchParams and mutating it should not affected body', () => {
 		const params = new URLSearchParams();
-		const req = new Request(`${base}inspect`, { method: 'POST', body: params });
+		const req = new Request(`${base}inspect`, {method: 'POST', body: params});
 		params.append('a', '1');
 		return req.text().then(text => {
 			expect(text).to.equal('');
 		});
 	});
 
-	itUSP('should allow POST request with URLSearchParams as body', () => {
+	it('should allow POST request with URLSearchParams as body', () => {
 		const params = new URLSearchParams();
 		params.append('a', '1');
 
@@ -1468,7 +1455,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	itUSP('should still recognize URLSearchParams when extended', () => {
+	it('should still recognize URLSearchParams when extended', () => {
 		class CustomSearchParams extends URLSearchParams { }
 		const params = new CustomSearchParams();
 		params.append('a', '1');
@@ -1722,7 +1709,7 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return Promise.all([res.json(), r1.text()]).then(results => {
-				expect(results[0]).to.deep.equal({ name: 'value' });
+				expect(results[0]).to.deep.equal({name: 'value'});
 				expect(results[1]).to.equal('{"name":"value"}');
 			});
 		});
@@ -1733,7 +1720,7 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return res.json().then(result => {
-				expect(result).to.deep.equal({ name: 'value' });
+				expect(result).to.deep.equal({name: 'value'});
 				return r1.text().then(result => {
 					expect(result).to.equal('{"name":"value"}');
 				});
@@ -1748,7 +1735,7 @@ describe('node-fetch', () => {
 			return r1.text().then(result => {
 				expect(result).to.equal('{"name":"value"}');
 				return res.json().then(result => {
-					expect(result).to.deep.equal({ name: 'value' });
+					expect(result).to.deep.equal({name: 'value'});
 				});
 			});
 		});
@@ -1883,7 +1870,7 @@ describe('node-fetch', () => {
 
 	it('should support fetch with Node.js URL object', () => {
 		const url = `${base}hello`;
-		const urlObj = parseURL(url);
+		const urlObj = new URL(url);
 		const req = new Request(urlObj);
 		return fetch(req).then(res => {
 			expect(res.url).to.equal(url);
@@ -1945,7 +1932,7 @@ describe('node-fetch', () => {
 				method: 'POST',
 				body: blob
 			});
-		}).then(res => res.json()).then(({ body, headers }) => {
+		}).then(res => res.json()).then(({body, headers}) => {
 			expect(body).to.equal('world');
 			expect(headers['content-type']).to.equal(type);
 			expect(headers['content-length']).to.equal(String(length));
@@ -2017,7 +2004,10 @@ describe('node-fetch', () => {
 		body = body.pipe(new stream.PassThrough());
 		const res = new Response(body);
 		const bufferConcat = Buffer.concat;
-		const restoreBufferConcat = () => Buffer.concat = bufferConcat;
+		const restoreBufferConcat = () => {
+			Buffer.concat = bufferConcat;
+		};
+
 		Buffer.concat = () => {
 			throw new Error('embedded error');
 		};
@@ -2028,7 +2018,7 @@ describe('node-fetch', () => {
 
 		return expect(textPromise).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({ type: 'system' })
+			.and.include({type: 'system'})
 			.and.have.property('message').that.includes('Could not create Buffer')
 			.and.that.includes('embedded error');
 	});
@@ -2041,8 +2031,8 @@ describe('node-fetch', () => {
 			return lookup(hostname, options, callback);
 		}
 
-		const agent = http.Agent({ lookup: lookupSpy });
-		return fetch(url, { agent }).then(() => {
+		const agent = http.Agent({lookup: lookupSpy});
+		return fetch(url, {agent}).then(() => {
 			expect(called).to.equal(2);
 		});
 	});
@@ -2056,8 +2046,8 @@ describe('node-fetch', () => {
 			return lookup(hostname, {}, callback);
 		}
 
-		const agent = http.Agent({ lookup: lookupSpy, family });
-		return fetch(url, { agent }).then(() => {
+		const agent = http.Agent({lookup: lookupSpy, family});
+		return fetch(url, {agent}).then(() => {
 			expect(families).to.have.length(2);
 			expect(families[0]).to.equal(family);
 			expect(families[1]).to.equal(family);
@@ -2100,7 +2090,7 @@ describe('node-fetch', () => {
 			size: 1024
 		});
 
-		const blobBody = new Blob([bodyContent], { type: 'text/plain' });
+		const blobBody = new Blob([bodyContent], {type: 'text/plain'});
 		const blobRequest = new Request(url, {
 			method: 'POST',
 			body: blobBody,
@@ -2259,9 +2249,9 @@ describe('Headers', () => {
 
 	it('should reject illegal header', () => {
 		const headers = new Headers();
-		expect(() => new Headers({ 'He y': 'ok' })).to.throw(TypeError);
-		expect(() => new Headers({ 'Hé-y': 'ok' })).to.throw(TypeError);
-		expect(() => new Headers({ 'He-y': 'ăk' })).to.throw(TypeError);
+		expect(() => new Headers({'He y': 'ok'})).to.throw(TypeError);
+		expect(() => new Headers({'Hé-y': 'ok'})).to.throw(TypeError);
+		expect(() => new Headers({'He-y': 'ăk'})).to.throw(TypeError);
 		expect(() => headers.append('Hé-y', 'ok')).to.throw(TypeError);
 		expect(() => headers.delete('Hé-y')).to.throw(TypeError);
 		expect(() => headers.get('Hé-y')).to.throw(TypeError);
@@ -2271,7 +2261,7 @@ describe('Headers', () => {
 		expect(() => headers.append('', 'ok')).to.throw(TypeError);
 
 		// 'o k' is valid value but invalid name
-		new Headers({ 'He-y': 'o k' });
+		new Headers({'He-y': 'o k'});
 	});
 
 	it('should ignore unsupported attributes while reading headers', () => {
@@ -2287,7 +2277,7 @@ describe('Headers', () => {
 		res.d = [];
 		res.e = 1;
 		res.f = [1, 2];
-		res.g = { a: 1 };
+		res.g = {a: 1};
 		res.h = undefined;
 		res.i = null;
 		res.j = NaN;
@@ -2377,7 +2367,7 @@ describe('Headers', () => {
 		expect(() => new Headers([['b', '2', 'huh?']])).to.throw(TypeError);
 		expect(() => new Headers(['b2'])).to.throw(TypeError);
 		expect(() => new Headers('b2')).to.throw(TypeError);
-		expect(() => new Headers({ [Symbol.iterator]: 42 })).to.throw(TypeError);
+		expect(() => new Headers({[Symbol.iterator]: 42})).to.throw(TypeError);
 	});
 });
 
@@ -2620,7 +2610,7 @@ describe('Request', () => {
 
 		const form = new FormData();
 		form.append('a', '1');
-		const { signal } = new AbortController();
+		const {signal} = new AbortController();
 
 		const r1 = new Request(url, {
 			method: 'POST',
@@ -2669,17 +2659,17 @@ describe('Request', () => {
 	});
 
 	it('should throw error with GET/HEAD requests with body', () => {
-		expect(() => new Request('.', { body: '' }))
+		expect(() => new Request('.', {body: ''}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', { body: 'a' }))
+		expect(() => new Request('.', {body: 'a'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', { body: '', method: 'HEAD' }))
+		expect(() => new Request('.', {body: '', method: 'HEAD'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', { body: 'a', method: 'HEAD' }))
+		expect(() => new Request('.', {body: 'a', method: 'HEAD'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', { body: 'a', method: 'get' }))
+		expect(() => new Request('.', {body: 'a', method: 'get'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', { body: 'a', method: 'head' }))
+		expect(() => new Request('.', {body: 'a', method: 'head'}))
 			.to.throw(TypeError);
 	});
 
@@ -2775,7 +2765,7 @@ describe('Request', () => {
 		let body = resumer().queue('a=1').end();
 		body = body.pipe(new stream.PassThrough());
 		const agent = new http.Agent();
-		const { signal } = new AbortController();
+		const {signal} = new AbortController();
 		const req = new Request(url, {
 			body,
 			method: 'POST',
@@ -2851,159 +2841,30 @@ function streamToPromise(stream, dataHandler) {
 }
 
 describe('external encoding', () => {
-	const hasEncoding = typeof convert === 'function';
-
-	describe('with optional `encoding`', () => {
-		before(function () {
-			if (!hasEncoding) {
-				this.skip();
-			}
-		});
-
-		it('should only use UTF-8 decoding with text()', () => {
-			const url = `${base}encoding/euc-jp`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.text().then(result => {
-					expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>\uFFFD\uFFFD\uFFFD\u0738\ufffd</title>');
-				});
-			});
-		});
-
-		it('should support encoding decode, xml dtd detect', () => {
-			const url = `${base}encoding/euc-jp`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<?xml version="1.0" encoding="EUC-JP"?><title>日本語</title>');
-				});
-			});
-		});
-
-		it('should support encoding decode, content-type detect', () => {
-			const url = `${base}encoding/shift-jis`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<div>日本語</div>');
-				});
-			});
-		});
-
-		it('should support encoding decode, html5 detect', () => {
-			const url = `${base}encoding/gbk`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<meta charset="gbk"><div>中文</div>');
-				});
-			});
-		});
-
-		it('should support encoding decode, html4 detect', () => {
-			const url = `${base}encoding/gb2312`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('<meta http-equiv="Content-Type" content="text/html; charset=gb2312"><div>中文</div>');
-				});
-			});
-		});
-
-		it('should default to utf8 encoding', () => {
-			const url = `${base}encoding/utf8`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('content-type')).to.be.null;
-				return res.textConverted().then(result => {
-					expect(result).to.equal('中文');
-				});
-			});
-		});
-
-		it('should support uncommon content-type order, charset in front', () => {
-			const url = `${base}encoding/order1`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('中文');
-				});
-			});
-		});
-
-		it('should support uncommon content-type order, end with qs', () => {
-			const url = `${base}encoding/order2`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				return res.textConverted().then(result => {
-					expect(result).to.equal('中文');
-				});
-			});
-		});
-
-		it('should support chunked encoding, html4 detect', () => {
-			const url = `${base}encoding/chunked`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				const padding = 'a'.repeat(10);
-				return res.textConverted().then(result => {
-					expect(result).to.equal(`${padding}<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" /><div>日本語</div>`);
-				});
-			});
-		});
-
-		it('should only do encoding detection up to 1024 bytes', () => {
-			const url = `${base}encoding/invalid`;
-			return fetch(url).then(res => {
-				expect(res.status).to.equal(200);
-				const padding = 'a'.repeat(1200);
-				return res.textConverted().then(result => {
-					expect(result).to.not.equal(`${padding}中文`);
-				});
-			});
-		});
-	});
-
-	describe('without optional `encoding`', () => {
-		before(function () {
-			if (hasEncoding) {
-				this.skip();
-			}
-		});
-
-		it('should throw a FetchError if res.textConverted() is called without `encoding` in require cache', () => {
-			const url = `${base}hello`;
-			return fetch(url).then(res => {
-				return expect(res.textConverted()).to.eventually.be.rejected
-					.and.have.property('message').which.includes('encoding');
-			});
-		});
-	});
-
 	describe('data uri', () => {
 		it('should accept data uri', () => {
 			return fetch('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=').then(r => {
 				expect(r.status).to.equal(200);
-				expect(r.headers.get('Content-Type')).to.equal("image/gif")
+				expect(r.headers.get('Content-Type')).to.equal('image/gif');
 
 				return r.buffer().then(b => {
-					expect(b).to.be.an.instanceOf(Buffer)
+					expect(b).to.be.an.instanceOf(Buffer);
 				});
 			});
 		});
 
 		it('should accept data uri of plain text', () => {
-			return fetch("data:,Hello%20World!").then(r => {
+			return fetch('data:,Hello%20World!').then(r => {
 				expect(r.status).to.equal(200);
-				expect(r.headers.get('Content-Type')).to.equal("text/plain")
-				return r.text().then(t => expect(t).to.equal("Hello World!"))
+				expect(r.headers.get('Content-Type')).to.equal('text/plain');
+				return r.text().then(t => expect(t).to.equal('Hello World!'));
 			});
-		})
+		});
 
 		it('should reject invalid data uri', () => {
 			return fetch('data:@@@@').catch(e => {
 				expect(e).to.exist;
-				expect(e.message).to.include('invalid URL')
+				expect(e.message).to.include('invalid URL');
 			});
 		});
 	});

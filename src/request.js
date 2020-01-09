@@ -42,7 +42,7 @@ export default class Request {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
+		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/node-fetch/node-fetch/issues/245)
 		if (!isRequest(input)) {
 			if (input && input.href) {
 				// In order to support Node.js' Url objects; though WHATWG's URL objects
@@ -181,8 +181,6 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept', '*/*');
 	}
 
-	// Console.log(parsedURL.protocol, parsedURL.hostname)
-
 	// Basic fetch
 	if (!parsedURL.protocol || !parsedURL.hostname) {
 		throw new TypeError('Only absolute URLs are supported');
@@ -208,7 +206,8 @@ export function getNodeRequestOptions(request) {
 
 	if (request.body != null) {
 		const totalBytes = getTotalBytes(request);
-		if (typeof totalBytes === 'number') {
+		// Set Content-Length if totalBytes is a number (that is not NaN)
+		if (typeof totalBytes === 'number' && !Number.isNaN(totalBytes)) {
 			contentLengthValue = String(totalBytes);
 		}
 	}
@@ -218,8 +217,10 @@ export function getNodeRequestOptions(request) {
 	}
 
 	// HTTP-network-or-cache fetch step 2.11
-	if (!headers.has('User-Agent')) {
-		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+	if (headers.get('User-Agent') === 'null') {
+		headers.delete('User-Agent');
+	} else if (!headers.has('User-Agent') && headers.get('User-Agent') !== 'null') {
+		headers.set('User-Agent', 'node-fetch (+https://github.com/node-fetch/node-fetch)');
 	}
 
 	// HTTP-network-or-cache fetch step 2.15

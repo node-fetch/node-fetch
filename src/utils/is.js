@@ -8,7 +8,7 @@ const NAME = Symbol.toStringTag;
 
 /**
  * Check if `obj` is a URLSearchParams object
- * ref: https://github.com/bitinn/node-fetch/issues/296#issuecomment-307598143
+ * ref: https://github.com/node-fetch/node-fetch/issues/296#issuecomment-307598143
  *
  * @param  {*} obj
  * @return {boolean}
@@ -74,5 +74,5 @@ export function isArrayBuffer(obj) {
  * @return {boolean}
  */
 export function isAbortError(obj) {
-	return obj.name === 'AbortError';
+	return obj[NAME] === 'AbortError';
 }
