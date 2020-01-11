@@ -106,7 +106,7 @@ $ npm install node-fetch
 
 ## Loading and configuring the module
 
-We suggest you load the module via `require`, pending the stabilizing of es modules in node:
+We suggest you load the module via `require` until the stabilization of ES modules in node:
 
 ```js
 const fetch = require('node-fetch');
