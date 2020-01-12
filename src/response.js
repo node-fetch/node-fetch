@@ -96,11 +96,13 @@ export default class Response {
 	 */
 	static redirect(url, status = 302) {
 		if (![301, 302, 303, 307, 308].includes(status)) {
-			throw new RangeError(`Failed to execute 'redirect' on 'response': Invalid status code`);
+			throw new RangeError('Failed to execute "redirect" on "response": Invalid status code');
 		}
-		
+
 		return new Response(null, {
-			headers: new Headers({ location: new URL(url).toString() }),
+			headers: new Headers({
+				location: new URL(url).toString()
+			}),
 			status
 		});
 	}
