@@ -88,6 +88,22 @@ export default class Response {
 			timeout: this.timeout
 		});
 	}
+
+	/**
+	 * @param {string} url    The URL that the new response is to originate from.
+	 * @param {number} status An optional status code for the response (e.g., 302.)
+	 * @returns {Response}    A Response object.
+	 */
+	static redirect(url, status = 302) {
+		if (![301, 302, 303, 307, 308].includes(status)) {
+			throw new RangeError(`Failed to execute 'redirect' on 'response': Invalid status code`);
+		}
+		
+		return new Response(null, {
+			headers: new Headers({ location: new URL(url).toString() }),
+			status
+		});
+	}
 }
 
 Body.mixIn(Response.prototype);
