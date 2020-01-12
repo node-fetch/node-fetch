@@ -100,9 +100,9 @@ export default class Response {
 		}
 
 		return new Response(null, {
-			headers: new Headers({
+			headers: {
 				location: new URL(url).toString()
-			}),
+			},
 			status
 		});
 	}

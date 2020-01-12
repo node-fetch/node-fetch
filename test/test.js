@@ -154,9 +154,11 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('Response.redirect should resolve into response', () => {
+	it.only('Response.redirect should resolve into response', () => {
 		const res = Response.redirect('http://localhost');
 		expect(res).to.be.an.instanceof(Response);
+		expect(res.headers).to.be.an.instanceof(Headers);
+		expect(res.headers.get('location')).to.equal('http://localhost/');
 		expect(res.status).to.equal(302);
 	});
 
