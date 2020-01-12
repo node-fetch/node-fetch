@@ -23,7 +23,7 @@ export class Request extends Body {
 	headers: Headers;
 	method: string;
 	redirect: RequestRedirect;
-	static redirect(url: string, status?: number): Response
+	static redirect(url: string, status?: number): Response;
 	referrer: string;
 	url: string;
 
