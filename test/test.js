@@ -154,6 +154,26 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it.only('Response.redirect should resolve into response', () => {
+		const res = Response.redirect('http://localhost');
+		expect(res).to.be.an.instanceof(Response);
+		expect(res.headers).to.be.an.instanceof(Headers);
+		expect(res.headers.get('location')).to.equal('http://localhost/');
+		expect(res.status).to.equal(302);
+	});
+
+	it('Response.redirect /w invalid url should fail', () => {
+		expect(() => {
+			Response.redirect('localhost');
+		}).to.throw();
+	});
+
+	it('Response.redirect /w invalid status should fail', () => {
+		expect(() => {
+			Response.redirect('http://localhost', 200);
+		}).to.throw();
+	});
+
 	it('should accept plain text response', () => {
 		const url = `${base}plain`;
 		return fetch(url).then(res => {
