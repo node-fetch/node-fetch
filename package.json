@@ -56,7 +56,7 @@
 		"chai-iterator": "^3.0.2",
 		"chai-string": "^1.5.0",
 		"codecov": "^3.6.1",
-		"cross-env": "^6.0.3",
+		"cross-env": "^7.0.0",
 		"form-data": "^3.0.0",
 		"mocha": "^7.0.0",
 		"nyc": "^15.0.0",
