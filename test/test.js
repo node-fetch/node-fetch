@@ -154,7 +154,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it.only('Response.redirect should resolve into response', () => {
+	it('Response.redirect should resolve into response', () => {
 		const res = Response.redirect('http://localhost');
 		expect(res).to.be.an.instanceof(Response);
 		expect(res.headers).to.be.an.instanceof(Headers);
