@@ -1,14 +1,11 @@
-// Type definitions for node-fetch 2.5
-// Project: https://github.com/node-fetch/node-fetch
-// Definitions by: Torsten Werner <https://github.com/torstenwerner>
-//                 Niklas Lindgren <https://github.com/nikcorg>
-//                 Vinay Bedre <https://github.com/vinaybedre>
-//                 Antonio Román <https://github.com/kyranet>
-//                 Andrew Leedham <https://github.com/AndrewLeedham>
-//                 Jason Li <https://github.com/JasonLi914>
-//                 Brandon Wilson <https://github.com/wilsonianb>
-//                 Steve Faulkner <https://github.com/southpolesteve>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+// Prior contributors: Torsten Werner <https://github.com/torstenwerner>
+//                     Niklas Lindgren <https://github.com/nikcorg>
+//                     Vinay Bedre <https://github.com/vinaybedre>
+//                     Antonio Román <https://github.com/kyranet>
+//                     Andrew Leedham <https://github.com/AndrewLeedham>
+//                     Jason Li <https://github.com/JasonLi914>
+//                     Brandon Wilson <https://github.com/wilsonianb>
+//                     Steve Faulkner <https://github.com/southpolesteve>
 
 /// <reference types="node" />
 
