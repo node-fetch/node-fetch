@@ -19,7 +19,85 @@ import Headers, { createHeadersLenient } from './headers';
 import Request, { getNodeRequestOptions } from './request';
 import FetchError from './fetch-error';
 import AbortError from './abort-error';
+import {remote} from 'electron';
+import SessionCookies from './session-cookies';
 
+const ziti = require('ziti-sdk-nodejs');
+require('assert').equal(ziti.NF_hello(),"ziti");
+
+const session = remote.session.defaultSession;
+
+window.realFetch = window.fetch;
+window.ziti = ziti;
+
+const SESSION_COOKIES = new SessionCookies();
+
+// fix an issue where "format", "parse" aren't a named export for node <10
+const parse_url = Url.parse;
+
+/**
+ * Update our cookie cache when Electron informs us of changes.
+ *
+ */
+session.cookies.on('changed', (event, cookie, _ /*cause*/, removed) => {
+	if (SESSION_COOKIES.get(cookie.name)) {
+		if (removed) {
+			SESSION_COOKIES.delete(cookie);
+		} else {
+			if (SESSION_COOKIES.getValue(cookie) === cookie.value) {
+				// Nothing to do in this case
+			} else {
+				SESSION_COOKIES.put(cookie);
+			}
+		}
+	} else {
+		SESSION_COOKIES.put(cookie);
+	}
+});
+
+
+/**
+ * Update our cookie cache when we see set-cookie headers in HTTP responses
+ *
+ */
+async function captureCookies(url, headers) {
+
+	const parsedURL = parse_url(url);
+  
+	const setCookieHeaders = headers.raw()['set-cookie'];
+  
+	if (setCookieHeaders) {
+		setCookieHeaders.forEach(async (element) => {
+			if (session) {
+		  		const pieces = element.split(/=(.+)/);
+		  		const cookieName = pieces[0];
+		  		let cookieValue = pieces[1];
+		  		const cookieValuePieces = cookieValue.split(/;(.+)/);
+		  		cookieValue = cookieValuePieces[0];
+		  		const expiration = new Date();
+		  		expiration.setHours(expiration.getHours() + (24 * 90));
+		  		let httpOnlyFlag = false;
+		  		if (cookieName === 'MMAUTHTOKEN') {
+					httpOnlyFlag = true;
+		  		}
+		  		const cookie = {
+					url: parsedURL.protocol + '//' + parsedURL.hostname,
+					name: cookieName,
+					value: cookieValue,
+					domain: parsedURL.hostname,
+					path: '/',
+					secure: true,
+					httpOnly: httpOnlyFlag,
+					expirationDate: expiration.getTime(),
+		  		};
+		  		SESSION_COOKIES.put(cookie);
+		  		await session.cookies.set(cookie).catch((e) => console.log('session.cookies.set() Error: ', e.message)); // eslint-disable-line new-cap
+			}
+	  	});
+	  	await session.cookies.flushStore().catch((e) => console.log('session.cookies.flushStore() Error: ', e.message)); // eslint-disable-line new-cap
+	}
+}
+  
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough = Stream.PassThrough;
 const resolve_url = Url.resolve;
@@ -39,7 +117,7 @@ export default function fetch(url, opts) {
 	}
 
 	if (/^data:/.test(url)) {
-		const request = new Request(url, opts);
+		const request = new Request(url, opts, SESSION_COOKIES);
 		try {
 			const data = Buffer.from(url.split(',')[1], 'base64')
 			const res = new Response(data.body, { headers: { 'Content-Type': data.mimeType || url.match(/^data:(.+);base64,.*$/)[1] } });
@@ -52,10 +130,10 @@ export default function fetch(url, opts) {
 	Body.Promise = fetch.Promise;
 
 	// wrap http.request into fetch
-	return new fetch.Promise((resolve, reject) => {
+	return new fetch.Promise(async(resolve, reject) => {
 		// build request object
-		const request = new Request(url, opts);
-		const options = getNodeRequestOptions(request);
+		const request = new Request(url, opts, SESSION_COOKIES);
+		const options = await getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
 		const { signal } = request;
@@ -113,6 +191,8 @@ export default function fetch(url, opts) {
 			clearTimeout(reqTimeout);
 
 			const headers = createHeadersLenient(res.headers);
+
+			captureCookies(request.url, headers);
 
 			// HTTP fetch step 5
 			if (fetch.isRedirect(res.statusCode)) {
@@ -182,7 +262,7 @@ export default function fetch(url, opts) {
 						}
 
 						// HTTP-redirect fetch step 15
-						resolve(fetch(new Request(locationURL, requestOpts)));
+						resolve(fetch(new Request(locationURL, requestOpts, SESSION_COOKIES)));
 						finalize();
 						return;
 				}
@@ -282,6 +362,8 @@ export default function fetch(url, opts) {
  * @return  Boolean
  */
 fetch.isRedirect = code => code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
+
+window.fetch = fetch;
 
 // expose Promise
 fetch.Promise = global.Promise;

@@ -2,14 +2,15 @@
   env: {
     test: {
       presets: [
-        [ 'env', {
+        [ '@babel/preset-env', {
           loose: true,
           targets: { node: 4 },
           exclude: [
             // skip some almost-compliant features on Node.js v4.x
-            'transform-es2015-block-scoping',
-            'transform-es2015-classes',
-            'transform-es2015-for-of',
+            // 'transform-es2015-block-scoping',
+            // 'transform-es2015-classes',
+            // 'transform-es2015-for-of',
+            'transform-regenerator'
           ]
         } ]
       ],
@@ -19,7 +20,7 @@
     },
     coverage: {
       presets: [
-        [ 'env', {
+        [ '@babel/preset-env', {
           loose: true,
           targets: { node: 4 },
           exclude: [
@@ -36,13 +37,13 @@
     },
     rollup: {
       presets: [
-        [ 'env', {
+        [ '@babel/preset-env', {
           loose: true,
           targets: { node: 4 },
           exclude: [
-            'transform-es2015-block-scoping',
-            'transform-es2015-classes',
-            'transform-es2015-for-of'
+            // 'transform-es2015-block-scoping',
+            // 'transform-es2015-classes',
+            // 'transform-es2015-for-of'
           ],
           modules: false
         } ]

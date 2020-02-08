@@ -13,7 +13,12 @@ export default {
   ],
   plugins: [
     babel({
-      runtimeHelpers: true
+      plugins: [
+        '@babel/plugin-external-helpers',
+        '@babel/plugin-transform-runtime'
+      ],
+      runtimeHelpers: true,
+      externalHelpers: true,
     }),
     tweakDefault()
   ],

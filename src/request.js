@@ -12,6 +12,21 @@ import Stream from 'stream';
 import Headers, { exportNodeCompatibleHeaders } from './headers.js';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
 
+var pjson = require('../package.json');
+import cacheManager from 'cache-manager';
+import {remote} from 'electron';
+import notifier from 'node-notifier';
+import {Mutex} from 'async-mutex';
+import ZitiAgent from './ziti-agent';
+const session = remote.session.defaultSession;
+
+const SIXTY = 60;
+const TTL = SIXTY * SIXTY; // one hour
+
+const memoryCache = cacheManager.caching({store: 'memory', max: SIXTY, ttl: TTL});
+
+const mutex = new Mutex();
+
 const INTERNALS = Symbol('Request internals');
 
 // fix an issue where "format", "parse" aren't a named export for node <10
@@ -20,6 +35,125 @@ const format_url = Url.format;
 
 const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
+/**
+ * Perform Ziti initialization (connect with Ziti Controller)
+ *
+ * @return  Promise
+ */
+async function NF_init() {
+	return new Promise((resolve, reject) => {
+		
+		if (window.zitiInitialized) {
+			resolve(); // quick exit, init already done
+		}
+
+		let identityPath = process.env.ZITI_IDENTITY_PATH;
+		if (!identityPath) {
+			reject(new Error('Ziti init failed, ZITI_IDENTITY_PATH env var not set'));
+		}
+
+		const rc = window.ziti.NF_init(
+
+			identityPath,
+			
+			(cbRC) => { // eslint-disable-line new-cap  
+		
+				if (cbRC < 0) {
+					reject(new Error('Ziti init failed rc [' + cbRC + '], identity is invalid'));
+
+				} else {
+					resolve();
+				}
+			}
+		);
+
+		if (rc < 0) {
+			reject(new Error('Ziti init failed rc [' + rc + '], ensure valid identity is in your HOME dir'));
+		}
+	});
+};
+  
+/**
+ * Perform a synchronous, mutex-protected, Ziti initialization. 
+ * We only want to initialize once, so we protect the call to the 
+ * Ziti Controller behind a mutex.
+ *
+ * @return  Boolean
+ */
+async function doZitiInitialization() {
+	const release = await mutex.acquire();
+	try {
+		if (!window.zitiInitialized) {
+			await NF_init().catch((e) => { // eslint-disable-line new-cap
+				notifier.notify({
+					title: 'NF_init()',
+					message: 'ERROR: ' + e,
+				});
+			});
+			window.zitiInitialized = true;
+		}
+	} finally {
+		release();
+	}
+}
+  
+/**
+ * Do an asynchronous wait for Ziti initialization to complete.
+ *
+ * @return  Promise
+ */
+function isZitiInitialized() {
+	return new Promise((resolve) => {
+	  (function waitForZitiInitialized() {
+		if (window.zitiInitialized) {
+		  return resolve();
+		}
+		setTimeout(waitForZitiInitialized, 100);
+	  })();
+	});
+}
+
+/**
+ * Ask Ziti Controller if the named service is active in the Ziti network.
+ *
+ * @param   String   service
+ * @return  Promise
+ */
+function callNativeNFServiceAvailable(service) {
+	return new Promise((resolve) => {
+	  	window.ziti.NF_service_available(service, (status) => { // eslint-disable-line new-cap
+			resolve(status);
+	  	});
+	});
+}
+  
+/**
+ * Determine if the named service is active in the Ziti network. We check our cache first, which is backed
+ * by an asynchronous call to the Ziti Controller.
+ *
+ * @param   String   service
+ * @return  Promise
+ */
+function getCachedServiceAvailable(service) {
+	return new Promise((resolve, reject) => {
+	  	memoryCache.get(service, async (err, cachedResult) => {
+			if (err) {
+		  		reject(err); 
+			}
+			if (cachedResult) {
+		  		resolve(cachedResult);
+			} else {
+
+		  		const newResult = await callNativeNFServiceAvailable(service).catch((e) => console.log('callNativeNFServiceAvailable Error: ', e.message)); // eslint-disable-line new-cap
+				  
+				  memoryCache.set(service, newResult);
+		  		resolve(newResult);
+			}
+	  	});
+	});
+}
+  
+  
 /**
  * Check if a value is an instance of Request.
  *
@@ -50,7 +184,7 @@ function isAbortSignal(signal) {
  * @return  Void
  */
 export default class Request {
-	constructor(input, init = {}) {
+	constructor(input, init = {}, sessionCookies) {
 		let parsedURL;
 
 		// normalize input
@@ -123,6 +257,7 @@ export default class Request {
 			input.compress : true;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
+		this.sessionCookies = sessionCookies;
 	}
 
 	get method() {
@@ -174,18 +309,59 @@ Object.defineProperties(Request.prototype, {
 });
 
 /**
+ * Load all cookies from Electron persistent storage into memory.
+ *
+ * @param   Request  A Request instance
+ * @param   Domain   A cookie domain
+ * @return  Promise
+ */
+const loadCookies = (request, domain) => {
+	return new Promise((resolve, reject) => {
+	  	session.cookies.get({domain}).then((cookies) => {
+			cookies.forEach((cookie) => {
+				request.sessionCookies.put(cookie);
+			});
+			resolve();
+	  	}).catch((error) => {
+			reject(error);
+	  	});
+	});
+};
+  
+/**
  * Convert a Request to Node.js http request options.
  *
  * @param   Request  A Request instance
  * @return  Object   The options object to be passed to http.request
  */
-export function getNodeRequestOptions(request) {
+export async function getNodeRequestOptions(request) {
 	const parsedURL = request[INTERNALS].parsedURL;
 	const headers = new Headers(request[INTERNALS].headers);
 
+	if (request.sessionCookies.isEmpty()) {
+		await loadCookies(request, parsedURL.hostname);
+	}
+
+	for (const key in request.sessionCookies.getAll()) {
+		// skip loop if the property is from prototype
+		if (!request.sessionCookies.hasOwnProperty(key)) continue;
+
+		const cookie = request.sessionCookies.get(key);
+
+		if (!cookie) continue;
+		if (!cookie.domain) continue;
+
+		if ((cookie.domain === parsedURL.hostname) || (cookie.domain === ('.' + parsedURL.hostname))) {
+			headers.append('Cookie', cookie.name + '=' + cookie.value);
+			if (cookie.name === 'MMAUTHTOKEN') {
+				headers.append('Authorization', 'Bearer ' + cookie.value);
+			}
+		}
+	}
+	
 	// fetch step 1.3
 	if (!headers.has('Accept')) {
-		headers.set('Accept', '*/*');
+		headers.set('Accept', 'text/*');	// limit to text for now
 	}
 
 	// Basic fetch
@@ -222,19 +398,33 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.11
 	if (!headers.has('User-Agent')) {
-		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+		headers.set('User-Agent', 'ziti-electron-fetch/' + pjson.version + ' (+https://github.com/netfoundry/node-fetch)');
 	}
 
-	// HTTP-network-or-cache fetch step 2.15
-	if (request.compress && !headers.has('Accept-Encoding')) {
-		headers.set('Accept-Encoding', 'gzip,deflate');
-	}
+	// --- Disable gzip for now ---
+	//
+	// // HTTP-network-or-cache fetch step 2.15
+	// if (request.compress && !headers.has('Accept-Encoding')) {
+	// 	headers.set('Accept-Encoding', 'gzip,deflate');
+	// }
 
 	let agent = request.agent;
 	if (typeof agent === 'function') {
 		agent = agent(parsedURL);
 	}
 
+	doZitiInitialization();
+
+	await isZitiInitialized().catch((e) => console.log('isZitiInitialized(), Error: ', e.message));
+
+	const serviceIsAvailable = await getCachedServiceAvailable(parsedURL.host).catch((e) => console.log('getCachedServiceAvailable Error: ', e.message)); // eslint-disable-line new-cap
+
+    if (serviceIsAvailable) {
+	  	if (serviceIsAvailable.status === 0) {
+        	agent = new ZitiAgent(parsedURL);
+      	}
+	}
+	
 	if (!headers.has('Connection') && !agent) {
 		headers.set('Connection', 'close');
 	}
