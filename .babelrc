@@ -24,9 +24,9 @@
           loose: true,
           targets: { node: 4 },
           exclude: [
-            'transform-es2015-block-scoping',
-            'transform-es2015-classes',
-            'transform-es2015-for-of'
+            // 'transform-es2015-block-scoping',
+            // 'transform-es2015-classes',
+            // 'transform-es2015-for-of'
           ]
         } ]
       ],
