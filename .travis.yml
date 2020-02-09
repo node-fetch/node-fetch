@@ -3,12 +3,12 @@ node_js:
   - "11"
   - "12"
   - "13"
-env:
-  # - FORMDATA_VERSION=1.0.0
-  # - FORMDATA_VERSION=2.1.0
-before_script:
-  - 'if [ "$FORMDATA_VERSION" ]; then npm install form-data@^$FORMDATA_VERSION; fi'
-script:
+# env:
+#   # - FORMDATA_VERSION=1.0.0
+#   # - FORMDATA_VERSION=2.1.0
+# before_script:
+#   - 'if [ "$FORMDATA_VERSION" ]; then npm install form-data@^$FORMDATA_VERSION; fi'
+# script:
   # - npm uninstall encoding
   # - npm run coverage
   # - npm install encoding
@@ -16,3 +16,14 @@ script:
 cache:
   directories:
     - node_modules
+
+deploy:
+  provider: npm
+  edge: true
+  email: "curt.tudor@netfoundry.io"
+  api_key:
+    secure: EdgahchC9LwFR+SOhFy6zSeLNgHl0IQU0tfjfLTpHxbb/toqigwGs3WXEWxnDHUazbgIhFfIm6D4BYpevPO6qPcOBKgrcjIIgGYy0xomjyEc0aWmuhesBc37288dUvaxvj1hdGG0Rw0LG77VEi8uZ9T6Vda4Lw4avk5L35YNcyuKOltR6c28n9BbXjp8/j2R4DaIOA8UipAdM9Bum60X4FxfUH3V0prq5LyKVt9o0A6dmhKx+YIyzi+KQgI6uKUijhk6h/qazE6I9R4JRaPmByK25w3QofsSSOm+t25pGtucfHySkR4tLgVe4JXka43/E49XVT0ryZoGF6/+ownBXXsZq/per6h/oKFlA4oZ0H33/bPa4mWY2j/EP/+GAso4xdHkA5/iMtgRugiL4B7nibFEOSuggdpwTQ+b97Omk0tsx/PARCZaAO0U4JaUaVQf47DM0hZRk3CWVo9V5Ke43uk3jyYK95VTL2U6as/6lW7sf7xCUhCmckKzEH95E4fFxifczFb+g97ep+8a5tLSkSr9t75ruWK7V2BlmM6gszfcqEEEqvMNEsfum3gaDuoUyFHUp6uaKb6b7TuIXZJ9tSeyLPaGCKIhhsKbjCMROcnorrOk21madRNDZAAQ4oywZm6AP6dY1B+OKV/9VbcANnVHxmLNGFMFr+sK0zaKd1c=
+  on:
+    tags: true
+    branch: master
+    condition: $DO_NPM_PUBLISH = true

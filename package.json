@@ -1,7 +1,7 @@
 {
   "name": "ziti-electron-fetch",
   "version": "2.6.0",
-  "description": "A light-weight module that brings window.fetch to node.js",
+  "description": "A module that intercepts all window.fetch calls in an Electron renderer process and routes them over a Ziti network",
   "main": "lib/index.js",
   "files": [
     "lib/index.js",
@@ -9,9 +9,6 @@
     "lib/index.es.js",
     "browser.js"
   ],
-  "engines": {
-    "node": "4.x || >=6.0.0"
-  },
   "scripts": {
     "build": "cross-env BABEL_ENV=rollup rollup -c",
     "prepare": "npm run build",
@@ -25,16 +22,31 @@
     "url": "https://github.com/netfoundry/node-fetch.git"
   },
   "keywords": [
+    "ziti",
+    "nodejs",
+    "electron",
     "fetch",
     "http",
     "promise"
   ],
-  "author": "David Frank",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/netfoundry/node-fetch/issues"
+  "engines": {
+    "node": ">=11.0.0"
   },
-  "homepage": "https://github.com/netfoundry/node-fetch",
+  "author": {
+    "name": "NetFoundry",
+    "url": "http://netfoundry.io"
+  },
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/netfoundry/ziti-electron-fetch/issues"
+  },
+  "homepage": "https://github.com/netfoundry/ziti-electron-fetch",
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/plugin-external-helpers": "^7.8.3",
