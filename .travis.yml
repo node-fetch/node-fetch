@@ -26,4 +26,3 @@ deploy:
   on:
     tags: true
     branch: master
-    condition: $DO_NPM_PUBLISH = true
