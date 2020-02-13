@@ -5,7 +5,7 @@ import {multipart as Multipart} from 'parted';
 export default class TestServer {
 	constructor() {
 		this.server = http.createServer(this.router);
-		this.port = 30001;
+		this.port = 300011
 		this.hostname = 'localhost';
 		// Node 8 default keepalive timeout is 5000ms
 		// make it shorter here as we want to close server quickly at the end of tests
@@ -98,7 +98,7 @@ export default class TestServer {
 				}
 
 				// Truncate the CRC checksum and size check at the end of the stream
-				res.end(buffer.slice(0, buffer.length - 8));
+				res.end(buffer.slice(0, -8));
 			});
 		}
 
