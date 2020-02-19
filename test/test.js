@@ -102,7 +102,7 @@ describe('node-fetch', () => {
 
 	it('should reject with error if url is protocol relative', () => {
 		const url = '//example.com/';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only HTTP(S) protocols are supported');
 	});
 
 	it('should reject with error if url is relative path', () => {
