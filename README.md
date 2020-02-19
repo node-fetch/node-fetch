@@ -573,8 +573,8 @@ MIT
 [npm-url]: https://www.npmjs.com/package/node-fetch
 [travis-image]: https://flat.badgen.net/travis/bitinn/node-fetch
 [travis-url]: https://travis-ci.org/bitinn/node-fetch
-[codecov-image]: https://flat.badgen.net/codecov/c/github/bitinn/node-fetch/master
-[codecov-url]: https://codecov.io/gh/bitinn/node-fetch
+[codecov-image]: https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square
+[codecov-url]: https://codecov.io/gh/node-fetch/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
 [install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
 [discord-image]: https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square
