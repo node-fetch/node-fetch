@@ -37,6 +37,16 @@ function isRequest(obj) {
  * @return {void}
  */
 function parseURL(urlStr) {
+	/*
+		Check whether the URL is absolute or not
+
+		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
+		Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
+	*/
+	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
+		return new URL(urlStr);
+	}
+
 	return new URL(urlStr, 'relative:///');
 }
 
