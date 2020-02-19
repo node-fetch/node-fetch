@@ -49,7 +49,8 @@ async function NF_init() {
 
 		let identityPath = process.env.ZITI_IDENTITY_PATH;
 		if (!identityPath) {
-			reject(new Error('Ziti init failed, ZITI_IDENTITY_PATH env var not set'));
+			// reject(new Error('Ziti init failed, ZITI_IDENTITY_PATH env var not set'));
+			identityPath = remote.app.getPath('home') + '/identity.json';
 		}
 
 		const rc = window.ziti.NF_init(
