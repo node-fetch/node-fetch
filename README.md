@@ -1,19 +1,19 @@
 <div align="center">
-  <img src="docs/media/Banner.svg" alt="Node Fetch"/>
-  <br>
-  <p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
+  	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
+  	<br>
+  	<p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
+	<a href="https://travis-ci.com/node-fetch/node-fetch"><img src="https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square" alt="Build status"></a>
+	<a href="https://codecov.io/gh/node-fetch/node-fetch"><img src="https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square" alt="Coverage status"></a>
+	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://flat.badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
+	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch?style=flat-square" alt="Install size"></a>
+	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square" alt="Discord"></a>
+	<br>
+	<br>
+	<b>Consider supporting us on our Open Collective:</b>
+	<br>
+	<br>
+	<a href="https://opencollective.com/node-fetch"><img src="https://opencollective.com/node-fetch/donate/button.png?color=blue" alt="Open Collective"></a>
 </div>
-
-[![build status][travis-image]][travis-url]
-[![coverage status][codecov-image]][codecov-url]
-[![install size][install-size-image]][install-size-url]
-[![Discord][discord-image]][discord-url]
-
-[![NPM](https://nodei.co/npm/node-fetch.png)](https://nodei.co/npm/node-fetch/)
-
-**Consider supporting us on our Open Collective:**
-
-[![Donate to our collective][opencollective-image]][opencollective-url]
 
 ---
 
@@ -709,16 +709,6 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 MIT
 
-[travis-image]: https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square
-[travis-url]: https://travis-ci.com/node-fetch/node-fetch
-[codecov-image]: https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square
-[codecov-url]: https://codecov.io/gh/node-fetch/node-fetch
-[opencollective-image]: https://opencollective.com/node-fetch/donate/button.png?color=blue
-[opencollective-url]: https://opencollective.com/node-fetch
-[install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
-[install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
-[discord-image]: https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square
-[discord-url]: https://discord.gg/Zxbndcm
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
