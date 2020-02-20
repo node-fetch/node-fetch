@@ -12,7 +12,7 @@ Known differences
 
 - For convenience, `res.body` is a Node.js [Readable stream][readable-stream], so decoding can be handled independently.
 
-- Similarly, `req.body` can either be `null`, a string, a buffer or a Readable stream.
+- Similarly, `req.body` can either be `null`, a buffer or a Readable stream.
 
 - Also, you can handle rejected fetch requests through checking `err.type` and `err.code`. See [ERROR-HANDLING.md][] for more info.
 
