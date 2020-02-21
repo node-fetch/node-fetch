@@ -14,8 +14,7 @@ import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 var pjson = require('../package.json');
 import cacheManager from 'cache-manager';
-import {remote} from 'electron';
-import notifier from 'node-notifier';
+import {remote, ipcRenderer} from 'electron';
 import {Mutex} from 'async-mutex';
 import ZitiAgent from './ziti-agent';
 const session = remote.session.defaultSession;
@@ -47,10 +46,10 @@ async function NF_init() {
 			resolve(); // quick exit, init already done
 		}
 
-		let identityPath = process.env.ZITI_IDENTITY_PATH;
-		if (!identityPath) {
-			// reject(new Error('Ziti init failed, ZITI_IDENTITY_PATH env var not set'));
-			identityPath = remote.app.getPath('home') + '/identity.json';
+		let identityPath = window.zitiIdentityPath;	// This is assumed to be set by the app that is hosting us (e.g. Mattermost's MattermostView.jsx)
+		if (!identityPath || identityPath==='') {
+			ipcRenderer.sendToHost('did-fail-load', {zitiIdentityPath: window.zitiIdentityPath, errorDescription: 'Ziti init failed, zitiIdentityPath not set', errorCode: -701});
+			reject(new Error('Ziti init failed, window.zitiIdentityPath not set'));
 		}
 
 		const rc = window.ziti.NF_init(
@@ -60,6 +59,7 @@ async function NF_init() {
 			(cbRC) => { // eslint-disable-line new-cap  
 		
 				if (cbRC < 0) {
+					ipcRenderer.sendToHost('did-fail-load', {zitiIdentityPath: window.zitiIdentityPath, errorDescription: 'Ziti init failed rc [' + cbRC + '], identity is invalid', errorCode: -702});
 					reject(new Error('Ziti init failed rc [' + cbRC + '], identity is invalid'));
 
 				} else {
@@ -69,7 +69,8 @@ async function NF_init() {
 		);
 
 		if (rc < 0) {
-			reject(new Error('Ziti init failed rc [' + rc + '], ensure valid identity is in your HOME dir'));
+			ipcRenderer.sendToHost('did-fail-load', {zitiIdentityPath: window.zitiIdentityPath, errorDescription: 'Ziti init failed rc [' + rc + '], identity is invalid', errorCode: -703});
+			reject(new Error('Ziti init failed rc [' + rc + '], identity is invalid'));
 		}
 	});
 };
@@ -85,11 +86,7 @@ async function doZitiInitialization() {
 	const release = await mutex.acquire();
 	try {
 		if (!window.zitiInitialized) {
-			await NF_init().catch((e) => { // eslint-disable-line new-cap
-				notifier.notify({
-					title: 'NF_init()',
-					message: 'ERROR: ' + e,
-				});
+			await NF_init().catch((e) => {
 			});
 			window.zitiInitialized = true;
 		}
