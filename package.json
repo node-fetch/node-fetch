@@ -64,7 +64,7 @@
 		"promise": "^8.0.3",
 		"resumer": "0.0.0",
 		"string-to-arraybuffer": "^1.0.2",
-		"xo": "^0.26.1"
+		"xo": "^0.27.0"
 	},
 	"dependencies": {
 		"data-uri-to-buffer": "^3.0.0",
