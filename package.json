@@ -81,6 +81,6 @@
     "async-mutex": "^0.1.4",
     "cache-manager": "^2.11.1",
     "electron": "^5.0.11",
-    "ziti-sdk-nodejs": "0.1.16"
+    "ziti-sdk-nodejs": "0.1.19"
   }
 }
