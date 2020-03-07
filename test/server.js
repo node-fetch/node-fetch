@@ -98,7 +98,7 @@ export default class TestServer {
 				}
 
 				// Truncate the CRC checksum and size check at the end of the stream
-				res.end(buffer.slice(0, buffer.length - 8));
+				res.end(buffer.slice(0, -8));
 			});
 		}
 
