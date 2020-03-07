@@ -47,7 +47,7 @@ function parseURL(urlStr) {
 		return new URL(urlStr);
 	}
 
-	return new URL(urlStr, 'relative:///');
+	throw new TypeError('Only absolute URLs are supported');
 }
 
 /**
