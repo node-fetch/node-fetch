@@ -67,10 +67,12 @@ export default class Headers {
 
 		// We don't worry about converting prop to ByteString here as append()
 		// will handle it.
+		// eslint-disable-next-line no-eq-null, eqeqeq
 		if (init == null) {
 			// No op
 		} else if (typeof init === 'object') {
 			const method = init[Symbol.iterator];
+			// eslint-disable-next-line no-eq-null, eqeqeq
 			if (method != null) {
 				if (typeof method !== 'function') {
 					throw new TypeError('Header pairs must be iterable');
@@ -84,7 +86,7 @@ export default class Headers {
 						throw new TypeError('Each header pair must be iterable');
 					}
 
-					pairs.push(Array.from(pair));
+					pairs.push([...pair]);
 				}
 
 				for (const pair of pairs) {

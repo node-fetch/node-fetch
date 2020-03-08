@@ -26,7 +26,7 @@ export default function Body(body, {
 	size = 0,
 	timeout = 0
 } = {}) {
-	if (body == null) {
+	if (body === null) {
 		// Body is undefined or null
 		body = null;
 	} else if (isURLSearchParams(body)) {
@@ -293,7 +293,7 @@ export function clone(instance, highWaterMark) {
  */
 export function extractContentType(body) {
 	// Body is null or undefined
-	if (body == null) {
+	if (body === null) {
 		return null;
 	}
 
@@ -342,7 +342,7 @@ export function extractContentType(body) {
  */
 export function getTotalBytes({body}) {
 	// Body is null or undefined
-	if (body == null) {
+	if (body === null) {
 		return 0;
 	}
 
@@ -373,7 +373,7 @@ export function getTotalBytes({body}) {
  * @returns {void}
  */
 export function writeToStream(dest, {body}) {
-	if (body == null) {
+	if (body === null) {
 		// Body is null
 		dest.end();
 	} else if (isBlob(body)) {

@@ -81,11 +81,13 @@ export default class Request {
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
 
+		// eslint-disable-next-line no-eq-null, eqeqeq
 		if ((init.body != null || isRequest(input) && input.body !== null) &&
 			(method === 'GET' || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
+		// eslint-disable-next-line no-eq-null, eqeqeq
 		const inputBody = init.body != null ?
 			init.body :
 			(isRequest(input) && input.body !== null ?
@@ -99,7 +101,7 @@ export default class Request {
 
 		const headers = new Headers(init.headers || input.headers || {});
 
-		if (inputBody != null && !headers.has('Content-Type')) {
+		if (inputBody !== null && !headers.has('Content-Type')) {
 			const contentType = extractContentType(inputBody);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
@@ -113,7 +115,7 @@ export default class Request {
 			signal = init.signal;
 		}
 
-		if (signal != null && !isAbortSignal(signal)) {
+		if (signal !== null && !isAbortSignal(signal)) {
 			throw new TypeError('Expected signal to be an instanceof AbortSignal');
 		}
 
@@ -219,11 +221,11 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7
 	let contentLengthValue = null;
-	if (request.body == null && /^(POST|PUT)$/i.test(request.method)) {
+	if (request.body === null && /^(POST|PUT)$/i.test(request.method)) {
 		contentLengthValue = '0';
 	}
 
-	if (request.body != null) {
+	if (request.body !== null) {
 		const totalBytes = getTotalBytes(request);
 		if (typeof totalBytes === 'number') {
 			contentLengthValue = String(totalBytes);
