@@ -63,6 +63,10 @@ If you are listening for errors via `res.body.on('error', () => ...)`, replace i
 
 The default user agent has been changed from `node-fetch/1.0 (+https://github.com/node-fetch/node-fetch)` to `node-fetch (+https://github.com/node-fetch/node-fetch)`.
 
+## Arbitrary URLs are no longer supported
+
+Since in 3.x we are using the WHATWG's `new URL()`, arbitrary URL parsing will fail due to lack of base.
+
 # Enhancements
 
 ## Data URI support
