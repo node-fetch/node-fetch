@@ -107,10 +107,12 @@ $ npm install node-fetch
 
 ## Loading and configuring the module
 
-We suggest you load the module via `require` until the stabilization of ES modules in node:
-
 ```js
+// CommonJS
 const fetch = require('node-fetch');
+
+// ES Module
+import fetch from 'node-fetch';
 ```
 
 If you are using a Promise library other than native, set it through `fetch.Promise`:
