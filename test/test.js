@@ -2611,7 +2611,7 @@ describe('Request', () => {
 	it('should override signal on derived Request instances', () => {
 		const parentAbortController = new AbortController();
 		const derivedAbortController = new AbortController();
-		const parentRequest = new Request('test', {
+		const parentRequest = new Request(`${base}/hello`, {
 			signal: parentAbortController.signal
 		});
 		const derivedRequest = new Request(parentRequest, {
@@ -2623,7 +2623,7 @@ describe('Request', () => {
 
 	it('should allow removing signal on derived Request instances', () => {
 		const parentAbortController = new AbortController();
-		const parentRequest = new Request('test', {
+		const parentRequest = new Request(`${base}/hello`, {
 			signal: parentAbortController.signal
 		});
 		const derivedRequest = new Request(parentRequest, {
@@ -2649,7 +2649,7 @@ describe('Request', () => {
 	});
 
 	it('should default to null as body', () => {
-		const req = new Request('.');
+		const req = new Request(base);
 		expect(req.body).to.equal(null);
 		return req.text().then(result => expect(result).to.equal(''));
 	});
@@ -2729,12 +2729,6 @@ describe('Request', () => {
 		});
 	});
 
-	it('should support arbitrary url', () => {
-		const url = 'anything';
-		const req = new Request(url);
-		expect(req.url).to.equal('anything');
-	});
-
 	it('should support clone() method', () => {
 		const url = base;
 		let body = resumer().queue('a=1').end();
@@ -2773,7 +2767,7 @@ describe('Request', () => {
 	});
 
 	it('should support ArrayBuffer as body', () => {
-		const req = new Request('', {
+		const req = new Request(base, {
 			method: 'POST',
 			body: stringToArrayBuffer('a=1')
 		});
@@ -2783,7 +2777,7 @@ describe('Request', () => {
 	});
 
 	it('should support Uint8Array as body', () => {
-		const req = new Request('', {
+		const req = new Request(base, {
 			method: 'POST',
 			body: new Uint8Array(stringToArrayBuffer('a=1'))
 		});
@@ -2793,7 +2787,7 @@ describe('Request', () => {
 	});
 
 	it('should support DataView as body', () => {
-		const req = new Request('', {
+		const req = new Request(base, {
 			method: 'POST',
 			body: new DataView(stringToArrayBuffer('a=1'))
 		});
