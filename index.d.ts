@@ -9,22 +9,16 @@
 
 /// <reference types="node" />
 
-import { Agent } from "http";
-import { URLSearchParams, URL } from "url";
-import { AbortSignal } from "../externals";
+import {Agent} from 'http';
+import {AbortSignal} from '../externals';
 
 export class Request extends Body {
-	constructor(input: string | { href: string } | Request, init?: RequestInit);
-	clone(): Request;
-	context: RequestContext;
-	headers: Headers;
 	method: string;
 	redirect: RequestRedirect;
-	static redirect(url: string, status?: number): Response;
 	referrer: string;
 	url: string;
 
-	// node-fetch extensions to the whatwg/fetch spec
+	// Node-fetch extensions to the whatwg/fetch spec
 	agent?: Agent | ((parsedUrl: URL) => Agent);
 	compress: boolean;
 	counter: number;
@@ -35,17 +29,23 @@ export class Request extends Body {
 	size: number;
 	timeout: number;
 	highWaterMark?: number;
+
+	context: RequestContext;
+	headers: Headers;
+	constructor(input: string | { href: string } | Request, init?: RequestInit);
+	static redirect(url: string, status?: number): Response;
+	clone(): Request;
 }
 
 export interface RequestInit {
-	// whatwg/fetch standard options
+	// Whatwg/fetch standard options
 	body?: BodyInit;
 	headers?: HeadersInit;
 	method?: string;
 	redirect?: RequestRedirect;
 	signal?: AbortSignal | null;
 
-	// node-fetch extensions
+	// Node-fetch extensions
 	agent?: Agent | ((parsedUrl: URL) => Agent); // =null http.Agent instance, allows custom proxy, certificate etc.
 	compress?: boolean; // =true support gzip/deflate content encoding. false to disable
 	follow?: number; // =20 maximum redirect count. 0 to not follow redirect
@@ -57,50 +57,50 @@ export interface RequestInit {
 }
 
 export type RequestContext =
-	"audio"
-	| "beacon"
-	| "cspreport"
-	| "download"
-	| "embed"
-	| "eventsource"
-	| "favicon"
-	| "fetch"
-	| "font"
-	| "form"
-	| "frame"
-	| "hyperlink"
-	| "iframe"
-	| "image"
-	| "imageset"
-	| "import"
-	| "internal"
-	| "location"
-	| "manifest"
-	| "object"
-	| "ping"
-	| "plugin"
-	| "prefetch"
-	| "script"
-	| "serviceworker"
-	| "sharedworker"
-	| "style"
-	| "subresource"
-	| "track"
-	| "video"
-	| "worker"
-	| "xmlhttprequest"
-	| "xslt";
-export type RequestMode = "cors" | "no-cors" | "same-origin";
-export type RequestRedirect = "error" | "follow" | "manual";
-export type RequestCredentials = "omit" | "include" | "same-origin";
+	'audio'
+	| 'beacon'
+	| 'cspreport'
+	| 'download'
+	| 'embed'
+	| 'eventsource'
+	| 'favicon'
+	| 'fetch'
+	| 'font'
+	| 'form'
+	| 'frame'
+	| 'hyperlink'
+	| 'iframe'
+	| 'image'
+	| 'imageset'
+	| 'import'
+	| 'internal'
+	| 'location'
+	| 'manifest'
+	| 'object'
+	| 'ping'
+	| 'plugin'
+	| 'prefetch'
+	| 'script'
+	| 'serviceworker'
+	| 'sharedworker'
+	| 'style'
+	| 'subresource'
+	| 'track'
+	| 'video'
+	| 'worker'
+	| 'xmlhttprequest'
+	| 'xslt';
+export type RequestMode = 'cors' | 'no-cors' | 'same-origin';
+export type RequestRedirect = 'error' | 'follow' | 'manual';
+export type RequestCredentials = 'omit' | 'include' | 'same-origin';
 
 export type RequestCache =
-	"default"
-	| "force-cache"
-	| "no-cache"
-	| "no-store"
-	| "only-if-cached"
-	| "reload";
+	'default'
+	| 'force-cache'
+	| 'no-cache'
+	| 'no-store'
+	| 'only-if-cached'
+	| 'reload';
 
 export class Headers implements Iterable<[string, string]> {
 	constructor(init?: HeadersInit);
@@ -124,51 +124,47 @@ type BlobPart = ArrayBuffer | ArrayBufferView | Blob | string;
 
 interface BlobOptions {
 	type?: string;
-	endings?: "transparent" | "native";
+	endings?: 'transparent' | 'native';
 }
 
 export class Blob {
-	constructor(blobParts?: BlobPart[], options?: BlobOptions);
 	readonly type: string;
 	readonly size: number;
+	constructor(blobParts?: BlobPart[], options?: BlobOptions);
 	slice(start?: number, end?: number): Blob;
 }
 
 export class Body {
+	body: NodeJS.ReadableStream;
+	bodyUsed: boolean;
+	size: number;
+	timeout: number;
 	constructor(body?: any, opts?: { size?: number; timeout?: number });
 	arrayBuffer(): Promise<ArrayBuffer>;
 	blob(): Promise<Blob>;
-	body: NodeJS.ReadableStream;
-	bodyUsed: boolean;
 	buffer(): Promise<Buffer>;
 	json(): Promise<any>;
-	size: number;
 	text(): Promise<string>;
-	timeout: number;
 }
 
 export class FetchError extends Error {
-	name: "FetchError";
-	[Symbol.toStringTag]: "FetchError"
-	constructor(message: string, type: string, systemError?: object);
+	name: 'FetchError';
+	[Symbol.toStringTag]: 'FetchError';
 	type: string;
 	code?: string;
 	errno?: string;
+	constructor(message: string, type: string, systemError?: object);
 }
 
 export class AbortError extends Error {
-	name: "AbortError";
-	[Symbol.toStringTag]: "AbortError"
-	constructor(message: string);
 	type: string;
 	message: string;
+	name: 'AbortError';
+	[Symbol.toStringTag]: 'AbortError';
+	constructor(message: string);
 }
 
 export class Response extends Body {
-	constructor(body?: BodyInit, init?: ResponseInit);
-	static error(): Response;
-	static redirect(url: string, status: number): Response;
-	clone(): Response;
 	headers: Headers;
 	ok: boolean;
 	redirected: boolean;
@@ -178,15 +174,19 @@ export class Response extends Body {
 	url: string;
 	size: number;
 	timeout: number;
+	constructor(body?: BodyInit, init?: ResponseInit);
+	static error(): Response;
+	static redirect(url: string, status: number): Response;
+	clone(): Response;
 }
 
 export type ResponseType =
-	"basic"
-	| "cors"
-	| "default"
-	| "error"
-	| "opaque"
-	| "opaqueredirect";
+	'basic'
+	| 'cors'
+	| 'default'
+	| 'error'
+	| 'opaque'
+	| 'opaqueredirect';
 
 export interface ResponseInit {
 	headers?: HeadersInit;
