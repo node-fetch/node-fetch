@@ -79,7 +79,7 @@ describe('Request', () => {
 	it('should override signal on derived Request instances', () => {
 		const parentAbortController = new AbortController();
 		const derivedAbortController = new AbortController();
-		const parentRequest = new Request(`${base}/hello`, {
+		const parentRequest = new Request(`${base}hello`, {
 			signal: parentAbortController.signal
 		});
 		const derivedRequest = new Request(parentRequest, {
@@ -91,7 +91,7 @@ describe('Request', () => {
 
 	it('should allow removing signal on derived Request instances', () => {
 		const parentAbortController = new AbortController();
-		const parentRequest = new Request(`${base}/hello`, {
+		const parentRequest = new Request(`${base}hello`, {
 			signal: parentAbortController.signal
 		});
 		const derivedRequest = new Request(parentRequest, {
