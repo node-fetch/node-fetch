@@ -1,8 +1,8 @@
 language: node_js
 
 node_js:
-  - "lts/*" # 10 (Latest LTS)
-  - "node" # 12 (Latest Stable)
+  - "lts/*" # Latest LTS
+  - "node" # Latest Stable
 
 matrix:
   include:

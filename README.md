@@ -1,19 +1,20 @@
 <div align="center">
-  <img src="docs/media/Banner.svg" alt="Node Fetch"/>
-  <br>
-  <p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
+  	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
+  	<br>
+  	<p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
+	<a href="https://travis-ci.com/node-fetch/node-fetch"><img src="https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square" alt="Build status"></a>
+	<a href="https://codecov.io/gh/node-fetch/node-fetch"><img src="https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square" alt="Coverage status"></a>
+	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://flat.badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
+	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch?style=flat-square" alt="Install size"></a>
+	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge-flat.svg" alt="Mentioned in Awesome Node.js"></a>
+	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square" alt="Discord"></a>
+	<br>
+	<br>
+	<b>Consider supporting us on our Open Collective:</b>
+	<br>
+	<br>
+	<a href="https://opencollective.com/node-fetch"><img src="https://opencollective.com/node-fetch/donate/button.png?color=blue" alt="Open Collective"></a>
 </div>
-
-[![build status][travis-image]][travis-url]
-[![coverage status][codecov-image]][codecov-url]
-[![install size][install-size-image]][install-size-url]
-[![Discord][discord-image]][discord-url]
-
-[![NPM](https://nodei.co/npm/node-fetch.png)](https://nodei.co/npm/node-fetch/)
-
-**Consider supporting us on our Open Collective:**
-
-[![Donate to our collective][opencollective-image]][opencollective-url]
 
 ---
 
@@ -106,7 +107,7 @@ $ npm install node-fetch
 
 ## Loading and configuring the module
 
-We suggest you load the module via `require`, pending the stabalizing of es modules in node:
+We suggest you load the module via `require` until the stabilization of ES modules in node:
 
 ```js
 const fetch = require('node-fetch');
@@ -422,7 +423,7 @@ The default values are shown after each option key.
     timeout: 0,             // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
     compress: true,         // support gzip/deflate content encoding. false to disable
     size: 0,                // maximum response body size in bytes. 0 to disable
-    agent: null             // http(s).Agent instance or function that returns an instance (see below)
+    agent: null,            // http(s).Agent instance or function that returns an instance (see below)
     highWaterMark: 16384    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
 }
 ```
@@ -709,16 +710,6 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 MIT
 
-[travis-image]: https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square
-[travis-url]: https://travis-ci.com/node-fetch/node-fetch
-[codecov-image]: https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square
-[codecov-url]: https://codecov.io/gh/node-fetch/node-fetch
-[opencollective-image]: https://opencollective.com/node-fetch/donate/button.png?color=blue
-[opencollective-url]: https://opencollective.com/node-fetch
-[install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
-[install-size-url]: https://packagephobia.now.sh/result?p=node-fetch
-[discord-image]: https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square
-[discord-url]: https://discord.gg/Zxbndcm
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams

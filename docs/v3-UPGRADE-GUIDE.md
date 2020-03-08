@@ -59,6 +59,10 @@ fetch("https://somewebsitereturninginvalidjson.com").then(res => res.json())
 
 If you are listening for errors via `res.body.on('error', () => ...)`, replace it with `res.body.once('error', () => ...)` so that your callback is not [fired twice](https://github.com/node-fetch/node-fetch/issues/668#issuecomment-569386115) in NodeJS >=13.5.
 
+## `req.body` can no longer be a string
+
+We are working towards changing body to become either null or a stream.
+
 ## Changed default user agent
 
 The default user agent has been changed from `node-fetch/1.0 (+https://github.com/node-fetch/node-fetch)` to `node-fetch (+https://github.com/node-fetch/node-fetch)`.
