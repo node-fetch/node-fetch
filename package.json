@@ -68,8 +68,7 @@
 	},
 	"dependencies": {
 		"data-uri-to-buffer": "^3.0.0",
-		"fetch-blob": "^1.0.4",
-		"utf8": "^3.0.0"
+		"fetch-blob": "^1.0.4"
 	},
 	"@pika/pack": {
 		"pipeline": [
