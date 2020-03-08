@@ -3,19 +3,19 @@
 // the `dom` library in `tsconfig.json`.
 
 export interface AbortSignal {
-    aborted: boolean;
+	aborted: boolean;
 
-    addEventListener: (type: "abort", listener: ((this: AbortSignal, event: any) => any), options?: boolean | {
-        capture?: boolean,
-        once?: boolean,
-        passive?: boolean
-    }) => void;
+	addEventListener: (type: 'abort', listener: ((this: AbortSignal, event: any) => any), options?: boolean | {
+		capture?: boolean;
+		once?: boolean;
+		passive?: boolean;
+	}) => void;
 
-    removeEventListener: (type: "abort", listener: ((this: AbortSignal, event: any) => any), options?: boolean | {
-        capture?: boolean
-    }) => void;
+	removeEventListener: (type: 'abort', listener: ((this: AbortSignal, event: any) => any), options?: boolean | {
+		capture?: boolean;
+	}) => void;
 
-    dispatchEvent: (event: any) => boolean;
+	dispatchEvent: (event: any) => boolean;
 
-    onabort?: null | ((this: AbortSignal, event: any) => void);
+	onabort?: null | ((this: AbortSignal, event: any) => void);
 }
