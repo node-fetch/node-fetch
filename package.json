@@ -108,8 +108,7 @@
 			"no-eq-null": 0,
 			"no-negated-condition": 0,
 			"prefer-named-capture-group": 0,
-			"unicorn/catch-error-name": 0,
-			"node/no-deprecated-api": 1
+			"unicorn/catch-error-name": 0
 		},
 		"ignores": [
 			"dist"
