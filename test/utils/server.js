@@ -364,6 +364,12 @@ export default class TestServer {
 			});
 			req.pipe(parser);
 		}
+
+		if (p === '/m%C3%B6bius') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.end('ok');
+		}
 	}
 }
 

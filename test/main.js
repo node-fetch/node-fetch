@@ -2157,4 +2157,10 @@ describe('node-fetch', () => {
 		expect(extractContentType(bodyContent)).to.equal('text/plain;charset=UTF-8');
 		expect(extractContentType(null)).to.be.null;
 	});
+
+	it('URLs are encoded as UTF-8', () => {
+		const url = `${base}möbius`;
+
+		fetch(url).then(res => expect(res.url).to.equal(`${base}m%C3%B6bius`));
+	});
 });
