@@ -1,12 +1,12 @@
 
 /**
- * headers.js
+ * Headers.js
  *
  * Headers class offers convenient helpers
  */
 
-const invalidTokenRegex = /[^\^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
-const invalidHeaderCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
+const invalidTokenRegex = /[^`\-\w!#$%&'*+.|~]/;
+const invalidHeaderCharRegex = /[^\t\u0020-\u007E\u0080-\u00FF]/;
 
 function validateName(name) {
 	name = `${name}`;
@@ -37,6 +37,7 @@ function find(map, name) {
 			return key;
 		}
 	}
+
 	return undefined;
 }
 
@@ -66,33 +67,37 @@ export default class Headers {
 
 		// We don't worry about converting prop to ByteString here as append()
 		// will handle it.
+		// eslint-disable-next-line no-eq-null, eqeqeq
 		if (init == null) {
-			// no op
+			// No op
 		} else if (typeof init === 'object') {
 			const method = init[Symbol.iterator];
+			// eslint-disable-next-line no-eq-null, eqeqeq
 			if (method != null) {
 				if (typeof method !== 'function') {
 					throw new TypeError('Header pairs must be iterable');
 				}
 
-				// sequence<sequence<ByteString>>
+				// Sequence<sequence<ByteString>>
 				// Note: per spec we have to first exhaust the lists then process them
 				const pairs = [];
 				for (const pair of init) {
 					if (typeof pair !== 'object' || typeof pair[Symbol.iterator] !== 'function') {
 						throw new TypeError('Each header pair must be iterable');
 					}
-					pairs.push(Array.from(pair));
+
+					pairs.push([...pair]);
 				}
 
 				for (const pair of pairs) {
 					if (pair.length !== 2) {
 						throw new TypeError('Each header pair must be a name/value tuple');
 					}
+
 					this.append(pair[0], pair[1]);
 				}
 			} else {
-				// record<ByteString, ByteString>
+				// Record<ByteString, ByteString>
 				for (const key of Object.keys(init)) {
 					const value = init[key];
 					this.append(key, value);
@@ -117,7 +122,12 @@ export default class Headers {
 			return null;
 		}
 
-		return this[MAP][key].join(', ');
+		let value = this[MAP][key].join(', ');
+		if (name.toLowerCase() === 'content-encoding') {
+			value = value.toLowerCase();
+		}
+
+		return value;
 	}
 
 	/**
@@ -199,7 +209,7 @@ export default class Headers {
 		if (key !== undefined) {
 			delete this[MAP][key];
 		}
-	};
+	}
 
 	/**
 	 * Return raw headers (non-spec api)
@@ -249,15 +259,15 @@ Object.defineProperty(Headers.prototype, Symbol.toStringTag, {
 });
 
 Object.defineProperties(Headers.prototype, {
-	get: { enumerable: true },
-	forEach: { enumerable: true },
-	set: { enumerable: true },
-	append: { enumerable: true },
-	has: { enumerable: true },
-	delete: { enumerable: true },
-	keys: { enumerable: true },
-	values: { enumerable: true },
-	entries: { enumerable: true }
+	get: {enumerable: true},
+	forEach: {enumerable: true},
+	set: {enumerable: true},
+	append: {enumerable: true},
+	has: {enumerable: true},
+	delete: {enumerable: true},
+	keys: {enumerable: true},
+	values: {enumerable: true},
+	entries: {enumerable: true}
 });
 
 function getHeaders(headers, kind = 'key+value') {
@@ -265,9 +275,9 @@ function getHeaders(headers, kind = 'key+value') {
 	return keys.map(
 		kind === 'key' ?
 			k => k.toLowerCase() :
-			kind === 'value' ?
+			(kind === 'value' ?
 				k => headers[MAP][k].join(', ') :
-				k => [k.toLowerCase(), headers[MAP][k].join(', ')]
+				k => [k.toLowerCase(), headers[MAP][k].join(', ')])
 	);
 }
 
@@ -297,8 +307,8 @@ const HeadersIteratorPrototype = Object.setPrototypeOf({
 			index
 		} = this[INTERNAL];
 		const values = getHeaders(target, kind);
-		const len = values.length;
-		if (index >= len) {
+		const length_ = values.length;
+		if (index >= length_) {
 			return {
 				value: undefined,
 				done: true
@@ -330,16 +340,16 @@ Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
  * @return  Object
  */
 export function exportNodeCompatibleHeaders(headers) {
-	const obj = Object.assign({ __proto__: null }, headers[MAP]);
+	const object = {__proto__: null, ...headers[MAP]};
 
-	// http.request() only supports string as Host header. This hack makes
+	// Http.request() only supports string as Host header. This hack makes
 	// specifying custom Host header possible.
 	const hostHeaderKey = find(headers[MAP], 'Host');
 	if (hostHeaderKey !== undefined) {
-		obj[hostHeaderKey] = obj[hostHeaderKey][0];
+		object[hostHeaderKey] = object[hostHeaderKey][0];
 	}
 
-	return obj;
+	return object;
 }
 
 /**
@@ -349,26 +359,29 @@ export function exportNodeCompatibleHeaders(headers) {
  * @param   Object  obj  Object of headers
  * @return  Headers
  */
-export function createHeadersLenient(obj) {
+export function createHeadersLenient(object) {
 	const headers = new Headers();
-	for (const name of Object.keys(obj)) {
+	for (const name of Object.keys(object)) {
 		if (invalidTokenRegex.test(name)) {
 			continue;
 		}
-		if (Array.isArray(obj[name])) {
-			for (const val of obj[name]) {
-				if (invalidHeaderCharRegex.test(val)) {
+
+		if (Array.isArray(object[name])) {
+			for (const value of object[name]) {
+				if (invalidHeaderCharRegex.test(value)) {
 					continue;
 				}
+
 				if (headers[MAP][name] === undefined) {
-					headers[MAP][name] = [val];
+					headers[MAP][name] = [value];
 				} else {
-					headers[MAP][name].push(val);
+					headers[MAP][name].push(value);
 				}
 			}
-		} else if (!invalidHeaderCharRegex.test(obj[name])) {
-			headers[MAP][name] = [obj[name]];
+		} else if (!invalidHeaderCharRegex.test(object[name])) {
+			headers[MAP][name] = [object[name]];
 		}
 	}
+
 	return headers;
 }

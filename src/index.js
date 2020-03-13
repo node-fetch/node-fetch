@@ -1,28 +1,23 @@
-
 /**
- * index.js
+ * Index.js
  *
  * a request API compatible with window.fetch
  *
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import Url from 'url';
 import http from 'http';
 import https from 'https';
 import zlib from 'zlib';
-import Stream from 'stream';
+import Stream, {PassThrough, pipeline as pump} from 'stream';
+import dataURIToBuffer from 'data-uri-to-buffer';
 
-import Body, { writeToStream, getTotalBytes } from './body';
+import Body, {writeToStream, getTotalBytes} from './body';
 import Response from './response';
-import Headers, { createHeadersLenient } from './headers';
-import Request, { getNodeRequestOptions } from './request';
-import FetchError from './fetch-error';
-import AbortError from './abort-error';
-
-// fix an issue where "PassThrough", "resolve" aren't a named export for node <10
-const PassThrough = Stream.PassThrough;
-const resolve_url = Url.resolve;
+import Headers, {createHeadersLenient} from './headers';
+import Request, {getNodeRequestOptions} from './request';
+import FetchError from './errors/fetch-error';
+import AbortError from './errors/abort-error';
 
 /**
  * Fetch function
@@ -31,45 +26,53 @@ const resolve_url = Url.resolve;
  * @param   Object   opts  Fetch options
  * @return  Promise
  */
-export default function fetch(url, opts) {
-
-	// allow custom promise
+export default function fetch(url, options_) {
+	// Allow custom promise
 	if (!fetch.Promise) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
 	}
 
-	if (/^data:/.test(url)) {
-		const request = new Request(url, opts);
-		try {
-			const data = Buffer.from(url.split(',')[1], 'base64')
-			const res = new Response(data.body, { headers: { 'Content-Type': data.mimeType || url.match(/^data:(.+);base64,.*$/)[1] } });
-			return fetch.Promise.resolve(res);
-		} catch (err) {
-			return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL, ${err.message}`, 'system', err));
-		}
+	// Regex for data uri
+	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[\w!$&',()*+;=\-.~:@/?%\s]*\s*$/i;
+
+	// If valid data uri
+	if (dataUriRegex.test(url)) {
+		const data = dataURIToBuffer(url);
+		const res = new Response(data, {headers: {'Content-Type': data.type}});
+		return fetch.Promise.resolve(res);
+	}
+
+	// If invalid data uri
+	if (url.toString().startsWith('data:')) {
+		const request = new Request(url, options_);
+		return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system'));
 	}
 
 	Body.Promise = fetch.Promise;
 
-	// wrap http.request into fetch
+	// Wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {
-		// build request object
-		const request = new Request(url, opts);
+		// Build request object
+		const request = new Request(url, options_);
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
-		const { signal } = request;
+		const {signal} = request;
 		let response = null;
 
-		const abort = ()  => {
-			let error = new AbortError('The user aborted a request.');
+		const abort = () => {
+			const error = new AbortError('The operation was aborted.');
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
 				request.body.destroy(error);
 			}
-			if (!response || !response.body) return;
+
+			if (!response || !response.body) {
+				return;
+			}
+
 			response.body.emit('error', error);
-		}
+		};
 
 		if (signal && signal.aborted) {
 			abort();
@@ -79,39 +82,35 @@ export default function fetch(url, opts) {
 		const abortAndFinalize = () => {
 			abort();
 			finalize();
-		}
+		};
 
-		// send request
-		const req = send(options);
-		let reqTimeout;
+		// Send request
+		const request_ = send(options);
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
 		}
 
 		function finalize() {
-			req.abort();
-			if (signal) signal.removeEventListener('abort', abortAndFinalize);
-			clearTimeout(reqTimeout);
+			request_.abort();
+			if (signal) {
+				signal.removeEventListener('abort', abortAndFinalize);
+			}
 		}
 
 		if (request.timeout) {
-			req.once('socket', socket => {
-				reqTimeout = setTimeout(() => {
-					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-					finalize();
-				}, request.timeout);
+			request_.setTimeout(request.timeout, () => {
+				finalize();
+				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
 			});
 		}
 
-		req.on('error', err => {
+		request_.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
 		});
 
-		req.on('response', res => {
-			clearTimeout(reqTimeout);
-
+		request_.on('response', res => {
 			const headers = createHeadersLenient(res.headers);
 
 			// HTTP fetch step 5
@@ -120,7 +119,7 @@ export default function fetch(url, opts) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : resolve_url(request.url, location);
+				const locationURL = location === null ? null : new URL(location, request.url);
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -129,18 +128,19 @@ export default function fetch(url, opts) {
 						finalize();
 						return;
 					case 'manual':
-						// node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
+						// Node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
 						if (locationURL !== null) {
-							// handle corrupted header
+							// Handle corrupted header
 							try {
 								headers.set('Location', locationURL);
-							} catch (err) {
+							} catch (error) {
 								// istanbul ignore next: nodejs server prevent invalid response headers, we can't test this through normal request
-								reject(err);
+								reject(error);
 							}
 						}
+
 						break;
-					case 'follow':
+					case 'follow': {
 						// HTTP-redirect fetch step 2
 						if (locationURL === null) {
 							break;
@@ -155,7 +155,7 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 6 (counter increment)
 						// Create a new Request object.
-						const requestOpts = {
+						const requestOptions = {
 							headers: new Headers(request.headers),
 							follow: request.follow,
 							counter: request.counter + 1,
@@ -176,32 +176,42 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 11
 						if (res.statusCode === 303 || ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST')) {
-							requestOpts.method = 'GET';
-							requestOpts.body = undefined;
-							requestOpts.headers.delete('content-length');
+							requestOptions.method = 'GET';
+							requestOptions.body = undefined;
+							requestOptions.headers.delete('content-length');
 						}
 
 						// HTTP-redirect fetch step 15
-						resolve(fetch(new Request(locationURL, requestOpts)));
+						resolve(fetch(new Request(locationURL, requestOptions)));
 						finalize();
 						return;
+					}
+
+					default:
+					// Do nothing
 				}
 			}
 
-			// prepare response
+			// Prepare response
 			res.once('end', () => {
-				if (signal) signal.removeEventListener('abort', abortAndFinalize);
+				if (signal) {
+					signal.removeEventListener('abort', abortAndFinalize);
+				}
 			});
-			let body = res.pipe(new PassThrough());
 
-			const response_options = {
+			let body = pump(res, new PassThrough(), error => {
+				reject(error);
+			});
+
+			const responseOptions = {
 				url: request.url,
 				status: res.statusCode,
 				statusText: res.statusMessage,
-				headers: headers,
+				headers,
 				size: request.size,
 				timeout: request.timeout,
-				counter: request.counter
+				counter: request.counter,
+				highWaterMark: request.highWaterMark
 			};
 
 			// HTTP-network fetch step 12.1.1.3
@@ -216,7 +226,7 @@ export default function fetch(url, opts) {
 			// 4. no content response (204)
 			// 5. content not modified response (304)
 			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
-				response = new Response(body, response_options);
+				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
 			}
@@ -231,49 +241,59 @@ export default function fetch(url, opts) {
 				finishFlush: zlib.Z_SYNC_FLUSH
 			};
 
-			// for gzip
-			if (codings == 'gzip' || codings == 'x-gzip') {
-				body = body.pipe(zlib.createGunzip(zlibOptions));
-				response = new Response(body, response_options);
+			// For gzip
+			if (codings === 'gzip' || codings === 'x-gzip') {
+				body = pump(body, zlib.createGunzip(zlibOptions), error => {
+					reject(error);
+				});
+				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
 			}
 
-			// for deflate
-			if (codings == 'deflate' || codings == 'x-deflate') {
-				// handle the infamous raw deflate response from old servers
+			// For deflate
+			if (codings === 'deflate' || codings === 'x-deflate') {
+				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = res.pipe(new PassThrough());
+				const raw = pump(res, new PassThrough(), error => {
+					reject(error);
+				});
 				raw.once('data', chunk => {
-					// see http://stackoverflow.com/questions/37519828
+					// See http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
-						body = body.pipe(zlib.createInflate());
+						body = pump(body, zlib.createInflate(), error => {
+							reject(error);
+						});
 					} else {
-						body = body.pipe(zlib.createInflateRaw());
+						body = pump(body, zlib.createInflateRaw(), error => {
+							reject(error);
+						});
 					}
-					response = new Response(body, response_options);
+
+					response = new Response(body, responseOptions);
 					resolve(response);
 				});
 				return;
 			}
 
-			// for br
-			if (codings == 'br' && typeof zlib.createBrotliDecompress === 'function') {
-				body = body.pipe(zlib.createBrotliDecompress());
-				response = new Response(body, response_options);
+			// For br
+			if (codings === 'br' && typeof zlib.createBrotliDecompress === 'function') {
+				body = pump(body, zlib.createBrotliDecompress(), error => {
+					reject(error);
+				});
+				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
 			}
 
-			// otherwise, use response as-is
-			response = new Response(body, response_options);
+			// Otherwise, use response as-is
+			response = new Response(body, responseOptions);
 			resolve(response);
 		});
 
-		writeToStream(req, request);
+		writeToStream(request_, request);
 	});
-
-};
+}
 
 /**
  * Redirect code matching
@@ -281,9 +301,9 @@ export default function fetch(url, opts) {
  * @param   Number   code  Status code
  * @return  Boolean
  */
-fetch.isRedirect = code => code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
+fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
 
-// expose Promise
+// Expose Promise
 fetch.Promise = global.Promise;
 export {
 	Headers,

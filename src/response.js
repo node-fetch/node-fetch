@@ -1,19 +1,13 @@
-
 /**
- * response.js
+ * Response.js
  *
  * Response class provides content decoding
  */
 
-import http from 'http';
-
-import Headers from './headers.js';
-import Body, { clone, extractContentType } from './body';
+import Headers from './headers';
+import Body, {clone, extractContentType} from './body';
 
 const INTERNALS = Symbol('Response internals');
-
-// fix an issue where "STATUS_CODES" aren't a named export for node <10
-const STATUS_CODES = http.STATUS_CODES;
 
 /**
  * Response class
@@ -23,13 +17,13 @@ const STATUS_CODES = http.STATUS_CODES;
  * @return  Void
  */
 export default class Response {
-	constructor(body = null, opts = {}) {
-		Body.call(this, body, opts);
+	constructor(body = null, options = {}) {
+		Body.call(this, body, options);
 
-		const status = opts.status || 200;
-		const headers = new Headers(opts.headers)
+		const status = options.status || 200;
+		const headers = new Headers(options.headers);
 
-		if (body != null && !headers.has('Content-Type')) {
+		if (body !== null && !headers.has('Content-Type')) {
 			const contentType = extractContentType(body);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
@@ -37,11 +31,12 @@ export default class Response {
 		}
 
 		this[INTERNALS] = {
-			url: opts.url,
+			url: options.url,
 			status,
-			statusText: opts.statusText || STATUS_CODES[status],
+			statusText: options.statusText || '',
 			headers,
-			counter: opts.counter
+			counter: options.counter,
+			highWaterMark: options.highWaterMark
 		};
 	}
 
@@ -72,19 +67,43 @@ export default class Response {
 		return this[INTERNALS].headers;
 	}
 
+	get highWaterMark() {
+		return this[INTERNALS].highWaterMark;
+	}
+
 	/**
 	 * Clone this response
 	 *
 	 * @return  Response
 	 */
 	clone() {
-		return new Response(clone(this), {
+		return new Response(clone(this, this.highWaterMark), {
 			url: this.url,
 			status: this.status,
 			statusText: this.statusText,
 			headers: this.headers,
 			ok: this.ok,
-			redirected: this.redirected
+			redirected: this.redirected,
+			size: this.size,
+			timeout: this.timeout
+		});
+	}
+
+	/**
+	 * @param {string} url    The URL that the new response is to originate from.
+	 * @param {number} status An optional status code for the response (e.g., 302.)
+	 * @returns {Response}    A Response object.
+	 */
+	static redirect(url, status = 302) {
+		if (![301, 302, 303, 307, 308].includes(status)) {
+			throw new RangeError('Failed to execute "redirect" on "response": Invalid status code');
+		}
+
+		return new Response(null, {
+			headers: {
+				location: new URL(url).toString()
+			},
+			status
 		});
 	}
 }
@@ -92,13 +111,13 @@ export default class Response {
 Body.mixIn(Response.prototype);
 
 Object.defineProperties(Response.prototype, {
-	url: { enumerable: true },
-	status: { enumerable: true },
-	ok: { enumerable: true },
-	redirected: { enumerable: true },
-	statusText: { enumerable: true },
-	headers: { enumerable: true },
-	clone: { enumerable: true }
+	url: {enumerable: true},
+	status: {enumerable: true},
+	ok: {enumerable: true},
+	redirected: {enumerable: true},
+	statusText: {enumerable: true},
+	headers: {enumerable: true},
+	clone: {enumerable: true}
 });
 
 Object.defineProperty(Response.prototype, Symbol.toStringTag, {
