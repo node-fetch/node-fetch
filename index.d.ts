@@ -9,8 +9,8 @@
 
 /// <reference types="node" />
 
-import {Agent} from 'http';
-import {AbortSignal} from '../externals';
+import { Agent } from 'http';
+import { AbortSignal } from './externals';
 
 export class Request extends Body {
 	method: string;
