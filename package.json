@@ -4,15 +4,15 @@
 	"description": "A light-weight module that brings window.fetch to node.js",
 	"main": "./dist/dist-src",
 	"files": [
-		"src/**/*",
-		"dist/**/*",
-		"types/**/*.d.ts"
+		"src",
+		"dist",
+		"*.d.ts"
 	],
 	"engines": {
 		"node": ">=10.0.0"
 	},
 	"scripts": {
-		"build": "pika-pack --out dist/",
+		"build": "pika build --out dist/",
 		"prepublishOnly": "npm run build",
 		"test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/*.js",
 		"report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/*.js",
@@ -43,8 +43,6 @@
 		"@babel/preset-env": "^7.8.7",
 		"@babel/register": "^7.8.6",
 		"@pika/pack": "^0.5.0",
-		"@pika/plugin-build-types": "^0.9.2",
-		"@pika/plugin-copy-assets": "^0.9.2",
 		"@pika/plugin-standard-pkg": "^0.9.2",
 		"abort-controller": "^3.0.0",
 		"abortcontroller-polyfill": "^1.4.0",
@@ -71,17 +69,6 @@
 		"pipeline": [
 			[
 				"@pika/plugin-standard-pkg"
-			],
-			[
-				"@pika/plugin-build-types"
-			],
-			[
-				"@pika/plugin-copy-assets",
-				{
-					"files": [
-						"externals.d.ts"
-					]
-				}
 			]
 		]
 	},
