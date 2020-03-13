@@ -3,7 +3,7 @@
     "version": "3.0.0-beta.1",
     "description": "A light-weight module that brings window.fetch to node.js",
     "main": "dist/dist-node/index.js",
-    "types": "types/index.d.ts",
+    "types": "dist/dist-types/index.d.ts",
     "files": [
         "src/**/*",
         "dist/**/*",
