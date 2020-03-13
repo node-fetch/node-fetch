@@ -67,6 +67,10 @@ We are working towards changing body to become either null or a stream.
 
 The default user agent has been changed from `node-fetch/1.0 (+https://github.com/node-fetch/node-fetch)` to `node-fetch (+https://github.com/node-fetch/node-fetch)`.
 
+## Arbitrary URLs are no longer supported
+
+Since in 3.x we are using the WHATWG's `new URL()`, arbitrary URL parsing will fail due to lack of base.
+
 # Enhancements
 
 ## Data URI support
@@ -85,9 +89,11 @@ We now use the new Node.js [WHATWG-compliant URL API][whatwg-nodejs-url], so UTF
 
 Since the v3.x required at least Node.js 10, we can utilise the new API.
 
-## `AbortError` now uses a w3c defined message
+## Creating Request/Response objects with relative URLs is no longer supported
 
-To stay spec-compliant, we changed the `AbortError` message to `The operation was aborted.`.
+We introduced Node.js `new URL()` API in 3.x, because it offers better UTF-8 support and is WHATWG URL compatible. The drawback is, given current limit of the API (nodejs/node#12682), it's not possible to support relative URL parsing without hacks.
+Due to the lack of a browsing context in Node.js, we opted to drop support for relative URLs on Request/Response object, and it will now throw errors if you do so.
+The main `fetch()` function will support absolute URLs and data url.
 
 ## Bundled TypeScript types
 
