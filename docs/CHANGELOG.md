@@ -3,9 +3,7 @@ Changelog
 
 # 3.x release
 
-## v3.0.0
-
-<!--- Not completed yet, since the v3 roadmap is not fully finished -->
+## v3.0.0-beta.1
 
 - **Breaking:** minimum supported Node.js version is now 10.
 - Enhance: added new node-fetch-only option: `highWaterMark`.
