@@ -3,6 +3,10 @@ Changelog
 
 # 3.x release
 
+## v3.0.0-beta.2
+
+- Fix: exporting `main` and `types` at the correct path, oops.
+
 ## v3.0.0-beta.1
 
 - **Breaking:** minimum supported Node.js version is now 10.
