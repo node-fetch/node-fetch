@@ -87,7 +87,7 @@ We now use the new Node.js [WHATWG-compliant URL API][whatwg-nodejs-url], so UTF
 
 ## Request errors are now piped using `stream.pipeline`
 
-Since the v3.x required at least Node.js 10, we can utilise the new API.
+Since the v3.x requires at least Node.js 10, we can utilise the new API.
 
 ## Creating Request/Response objects with relative URLs is no longer supported
 
