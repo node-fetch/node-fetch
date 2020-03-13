@@ -1,6 +1,31 @@
-
 Changelog
 =========
+
+# 3.x release
+
+## v3.0.0
+
+<!--- Not completed yet, since the v3 roadmap is not fully finished -->
+
+- **Breaking:** minimum supported Node.js version is now 10.
+- Enhance: added new node-fetch-only option: `highWaterMark`.
+- Enhance: `AbortError` now uses a w3c defined message.
+- Enhance: data URI support.
+- Enhance: drop existing blob implementation code and use fetch-blob as dependency instead.
+- Enhance: modernise the code behind `FetchError` and `AbortError`.
+- Enhance: replace deprecated `url.parse()` and `url.replace()` with the new WHATWG's `new URL()`
+- Enhance: allow excluding a `user-agent` in a fetch request by setting it's header to null.
+- Fix: `Response.statusText` no longer sets a default message derived from the HTTP status code.
+- Fix: missing response stream error events.
+- Fix: do not use constructor.name to check object.
+- Fix: convert `Content-Encoding` to lowercase.
+- Fix: propagate size and timeout to cloned response.
+- Other: bundle TypeScript types.
+- Other: replace Rollup with @pika/pack.
+- Other: introduce linting to the project.
+- Other: simplify Travis CI build matrix.
+- Other: dev dependency update.
+- Other: readme update.
 
 
 # 2.x release
@@ -40,7 +65,7 @@ Changelog
 ## v2.2.1
 
 - Fix: `compress` flag shouldn't overwrite existing `Accept-Encoding` header.
-- Fix: multiple `import` rules, where `PassThrough` etc. doesn't have a named export when using node <10 and `--exerimental-modules` flag.
+- Fix: multiple `import` rules, where `PassThrough` etc. doesn't have a named export when using node <10 and `--experimental-modules` flag.
 - Other: Better README.
 
 ## v2.2.0
@@ -74,7 +99,7 @@ Fix packaging errors in v2.1.0.
 
 ## v2.0.0
 
-This is a major release. Check [our upgrade guide](https://github.com/bitinn/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
+This is a major release. Check [our upgrade guide](https://github.com/node-fetch/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
 
 ### General changes
 
@@ -99,7 +124,7 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 ### Response and Request classes
 
 - Major: `response.text()` no longer attempts to detect encoding, instead always opting for UTF-8 (per spec); use `response.textConverted()` for the v1 behavior
-- Major: make `response.json()` throw error instead of returning an empty object on 204 no-content respose (per spec; reverts behavior changed in v1.6.2)
+- Major: make `response.json()` throw error instead of returning an empty object on 204 no-content response (per spec; reverts behavior changed in v1.6.2)
 - Major: internal methods are no longer exposed
 - Major: throw error when a `GET` or `HEAD` Request is constructed with a non-null body (per spec)
 - Enhance: add `response.arrayBuffer()` (also applies to Requests)
@@ -124,9 +149,9 @@ This is a major release. Check [our upgrade guide](https://github.com/bitinn/nod
 
 # 1.x release
 
-## backport releases (v1.7.0 and beyond)
+## Backport releases (v1.7.0 and beyond)
 
-See [changelog on 1.x branch](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) for details.
+See [changelog on 1.x branch](https://github.com/node-fetch/node-fetch/blob/1.x/CHANGELOG.md) for details.
 
 ## v1.6.3
 
