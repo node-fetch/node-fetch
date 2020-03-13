@@ -1,6 +1,6 @@
 {
     "name": "node-fetch",
-    "version": "2.6.0",
+    "version": "3.0.0-beta.1",
     "description": "A light-weight module that brings window.fetch to node.js",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
@@ -101,8 +101,8 @@
             "complexity": 0,
             "promise/prefer-await-to-then": 0,
             "no-mixed-operators": 0,
-			"no-negated-condition": 0,
-			"unicorn/prevent-abbreviations": 0
+            "no-negated-condition": 0,
+            "unicorn/prevent-abbreviations": 0
         },
         "ignores": [
             "dist"
