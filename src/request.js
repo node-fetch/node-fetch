@@ -23,10 +23,10 @@ const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
  * @param  {*} obj
  * @return {boolean}
  */
-function isRequest(obj) {
+function isRequest(object) {
 	return (
-		typeof obj === 'object' &&
-		typeof obj[INTERNALS] === 'object'
+		typeof object === 'object' &&
+		typeof object[INTERNALS] === 'object'
 	);
 }
 
@@ -36,15 +36,15 @@ function isRequest(obj) {
  * @param  {string} urlStr
  * @return {void}
  */
-function parseURL(urlStr) {
+function parseURL(urlString) {
 	/*
 		Check whether the URL is absolute or not
 
 		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
 		Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
 	*/
-	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
-		return new URL(urlStr);
+	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlString)) {
+		return new URL(urlString);
 	}
 
 	throw new TypeError('Only absolute URLs are supported');
@@ -221,7 +221,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7
 	let contentLengthValue = null;
-	if (request.body === null && /^(POST|PUT)$/i.test(request.method)) {
+	if (request.body === null && /^(post|put)$/i.test(request.method)) {
 		contentLengthValue = '0';
 	}
 
@@ -259,7 +259,7 @@ export function getNodeRequestOptions(request) {
 	// chunked encoding is handled by Node.js
 
 	// manually spread the URL object instead of spread syntax
-	const reqOptions = {
+	const requestOptions = {
 		path: parsedURL.pathname,
 		pathname: parsedURL.pathname,
 		hostname: parsedURL.hostname,
@@ -274,5 +274,5 @@ export function getNodeRequestOptions(request) {
 		agent
 	};
 
-	return reqOptions;
+	return requestOptions;
 }

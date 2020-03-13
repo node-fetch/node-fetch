@@ -16,9 +16,9 @@ const base = `http://${local.hostname}:${local.port}/`;
 
 describe('Request', () => {
 	it('should have attributes conforming to Web IDL', () => {
-		const req = new Request('https://github.com/');
+		const request = new Request('https://github.com/');
 		const enumerableProperties = [];
-		for (const property in req) {
+		for (const property in request) {
 			enumerableProperties.push(property);
 		}
 
@@ -43,7 +43,7 @@ describe('Request', () => {
 			'body', 'bodyUsed', 'method', 'url', 'headers', 'redirect', 'signal'
 		]) {
 			expect(() => {
-				req[toCheck] = 'abc';
+				request[toCheck] = 'abc';
 			}).to.throw();
 		}
 	});
@@ -117,80 +117,80 @@ describe('Request', () => {
 	});
 
 	it('should default to null as body', () => {
-		const req = new Request(base);
-		expect(req.body).to.equal(null);
-		return req.text().then(result => expect(result).to.equal(''));
+		const request = new Request(base);
+		expect(request.body).to.equal(null);
+		return request.text().then(result => expect(result).to.equal(''));
 	});
 
 	it('should support parsing headers', () => {
 		const url = base;
-		const req = new Request(url, {
+		const request = new Request(url, {
 			headers: {
 				a: '1'
 			}
 		});
-		expect(req.url).to.equal(url);
-		expect(req.headers.get('a')).to.equal('1');
+		expect(request.url).to.equal(url);
+		expect(request.headers.get('a')).to.equal('1');
 	});
 
 	it('should support arrayBuffer() method', () => {
 		const url = base;
-		const req = new Request(url, {
+		const request = new Request(url, {
 			method: 'POST',
 			body: 'a=1'
 		});
-		expect(req.url).to.equal(url);
-		return req.arrayBuffer().then(result => {
+		expect(request.url).to.equal(url);
+		return request.arrayBuffer().then(result => {
 			expect(result).to.be.an.instanceOf(ArrayBuffer);
-			const str = String.fromCharCode.apply(null, new Uint8Array(result));
-			expect(str).to.equal('a=1');
+			const string = String.fromCharCode.apply(null, new Uint8Array(result));
+			expect(string).to.equal('a=1');
 		});
 	});
 
 	it('should support text() method', () => {
 		const url = base;
-		const req = new Request(url, {
+		const request = new Request(url, {
 			method: 'POST',
 			body: 'a=1'
 		});
-		expect(req.url).to.equal(url);
-		return req.text().then(result => {
+		expect(request.url).to.equal(url);
+		return request.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
 	});
 
 	it('should support json() method', () => {
 		const url = base;
-		const req = new Request(url, {
+		const request = new Request(url, {
 			method: 'POST',
 			body: '{"a":1}'
 		});
-		expect(req.url).to.equal(url);
-		return req.json().then(result => {
+		expect(request.url).to.equal(url);
+		return request.json().then(result => {
 			expect(result.a).to.equal(1);
 		});
 	});
 
 	it('should support buffer() method', () => {
 		const url = base;
-		const req = new Request(url, {
+		const request = new Request(url, {
 			method: 'POST',
 			body: 'a=1'
 		});
-		expect(req.url).to.equal(url);
-		return req.buffer().then(result => {
+		expect(request.url).to.equal(url);
+		return request.buffer().then(result => {
 			expect(result.toString()).to.equal('a=1');
 		});
 	});
 
 	it('should support blob() method', () => {
 		const url = base;
-		const req = new Request(url, {
+		const request = new Request(url, {
 			method: 'POST',
 			body: Buffer.from('a=1')
 		});
-		expect(req.url).to.equal(url);
-		return req.blob().then(result => {
+		expect(request.url).to.equal(url);
+		return request.blob().then(result => {
 			expect(result).to.be.an.instanceOf(Blob);
 			expect(result.size).to.equal(3);
 			expect(result.type).to.equal('');
@@ -203,7 +203,7 @@ describe('Request', () => {
 		body = body.pipe(new stream.PassThrough());
 		const agent = new http.Agent();
 		const {signal} = new AbortController();
-		const req = new Request(url, {
+		const request = new Request(url, {
 			body,
 			method: 'POST',
 			redirect: 'manual',
@@ -215,7 +215,7 @@ describe('Request', () => {
 			agent,
 			signal
 		});
-		const cl = req.clone();
+		const cl = request.clone();
 		expect(cl.url).to.equal(url);
 		expect(cl.method).to.equal('POST');
 		expect(cl.redirect).to.equal('manual');
@@ -228,38 +228,38 @@ describe('Request', () => {
 		expect(cl.signal).to.equal(signal);
 		// Clone body shouldn't be the same body
 		expect(cl.body).to.not.equal(body);
-		return Promise.all([cl.text(), req.text()]).then(results => {
+		return Promise.all([cl.text(), request.text()]).then(results => {
 			expect(results[0]).to.equal('a=1');
 			expect(results[1]).to.equal('a=1');
 		});
 	});
 
 	it('should support ArrayBuffer as body', () => {
-		const req = new Request(base, {
+		const request = new Request(base, {
 			method: 'POST',
 			body: stringToArrayBuffer('a=1')
 		});
-		return req.text().then(result => {
+		return request.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
 	});
 
 	it('should support Uint8Array as body', () => {
-		const req = new Request(base, {
+		const request = new Request(base, {
 			method: 'POST',
 			body: new Uint8Array(stringToArrayBuffer('a=1'))
 		});
-		return req.text().then(result => {
+		return request.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
 	});
 
 	it('should support DataView as body', () => {
-		const req = new Request(base, {
+		const request = new Request(base, {
 			method: 'POST',
 			body: new DataView(stringToArrayBuffer('a=1'))
 		});
-		return req.text().then(result => {
+		return request.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
 	});

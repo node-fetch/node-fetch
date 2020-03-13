@@ -26,14 +26,14 @@ import AbortError from './errors/abort-error';
  * @param   Object   opts  Fetch options
  * @return  Promise
  */
-export default function fetch(url, opts) {
+export default function fetch(url, options_) {
 	// Allow custom promise
 	if (!fetch.Promise) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
 	}
 
 	// Regex for data uri
-	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+,;=\-._~:@/?%\s]*\s*$/i;
+	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[\w!$&',()*+;=\-.~:@/?%\s]*\s*$/i;
 
 	// If valid data uri
 	if (dataUriRegex.test(url)) {
@@ -44,7 +44,7 @@ export default function fetch(url, opts) {
 
 	// If invalid data uri
 	if (url.toString().startsWith('data:')) {
-		const request = new Request(url, opts);
+		const request = new Request(url, options_);
 		return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system'));
 	}
 
@@ -53,7 +53,7 @@ export default function fetch(url, opts) {
 	// Wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {
 		// Build request object
-		const request = new Request(url, opts);
+		const request = new Request(url, options_);
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
@@ -85,32 +85,32 @@ export default function fetch(url, opts) {
 		};
 
 		// Send request
-		const req = send(options);
+		const request_ = send(options);
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
 		}
 
 		function finalize() {
-			req.abort();
+			request_.abort();
 			if (signal) {
 				signal.removeEventListener('abort', abortAndFinalize);
 			}
 		}
 
 		if (request.timeout) {
-			req.setTimeout(request.timeout, () => {
+			request_.setTimeout(request.timeout, () => {
 				finalize();
 				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
 			});
 		}
 
-		req.on('error', err => {
+		request_.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
 		});
 
-		req.on('response', res => {
+		request_.on('response', res => {
 			const headers = createHeadersLenient(res.headers);
 
 			// HTTP fetch step 5
@@ -155,7 +155,7 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 6 (counter increment)
 						// Create a new Request object.
-						const requestOpts = {
+						const requestOptions = {
 							headers: new Headers(request.headers),
 							follow: request.follow,
 							counter: request.counter + 1,
@@ -176,13 +176,13 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 11
 						if (res.statusCode === 303 || ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST')) {
-							requestOpts.method = 'GET';
-							requestOpts.body = undefined;
-							requestOpts.headers.delete('content-length');
+							requestOptions.method = 'GET';
+							requestOptions.body = undefined;
+							requestOptions.headers.delete('content-length');
 						}
 
 						// HTTP-redirect fetch step 15
-						resolve(fetch(new Request(locationURL, requestOpts)));
+						resolve(fetch(new Request(locationURL, requestOptions)));
 						finalize();
 						return;
 					}
@@ -291,7 +291,7 @@ export default function fetch(url, opts) {
 			resolve(response);
 		});
 
-		writeToStream(req, request);
+		writeToStream(request_, request);
 	});
 }
 

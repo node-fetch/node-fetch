@@ -17,11 +17,11 @@ const INTERNALS = Symbol('Response internals');
  * @return  Void
  */
 export default class Response {
-	constructor(body = null, opts = {}) {
-		Body.call(this, body, opts);
+	constructor(body = null, options = {}) {
+		Body.call(this, body, options);
 
-		const status = opts.status || 200;
-		const headers = new Headers(opts.headers);
+		const status = options.status || 200;
+		const headers = new Headers(options.headers);
 
 		if (body !== null && !headers.has('Content-Type')) {
 			const contentType = extractContentType(body);
@@ -31,12 +31,12 @@ export default class Response {
 		}
 
 		this[INTERNALS] = {
-			url: opts.url,
+			url: options.url,
 			status,
-			statusText: opts.statusText || '',
+			statusText: options.statusText || '',
 			headers,
-			counter: opts.counter,
-			highWaterMark: opts.highWaterMark
+			counter: options.counter,
+			highWaterMark: options.highWaterMark
 		};
 	}
 

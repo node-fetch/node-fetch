@@ -58,7 +58,7 @@ after(done => {
 	local.stop(done);
 });
 
-const itIf = val => val ? it : it.skip;
+const itIf = value => value ? it : it.skip;
 
 function streamToPromise(stream, dataHandler) {
 	return new Promise((resolve, reject) => {
@@ -224,10 +224,10 @@ describe('node-fetch', () => {
 
 	it('should send request with custom headers', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			headers: {'x-custom-header': 'abc'}
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.headers['x-custom-header']).to.equal('abc');
@@ -236,10 +236,10 @@ describe('node-fetch', () => {
 
 	it('should accept headers instance', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			headers: new Headers({'x-custom-header': 'abc'})
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.headers['x-custom-header']).to.equal('abc');
@@ -248,12 +248,12 @@ describe('node-fetch', () => {
 
 	it('should accept custom host header', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			headers: {
 				host: 'example.com'
 			}
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.headers.host).to.equal('example.com');
@@ -262,12 +262,12 @@ describe('node-fetch', () => {
 
 	it('should accept custom HoSt header', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			headers: {
 				HoSt: 'example.com'
 			}
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.headers.host).to.equal('example.com');
@@ -325,11 +325,11 @@ describe('node-fetch', () => {
 
 	it('should follow POST request redirect code 301 with GET', () => {
 		const url = `${base}redirect/301`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(result => {
@@ -341,11 +341,11 @@ describe('node-fetch', () => {
 
 	it('should follow PATCH request redirect code 301 with PATCH', () => {
 		const url = `${base}redirect/301`;
-		const opts = {
+		const options = {
 			method: 'PATCH',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(res => {
@@ -357,11 +357,11 @@ describe('node-fetch', () => {
 
 	it('should follow POST request redirect code 302 with GET', () => {
 		const url = `${base}redirect/302`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(result => {
@@ -373,11 +373,11 @@ describe('node-fetch', () => {
 
 	it('should follow PATCH request redirect code 302 with PATCH', () => {
 		const url = `${base}redirect/302`;
-		const opts = {
+		const options = {
 			method: 'PATCH',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(res => {
@@ -389,11 +389,11 @@ describe('node-fetch', () => {
 
 	it('should follow redirect code 303 with GET', () => {
 		const url = `${base}redirect/303`;
-		const opts = {
+		const options = {
 			method: 'PUT',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(result => {
@@ -405,11 +405,11 @@ describe('node-fetch', () => {
 
 	it('should follow PATCH request redirect code 307 with PATCH', () => {
 		const url = `${base}redirect/307`;
-		const opts = {
+		const options = {
 			method: 'PATCH',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 			return res.json().then(result => {
@@ -421,31 +421,31 @@ describe('node-fetch', () => {
 
 	it('should not follow non-GET redirect if body is a readable stream', () => {
 		const url = `${base}redirect/307`;
-		const opts = {
+		const options = {
 			method: 'PATCH',
 			body: resumer().queue('a=1').end()
 		};
-		return expect(fetch(url, opts)).to.eventually.be.rejected
+		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'unsupported-redirect');
 	});
 
 	it('should obey maximum redirect, reject case', () => {
 		const url = `${base}redirect/chain`;
-		const opts = {
+		const options = {
 			follow: 1
 		};
-		return expect(fetch(url, opts)).to.eventually.be.rejected
+		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'max-redirect');
 	});
 
 	it('should obey redirect chain, resolve case', () => {
 		const url = `${base}redirect/chain`;
-		const opts = {
+		const options = {
 			follow: 2
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			expect(res.status).to.equal(200);
 		});
@@ -453,20 +453,20 @@ describe('node-fetch', () => {
 
 	it('should allow not following redirect', () => {
 		const url = `${base}redirect/301`;
-		const opts = {
+		const options = {
 			follow: 0
 		};
-		return expect(fetch(url, opts)).to.eventually.be.rejected
+		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'max-redirect');
 	});
 
 	it('should support redirect mode, manual flag', () => {
 		const url = `${base}redirect/301`;
-		const opts = {
+		const options = {
 			redirect: 'manual'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.status).to.equal(301);
 			expect(res.headers.get('location')).to.equal(`${base}inspect`);
@@ -475,20 +475,20 @@ describe('node-fetch', () => {
 
 	it('should support redirect mode, error flag', () => {
 		const url = `${base}redirect/301`;
-		const opts = {
+		const options = {
 			redirect: 'error'
 		};
-		return expect(fetch(url, opts)).to.eventually.be.rejected
+		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'no-redirect');
 	});
 
 	it('should support redirect mode, manual flag when there is no redirect', () => {
 		const url = `${base}hello`;
-		const opts = {
+		const options = {
 			redirect: 'manual'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('location')).to.be.null;
@@ -497,10 +497,10 @@ describe('node-fetch', () => {
 
 	it('should follow redirect code 301 and keep existing headers', () => {
 		const url = `${base}redirect/301`;
-		const opts = {
+		const options = {
 			headers: new Headers({'x-custom-header': 'abc'})
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
 			return res.json();
 		}).then(res => {
@@ -519,10 +519,10 @@ describe('node-fetch', () => {
 
 	it('should treat broken redirect as ordinary response (manual)', () => {
 		const url = `${base}redirect/no-location`;
-		const opts = {
+		const options = {
 			redirect: 'manual'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.status).to.equal(301);
 			expect(res.headers.get('location')).to.be.null;
@@ -815,10 +815,10 @@ describe('node-fetch', () => {
 
 	it('should allow disabling auto decompression', () => {
 		const url = `${base}gzip`;
-		const opts = {
+		const options = {
 			compress: false
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return res.text().then(result => {
 				expect(result).to.be.a('string');
@@ -829,33 +829,33 @@ describe('node-fetch', () => {
 
 	it('should not overwrite existing accept-encoding header when auto decompression is true', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			compress: true,
 			headers: {
 				'Accept-Encoding': 'gzip'
 			}
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.headers['accept-encoding']).to.equal('gzip');
 		});
 	});
 
 	it('should allow custom timeout', () => {
 		const url = `${base}timeout`;
-		const opts = {
+		const options = {
 			timeout: 20
 		};
-		return expect(fetch(url, opts)).to.eventually.be.rejected
+		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'request-timeout');
 	});
 
 	it('should allow custom timeout on response body', () => {
 		const url = `${base}slow`;
-		const opts = {
+		const options = {
 			timeout: 20
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejected
 				.and.be.an.instanceOf(FetchError)
@@ -865,17 +865,17 @@ describe('node-fetch', () => {
 
 	it('should allow custom timeout on redirected requests', () => {
 		const url = `${base}redirect/slow-chain`;
-		const opts = {
+		const options = {
 			timeout: 20
 		};
-		return expect(fetch(url, opts)).to.eventually.be.rejected
+		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.have.property('type', 'request-timeout');
 	});
 
 	it('should clear internal timeout on fetch response', function (done) {
 		this.timeout(2000);
-		spawn('node', ['-e', `require('./')('${base}hello', { timeout: 10000 })`])
+		spawn('node', ['-e', `require(’./’)(’${base}hello’, { timeout: 10000 })`])
 			.on('exit', () => {
 				done();
 			});
@@ -883,7 +883,7 @@ describe('node-fetch', () => {
 
 	it('should clear internal timeout on fetch redirect', function (done) {
 		this.timeout(2000);
-		spawn('node', ['-e', `require('./')('${base}redirect/301', { timeout: 10000 })`])
+		spawn('node', ['-e', `require(’./’)(’${base}redirect/301’, { timeout: 10000 })`])
 			.on('exit', () => {
 				done();
 			});
@@ -891,7 +891,7 @@ describe('node-fetch', () => {
 
 	it('should clear internal timeout on fetch error', function (done) {
 		this.timeout(2000);
-		spawn('node', ['-e', `require('./')('${base}error/reset', { timeout: 10000 })`])
+		spawn('node', ['-e', `require(’./’)(’${base}error/reset’, { timeout: 10000 })`])
 			.on('exit', () => {
 				done();
 			});
@@ -935,11 +935,11 @@ describe('node-fetch', () => {
 	it('should reject immediately if signal has already been aborted', () => {
 		const url = `${base}timeout`;
 		const controller = new AbortController();
-		const opts = {
+		const options = {
 			signal: controller.signal
 		};
 		controller.abort();
-		const fetched = fetch(url, opts);
+		const fetched = fetch(url, options);
 		return expect(fetched).to.eventually.be.rejected
 			.and.be.an.instanceOf(Error)
 			.and.include({
@@ -951,10 +951,10 @@ describe('node-fetch', () => {
 	it('should clear internal timeout when request is cancelled with an AbortSignal', function (done) {
 		this.timeout(2000);
 		const script = `
-			var AbortController = require('abortcontroller-polyfill/dist/cjs-ponyfill').AbortController;
+			var AbortController = require(’abortcontroller-polyfill/dist/cjs-ponyfill’).AbortController;
 			var controller = new AbortController();
-			require('./')(
-				'${base}timeout',
+			require(’./’)(
+				’${base}timeout’,
 				{ signal: controller.signal, timeout: 10000 }
 			);
 			setTimeout(function () { controller.abort(); }, 20);
@@ -1133,12 +1133,12 @@ describe('node-fetch', () => {
 
 	it('should allow setting User-Agent', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			headers: {
 				'user-agent': 'faked'
 			}
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.headers['user-agent']).to.equal('faked');
 		});
 	});
@@ -1152,22 +1152,22 @@ describe('node-fetch', () => {
 
 	it('should allow setting Accept header', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			headers: {
 				accept: 'application/json'
 			}
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.headers.accept).to.equal('application/json');
 		});
 	});
 
 	it('should allow POST request', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1179,11 +1179,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with string body', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1196,11 +1196,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with buffer body', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: Buffer.from('a=1', 'utf-8')
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1213,11 +1213,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with ArrayBuffer body', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: stringToArrayBuffer('Hello, world!\n')
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('Hello, world!\n');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
@@ -1228,11 +1228,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with ArrayBuffer body from a VM context', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: new VMUint8Array(Buffer.from('Hello, world!\n')).buffer
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('Hello, world!\n');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
@@ -1243,11 +1243,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with ArrayBufferView (Uint8Array) body', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'))
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('Hello, world!\n');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
@@ -1258,11 +1258,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with ArrayBufferView (DataView) body', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: new DataView(stringToArrayBuffer('Hello, world!\n'))
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('Hello, world!\n');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
@@ -1273,11 +1273,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with ArrayBufferView (Uint8Array) body from a VM context', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: new VMUint8Array(Buffer.from('Hello, world!\n'))
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('Hello, world!\n');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
@@ -1288,11 +1288,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'), 7, 6)
 		};
-		return fetch(url, opts).then(res => res.json()).then(res => {
+		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('world!');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
@@ -1303,11 +1303,11 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with blob body without type', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: new Blob(['a=1'])
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1320,13 +1320,13 @@ describe('node-fetch', () => {
 
 	it('should allow POST request with blob body with type', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: new Blob(['a=1'], {
 				type: 'text/plain;charset=UTF-8'
 			})
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1342,11 +1342,11 @@ describe('node-fetch', () => {
 		body = body.pipe(new stream.PassThrough());
 
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1362,11 +1362,11 @@ describe('node-fetch', () => {
 		form.append('a', '1');
 
 		const url = `${base}multipart`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: form
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1381,12 +1381,12 @@ describe('node-fetch', () => {
 		form.append('my_field', fs.createReadStream(path.join(__dirname, './utils/dummy.txt')));
 
 		const url = `${base}multipart`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: form
 		};
 
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1404,12 +1404,12 @@ describe('node-fetch', () => {
 		headers.b = '2';
 
 		const url = `${base}multipart`;
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: form,
 			headers
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1423,11 +1423,11 @@ describe('node-fetch', () => {
 	it('should allow POST request with object body', () => {
 		const url = `${base}inspect`;
 		// Note that fetch simply calls tostring on an object
-		const opts = {
+		const options = {
 			method: 'POST',
 			body: {a: 1}
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1438,46 +1438,46 @@ describe('node-fetch', () => {
 	});
 
 	it('constructing a Response with URLSearchParams as body should have a Content-Type', () => {
-		const params = new URLSearchParams();
-		const res = new Response(params);
+		const parameters = new URLSearchParams();
+		const res = new Response(parameters);
 		res.headers.get('Content-Type');
 		expect(res.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
 	});
 
 	it('constructing a Request with URLSearchParams as body should have a Content-Type', () => {
-		const params = new URLSearchParams();
-		const req = new Request(base, {method: 'POST', body: params});
-		expect(req.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
+		const parameters = new URLSearchParams();
+		const request = new Request(base, {method: 'POST', body: parameters});
+		expect(request.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
 	});
 
 	it('Reading a body with URLSearchParams should echo back the result', () => {
-		const params = new URLSearchParams();
-		params.append('a', '1');
-		return new Response(params).text().then(text => {
+		const parameters = new URLSearchParams();
+		parameters.append('a', '1');
+		return new Response(parameters).text().then(text => {
 			expect(text).to.equal('a=1');
 		});
 	});
 
 	// Body should been cloned...
 	it('constructing a Request/Response with URLSearchParams and mutating it should not affected body', () => {
-		const params = new URLSearchParams();
-		const req = new Request(`${base}inspect`, {method: 'POST', body: params});
-		params.append('a', '1');
-		return req.text().then(text => {
+		const parameters = new URLSearchParams();
+		const request = new Request(`${base}inspect`, {method: 'POST', body: parameters});
+		parameters.append('a', '1');
+		return request.text().then(text => {
 			expect(text).to.equal('');
 		});
 	});
 
 	it('should allow POST request with URLSearchParams as body', () => {
-		const params = new URLSearchParams();
-		params.append('a', '1');
+		const parameters = new URLSearchParams();
+		parameters.append('a', '1');
 
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
-			body: params
+			body: parameters
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1488,16 +1488,16 @@ describe('node-fetch', () => {
 	});
 
 	it('should still recognize URLSearchParams when extended', () => {
-		class CustomSearchParams extends URLSearchParams { }
-		const params = new CustomSearchParams();
-		params.append('a', '1');
+		class CustomSearchParameters extends URLSearchParams { }
+		const parameters = new CustomSearchParameters();
+		parameters.append('a', '1');
 
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
-			body: params
+			body: parameters
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1510,16 +1510,16 @@ describe('node-fetch', () => {
 	/* For 100% code coverage, checks for duck-typing-only detection
 	 * where both constructor.name and brand tests fail */
 	it('should still recognize URLSearchParams when extended from polyfill', () => {
-		class CustomPolyfilledSearchParams extends URLSearchParams { }
-		const params = new CustomPolyfilledSearchParams();
-		params.append('a', '1');
+		class CustomPolyfilledSearchParameters extends URLSearchParams { }
+		const parameters = new CustomPolyfilledSearchParameters();
+		parameters.append('a', '1');
 
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'POST',
-			body: params
+			body: parameters
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1532,14 +1532,14 @@ describe('node-fetch', () => {
 	it('should overwrite Content-Length if possible', () => {
 		const url = `${base}inspect`;
 		// Note that fetch simply calls tostring on an object
-		const opts = {
+		const options = {
 			method: 'POST',
 			headers: {
 				'Content-Length': '1000'
 			},
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1552,11 +1552,11 @@ describe('node-fetch', () => {
 
 	it('should allow PUT request', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'PUT',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('PUT');
@@ -1566,10 +1566,10 @@ describe('node-fetch', () => {
 
 	it('should allow DELETE request', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'DELETE'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('DELETE');
@@ -1578,11 +1578,11 @@ describe('node-fetch', () => {
 
 	it('should allow DELETE request with string body', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'DELETE',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('DELETE');
@@ -1594,11 +1594,11 @@ describe('node-fetch', () => {
 
 	it('should allow PATCH request', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			method: 'PATCH',
 			body: 'a=1'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.method).to.equal('PATCH');
@@ -1608,10 +1608,10 @@ describe('node-fetch', () => {
 
 	it('should allow HEAD request', () => {
 		const url = `${base}hello`;
-		const opts = {
+		const options = {
 			method: 'HEAD'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('content-type')).to.equal('text/plain');
@@ -1624,10 +1624,10 @@ describe('node-fetch', () => {
 
 	it('should allow HEAD request with content-encoding header', () => {
 		const url = `${base}error/404`;
-		const opts = {
+		const options = {
 			method: 'HEAD'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.status).to.equal(404);
 			expect(res.headers.get('content-encoding')).to.equal('gzip');
 			return res.text();
@@ -1638,10 +1638,10 @@ describe('node-fetch', () => {
 
 	it('should allow OPTIONS request', () => {
 		const url = `${base}options`;
-		const opts = {
+		const options = {
 			method: 'OPTIONS'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.statusText).to.equal('OK');
 			expect(res.headers.get('allow')).to.equal('GET, HEAD, OPTIONS');
@@ -1662,10 +1662,10 @@ describe('node-fetch', () => {
 
 	it('should support maximum response size, multiple chunk', () => {
 		const url = `${base}size/chunk`;
-		const opts = {
+		const options = {
 			size: 5
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
@@ -1676,10 +1676,10 @@ describe('node-fetch', () => {
 
 	it('should support maximum response size, single chunk', () => {
 		const url = `${base}size/long`;
-		const opts = {
+		const options = {
 			size: 5
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
@@ -1865,12 +1865,12 @@ describe('node-fetch', () => {
 
 	it('should send request with connection keep-alive if agent is provided', () => {
 		const url = `${base}inspect`;
-		const opts = {
+		const options = {
 			agent: new http.Agent({
 				keepAlive: true
 			})
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			return res.json();
 		}).then(res => {
 			expect(res.headers.connection).to.equal('keep-alive');
@@ -1879,8 +1879,8 @@ describe('node-fetch', () => {
 
 	it('should support fetch with Request instance', () => {
 		const url = `${base}hello`;
-		const req = new Request(url);
-		return fetch(req).then(res => {
+		const request = new Request(url);
+		return fetch(request).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.ok).to.be.true;
 			expect(res.status).to.equal(200);
@@ -1889,9 +1889,9 @@ describe('node-fetch', () => {
 
 	it('should support fetch with Node.js URL object', () => {
 		const url = `${base}hello`;
-		const urlObj = new URL(url);
-		const req = new Request(urlObj);
-		return fetch(req).then(res => {
+		const urlObject = new URL(url);
+		const request = new Request(urlObject);
+		return fetch(request).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.ok).to.be.true;
 			expect(res.status).to.equal(200);
@@ -1900,9 +1900,9 @@ describe('node-fetch', () => {
 
 	it('should support fetch with WHATWG URL object', () => {
 		const url = `${base}hello`;
-		const urlObj = new URL(url);
-		const req = new Request(urlObj);
-		return fetch(req).then(res => {
+		const urlObject = new URL(url);
+		const request = new Request(urlObject);
+		return fetch(request).then(res => {
 			expect(res.url).to.equal(url);
 			expect(res.ok).to.be.true;
 			expect(res.status).to.equal(200);
@@ -1923,8 +1923,8 @@ describe('node-fetch', () => {
 			.blob()
 			.then(blob => blob.arrayBuffer())
 			.then(ab => {
-				const str = String.fromCharCode.apply(null, new Uint8Array(ab));
-				expect(str).to.equal('hello');
+				const string = String.fromCharCode.apply(null, new Uint8Array(ab));
+				expect(string).to.equal('hello');
 			});
 	});
 
@@ -1932,8 +1932,8 @@ describe('node-fetch', () => {
 		return new Response('hello')
 			.blob()
 			.then(blob => streamToPromise(blob.stream(), data => {
-				const str = data.toString();
-				expect(str).to.equal('hello');
+				const string = data.toString();
+				expect(string).to.equal('hello');
 			}));
 	});
 
@@ -1960,13 +1960,13 @@ describe('node-fetch', () => {
 
 	it('should support overwrite Request instance', () => {
 		const url = `${base}inspect`;
-		const req = new Request(url, {
+		const request = new Request(url, {
 			method: 'POST',
 			headers: {
 				a: '1'
 			}
 		});
-		return fetch(req, {
+		return fetch(request, {
 			method: 'GET',
 			headers: {
 				a: '2'
@@ -2008,10 +2008,10 @@ describe('node-fetch', () => {
 	it('should support https request', function () {
 		this.timeout(5000);
 		const url = 'https://github.com/';
-		const opts = {
+		const options = {
 			method: 'HEAD'
 		};
-		return fetch(url, opts).then(res => {
+		return fetch(url, options).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 		});

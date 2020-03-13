@@ -38,8 +38,8 @@ describe('Headers', () => {
 		expect(headers).to.have.property('forEach');
 
 		const result = [];
-		headers.forEach((val, key) => {
-			result.push([key, val]);
+		headers.forEach((value, key) => {
+			result.push([key, value]);
 		});
 
 		expect(result).to.deep.equal([

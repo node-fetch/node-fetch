@@ -31,15 +31,15 @@ export default class TestServer {
 		return `http://${this.hostname}:${this.port}/mocked`;
 	}
 
-	router(req, res) {
-		const p = req.url;
+	router(request, res) {
+		const p = request.url;
 
 		if (p === '/mocked') {
 			if (this.nextResponseHandler) {
 				this.nextResponseHandler(res);
 				this.nextResponseHandler = undefined;
 			} else {
-				throw new Error('No mocked response. Use \'TestServer.mockResponse()\'.');
+				throw new Error('No mocked response. Use ’TestServer.mockResponse()’.');
 			}
 		}
 
@@ -333,14 +333,14 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
 			let body = '';
-			req.on('data', c => {
+			request.on('data', c => {
 				body += c;
 			});
-			req.on('end', () => {
+			request.on('end', () => {
 				res.end(JSON.stringify({
-					method: req.method,
-					url: req.url,
-					headers: req.headers,
+					method: request.method,
+					url: request.url,
+					headers: request.headers,
 					body
 				}));
 			});
@@ -349,20 +349,20 @@ export default class TestServer {
 		if (p === '/multipart') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
-			const parser = new Multipart(req.headers['content-type']);
+			const parser = new Multipart(request.headers['content-type']);
 			let body = '';
 			parser.on('part', (field, part) => {
 				body += field + '=' + part;
 			});
 			parser.on('end', () => {
 				res.end(JSON.stringify({
-					method: req.method,
-					url: req.url,
-					headers: req.headers,
+					method: request.method,
+					url: request.url,
+					headers: request.headers,
 					body
 				}));
 			});
-			req.pipe(parser);
+			request.pipe(parser);
 		}
 
 		if (p === '/m%C3%B6bius') {
