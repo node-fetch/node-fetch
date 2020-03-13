@@ -2158,21 +2158,21 @@ describe('node-fetch', () => {
 		expect(extractContentType(null)).to.be.null;
 	});
 
-	it('URLs are encoded as UTF-8', () => {
+	it('should encode URLs as UTF-8', () => {
 		const url = `${base}möbius`;
 
 		fetch(url).then(res => expect(res.url).to.equal(`${base}m%C3%B6bius`));
 	});
 
-	describe('data uri', function() {
+	describe('data uri', () => {
 		const dataUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
 
 		const invalidDataUrl = 'data:@@@@';
 
-		it('should accept data uri', function() {
+		it('should accept data uri', () => {
 			return fetch(dataUrl).then(r => {
-				console.assert(r.status == 200);
-				console.assert(r.headers.get('Content-Type') == 'image/gif');
+				console.assert(r.status === 200);
+				console.assert(r.headers.get('Content-Type') === 'image/gif');
 
 				return r.buffer().then(b => {
 					console.assert(b instanceof Buffer);
@@ -2180,11 +2180,10 @@ describe('node-fetch', () => {
 			});
 		});
 
-		it('should reject invalid data uri', function() {
-			return fetch(invalidDataUrl)
-			.catch(e => {
-				console.assert(e);
-				console.assert(e.message.includes('invalid URL'));
+		it('should reject invalid data uri', () => {
+			return fetch(invalidDataUrl).catch(error => {
+				console.assert(error);
+				console.assert(error.message.includes('invalid URL'));
 			});
 		});
 	});
