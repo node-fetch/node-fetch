@@ -18,8 +18,6 @@
 
 ---
 
-[![Backers][opencollective-image]][opencollective-url]
-
 <!-- TOC -->
 
 - [Motivation](#motivation)
