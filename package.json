@@ -2,8 +2,6 @@
     "name": "node-fetch",
     "version": "3.0.0-beta.2",
     "description": "A light-weight module that brings window.fetch to node.js",
-    "main": "dist/dist-node/index.js",
-    "types": "dist/dist-types/index.d.ts",
     "files": [
         "src/**/*",
         "dist/**/*",
@@ -16,6 +14,7 @@
         "build": "pika-pack --out dist/",
         "prepare": "npm run build",
         "prepublishOnly": "npm run build",
+        "publish": "pika publish",
         "test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/*.js",
         "report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/*.js",
         "coverage": "cross-env BABEL_ENV=coverage nyc --reporter json --reporter text mocha -R spec test/*.js && codecov -f coverage/coverage-final.json",
