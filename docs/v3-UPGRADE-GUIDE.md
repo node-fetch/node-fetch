@@ -36,10 +36,10 @@ Prior to v3.x, we included a `browser` field in the package.json file. Since nod
 If you want charset encoding detection, please use the [fetch-charset-detection] package ([documentation][fetch-charset-detection-docs]).
 
 ```js
-const fetch = require("node-fetch");
-const convertBody = require("fetch-charset-detection");
+const fetch = require('node-fetch');
+const convertBody = require('fetch-charset-detection');
 
-fetch("https://somewebsite.com").then(res => {
+fetch('https://somewebsite.com').then(res => {
 	const text = convertBody(res.buffer(), res.headers);
 });
 ```
@@ -49,9 +49,9 @@ fetch("https://somewebsite.com").then(res => {
 When attempting to parse invalid json via `res.json()`, a `SyntaxError` will now be thrown instead of a `FetchError` to align better with the spec.
 
 ```js
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
-fetch("https://somewebsitereturninginvalidjson.com").then(res => res.json())
+fetch('https://somewebsitereturninginvalidjson.com').then(res => res.json())
 // Throws 'Uncaught SyntaxError: Unexpected end of JSON input' or similar.
 ```
 
