@@ -9,7 +9,7 @@
 
 /// <reference types="node" />
 
-import { Agent } from 'http';
+import {Agent} from 'http';
 
 export class Request extends Body {
 	method: string;
