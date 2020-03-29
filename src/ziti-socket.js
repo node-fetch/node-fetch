@@ -15,6 +15,9 @@ limitations under the License.
 */
 
 import {Duplex, Readable} from 'stream';
+import {remote, ipcRenderer} from 'electron';
+
+const trackEvent = remote.getGlobal('trackEvent');
 
 class ZitiSocket extends Duplex {
 
