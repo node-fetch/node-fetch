@@ -329,7 +329,7 @@ export default class TestServer {
 			res.end();
 		}
 
-		if (p === '/inspect') {
+		if (p.startsWith('/inspect')) {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
 			let body = '';

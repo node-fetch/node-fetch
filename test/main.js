@@ -1468,6 +1468,15 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should preserve search params in the url', () => {
+		const url = `${base}inspect?foo=bar`;
+		return fetch(url).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.url).to.equal('/inspect?foo=bar');
+		});
+	});
+
 	it('should allow POST request with URLSearchParams as body', () => {
 		const parameters = new URLSearchParams();
 		parameters.append('a', '1');

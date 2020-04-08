@@ -260,15 +260,10 @@ export function getNodeRequestOptions(request) {
 
 	// manually spread the URL object instead of spread syntax
 	const requestOptions = {
-		path: parsedURL.pathname,
-		pathname: parsedURL.pathname,
+		path: `${parsedURL.pathname}${parsedURL.search}`,
 		hostname: parsedURL.hostname,
 		protocol: parsedURL.protocol,
 		port: parsedURL.port,
-		hash: parsedURL.hash,
-		search: parsedURL.search,
-		query: parsedURL.query,
-		href: parsedURL.href,
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
 		agent
