@@ -35,6 +35,7 @@ import HeadersOrig, {createHeadersLenient} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
+import delay from './utils/delay.js';
 import TestServer from './utils/server.js';
 
 const {
@@ -798,16 +799,8 @@ describe('node-fetch', () => {
 	});
 
 	it('should collect handled errors on the body stream to reject if the body is used later', () => {
-		function delay(value) {
-			return new Promise(resolve => {
-				setTimeout(() => {
-					resolve(value);
-				}, 20);
-			});
-		}
-
 		const url = `${base}invalid-content-encoding`;
-		return fetch(url).then(delay).then(res => {
+		return fetch(url).then(delay(20)).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
 				.and.be.an.instanceOf(FetchError)
@@ -858,6 +851,21 @@ describe('node-fetch', () => {
 			timeout: 20
 		};
 		return fetch(url, options).then(res => {
+			expect(res.ok).to.be.true;
+			return expect(res.text()).to.eventually.be.rejected
+				.and.be.an.instanceOf(FetchError)
+				.and.have.property('type', 'body-timeout');
+		});
+	});
+
+	it('should not allow socket timeout before body is read', () => {
+		const url = `${base}slow`;
+		const options = {
+			timeout: 100
+		};
+		// Await the response, then delay, allowing enough time for the timeout
+		// to be created just before the socket timeout
+		return fetch(url, options).then(delay(75)).then(res => {
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejected
 				.and.be.an.instanceOf(FetchError)
