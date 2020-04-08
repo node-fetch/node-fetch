@@ -595,6 +595,16 @@ describe('node-fetch', () => {
 			.and.have.property('code', 'ECONNRESET');
 	});
 
+	it('should handle network-error partial response', () => {
+		const url = `${base}error/premature`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+			return expect(res.text()).to.eventually.be.rejectedWith(Error)
+				.and.have.property('message').includes('Premature close');
+		});
+	});
+
 	it('should handle DNS-error response', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected

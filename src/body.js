@@ -5,7 +5,7 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, {PassThrough} from 'stream';
+import Stream, {finished, PassThrough} from 'stream';
 import {types} from 'util';
 
 import Blob from 'fetch-blob';
@@ -207,18 +207,6 @@ function consumeBody() {
 			}, this.timeout);
 		}
 
-		// Handle stream errors
-		body.on('error', err => {
-			if (isAbortError(err)) {
-				// If the request was aborted, reject with this Error
-				abort = true;
-				reject(err);
-			} else {
-				// Other errors, such as incorrect content-encoding
-				reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
-			}
-		});
-
 		body.on('data', chunk => {
 			if (abort || chunk === null) {
 				return;
@@ -234,18 +222,28 @@ function consumeBody() {
 			accum.push(chunk);
 		});
 
-		body.on('end', () => {
-			if (abort) {
-				return;
-			}
-
+		finished(body, {writable: false}, err => {
 			clearTimeout(resTimeout);
+			if (err) {
+				if (isAbortError(err)) {
+					// If the request was aborted, reject with this Error
+					abort = true;
+					reject(err);
+				} else {
+					// Other errors, such as incorrect content-encoding
+					reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
+				}
+			} else {
+				if (abort) {
+					return;
+				}
 
-			try {
-				resolve(Buffer.concat(accum, accumBytes));
-			} catch (error) {
-				// Handle streams that have accumulated too much data (issue #414)
-				reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${error.message}`, 'system', error));
+				try {
+					resolve(Buffer.concat(accum, accumBytes));
+				} catch (error) {
+					// Handle streams that have accumulated too much data (issue #414)
+					reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${error.message}`, 'system', error));
+				}
 			}
 		});
 	});
