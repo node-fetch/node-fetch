@@ -2,12 +2,6 @@
     "name": "node-fetch",
     "version": "3.0.0-beta.4",
     "description": "A light-weight module that brings window.fetch to node.js",
-    "main": "./dist/dist-src",
-    "files": [
-        "src",
-        "dist",
-        "*.d.ts"
-    ],
     "engines": {
         "node": ">=10.0.0"
     },
@@ -43,6 +37,7 @@
         "@babel/preset-env": "^7.9.5",
         "@babel/register": "^7.9.0",
         "@pika/pack": "^0.5.0",
+        "@pika/plugin-build-node": "^0.9.2",
         "@pika/plugin-standard-pkg": "^0.9.2",
         "abort-controller": "^3.0.0",
         "abortcontroller-polyfill": "^1.4.0",
@@ -67,9 +62,8 @@
     },
     "@pika/pack": {
         "pipeline": [
-            [
-                "@pika/plugin-standard-pkg"
-            ]
+			["@pika/plugin-standard-pkg"],
+			["@pika/plugin-build-node"]
         ]
     },
     "xo": {
@@ -82,8 +76,8 @@
             "promise/prefer-await-to-then": 0,
             "no-mixed-operators": 0,
             "no-negated-condition": 0,
-			"unicorn/prevent-abbreviations": 0,
-			"@typescript-eslint/prefer-readonly-parameter-types": 0
+            "unicorn/prevent-abbreviations": 0,
+            "@typescript-eslint/prefer-readonly-parameter-types": 0
         },
         "ignores": [
             "dist",
