@@ -17,10 +17,8 @@
 	},
 	"scripts": {
 		"build": "babel src --out-dir dist",
-		"prepublishOnly": "npm run build",
-		"test": "cross-env BABEL_ENV=test mocha --require @babel/register --throw-deprecation test/*.js",
-		"report": "cross-env BABEL_ENV=coverage nyc --reporter lcov --reporter text mocha -R spec test/*.js",
-		"coverage": "cross-env BABEL_ENV=coverage nyc --reporter json --reporter text mocha -R spec test/*.js && codecov -f coverage/coverage-final.json",
+		"test": "nyc --reporter=html --reporter=text mocha --require @babel/register --throw-deprecation",
+		"coverage": "nyc report --reporter=text-lcov | coveralls",
 		"lint": "xo"
 	},
 	"repository": {
@@ -47,6 +45,7 @@
 		"@babel/core": "^7.9.0",
 		"@babel/preset-env": "^7.9.5",
 		"@babel/register": "^7.9.0",
+		"@istanbuljs/nyc-config-babel": "^3.0.0",
 		"abort-controller": "^3.0.0",
 		"abortcontroller-polyfill": "^1.4.0",
 		"babel-plugin-add-module-exports": "^1.0.2",
@@ -54,8 +53,7 @@
 		"chai-as-promised": "^7.1.1",
 		"chai-iterator": "^3.0.2",
 		"chai-string": "^1.5.0",
-		"codecov": "^3.6.5",
-		"cross-env": "^7.0.2",
+        	"coveralls": "^3.0.11",
 		"form-data": "^3.0.0",
 		"mocha": "^7.1.1",
 		"nyc": "^15.0.1",
@@ -120,15 +118,12 @@
 			]
 		],
 		"plugins": [
-			"add-module-exports"
+			"add-module-exports",
+			"istanbul"
 		]
 	},
 	"nyc": {
-		"require": [
-			"@babel/register"
-		],
-		"sourceMap": false,
-		"instrument": false
+		"extends": "@istanbuljs/nyc-config-babel"
 	},
 	"runkitExampleFilename": "example.js"
 }
