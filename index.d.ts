@@ -9,6 +9,7 @@
 
 /// <reference types="node" />
 
+import { URL, URLSearchParams } from 'url';
 import { Agent } from 'http';
 import { AbortSignal } from './externals';
 
