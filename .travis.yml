@@ -12,5 +12,4 @@ matrix:
 
 cache: npm
 
-script:
-  - npm run coverage
+after_success: npm run coverage
