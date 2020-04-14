@@ -260,7 +260,7 @@ export function getNodeRequestOptions(request) {
 
 	// manually spread the URL object instead of spread syntax
 	const requestOptions = {
-		path: parsedURL.pathname,
+		path: parsedURL.pathname + parsedURL.search,
 		pathname: parsedURL.pathname,
 		hostname: parsedURL.hostname,
 		protocol: parsedURL.protocol,
