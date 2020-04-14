@@ -3,6 +3,8 @@
 	"version": "3.0.0-beta.4",
 	"description": "A light-weight module that brings window.fetch to node.js",
 	"main": "./dist/index.js",
+	"module": "./src/index.js",
+	"sideEffects": false,
 	"exports": {
 		"import": "./src/index.js",
 		"require": "./dist/index.js"
