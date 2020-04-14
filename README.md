@@ -3,7 +3,7 @@
   	<br>
   	<p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
 	<a href="https://travis-ci.com/node-fetch/node-fetch"><img src="https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square" alt="Build status"></a>
-	<a href="https://codecov.io/gh/node-fetch/node-fetch"><img src="https://img.shields.io/codecov/c/gh/node-fetch/node-fetch/master?style=flat-square" alt="Coverage status"></a>
+	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch?style=flat-square" alt="Coverage status"></a>
 	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://flat.badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
 	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch?style=flat-square" alt="Install size"></a>
 	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge-flat.svg" alt="Mentioned in Awesome Node.js"></a>
