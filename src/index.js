@@ -305,7 +305,6 @@ fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
 
 // Expose Promise
 fetch.Promise = global.Promise;
-module.exports = fetch;
 export {
 	Headers,
 	Request,
