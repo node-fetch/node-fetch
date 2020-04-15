@@ -34,6 +34,7 @@
     - [Post with form parameters](#post-with-form-parameters)
     - [Handling exceptions](#handling-exceptions)
     - [Handling client and server errors](#handling-client-and-server-errors)
+    - [Handling cookies](#handling-cookies)
 - [Advanced Usage](#advanced-usage)
     - [Streams](#streams)
     - [Buffer](#buffer)
@@ -257,6 +258,10 @@ fetch('https://httpbin.org/status/400')
 	.then(checkStatus)
 	.then(res => console.log('will not get here...'));
 ```
+
+### Handling cookies
+
+Cookies are not stored by default. However, cookies can be extracted and passed by manipulating request and response headers. See [Extract Set-Cookie Header](#extract-set-cookie-header) for details.
 
 ## Advanced Usage
 
