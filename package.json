@@ -56,7 +56,7 @@
 		"chai-as-promised": "^7.1.1",
 		"chai-iterator": "^3.0.2",
 		"chai-string": "^1.5.0",
-        "coveralls": "^3.0.11",
+		"coveralls": "^3.0.11",
 		"form-data": "^3.0.0",
 		"mocha": "^7.1.1",
 		"nyc": "^15.0.1",
