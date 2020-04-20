@@ -30,6 +30,6 @@ fetch(url, {signal}).catch(error => {
 
 List of error types:
 
-- Because we maintain 100% coverage, see [test.js](https://github.com/node-fetch/node-fetch/blob/master/test/test.js) for a full list of custom `FetchError` types, as well as some of the common errors from Node.js
+- Because we maintain 100% coverage, see [test/main.js](https://github.com/node-fetch/node-fetch/blob/master/test/main.js) for a full list of custom `FetchError` types, as well as some of the common errors from Node.js
 
 [joyent-guide]: https://www.joyent.com/node-js/production/design/errors#operational-errors-vs-programmer-errors
