@@ -49,10 +49,10 @@ export default class TestServer {
 			res.end('world');
 		}
 
-		if (p === '/question?') {
+		if (p.includes('question')) {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
-			res.end('world');
+			res.end('ok');
 		}
 
 		if (p === '/plain') {
