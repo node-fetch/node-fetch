@@ -49,6 +49,12 @@ export default class TestServer {
 			res.end('world');
 		}
 
+		if (p === '/question?') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.end('world');
+		}
+
 		if (p === '/plain') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');

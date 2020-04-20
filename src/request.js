@@ -12,6 +12,7 @@ import Stream from 'stream';
 import Headers, {exportNodeCompatibleHeaders} from './headers';
 import Body, {clone, extractContentType, getTotalBytes} from './body';
 import {isAbortSignal} from './utils/is';
+import {getSearch} from './utils/get-search';
 
 const INTERNALS = Symbol('Request internals');
 
@@ -258,9 +259,11 @@ export function getNodeRequestOptions(request) {
 	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
 
-	// manually spread the URL object instead of spread syntax
+	const search = getSearch(parsedURL);
+
+	// Manually spread the URL object instead of spread syntax
 	const requestOptions = {
-		path: parsedURL.pathname + parsedURL.search,
+		path: parsedURL.pathname + search,
 		pathname: parsedURL.pathname,
 		hostname: parsedURL.hostname,
 		protocol: parsedURL.protocol,
