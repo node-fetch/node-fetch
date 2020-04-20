@@ -34,6 +34,7 @@
     - [Post with form parameters](#post-with-form-parameters)
     - [Handling exceptions](#handling-exceptions)
     - [Handling client and server errors](#handling-client-and-server-errors)
+    - [Handling cookies](#handling-cookies)
 - [Advanced Usage](#advanced-usage)
     - [Streams](#streams)
     - [Buffer](#buffer)
@@ -258,22 +259,29 @@ fetch('https://httpbin.org/status/400')
 	.then(res => console.log('will not get here...'));
 ```
 
+### Handling cookies
+
+Cookies are not stored by default. However, cookies can be extracted and passed by manipulating request and response headers. See [Extract Set-Cookie Header](#extract-set-cookie-header) for details.
+
 ## Advanced Usage
 
 ### Streams
 
-The "Node.js way" is to use streams when possible:
+The "Node.js way" is to use streams when possible. You can pipe `res.body` to another stream. This example uses [stream.pipeline](https://nodejs.org/api/stream.html#stream_stream_pipeline_streams_callback) to attach stream error handlers and wait for the download to complete.
 
 ```js
-const {createWriteStream} = require('fs');
-const fetch = require('node-fetch');
+const util = require('util');
+const fs = require('fs');
+const streamPipeline = util.promisify(require('stream').pipeline);
 
-fetch(
-	'https://octodex.github.com/images/Fintechtocat.png'
-).then(res => {
-	const dest = fs.createWriteStream('./octocat.png');
-	res.body.pipe(dest);
-});
+fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png')
+	.then(res => {
+		if (!res.ok) {
+			throw new Error(`unexpected response ${res.statusText}`);
+		}
+
+		return streamPipeline(res.body, fs.createWriteStream('./octocat.png'));
+	});
 ```
 
 ### Buffer
