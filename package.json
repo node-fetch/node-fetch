@@ -84,8 +84,7 @@
 			"@typescript-eslint/prefer-readonly-parameter-types": 0
 		},
 		"ignores": [
-			"dist",
-			"index.d.ts"
+			"dist"
 		],
 		"overrides": [
 			{
