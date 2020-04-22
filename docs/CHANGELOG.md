@@ -3,6 +3,18 @@ Changelog
 
 # 3.x release
 
+## v3.0.0-beta.5
+
+> NOTE: Since the previous beta version included serious issues, such as #749, they will now be deprecated. 
+
+- Enhance: use built-in AbortSignal for typings.
+- Enhance: compile CJS modules as a seperate set of files.
+- Enhance: add more complete stream download example.
+- Fix: question mark stripped from url when no params are given.
+- Fix: path to tests file in error handling doc.
+- Fix: import URL and URLSearchParams in typings.
+- Fix: Ensure search parameters are included in URL path (#759).
+
 ## v3.0.0-beta.2
 
 - Fix: exporting `main` and `types` at the correct path, oops.
