@@ -309,3 +309,4 @@ fetch.Headers = Headers;
 fetch.Request = Request;
 fetch.Response = Response;
 fetch.FetchError = FetchError;
+fetch.AbortError = AbortError;
