@@ -272,13 +272,17 @@ Object.defineProperties(Headers.prototype, {
 
 function getHeaders(headers, kind = 'key+value') {
 	const keys = Object.keys(headers[MAP]).sort();
-	return keys.map(
-		kind === 'key' ?
-			k => k.toLowerCase() :
-			(kind === 'value' ?
-				k => headers[MAP][k].join(', ') :
-				k => [k.toLowerCase(), headers[MAP][k].join(', ')])
-	);
+
+	let iterator;
+	if (kind === 'key') {
+		iterator = header => header.toLowerCase();
+	} else if (kind === 'value') {
+		iterator = header => headers[MAP][header].join(', ');
+	} else {
+		iterator = header => [header.toLowerCase(), headers[MAP][header].join(', ')];
+	}
+
+	return keys.map(header => iterator(header));
 }
 
 const INTERNAL = Symbol('internal');

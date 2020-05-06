@@ -1,132 +1,132 @@
 {
-    "name": "node-fetch",
-    "version": "3.0.0-beta.5",
-    "description": "A light-weight module that brings window.fetch to node.js",
-    "main": "./dist/index.js",
-    "module": "./src/index.js",
-    "sideEffects": false,
-    "exports": {
-        "import": "./src/index.js",
-        "require": "./dist/index.js"
-    },
-    "files": [
-        "src",
-        "dist",
-        "*.d.ts"
-    ],
-    "engines": {
-        "node": ">=10"
-    },
-    "scripts": {
-        "build": "babel src --out-dir dist",
-        "test": "nyc --reporter=html --reporter=text mocha --require @babel/register --throw-deprecation",
-        "coverage": "nyc report --reporter=text-lcov | coveralls",
-        "lint": "xo"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/node-fetch/node-fetch.git"
-    },
-    "keywords": [
-        "fetch",
-        "http",
-        "promise"
-    ],
-    "author": "David Frank",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/node-fetch/node-fetch/issues"
-    },
-    "homepage": "https://github.com/node-fetch/node-fetch",
-    "funding": {
-        "type": "opencollective",
-        "url": "https://opencollective.com/node-fetch"
-    },
-    "devDependencies": {
-        "@babel/cli": "^7.8.4",
-        "@babel/core": "^7.9.0",
-        "@babel/preset-env": "^7.9.5",
-        "@babel/register": "^7.9.0",
-        "@istanbuljs/nyc-config-babel": "^3.0.0",
-        "abort-controller": "^3.0.0",
-        "abortcontroller-polyfill": "^1.4.0",
-        "babel-plugin-add-module-exports": "^1.0.2",
-        "babel-plugin-istanbul": "^6.0.0",
-        "chai": "^4.2.0",
-        "chai-as-promised": "^7.1.1",
-        "chai-iterator": "^3.0.2",
-        "chai-string": "^1.5.0",
-        "coveralls": "^3.0.13",
-        "form-data": "^3.0.0",
-        "mocha": "^7.1.1",
-        "nyc": "^15.0.1",
-        "parted": "^0.1.1",
-        "promise": "^8.1.0",
-        "resumer": "0.0.0",
-        "string-to-arraybuffer": "^1.0.2",
-        "xo": "^0.29.1"
-    },
-    "dependencies": {
-        "data-uri-to-buffer": "^3.0.0",
-        "fetch-blob": "^1.0.5"
-    },
-    "xo": {
-        "envs": [
-            "node",
-            "browser"
-        ],
-        "rules": {
-            "complexity": 0,
-            "promise/prefer-await-to-then": 0,
-            "no-mixed-operators": 0,
-            "no-negated-condition": 0,
-            "unicorn/prevent-abbreviations": 0,
-            "@typescript-eslint/prefer-readonly-parameter-types": 0
-        },
-        "ignores": [
+	"name": "node-fetch",
+	"version": "3.0.0-beta.5",
+	"description": "A light-weight module that brings window.fetch to node.js",
+	"main": "./dist/index.js",
+	"module": "./src/index.js",
+	"sideEffects": false,
+	"exports": {
+		"import": "./src/index.js",
+		"require": "./dist/index.js"
+	},
+	"files": [
+		"src",
+		"dist",
+		"*.d.ts"
+	],
+	"engines": {
+		"node": ">=10"
+	},
+	"scripts": {
+		"build": "babel src --out-dir dist",
+		"test": "nyc --reporter=html --reporter=text mocha --require @babel/register --throw-deprecation",
+		"coverage": "nyc report --reporter=text-lcov | coveralls",
+		"lint": "xo"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/node-fetch/node-fetch.git"
+	},
+	"keywords": [
+		"fetch",
+		"http",
+		"promise"
+	],
+	"author": "David Frank",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/node-fetch/node-fetch/issues"
+	},
+	"homepage": "https://github.com/node-fetch/node-fetch",
+	"funding": {
+		"type": "opencollective",
+		"url": "https://opencollective.com/node-fetch"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.8.4",
+		"@babel/core": "^7.9.0",
+		"@babel/preset-env": "^7.9.5",
+		"@babel/register": "^7.9.0",
+		"@istanbuljs/nyc-config-babel": "^3.0.0",
+		"abort-controller": "^3.0.0",
+		"abortcontroller-polyfill": "^1.4.0",
+		"babel-plugin-add-module-exports": "^1.0.2",
+		"babel-plugin-istanbul": "^6.0.0",
+		"chai": "^4.2.0",
+		"chai-as-promised": "^7.1.1",
+		"chai-iterator": "^3.0.2",
+		"chai-string": "^1.5.0",
+		"coveralls": "^3.0.13",
+		"form-data": "^3.0.0",
+		"mocha": "^7.1.1",
+		"nyc": "^15.0.1",
+		"parted": "^0.1.1",
+		"promise": "^8.1.0",
+		"resumer": "0.0.0",
+		"string-to-arraybuffer": "^1.0.2",
+		"xo": "^0.30.0"
+	},
+	"dependencies": {
+		"data-uri-to-buffer": "^3.0.0",
+		"fetch-blob": "^1.0.5"
+	},
+	"xo": {
+		"envs": [
+			"node",
+			"browser"
+		],
+		"rules": {
+			"complexity": 0,
+			"promise/prefer-await-to-then": 0,
+			"no-mixed-operators": 0,
+			"no-negated-condition": 0,
+			"unicorn/prevent-abbreviations": 0,
+			"@typescript-eslint/prefer-readonly-parameter-types": 0
+		},
+		"ignores": [
 			"dist",
 			"index.d.ts"
-        ],
-        "overrides": [
-            {
-                "files": "test/**/*.js",
-                "envs": [
-                    "node",
-                    "mocha"
-                ],
-                "rules": {
-                    "max-nested-callbacks": 0,
-                    "no-unused-expressions": 0,
-                    "new-cap": 0,
-                    "guard-for-in": 0
-                }
-            },
-            {
-                "files": "example.js",
-                "rules": {
-                    "import/no-extraneous-dependencies": 0
-                }
-            }
-        ]
-    },
-    "babel": {
-        "presets": [
-            [
-                "@babel/preset-env",
-                {
-                    "targets": {
-                        "node": true
-                    }
-                }
-            ]
-        ],
-        "plugins": [
-            "add-module-exports",
-            "istanbul"
-        ]
-    },
-    "nyc": {
-        "extends": "@istanbuljs/nyc-config-babel"
-    },
-    "runkitExampleFilename": "example.js"
+		],
+		"overrides": [
+			{
+				"files": "test/**/*.js",
+				"envs": [
+					"node",
+					"mocha"
+				],
+				"rules": {
+					"max-nested-callbacks": 0,
+					"no-unused-expressions": 0,
+					"new-cap": 0,
+					"guard-for-in": 0
+				}
+			},
+			{
+				"files": "example.js",
+				"rules": {
+					"import/no-extraneous-dependencies": 0
+				}
+			}
+		]
+	},
+	"babel": {
+		"presets": [
+			[
+				"@babel/preset-env",
+				{
+					"targets": {
+						"node": true
+					}
+				}
+			]
+		],
+		"plugins": [
+			"add-module-exports",
+			"istanbul"
+		]
+	},
+	"nyc": {
+		"extends": "@istanbuljs/nyc-config-babel"
+	},
+	"runkitExampleFilename": "example.js"
 }
