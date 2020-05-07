@@ -718,7 +718,7 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 ## License
 
-MIT
+[MIT](LICENSE.md)
 
 [whatwg-fetch]: https://fetch.spec.whatwg.org/
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
