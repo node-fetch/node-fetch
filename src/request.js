@@ -85,7 +85,7 @@ export default class Request {
 		let checkBodyllowedInGET = false;
 		if ((init.overrideGetBodyCheck && init.overrideGetBodyCheck === true) ||
 			(isRequest(input) && input.overrideGetBodyCheck && input.overrideGetBodyCheck === true)) {
-			checkBodyllowedInGET = true;		
+			checkBodyllowedInGET = true;
 		}
 
 		// eslint-disable-next-line no-eq-null, eqeqeq
