@@ -83,7 +83,7 @@ export default class Request {
 		method = method.toUpperCase();
 
 		let overrideGetBodyCheck = false;
-		// eslint-disable-next-line no-eq-null
+		// eslint-disable-next-line no-eq-null, eqeqeq
 		if ((init.body != null && init.allowBody === true) ||
 			(isRequest(input) && input.body !== null && input.allowBody === true)) {
 			overrideGetBodyCheck = true;
