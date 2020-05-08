@@ -82,15 +82,16 @@ export default class Request {
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
 
-		let allowBody = false;
-		if ((init.overrideGetBodyCheck && init.overrideGetBodyCheck === true) ||
-			(isRequest(input) && input.overrideGetBodyCheck && input.overrideGetBodyCheck === true)) {
-			allowBody = true;
+		let overrideGetBodyCheck = false;
+		// eslint-disable-next-line no-eq-null
+		if ((init.body != null && init.allowBody === true) ||
+			(isRequest(input) && input.body !== null && input.allowBody === true)) {
+			overrideGetBodyCheck = true;
 		}
 
 		// eslint-disable-next-line no-eq-null, eqeqeq
 		if ((init.body != null || isRequest(input) && input.body !== null) &&
-			(method === 'GET' && allowBody === false || method === 'HEAD')) {
+			(method === 'GET' && overrideGetBodyCheck === false || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
