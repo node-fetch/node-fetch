@@ -7,7 +7,7 @@
  */
 
 import http from 'http';
-import https from 'https';
+import {request as http2} from 'http2-client';
 import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
 import dataURIToBuffer from 'data-uri-to-buffer';
@@ -56,7 +56,8 @@ export default function fetch(url, options_) {
 		const request = new Request(url, options_);
 		const options = getNodeRequestOptions(request);
 
-		const send = (options.protocol === 'https:' ? https : http).request;
+		const send = (options.protocol === 'https:' ? http2 : http.request);
+
 		const {signal} = request;
 		let response = null;
 
@@ -211,6 +212,7 @@ export default function fetch(url, options_) {
 				size: request.size,
 				timeout: request.timeout,
 				counter: request.counter,
+				httpVersion: res.httpVersion,
 				highWaterMark: request.highWaterMark
 			};
 
