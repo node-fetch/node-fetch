@@ -36,6 +36,7 @@ export default class Response {
 			statusText: options.statusText || '',
 			headers,
 			counter: options.counter,
+			httpVersion: options.httpVersion,
 			highWaterMark: options.highWaterMark
 		};
 	}
@@ -65,6 +66,10 @@ export default class Response {
 
 	get headers() {
 		return this[INTERNALS].headers;
+	}
+
+	get httpVersion() {
+		return this[INTERNALS].httpVersion;
 	}
 
 	get highWaterMark() {
