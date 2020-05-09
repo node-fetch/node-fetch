@@ -2050,7 +2050,8 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('http2', () => {
+	it('http2', function () {
+		this.timeout(5000);
 		const url = 'https://http2.golang.org/';
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
