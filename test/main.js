@@ -2040,13 +2040,22 @@ describe('node-fetch', () => {
 
 	it('should support https request', function () {
 		this.timeout(5000);
-		const url = 'https://github.com/';
+		const url = 'https://github.com';
 		const options = {
 			method: 'HEAD'
 		};
 		return fetch(url, options).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
+		});
+	});
+
+	it('http2', function () {
+		this.timeout(5000);
+		const url = 'https://http2.golang.org/';
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.httpVersion).to.equal('2.0');
 		});
 	});
 
