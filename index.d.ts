@@ -174,6 +174,8 @@ export class Response extends Body {
 	url: string;
 	size: number;
 	timeout: number;
+	highWaterMark: number;
+	httpVersion: string;
 	constructor(body?: BodyInit, init?: ResponseInit);
 	static error(): Response;
 	static redirect(url: string, status: number): Response;
