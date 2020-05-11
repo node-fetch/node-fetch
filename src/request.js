@@ -138,6 +138,7 @@ export default class Request {
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark;
+		this.tlsOptions = init.tlsOptions || {};
 	}
 
 	get method() {
@@ -277,5 +278,24 @@ export function getNodeRequestOptions(request) {
 		agent
 	};
 
+	if (parsedURL.protocol === 'https:') {
+		requestOptions.ca = request.tlsOptions.ca;
+		requestOptions.cert = request.tlsOptions.cert;
+		requestOptions.ciphers = request.tlsOptions.ciphers;
+		requestOptions.clientCertEngine = request.tlsOptions.clientCertEngine;
+		requestOptions.crl = request.tlsOptions.crl;
+		requestOptions.dhparam = request.tlsOptions.dhparam;
+		requestOptions.ecdhCurve = request.tlsOptions.ecdhCurve;
+		requestOptions.honorCipherOrder = request.tlsOptions.honorCipherOrder;
+		requestOptions.key = request.tlsOptions.key;
+		requestOptions.passphrase = request.tlsOptions.passphrase;
+		requestOptions.pfx = request.tlsOptions.pfx;
+		requestOptions.rejectUnauthorized = request.tlsOptions.rejectUnauthorized;
+		requestOptions.secureOptions = request.tlsOptions.secureOptions;
+		requestOptions.secureProtocol = request.tlsOptions.secureProtocol;
+		requestOptions.servername = request.tlsOptions.serverName;
+		requestOptions.sessionIdContext = request.tlsOptions.sessionIdContext;
+		requestOptions.highWaterMark = request.tlsOptions.highWaterMark;
+	}
 	return requestOptions;
 }
