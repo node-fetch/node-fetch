@@ -123,6 +123,7 @@ export default class Request {
 			input.compress : true;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
+		this.tlsOptions = init.tlsOptions || {}
 	}
 
 	get method() {
@@ -241,10 +242,31 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
+	let tlsOptions = {}
+	if (parsedURL.protocol === 'https:') {
+		tlsOptions.ca = request.tlsOptions.ca
+		tlsOptions.cert = request.tlsOptions.cert
+		tlsOptions.ciphers = request.tlsOptions.ciphers
+		tlsOptions.clientCertEngine = request.tlsOptions.clientCertEngine
+		tlsOptions.crl = request.tlsOptions.crl
+		tlsOptions.dhparam = request.tlsOptions.dhparam
+		tlsOptions.ecdhCurve = request.tlsOptions.ecdhCurve
+		tlsOptions.honorCipherOrder = request.tlsOptions.honorCipherOrder
+		tlsOptions.key = request.tlsOptions.key
+		tlsOptions.passphrase = request.tlsOptions.passphrase
+		tlsOptions.pfx = request.tlsOptions.pfx
+		tlsOptions.rejectUnauthorized = request.tlsOptions.rejectUnauthorized
+		tlsOptions.secureOptions = request.tlsOptions.secureOptions
+		tlsOptions.secureProtocol = request.tlsOptions.secureProtocol
+		tlsOptions.servername = request.tlsOptions.serverName
+		tlsOptions.sessionIdContext = request.tlsOptions.sessionIdContext
+		tlsOptions.highWaterMark = request.tlsOptions.highWaterMark
+	}
 
 	return Object.assign({}, parsedURL, {
 		method: request.method,
 		headers: exportNodeCompatibleHeaders(headers),
-		agent
+		agent,
+		tlsOptions
 	});
 }
