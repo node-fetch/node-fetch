@@ -135,21 +135,7 @@ if (!globalThis.fetch) {
 }
 ```
 
-For versions of node earlier than 12.x, use this `globalThis` [polyfill](https://mathiasbynens.be/notes/globalthis):
-
-```js
-(function() {
-	if (typeof globalThis === 'object') return;
-	Object.defineProperty(Object.prototype, '__magic__', {
-		get: function() {
-			return this;
-		},
-		configurable: true
-	});
-	__magic__.globalThis = __magic__;
-	delete Object.prototype.__magic__;
-}());
-```
+For versions of Node earlier than 12, use this `globalThis` [polyfill](https://mathiasbynens.be/notes/globalthis).
 
 ## Upgrading
 
@@ -696,7 +682,7 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 
 ## TypeScript
 
-Since `3.x` types are bundled with `node-fetch`, so you don't need to install any additional packages.
+**Since `3.x` types are bundled with `node-fetch`, so you don't need to install any additional packages.**
 
 For older versions please use the type definitions from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped):
 
