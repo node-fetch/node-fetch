@@ -203,11 +203,6 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept', '*/*');
 	}
 
-	// Basic fetch
-	if (!parsedURL.protocol || !parsedURL.hostname) {
-		throw new TypeError('Only absolute URLs are supported');
-	}
-
 	if (!/^https?:$/.test(parsedURL.protocol)) {
 		throw new TypeError('Only HTTP(S) protocols are supported');
 	}

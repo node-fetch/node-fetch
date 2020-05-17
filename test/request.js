@@ -102,17 +102,17 @@ describe('Request', () => {
 	});
 
 	it('should throw error with GET/HEAD requests with body', () => {
-		expect(() => new Request('.', {body: ''}))
+		expect(() => new Request(base, {body: ''}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a'}))
+		expect(() => new Request(base, {body: 'a'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: '', method: 'HEAD'}))
+		expect(() => new Request(base, {body: '', method: 'HEAD'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a', method: 'HEAD'}))
+		expect(() => new Request(base, {body: 'a', method: 'HEAD'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a', method: 'get'}))
+		expect(() => new Request(base, {body: 'a', method: 'get'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a', method: 'head'}))
+		expect(() => new Request(base, {body: 'a', method: 'head'}))
 			.to.throw(TypeError);
 	});
 
