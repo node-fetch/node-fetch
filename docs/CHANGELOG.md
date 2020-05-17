@@ -7,7 +7,8 @@ Changelog
 
 **Work in progress!**
 
-- Fix: Export the `AbortError` class.
+- Enhance: improve coverage.
+- Fix: export the `AbortError` class.
 
 ## v3.0.0-beta.5
 
