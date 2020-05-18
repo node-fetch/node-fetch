@@ -280,7 +280,7 @@ const fileType = require('file-type');
 
 fetch('https://octodex.github.com/images/Fintechtocat.png')
 	.then(res => res.buffer())
-	.then(buffer => fileType(buffer))
+	.then(buffer => fileType.fromBuffer(buffer))
 	.then(type => {
 		console.log(type);
 	});
