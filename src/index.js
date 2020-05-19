@@ -20,10 +20,10 @@ import FetchError from './errors/fetch-error';
 import AbortError from './errors/abort-error';
 
 export {default as Headers} from './headers.js';
-export {default as Request} from './request.js'
-export {default as Response} from './response.js'
-export {default as FetchError} from './errors/fetch-error.js'
-export {default as AbortError} from './errors/abort-error.js'
+export {default as Request} from './request.js';
+export {default as Response} from './response.js';
+export {default as FetchError} from './errors/fetch-error.js';
+export {default as AbortError} from './errors/abort-error.js';
 
 /**
  * Fetch function

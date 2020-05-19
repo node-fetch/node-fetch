@@ -79,7 +79,8 @@
 			"no-mixed-operators": 0,
 			"no-negated-condition": 0,
 			"unicorn/prevent-abbreviations": 0,
-			"@typescript-eslint/prefer-readonly-parameter-types": 0
+			"@typescript-eslint/prefer-readonly-parameter-types": 0,
+			"import/extensions": 0
 		},
 		"ignores": [
 			"dist",
