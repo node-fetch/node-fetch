@@ -19,6 +19,12 @@ import Request, {getNodeRequestOptions} from './request';
 import FetchError from './errors/fetch-error';
 import AbortError from './errors/abort-error';
 
+export {default as Headers} from './headers.js';
+export {default as Request} from './request.js'
+export {default as Response} from './response.js'
+export {default as FetchError} from './errors/fetch-error.js'
+export {default as AbortError} from './errors/abort-error.js'
+
 /**
  * Fetch function
  *
@@ -305,8 +311,3 @@ fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
 
 // Expose Promise
 fetch.Promise = global.Promise;
-fetch.Headers = Headers;
-fetch.Request = Request;
-fetch.Response = Response;
-fetch.FetchError = FetchError;
-fetch.AbortError = AbortError;
