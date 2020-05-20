@@ -80,7 +80,9 @@
 			"no-negated-condition": 0,
 			"unicorn/prevent-abbreviations": 0,
 			"@typescript-eslint/prefer-readonly-parameter-types": 0,
-			"import/extensions": 0
+			"import/extensions": 0,
+			"import/no-useless-path-segments": 0,
+			"unicorn/import-index": 0
 		},
 		"ignores": [
 			"dist",
