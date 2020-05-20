@@ -1,5 +1,5 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-name: Node.js CI
+name: Lint CI
 
 on:
   [push, pull_request]
@@ -20,4 +20,3 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm run lint
-    - run: npm run coverage
