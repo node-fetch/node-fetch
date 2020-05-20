@@ -1,0 +1,22 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+name: Coverage CI
+
+on:
+  [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: [ubuntu-latest, macos-latest, ubuntu-16.04]
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm run coverage
