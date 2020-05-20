@@ -4,8 +4,8 @@
  * Response class provides content decoding
  */
 
-import Headers from './headers';
-import Body, {clone, extractContentType} from './body';
+import Headers from './headers.js';
+import Body, {clone, extractContentType} from './body.js';
 
 const INTERNALS = Symbol('Response internals');
 

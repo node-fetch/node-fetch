@@ -5,6 +5,7 @@
 	"main": "./dist/index.cjs",
 	"module": "./src/index.js",
 	"sideEffects": false,
+	"type": "module",
 	"exports": {
 		"import": "./src/index.js",
 		"require": "./dist/index.cjs"
@@ -19,7 +20,8 @@
 	},
 	"scripts": {
 		"build": "rollup -c",
-		"test": "c8 --reporter=html --reporter=text mocha --require esm --throw-deprecation",
+		"test": "node --experimental-modules node_modules/.bin/mocha --throw-deprecation",
+		"test:cov": "c8 --reporter=html --reporter=text --check-coverage mocha --throw-deprecation",
 		"coverage": "c8 report --reporter=text-lcov | coveralls",
 		"lint": "xo"
 	},

@@ -1,6 +1,7 @@
-import * as http from 'http';
-import * as zlib from 'zlib';
-import {multipart as Multipart} from 'parted';
+import http from 'http';
+import zlib from 'zlib';
+import parted from 'parted';
+const {multipart: Multipart} = parted;
 
 export default class TestServer {
 	constructor() {
@@ -379,9 +380,3 @@ export default class TestServer {
 	}
 }
 
-if (require.main === module) {
-	const server = new TestServer();
-	server.start(() => {
-		console.log(`Server started listening at port ${server.port}`);
-	});
-}

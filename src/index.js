@@ -12,12 +12,12 @@ import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
 import dataURIToBuffer from 'data-uri-to-buffer';
 
-import Body, {writeToStream, getTotalBytes} from './body';
-import Response from './response';
-import Headers, {createHeadersLenient} from './headers';
-import Request, {getNodeRequestOptions} from './request';
-import FetchError from './errors/fetch-error';
-import AbortError from './errors/abort-error';
+import Body, {writeToStream, getTotalBytes} from './body.js';
+import Response from './response.js';
+import Headers, {createHeadersLenient} from './headers.js';
+import Request, {getNodeRequestOptions} from './request.js';
+import FetchError from './errors/fetch-error.js';
+import AbortError from './errors/abort-error.js';
 
 export {default as Headers} from './headers.js';
 export {default as Request} from './request.js';

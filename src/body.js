@@ -8,8 +8,8 @@
 import Stream, {PassThrough} from 'stream';
 
 import Blob from 'fetch-blob';
-import FetchError from './errors/fetch-error';
-import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
+import FetchError from './errors/fetch-error.js';
+import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 

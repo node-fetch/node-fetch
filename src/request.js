@@ -9,10 +9,10 @@
 
 import {format as formatUrl} from 'url';
 import Stream from 'stream';
-import Headers, {exportNodeCompatibleHeaders} from './headers';
-import Body, {clone, extractContentType, getTotalBytes} from './body';
-import {isAbortSignal} from './utils/is';
-import {getSearch} from './utils/get-search';
+import Headers, {exportNodeCompatibleHeaders} from './headers.js';
+import Body, {clone, extractContentType, getTotalBytes} from './body.js';
+import {isAbortSignal} from './utils/is.js';
+import {getSearch} from './utils/get-search.js';
 
 const INTERNALS = Symbol('Request internals');
 

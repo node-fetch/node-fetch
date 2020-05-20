@@ -1,14 +1,16 @@
-import * as stream from 'stream';
-import * as http from 'http';
-import {Request} from '../src';
-import TestServer from './utils/server';
-import {AbortController} from 'abortcontroller-polyfill/dist/abortcontroller';
+import stream from 'stream';
+import http from 'http';
+import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import chai from 'chai';
 import FormData from 'form-data';
 import Blob from 'fetch-blob';
 import resumer from 'resumer';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 
+import TestServer from './utils/server.js';
+import {Request} from '../src/index.js';
+
+const {AbortController} = polyfill;
 const {expect} = chai;
 
 const local = new TestServer();
