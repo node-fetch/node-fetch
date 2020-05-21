@@ -45,11 +45,6 @@
 		"url": "https://opencollective.com/node-fetch"
 	},
 	"devDependencies": {
-		"@babel/cli": "^7.8.4",
-		"@babel/core": "^7.9.0",
-		"@babel/preset-env": "^7.9.5",
-		"@babel/register": "^7.9.0",
-		"@istanbuljs/nyc-config-babel": "^3.0.0",
 		"abort-controller": "^3.0.0",
 		"abortcontroller-polyfill": "^1.4.0",
 		"c8": "^7.1.2",
@@ -63,13 +58,13 @@
 		"parted": "^0.1.1",
 		"promise": "^8.1.0",
 		"resumer": "0.0.0",
-		"rollup": "^2.10.4",
+		"rollup": "^2.10.5",
 		"string-to-arraybuffer": "^1.0.2",
 		"xo": "^0.30.0"
 	},
 	"dependencies": {
 		"data-uri-to-buffer": "^3.0.0",
-		"fetch-blob": "1.0.6"
+		"fetch-blob": "^1.0.6"
 	},
 	"esm": {
 		"sourceMap": true
