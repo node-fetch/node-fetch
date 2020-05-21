@@ -20,7 +20,7 @@ Steps to reproduce the behavior:
 <!--- If fetch is behaving incorrectly, please include a link to the spec or documentation that supports that your expected behavior is correct. -->
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+<!--- If applicable, add screenshots to help explain your problem. -->
 
 **Your Environment**
 
