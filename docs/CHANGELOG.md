@@ -8,7 +8,10 @@ Changelog
 **Work in progress!**
 
 - Enhance: improve coverage.
+- Enhance: drop Babel (while keeping ESM) (#805).
 - Fix: export the `AbortError` class.
+- Fix: example using `file-type` (#804).
+- Other: readme update.
 
 ## v3.0.0-beta.5
 
