@@ -1,10 +1,10 @@
 import * as stream from 'stream';
-import {Response} from '../src';
-import TestServer from './utils/server';
 import chai from 'chai';
 import resumer from 'resumer';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import Blob from 'fetch-blob';
+import {Response} from '../src/index.js';
+import TestServer from './utils/server.js';
 
 const {expect} = chai;
 
