@@ -1,4 +1,4 @@
-import fetch, { Request, Headers, FetchError, AbortError } from '../../';
+import fetch, { Request, Response, Headers, FetchError, AbortError } from '../../';
 
 async function run() {
 	const getRes = await fetch('https://bigfile.com/test.zip');

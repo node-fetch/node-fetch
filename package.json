@@ -49,7 +49,7 @@
 		"@babel/preset-env": "^7.9.5",
 		"@babel/register": "^7.9.0",
 		"@istanbuljs/nyc-config-babel": "^3.0.0",
-		"abort-controller": "^3.0.0",
+		"abort-controller": "3.0.0",
 		"abortcontroller-polyfill": "^1.4.0",
 		"babel-plugin-add-module-exports": "^1.0.2",
 		"babel-plugin-istanbul": "^6.0.0",
@@ -69,7 +69,7 @@
 	},
 	"dependencies": {
 		"data-uri-to-buffer": "^3.0.0",
-		"fetch-blob": "^1.0.5"
+		"fetch-blob": "1.0.6"
 	},
 	"xo": {
 		"envs": [

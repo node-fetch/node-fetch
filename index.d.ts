@@ -1,23 +1,65 @@
-/// <reference lib="dom" />
 /// <reference types="node" />
 
-import { Agent } from 'http';
+import type { Agent } from 'http';
+import type { URL, URLSearchParams } from 'url'
+import type { AbortSignal } from 'abort-controller'
+import type Blob from 'fetch-blob'
 
-interface NodeFetchHeaders extends Headers {
+type HeadersInit = Headers | string[][] | Record<string, string>;
+
+/** This Fetch API interface allows you to perform various actions on HTTP request and response headers. These actions include retrieving, setting, adding to, and removing. A Headers object has an associated header list, which is initially empty and consists of zero or more name and value pairs.  You can add to this using methods like append() (see Examples.) In all methods of this interface, header names are matched by case-insensitive byte sequence. */
+interface Headers {
+	append(name: string, value: string): void;
+	delete(name: string): void;
+	get(name: string): string | null;
+	has(name: string): boolean;
+	set(name: string, value: string): void;
+	forEach(callbackfn: (value: string, key: string, parent: Headers) => void, thisArg?: any): void;
+
+	[Symbol.iterator](): IterableIterator<[string, string]>;
+    /**
+	 * Returns an iterator allowing to go through all key/value pairs contained in this object.
+     */
+	entries(): IterableIterator<[string, string]>;
+    /**
+	 * Returns an iterator allowing to go through all keys of the key/value pairs contained in this object.
+     */
+	keys(): IterableIterator<string>;
+    /**
+	 * Returns an iterator allowing to go through all values of the key/value pairs contained in this object.
+     */
+	values(): IterableIterator<string>;
+
+	/** node-fetch extension */
 	raw(): Record<string, string>;
-
-	// Iterator methods, somehow missing from lib Headers
-	entries(): Iterator<[string, string]>;
-	keys(): Iterator<string>;
-	values(): Iterator<[string]>;
-	[Symbol.iterator](): Iterator<[string, string]>;
 }
-declare var NodeFetchHeaders: {
-	prototype: NodeFetchHeaders;
-	new(init?: HeadersInit): NodeFetchHeaders;
+declare var Headers: {
+	prototype: Headers;
+	new(init?: HeadersInit): Headers;
 };
 
-declare interface NodeFetchRequestInit extends Omit<RequestInit, 'window' | 'integrity' | 'credentials' | 'mode' | 'cache' | 'referrer' | 'referrerPolicy'> {
+interface RequestInit {
+    /**
+     * A BodyInit object or null to set request's body.
+     */
+	body?: BodyInit | null;
+    /**
+     * A Headers object, an object literal, or an array of two-item arrays to set request's headers.
+     */
+	headers?: HeadersInit;
+    /**
+     * A string to set request's method.
+     */
+	method?: string;
+    /**
+     * A string indicating whether request follows redirects, results in an error upon encountering a redirect, or returns the redirect (in an opaque fashion). Sets request's redirect.
+     */
+	redirect?: RequestRedirect;
+    /**
+     * An AbortSignal to set request's signal.
+     */
+	signal?: AbortSignal | null;
+
 	// Node-fetch extensions to the whatwg/fetch spec
 	agent?: Agent | ((parsedUrl: URL) => Agent);
 	compress?: boolean;
@@ -31,8 +73,34 @@ declare interface NodeFetchRequestInit extends Omit<RequestInit, 'window' | 'int
 	highWaterMark?: number;
 }
 
-type NodeFetchBodyInit = Blob | Buffer | URLSearchParams | NodeJS.ReadableStream | string;
-interface NodeFetchBody {
+interface ResponseInit {
+	headers?: HeadersInit;
+	status?: number;
+	statusText?: string;
+}
+
+/** A file-like object of immutable, raw data. Blobs represent data that isn't necessarily in a JavaScript-native format. The File interface is based on Blob, inheriting blob functionality and expanding it to support files on the user's system. */
+interface Blob {
+	readonly size: number;
+	readonly type: string;
+	arrayBuffer(): Promise<ArrayBuffer>;
+	slice(start?: number, end?: number, contentType?: string): Blob;
+	stream(): NodeJS.ReadableStream;
+	text(): Promise<string>;
+}
+type BlobPart = Buffer | Blob | string;
+type EndingType = "native" | "transparent";
+interface BlobPropertyBag {
+	endings?: EndingType;
+	type?: string;
+}
+declare var Blob: {
+	prototype: Blob;
+	new(blobParts?: BlobPart[], options?: BlobPropertyBag): Blob;
+};
+
+type BodyInit = Blob | Buffer | URLSearchParams | NodeJS.ReadableStream | string;
+interface Body {
 	readonly body: NodeJS.ReadableStream | null;
 	readonly bodyUsed: boolean;
 	readonly size: number;
@@ -43,16 +111,18 @@ interface NodeFetchBody {
 	json(): Promise<unknown>;
 	text(): Promise<string>;
 }
-declare var NodeFetchBody: {
-	prototype: NodeFetchBody;
-	new(body?: NodeFetchBodyInit, opts?: { size?: number; timeout?: number }): NodeFetchBody;
+declare var Body: {
+	prototype: Body;
+	new(body?: BodyInit, opts?: { size?: number; timeout?: number }): Body;
 };
 
-interface NodeFetchRequest extends NodeFetchBody {
+
+type RequestRedirect = "error" | "follow" | "manual";
+interface Request extends Body {
     /**
      * Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header.
      */
-	readonly headers: NodeFetchHeaders;
+	readonly headers: Headers;
     /**
      * Returns request's HTTP method, which is "GET" by default.
      */
@@ -69,33 +139,33 @@ interface NodeFetchRequest extends NodeFetchBody {
      * Returns the URL of request as a string.
      */
 	readonly url: string;
-	clone(): NodeFetchRequest;
+	clone(): Request;
 }
-type NodeFetchRequestInfo = string | NodeFetchBody;
-declare var NodeFetchRequest: {
-	prototype: NodeFetchRequest;
-	new(input: NodeFetchRequestInfo, init?: NodeFetchRequestInit): NodeFetchRequest;
+type RequestInfo = string | Body;
+declare var Request: {
+	prototype: Request;
+	new(input: RequestInfo, init?: RequestInit): Request;
 };
 
-interface NodeFetchResponse extends NodeFetchBody {
-	readonly headers: NodeFetchHeaders;
+interface Response extends Body {
+	readonly headers: Headers;
 	readonly ok: boolean;
 	readonly redirected: boolean;
 	readonly status: number;
 	readonly statusText: string;
 	readonly url: string;
-	clone(): NodeFetchResponse;
+	clone(): Response;
 }
 
-declare var NodeFetchResponse: {
-	prototype: NodeFetchResponse;
-	new(body?: BodyInit | null, init?: ResponseInit): NodeFetchResponse;
+declare var Response: {
+	prototype: Response;
+	new(body?: BodyInit | null, init?: ResponseInit): Response;
 };
 
 declare function fetch(
-	url: NodeFetchRequestInfo,
-	init?: NodeFetchRequestInit
-): Promise<NodeFetchResponse>;
+	url: RequestInfo,
+	init?: RequestInit
+): Promise<Response>;
 
 declare namespace fetch {
 	function isRedirect(code: number): boolean;
@@ -116,7 +186,5 @@ export class AbortError extends Error {
 	[Symbol.toStringTag]: 'AbortError';
 }
 
-export { NodeFetchRequest as Request }
-export { NodeFetchHeaders as Headers }
-export { NodeFetchResponse as Response }
+export { Headers, Request, Response }
 export default fetch;
