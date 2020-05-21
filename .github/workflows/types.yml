@@ -1,0 +1,21 @@
+name: TypeScript Check
+
+on:
+  pull_request:
+    paths:
+      - '*.d.ts'
+      - package.json
+      - .github/workflows/types.yml
+
+jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+
+      - name: Install TypeScript
+        run: npm install -g typescript@latest
+
+      - name: Check typings file
+        run: tsc -p test/types/tsconfig.json
