@@ -1,17 +1,16 @@
-# This workflow will do a clean install of node dependencies, build the source code and run lint across different versions of node
 name: Lint CI
 
 on:
-  [push, pull_request]
+  [pull_request]
 
 jobs:
   build:
 
-    runs-on: [ubuntu-latest, macos-latest, ubuntu-16.04]
+    runs-on: [ubuntu-latest]
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [12.x]
 
     steps:
     - uses: actions/checkout@v2
