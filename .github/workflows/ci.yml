@@ -21,9 +21,9 @@ jobs:
     - run: npm test
     - run: npm run coverage
       if: matrix.node != '10.x'
-      
+
     - name: Test without coverage
       if: matrix.node == '10.x'
       run: |
            npm install -D esm
-           npx mocha -r esm 
+           npx mocha -r esm
