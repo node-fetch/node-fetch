@@ -34,4 +34,4 @@ Steps to reproduce the behavior:
 | Operating System |
 
 **Additional context**
-Add any other context about the problem here.
+<!--- Add any other context about the problem here. -->
