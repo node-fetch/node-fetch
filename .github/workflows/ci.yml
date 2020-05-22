@@ -1,13 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    paths:
-      - '*.js'
-      - 'package.json'
-      - '.github/workflows/ci.yml'
+on: [ push, pull_request ]
 
 jobs:
   test:
