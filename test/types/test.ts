@@ -37,7 +37,7 @@ async function run() {
 		console.log(f.arrayBuffer.length)
 
 	} catch (err) {
-		if (err instanceof FetchError) throw err;
+		if (err instanceof FetchError) throw new Error(err.errno);
 		if (err instanceof AbortError) throw err;
 	}
 
