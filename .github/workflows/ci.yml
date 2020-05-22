@@ -1,0 +1,40 @@
+name: Node.js CI
+
+on:
+  [pull_request]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node: [14.x, 12.x, 10.x]
+        exclude:
+          # On Windows, run tests with only the LTS environments.
+          - os: windows-latest
+            node: 10.x
+          - os: windows-latest
+            node: 14.x
+          # On macOS, run tests with only the LTS environments.
+          - os: macOS-latest
+            node: 10.x
+          - os: macOS-latest
+            node: 14.x
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm test
+        if: matrix.node-version != '10.x'
+      - run: npm run coverage
+        if: matrix.node-version == '14.x' && matrix.os == 'ubuntu-latest'
+
+      - name: Test without coverage
+        if: matrix.node-version == '10.x'
+        run: |
+           npm install -D esm
+           npx mocha -r esm
