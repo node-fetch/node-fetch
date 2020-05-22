@@ -30,8 +30,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm test
         if: matrix.node-version != '10.x'
-      - run: npm run coverage
+      - uses: coverallsapp/github-action@master
         if: matrix.node-version == '14.x' && matrix.os == 'ubuntu-latest'
+        with:
+          github-token: ${{ secrets.github_token }}
 
       - name: Test without coverage
         if: matrix.node-version == '10.x'
