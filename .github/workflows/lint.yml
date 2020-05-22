@@ -1,4 +1,4 @@
-name: Lint
+name: CI
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
       - 'package.json'
       - '.github/workflows/lint.yml'
 jobs:
-  xo:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

@@ -1,7 +1,8 @@
-name: Node.js CI
+name: CI
 
 on:
   push:
+    branches: [ master ]
   pull_request:
     paths:
       - '*.js'
@@ -9,7 +10,7 @@ on:
       - '.github/workflows/ci.yml'
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
@@ -38,7 +39,7 @@ jobs:
       - run: npm test -- --colors
 
       # upload coverage only once
-      - uses: coverallsapp/github-action@master
+      - run: npm run coverage
         if: matrix.node == '14.x' && matrix.os == 'ubuntu-latest'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
