@@ -1,7 +1,7 @@
 name: Node.js CI
 
 on:
-  [pull_request]
+  [pull_request, push]
 
 jobs:
   build:
