@@ -239,7 +239,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.15
 	if (request.compress && !headers.has('Accept-Encoding')) {
-		headers.set('Accept-Encoding', 'gzip,deflate');
+		headers.set('Accept-Encoding', 'gzip,deflate,br');
 	}
 
 	let {agent} = request;

@@ -283,7 +283,7 @@ export default function fetch(url, options_) {
 			}
 
 			// For br
-			if (codings === 'br' && typeof zlib.createBrotliDecompress === 'function') {
+			if (codings === 'br') {
 				body = pump(body, zlib.createBrotliDecompress(), error => {
 					reject(error);
 				});
