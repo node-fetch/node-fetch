@@ -200,7 +200,9 @@ function consumeBody() {
 		if (this.timeout) {
 			resTimeout = setTimeout(() => {
 				abort = true;
-				reject(new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout'));
+				const err = new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout');
+				reject(err);
+				body.destroy(err);
 			}, this.timeout);
 		}
 

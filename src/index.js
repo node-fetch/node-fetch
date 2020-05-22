@@ -117,6 +117,7 @@ export default function fetch(url, options_) {
 		});
 
 		request_.on('response', res => {
+			request_.setTimeout(0);
 			const headers = createHeadersLenient(res.headers);
 
 			// HTTP fetch step 5
