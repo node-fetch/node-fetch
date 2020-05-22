@@ -31,6 +31,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - run: npm install
       - run: npm test
         if: matrix.node-version != '10.x'
       - uses: coverallsapp/github-action@master
