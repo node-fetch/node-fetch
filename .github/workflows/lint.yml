@@ -1,10 +1,14 @@
-name: Lint CI
+name: Lint
 
 on:
-  [pull_request]
-
+  pull_request:
+    paths:
+      - '*.js'
+      - '**eslint**'
+      - 'package.json'
+      - '.github/workflows/lint.yml'
 jobs:
-  build:
+  xo:
 
     runs-on: [ubuntu-latest]
 
