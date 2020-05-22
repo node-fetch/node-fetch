@@ -1,9 +1,9 @@
 /// <reference types="node" />
 
-import type { Agent } from 'http';
-import type { URL, URLSearchParams } from 'url'
-import type { AbortSignal } from 'abort-controller'
-import type Blob from 'fetch-blob'
+import { Agent } from 'http';
+import { URL, URLSearchParams } from 'url'
+import { AbortSignal } from 'abort-controller'
+import Blob from 'fetch-blob'
 
 type HeadersInit = Headers | string[][] | Record<string, string>;
 
@@ -31,7 +31,7 @@ interface Headers {
 	values(): IterableIterator<string>;
 
 	/** node-fetch extension */
-	raw(): Record<string, string>;
+	raw(): Record<string, string[]>;
 }
 declare var Headers: {
 	prototype: Headers;
@@ -96,7 +96,6 @@ declare var Body: {
 	new(body?: BodyInit, opts?: { size?: number; timeout?: number }): Body;
 };
 
-
 type RequestRedirect = "error" | "follow" | "manual";
 interface Request extends Body {
     /**
@@ -151,14 +150,17 @@ declare namespace fetch {
 	function isRedirect(code: number): boolean;
 }
 
-export class FetchError extends Error {
+interface FetchError extends Error {
 	name: 'FetchError';
 	[Symbol.toStringTag]: 'FetchError';
 	type: string;
 	code?: string;
 	errno?: string;
-	constructor(message: string, type: string, systemError?: object);
 }
+declare var FetchError: {
+	prototype: FetchError;
+	new(message: string, type: string, systemError?: object): FetchError;
+};
 
 export class AbortError extends Error {
 	type: string;
@@ -166,5 +168,5 @@ export class AbortError extends Error {
 	[Symbol.toStringTag]: 'AbortError';
 }
 
-export { Headers, Request, Response }
+export { Headers, Request, Response, FetchError }
 export default fetch;
