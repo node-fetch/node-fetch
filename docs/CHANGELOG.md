@@ -13,6 +13,7 @@ Changelog
 - Enhance: normalize export (#827).
 - Enhance: remove guard for Stream.Readable.destroy (#824).
 - Enhance: remove custom isArrayBuffer (#822).
+- Enhance: use normal class inheritance instead of Body.mixIn (#828).
 - Fix: export the `AbortError` class.
 - Fix: example using `file-type` (#804).
 - Fix: settle `consumeBody` promise when the response closes prematurely (#768).
