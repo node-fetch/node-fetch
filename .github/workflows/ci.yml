@@ -39,7 +39,8 @@ jobs:
       - run: npm test -- --colors
 
       # upload coverage only once
-      - run: npm run coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
         if: matrix.node == '14.x' && matrix.os == 'ubuntu-latest'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
