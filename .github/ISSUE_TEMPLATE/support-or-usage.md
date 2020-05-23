@@ -7,14 +7,11 @@ assignees: ''
 
 ---
 
-<!-- Click "Preview" for a more readable version --
-
+<!--
 Please read and follow the instructions before submitting an issue:
 
-- Read all our documentation, especially the [README](https://github.com/node-fetch/node-fetch/blob/master/README.md). It may contain information that helps you solve your issue.
-- If you're reporting a bug, ensure it isn't already fixed in the latest Node-Fetch version.
-
-⚠️👆 Feel free to these instructions before submitting the issue 👆⚠️
+- Ensure you've read our documentation, especially the [README](https://github.com/node-fetch/node-fetch/blob/master/README.md) since it may contain information that helps you solve your issue.
+- If you're reporting a bug, ensure it isn't already fixed in the latest version of node-fetch.
 -->
 
 <!--- Provide a clear and concise description of what the bug is. -->
