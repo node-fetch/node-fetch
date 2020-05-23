@@ -6,15 +6,15 @@ Please read and follow these instructions before creating and submitting a pull 
 - If you are reporting a bug, adding failing units tests can be a good idea.
 -->
 
-**What is the purpose of this pull request? (put an "X" next to item)**
+**What is the purpose of this pull request?**
 
 [ ] Documentation update
 [ ] Bug fix
 [ ] New feature
 [ ] Other, please explain:
 
-**What changes did you make? (Give an overview)**
+**What changes did you make? (provide an overview)**
 
 **Which issue (if any) does this pull request address?**
 
-**Is there anything you'd like reviewers to focus on?**
+**Is there anything you'd like reviewers to know?**
