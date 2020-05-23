@@ -1,4 +1,4 @@
-import {Headers} from '../src';
+import {Headers} from '../src/index.js';
 import chai from 'chai';
 
 const {expect} = chai;

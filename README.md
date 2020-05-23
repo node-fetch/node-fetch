@@ -2,12 +2,12 @@
   	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
   	<br>
   	<p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
-	<a href="https://travis-ci.com/node-fetch/node-fetch"><img src="https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square" alt="Build status"></a>
-	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch?style=flat-square" alt="Coverage status"></a>
-	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://flat.badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
-	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch?style=flat-square" alt="Install size"></a>
-	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge-flat.svg" alt="Mentioned in Awesome Node.js"></a>
-	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square" alt="Discord"></a>
+	<a href="https://github.com/node-fetch/node-fetch/actions"><img src="https://github.com/node-fetch/node-fetch/workflows/CI/badge.svg?branch=master" alt="Build status"></a>
+	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch" alt="Coverage status"></a>
+	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
+	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch" alt="Install size"></a>
+	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Node.js"></a>
+	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord" alt="Discord"></a>
 	<br>
 	<br>
 	<b>Consider supporting us on our Open Collective:</b>
@@ -135,21 +135,7 @@ if (!globalThis.fetch) {
 }
 ```
 
-For versions of node earlier than 12.x, use this `globalThis` [polyfill](https://mathiasbynens.be/notes/globalthis):
-
-```js
-(function() {
-	if (typeof globalThis === 'object') return;
-	Object.defineProperty(Object.prototype, '__magic__', {
-		get: function() {
-			return this;
-		},
-		configurable: true
-	});
-	__magic__.globalThis = __magic__;
-	delete Object.prototype.__magic__;
-}());
-```
+For versions of Node earlier than 12, use this `globalThis` [polyfill](https://mathiasbynens.be/notes/globalthis).
 
 ## Upgrading
 
@@ -294,7 +280,7 @@ const fileType = require('file-type');
 
 fetch('https://octodex.github.com/images/Fintechtocat.png')
 	.then(res => res.buffer())
-	.then(buffer => fileType(buffer))
+	.then(buffer => fileType.fromBuffer(buffer))
 	.then(type => {
 		console.log(type);
 	});
@@ -444,7 +430,7 @@ If no values are set, the following request headers will be sent automatically:
 
 | Header              | Value                                                    |
 | ------------------- | -------------------------------------------------------- |
-| `Accept-Encoding`   | `gzip,deflate` _(when `options.compress === true`)_      |
+| `Accept-Encoding`   | `gzip,deflate,br` _(when `options.compress === true`)_   |
 | `Accept`            | `*/*`                                                    |
 | `Connection`        | `close` _(when no `options.agent` is present)_           |
 | `Content-Length`    | _(automatically calculated, if possible)_                |
@@ -491,7 +477,7 @@ const options = {
 
 #### Custom highWaterMark
 
-Stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1MB, not consistent across browsers). Because of that, when you are writing an isomorphic app and using `res.clone()`, it will hang with large response in Node.
+Stream on Node.js have a smaller internal buffer size (16kB, aka `highWaterMark`) from client-side browsers (>1MB, not consistent across browsers). Because of that, when you are writing an isomorphic app and using `res.clone()`, it will hang with large response in Node.
 
 The recommended way to fix this problem is to resolve cloned response in parallel:
 
@@ -696,7 +682,7 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 
 ## TypeScript
 
-Since `3.x` types are bundled with `node-fetch`, so you don't need to install any additional packages.
+**Since `3.x` types are bundled with `node-fetch`, so you don't need to install any additional packages.**
 
 For older versions please use the type definitions from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped):
 
@@ -710,9 +696,9 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 ## Team
 
-[![David Frank](https://github.com/bitinn.png?size=100)](https://github.com/bitinn) | [![Jimmy Wärting](https://github.com/jimmywarting.png?size=100)](https://github.com/jimmywarting) | [![Antoni Kepinski](https://github.com/xxczaki.png?size=100)](https://github.com/xxczaki) | [![Richie Bendall](https://github.com/Richienb.png?size=100)](https://github.com/Richienb) | [![Gregor Martynus](https://github.com/gr2m.png?size=100)](https://github.com/gr2m)
----|---|---|---|---
-[David Frank](https://bitinn.net/) | [Jimmy Wärting](https://jimmy.warting.se/) | [Antoni Kepinski](https://kepinski.me) | [Richie Bendall](https://www.richie-bendall.ml/) | [Gregor Martynus](https://twitter.com/gr2m)
+| [![David Frank](https://github.com/bitinn.png?size=100)](https://github.com/bitinn) | [![Jimmy Wärting](https://github.com/jimmywarting.png?size=100)](https://github.com/jimmywarting) | [![Antoni Kepinski](https://github.com/xxczaki.png?size=100)](https://github.com/xxczaki) | [![Richie Bendall](https://github.com/Richienb.png?size=100)](https://github.com/Richienb) | [![Gregor Martynus](https://github.com/gr2m.png?size=100)](https://github.com/gr2m) |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [David Frank](https://bitinn.net/)                                                  | [Jimmy Wärting](https://jimmy.warting.se/)                                                        | [Antoni Kepinski](https://kepinski.me)                                                    | [Richie Bendall](https://www.richie-bendall.ml/)                                           | [Gregor Martynus](https://twitter.com/gr2m)                                         |
 
 ###### Former
 

@@ -5,11 +5,12 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, {PassThrough} from 'stream';
+import Stream, {finished, PassThrough} from 'stream';
+import {types} from 'util';
 
 import Blob from 'fetch-blob';
-import FetchError from './errors/fetch-error';
-import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is';
+import FetchError from './errors/fetch-error.js';
+import {isBlob, isURLSearchParams, isAbortError} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -36,7 +37,7 @@ export default function Body(body, {
 		// Body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// Body is Buffer
-	} else if (isArrayBuffer(body)) {
+	} else if (types.isAnyArrayBuffer(body)) {
 		// Body is ArrayBuffer
 		body = Buffer.from(body);
 	} else if (ArrayBuffer.isView(body)) {
@@ -200,21 +201,11 @@ function consumeBody() {
 		if (this.timeout) {
 			resTimeout = setTimeout(() => {
 				abort = true;
-				reject(new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout'));
+				const err = new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout');
+				reject(err);
+				body.destroy(err);
 			}, this.timeout);
 		}
-
-		// Handle stream errors
-		body.on('error', err => {
-			if (isAbortError(err)) {
-				// If the request was aborted, reject with this Error
-				abort = true;
-				reject(err);
-			} else {
-				// Other errors, such as incorrect content-encoding
-				reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
-			}
-		});
 
 		body.on('data', chunk => {
 			if (abort || chunk === null) {
@@ -231,18 +222,28 @@ function consumeBody() {
 			accum.push(chunk);
 		});
 
-		body.on('end', () => {
-			if (abort) {
-				return;
-			}
-
+		finished(body, {writable: false}, err => {
 			clearTimeout(resTimeout);
+			if (err) {
+				if (isAbortError(err)) {
+					// If the request was aborted, reject with this Error
+					abort = true;
+					reject(err);
+				} else {
+					// Other errors, such as incorrect content-encoding
+					reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
+				}
+			} else {
+				if (abort) {
+					return;
+				}
 
-			try {
-				resolve(Buffer.concat(accum, accumBytes));
-			} catch (error) {
-				// Handle streams that have accumulated too much data (issue #414)
-				reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${error.message}`, 'system', error));
+				try {
+					resolve(Buffer.concat(accum, accumBytes));
+				} catch (error) {
+					// Handle streams that have accumulated too much data (issue #414)
+					reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${error.message}`, 'system', error));
+				}
 			}
 		});
 	});
@@ -313,7 +314,7 @@ export function extractContentType(body) {
 	}
 
 	// Body is a Buffer (Buffer, ArrayBuffer or ArrayBufferView)
-	if (Buffer.isBuffer(body) || isArrayBuffer(body) || ArrayBuffer.isView(body)) {
+	if (Buffer.isBuffer(body) || types.isAnyArrayBuffer(body) || ArrayBuffer.isView(body)) {
 		return null;
 	}
 

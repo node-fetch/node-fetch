@@ -2,10 +2,9 @@
 import zlib from 'zlib';
 import crypto from 'crypto';
 import {spawn} from 'child_process';
-import * as http from 'http';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as stream from 'stream';
+import http from 'http';
+import fs from 'fs';
+import stream from 'stream';
 import {lookup} from 'dns';
 import vm from 'vm';
 import chai from 'chai';
@@ -17,29 +16,33 @@ import resumer from 'resumer';
 import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 
-import {AbortController} from 'abortcontroller-polyfill/dist/abortcontroller';
+import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import AbortController2 from 'abort-controller';
+
+const {AbortController} = polyfill;
 
 // Test subjects
 import Blob from 'fetch-blob';
+
 import fetch, {
 	FetchError,
 	Headers,
 	Request,
 	Response
-} from '../src';
-import FetchErrorOrig from '../src/errors/fetch-error';
-import HeadersOrig, {createHeadersLenient} from '../src/headers';
-import RequestOrig from '../src/request';
-import ResponseOrig from '../src/response';
-import Body, {getTotalBytes, extractContentType} from '../src/body';
-import TestServer from './utils/server';
+} from '../src/index.js';
+import FetchErrorOrig from '../src/errors/fetch-error.js';
+import HeadersOrig, {createHeadersLenient} from '../src/headers.js';
+import RequestOrig from '../src/request.js';
+import ResponseOrig from '../src/response.js';
+import Body, {getTotalBytes, extractContentType} from '../src/body.js';
+import delay from './utils/delay.js';
+import TestServer from './utils/server.js';
 
 const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
 
-import chaiTimeout from './utils/chai-timeout';
+import chaiTimeout from './utils/chai-timeout.js';
 
 chai.use(chaiPromised);
 chai.use(chaiIterator);
@@ -592,6 +595,16 @@ describe('node-fetch', () => {
 			.and.have.property('code', 'ECONNRESET');
 	});
 
+	it('should handle network-error partial response', () => {
+		const url = `${base}error/premature`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+			return expect(res.text()).to.eventually.be.rejectedWith(Error)
+				.and.have.property('message').includes('Premature close');
+		});
+	});
+
 	it('should handle DNS-error response', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
@@ -796,16 +809,8 @@ describe('node-fetch', () => {
 	});
 
 	it('should collect handled errors on the body stream to reject if the body is used later', () => {
-		function delay(value) {
-			return new Promise(resolve => {
-				setTimeout(() => {
-					resolve(value);
-				}, 20);
-			});
-		}
-
 		const url = `${base}invalid-content-encoding`;
-		return fetch(url).then(delay).then(res => {
+		return fetch(url).then(delay(20)).then(res => {
 			expect(res.headers.get('content-type')).to.equal('text/plain');
 			return expect(res.text()).to.eventually.be.rejected
 				.and.be.an.instanceOf(FetchError)
@@ -856,6 +861,21 @@ describe('node-fetch', () => {
 			timeout: 20
 		};
 		return fetch(url, options).then(res => {
+			expect(res.ok).to.be.true;
+			return expect(res.text()).to.eventually.be.rejected
+				.and.be.an.instanceOf(FetchError)
+				.and.have.property('type', 'body-timeout');
+		});
+	});
+
+	it('should not allow socket timeout before body is read', () => {
+		const url = `${base}slow`;
+		const options = {
+			timeout: 100
+		};
+		// Await the response, then delay, allowing enough time for the timeout
+		// to be created just before the socket timeout
+		return fetch(url, options).then(delay(75)).then(res => {
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejected
 				.and.be.an.instanceOf(FetchError)
@@ -1378,7 +1398,7 @@ describe('node-fetch', () => {
 
 	itIf(process.platform !== 'win32')('should allow POST request with form-data using stream as body', () => {
 		const form = new FormData();
-		form.append('my_field', fs.createReadStream(path.join(__dirname, './utils/dummy.txt')));
+		form.append('my_field', fs.createReadStream('test/utils/dummy.txt'));
 
 		const url = `${base}multipart`;
 		const options = {

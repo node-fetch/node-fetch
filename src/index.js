@@ -12,12 +12,15 @@ import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
 import dataURIToBuffer from 'data-uri-to-buffer';
 
-import Body, {writeToStream, getTotalBytes} from './body';
-import Response from './response';
-import Headers, {createHeadersLenient} from './headers';
-import Request, {getNodeRequestOptions} from './request';
-import FetchError from './errors/fetch-error';
-import AbortError from './errors/abort-error';
+import Body, {writeToStream, getTotalBytes} from './body.js';
+import Response from './response.js';
+import Headers, {createHeadersLenient} from './headers.js';
+import Request, {getNodeRequestOptions} from './request.js';
+import FetchError from './errors/fetch-error.js';
+import AbortError from './errors/abort-error.js';
+import {isRedirect} from './utils/is-redirect.js';
+
+export {Headers, Request, Response, FetchError, AbortError, isRedirect};
 
 /**
  * Fetch function
@@ -111,10 +114,11 @@ export default function fetch(url, options_) {
 		});
 
 		request_.on('response', res => {
+			request_.setTimeout(0);
 			const headers = createHeadersLenient(res.headers);
 
 			// HTTP fetch step 5
-			if (fetch.isRedirect(res.statusCode)) {
+			if (isRedirect(res.statusCode)) {
 				// HTTP fetch step 5.2
 				const location = headers.get('Location');
 
@@ -277,7 +281,7 @@ export default function fetch(url, options_) {
 			}
 
 			// For br
-			if (codings === 'br' && typeof zlib.createBrotliDecompress === 'function') {
+			if (codings === 'br') {
 				body = pump(body, zlib.createBrotliDecompress(), error => {
 					reject(error);
 				});
@@ -295,18 +299,5 @@ export default function fetch(url, options_) {
 	});
 }
 
-/**
- * Redirect code matching
- *
- * @param   Number   code  Status code
- * @return  Boolean
- */
-fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
-
 // Expose Promise
 fetch.Promise = global.Promise;
-fetch.Headers = Headers;
-fetch.Request = Request;
-fetch.Response = Response;
-fetch.FetchError = FetchError;
-fetch.AbortError = AbortError;

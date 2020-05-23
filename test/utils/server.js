@@ -1,6 +1,7 @@
-import * as http from 'http';
-import * as zlib from 'zlib';
-import {multipart as Multipart} from 'parted';
+import http from 'http';
+import zlib from 'zlib';
+import parted from 'parted';
+const {multipart: Multipart} = parted;
 
 export default class TestServer {
 	constructor() {
@@ -301,6 +302,14 @@ export default class TestServer {
 			res.destroy();
 		}
 
+		if (p === '/error/premature') {
+			res.writeHead(200, {'content-length': 50});
+			res.write('foo');
+			setTimeout(() => {
+				res.destroy();
+			}, 100);
+		}
+
 		if (p === '/error/json') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
@@ -379,9 +388,3 @@ export default class TestServer {
 	}
 }
 
-if (require.main === module) {
-	const server = new TestServer();
-	server.start(() => {
-		console.log(`Server started listening at port ${server.port}`);
-	});
-}

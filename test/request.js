@@ -1,14 +1,16 @@
-import * as stream from 'stream';
-import * as http from 'http';
-import {Request} from '../src';
-import TestServer from './utils/server';
-import {AbortController} from 'abortcontroller-polyfill/dist/abortcontroller';
+import stream from 'stream';
+import http from 'http';
+import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import chai from 'chai';
 import FormData from 'form-data';
 import Blob from 'fetch-blob';
 import resumer from 'resumer';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 
+import TestServer from './utils/server.js';
+import {Request} from '../src/index.js';
+
+const {AbortController} = polyfill;
 const {expect} = chai;
 
 const local = new TestServer();
@@ -102,17 +104,17 @@ describe('Request', () => {
 	});
 
 	it('should throw error with GET/HEAD requests with body', () => {
-		expect(() => new Request('.', {body: ''}))
+		expect(() => new Request(base, {body: ''}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a'}))
+		expect(() => new Request(base, {body: 'a'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: '', method: 'HEAD'}))
+		expect(() => new Request(base, {body: '', method: 'HEAD'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a', method: 'HEAD'}))
+		expect(() => new Request(base, {body: 'a', method: 'HEAD'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a', method: 'get'}))
+		expect(() => new Request(base, {body: 'a', method: 'get'}))
 			.to.throw(TypeError);
-		expect(() => new Request('.', {body: 'a', method: 'head'}))
+		expect(() => new Request(base, {body: 'a', method: 'head'}))
 			.to.throw(TypeError);
 	});
 

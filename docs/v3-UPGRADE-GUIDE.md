@@ -19,7 +19,7 @@ other comparatively minor modifications.
 
 # Breaking Changes
 
-## Minimum supported Node.js version is now 10
+## Minimum supported Node.js version is now 10.16
 
 Since Node.js will deprecate version 8 at the end of 2019, we decided that node-fetch v3.x will not only drop support for Node.js 4 and 6 (which were supported in v2.x), but also for Node.js 8. We strongly encourage you to upgrade, if you still haven't done so. Check out Node.js' official [LTS plan] for more information on Node.js' support lifetime.
 

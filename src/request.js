@@ -8,15 +8,12 @@
  */
 
 import {format as formatUrl} from 'url';
-import Stream from 'stream';
-import Headers, {exportNodeCompatibleHeaders} from './headers';
-import Body, {clone, extractContentType, getTotalBytes} from './body';
-import {isAbortSignal} from './utils/is';
-import {getSearch} from './utils/get-search';
+import Headers, {exportNodeCompatibleHeaders} from './headers.js';
+import Body, {clone, extractContentType, getTotalBytes} from './body.js';
+import {isAbortSignal} from './utils/is.js';
+import {getSearch} from './utils/get-search.js';
 
 const INTERNALS = Symbol('Request internals');
-
-const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
  * Check if `obj` is an instance of Request.
@@ -204,21 +201,8 @@ export function getNodeRequestOptions(request) {
 		headers.set('Accept', '*/*');
 	}
 
-	// Basic fetch
-	if (!parsedURL.protocol || !parsedURL.hostname) {
-		throw new TypeError('Only absolute URLs are supported');
-	}
-
 	if (!/^https?:$/.test(parsedURL.protocol)) {
 		throw new TypeError('Only HTTP(S) protocols are supported');
-	}
-
-	if (
-		request.signal &&
-		request.body instanceof Stream.Readable &&
-		!streamDestructionSupported
-	) {
-		throw new Error('Cancellation of streamed requests with AbortSignal is not supported');
 	}
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7
@@ -245,7 +229,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.15
 	if (request.compress && !headers.has('Accept-Encoding')) {
-		headers.set('Accept-Encoding', 'gzip,deflate');
+		headers.set('Accept-Encoding', 'gzip,deflate,br');
 	}
 
 	let {agent} = request;
