@@ -58,9 +58,9 @@
 		"parted": "^0.1.1",
 		"promise": "^8.1.0",
 		"resumer": "0.0.0",
-		"rollup": "^2.10.5",
+		"rollup": "^2.10.8",
 		"string-to-arraybuffer": "^1.0.2",
-		"tsd": "0.11.0",
+		"tsd": "^0.11.0",
 		"xo": "^0.30.0"
 	},
 	"dependencies": {
