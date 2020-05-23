@@ -12,12 +12,20 @@ import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
 import dataURIToBuffer from 'data-uri-to-buffer';
 
-import Body, {writeToStream, getTotalBytes} from './body';
-import Response from './response';
-import Headers, {createHeadersLenient} from './headers';
-import Request, {getNodeRequestOptions} from './request';
-import FetchError from './errors/fetch-error';
-import AbortError from './errors/abort-error';
+import Body, {writeToStream, getTotalBytes} from './body.js';
+import Response from './response.js';
+import Headers, {createHeadersLenient} from './headers.js';
+import Request, {getNodeRequestOptions} from './request.js';
+import FetchError from './errors/fetch-error.js';
+import AbortError from './errors/abort-error.js';
+import {isRedirect} from './utils/is-redirect.js';
+
+export {default as Headers} from './headers.js';
+export {default as Request} from './request.js';
+export {default as Response} from './response.js';
+export {default as FetchError} from './errors/fetch-error.js';
+export {default as AbortError} from './errors/abort-error.js';
+export {isRedirect};
 
 /**
  * Fetch function
@@ -26,14 +34,14 @@ import AbortError from './errors/abort-error';
  * @param   Object   opts  Fetch options
  * @return  Promise
  */
-export default function fetch(url, opts) {
+export default function fetch(url, options_) {
 	// Allow custom promise
 	if (!fetch.Promise) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
 	}
 
 	// Regex for data uri
-	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+,;=\-._~:@/?%\s]*\s*$/i;
+	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[\w!$&',()*+;=\-.~:@/?%\s]*\s*$/i;
 
 	// If valid data uri
 	if (dataUriRegex.test(url)) {
@@ -44,7 +52,7 @@ export default function fetch(url, opts) {
 
 	// If invalid data uri
 	if (url.toString().startsWith('data:')) {
-		const request = new Request(url, opts);
+		const request = new Request(url, options_);
 		return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system'));
 	}
 
@@ -53,7 +61,7 @@ export default function fetch(url, opts) {
 	// Wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {
 		// Build request object
-		const request = new Request(url, opts);
+		const request = new Request(url, options_);
 		const options = getNodeRequestOptions(request);
 
 		const send = (options.protocol === 'https:' ? https : http).request;
@@ -85,43 +93,37 @@ export default function fetch(url, opts) {
 		};
 
 		// Send request
-		const req = send(options);
-		let reqTimeout;
+		const request_ = send(options);
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
 		}
 
 		function finalize() {
-			req.abort();
+			request_.abort();
 			if (signal) {
 				signal.removeEventListener('abort', abortAndFinalize);
 			}
-
-			clearTimeout(reqTimeout);
 		}
 
 		if (request.timeout) {
-			req.once('socket', () => {
-				reqTimeout = setTimeout(() => {
-					reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-					finalize();
-				}, request.timeout);
+			request_.setTimeout(request.timeout, () => {
+				finalize();
+				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
 			});
 		}
 
-		req.on('error', err => {
+		request_.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
 		});
 
-		req.on('response', res => {
-			clearTimeout(reqTimeout);
-
+		request_.on('response', res => {
+			request_.setTimeout(0);
 			const headers = createHeadersLenient(res.headers);
 
 			// HTTP fetch step 5
-			if (fetch.isRedirect(res.statusCode)) {
+			if (isRedirect(res.statusCode)) {
 				// HTTP fetch step 5.2
 				const location = headers.get('Location');
 
@@ -131,7 +133,7 @@ export default function fetch(url, opts) {
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
 					case 'error':
-						reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect'));
+						reject(new FetchError(`uri requested responds with a redirect, redirect mode is set to error: ${request.url}`, 'no-redirect'));
 						finalize();
 						return;
 					case 'manual':
@@ -162,7 +164,7 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 6 (counter increment)
 						// Create a new Request object.
-						const requestOpts = {
+						const requestOptions = {
 							headers: new Headers(request.headers),
 							follow: request.follow,
 							counter: request.counter + 1,
@@ -183,13 +185,13 @@ export default function fetch(url, opts) {
 
 						// HTTP-redirect fetch step 11
 						if (res.statusCode === 303 || ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST')) {
-							requestOpts.method = 'GET';
-							requestOpts.body = undefined;
-							requestOpts.headers.delete('content-length');
+							requestOptions.method = 'GET';
+							requestOptions.body = undefined;
+							requestOptions.headers.delete('content-length');
 						}
 
 						// HTTP-redirect fetch step 15
-						resolve(fetch(new Request(locationURL, requestOpts)));
+						resolve(fetch(new Request(locationURL, requestOptions)));
 						finalize();
 						return;
 					}
@@ -284,7 +286,7 @@ export default function fetch(url, opts) {
 			}
 
 			// For br
-			if (codings === 'br' && typeof zlib.createBrotliDecompress === 'function') {
+			if (codings === 'br') {
 				body = pump(body, zlib.createBrotliDecompress(), error => {
 					reject(error);
 				});
@@ -298,23 +300,9 @@ export default function fetch(url, opts) {
 			resolve(response);
 		});
 
-		writeToStream(req, request);
+		writeToStream(request_, request);
 	});
 }
 
-/**
- * Redirect code matching
- *
- * @param   Number   code  Status code
- * @return  Boolean
- */
-fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
-
 // Expose Promise
 fetch.Promise = global.Promise;
-export {
-	Headers,
-	Request,
-	Response,
-	FetchError
-};

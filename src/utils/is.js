@@ -13,58 +13,58 @@ const NAME = Symbol.toStringTag;
  * @param  {*} obj
  * @return {boolean}
  */
-export function isURLSearchParams(obj) {
+export function isURLSearchParams(object) {
 	return (
-		typeof obj === 'object' &&
-		typeof obj.append === 'function' &&
-		typeof obj.delete === 'function' &&
-		typeof obj.get === 'function' &&
-		typeof obj.getAll === 'function' &&
-		typeof obj.has === 'function' &&
-		typeof obj.set === 'function' &&
-		typeof obj.sort === 'function' &&
-		obj[NAME] === 'URLSearchParams'
+		typeof object === 'object' &&
+		typeof object.append === 'function' &&
+		typeof object.delete === 'function' &&
+		typeof object.get === 'function' &&
+		typeof object.getAll === 'function' &&
+		typeof object.has === 'function' &&
+		typeof object.set === 'function' &&
+		typeof object.sort === 'function' &&
+		object[NAME] === 'URLSearchParams'
 	);
 }
 
 /**
- * Check if `obj` is a W3C `Blob` object (which `File` inherits from)
+ * Check if `object` is a W3C `Blob` object (which `File` inherits from)
  *
  * @param  {*} obj
  * @return {boolean}
  */
-export function isBlob(obj) {
+export function isBlob(object) {
 	return (
-		typeof obj === 'object' &&
-		typeof obj.arrayBuffer === 'function' &&
-		typeof obj.type === 'string' &&
-		typeof obj.stream === 'function' &&
-		typeof obj.constructor === 'function' &&
-		/^(Blob|File)$/.test(obj[NAME])
+		typeof object === 'object' &&
+		typeof object.arrayBuffer === 'function' &&
+		typeof object.type === 'string' &&
+		typeof object.stream === 'function' &&
+		typeof object.constructor === 'function' &&
+		/^(Blob|File)$/.test(object[NAME])
 	);
 }
 
 /**
  * Check if `obj` is a spec-compliant `FormData` object
  *
- * @param {*}
+ * @param {*} object
  * @return {boolean}
  */
-export function isFormData(obj) {
+export function isFormData(object) {
 	return (
-		typeof obj === 'object' &&
-		typeof obj.append === 'function' &&
-		typeof obj.set === 'function' &&
-		typeof obj.get === 'function' &&
-		typeof obj.getAll === 'function' &&
-		typeof obj.delete === 'function' &&
-		typeof obj.keys === 'function' &&
-		typeof obj.values === 'function' &&
-		typeof obj.entries === 'function' &&
-		typeof obj.constructor === 'function' &&
-		obj.constructor.name === 'FormData'
-	);
-}
+		typeof object === 'object' &&
+		typeof object.append === 'function' &&
+		typeof object.set === 'function' &&
+		typeof object.get === 'function' &&
+		typeof object.getAll === 'function' &&
+		typeof object.delete === 'function' &&
+		typeof object.keys === 'function' &&
+		typeof object.values === 'function' &&
+		typeof object.entries === 'function' &&
+		typeof object.constructor === 'function' &&
+		object.constructor.name === 'FormData'
+	)
+};
 
 /**
  * Check if `obj` is an instance of AbortSignal.
@@ -72,21 +72,11 @@ export function isFormData(obj) {
  * @param  {*} obj
  * @return {boolean}
  */
-export function isAbortSignal(obj) {
+export function isAbortSignal(object) {
 	return (
-		typeof obj === 'object' &&
-		obj[NAME] === 'AbortSignal'
+		typeof object === 'object' &&
+		object[NAME] === 'AbortSignal'
 	);
-}
-
-/**
- * Check if `obj` is an instance of ArrayBuffer.
- *
- * @param  {*} obj
- * @return {boolean}
- */
-export function isArrayBuffer(obj) {
-	return obj[NAME] === 'ArrayBuffer';
 }
 
 /**
@@ -95,6 +85,6 @@ export function isArrayBuffer(obj) {
  * @param  {*} obj
  * @return {boolean}
  */
-export function isAbortError(obj) {
-	return obj[NAME] === 'AbortError';
+export function isAbortError(object) {
+	return object[NAME] === 'AbortError';
 }

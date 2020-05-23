@@ -23,6 +23,7 @@ export default class FetchError extends Error {
 
 		// When err.type is `system`, err.erroredSysCall contains system error and err.code contains system error code
 		if (systemError) {
+			// eslint-disable-next-line no-multi-assign
 			this.code = this.errno = systemError.code;
 			this.erroredSysCall = systemError;
 		}

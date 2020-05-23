@@ -1,4 +1,3 @@
-
 Known differences
 =================
 
@@ -12,7 +11,7 @@ Known differences
 
 - For convenience, `res.body` is a Node.js [Readable stream][readable-stream], so decoding can be handled independently.
 
-- Similarly, `req.body` can either be `null`, a string, a buffer or a Readable stream.
+- Similarly, `req.body` can either be `null`, a buffer or a Readable stream.
 
 - Also, you can handle rejected fetch requests through checking `err.type` and `err.code`. See [ERROR-HANDLING.md][] for more info.
 
@@ -22,7 +21,7 @@ Known differences
 
 - Current implementation lacks server-side cookie store, you will need to extract `Set-Cookie` headers manually.
 
-- If you are using `res.clone()` and writing an isomorphic app, note that stream on Node.js have a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers). Learn [how to get around this][highwatermark-fix].
+- If you are using `res.clone()` and writing an isomorphic app, note that stream on Node.js has a smaller internal buffer size (16Kb, aka `highWaterMark`) from client-side browsers (>1Mb, not consistent across browsers). Learn [how to get around this][highwatermark-fix].
 
 - Because Node.js stream doesn't expose a [*disturbed*](https://fetch.spec.whatwg.org/#concept-readablestream-disturbed) property like Stream spec, using a consumed stream for `new Response(body)` will not set `bodyUsed` flag correctly.
 

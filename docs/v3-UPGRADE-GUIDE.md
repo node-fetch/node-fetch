@@ -19,7 +19,7 @@ other comparatively minor modifications.
 
 # Breaking Changes
 
-## Minimum supported Node.js version is now 10
+## Minimum supported Node.js version is now 10.16
 
 Since Node.js will deprecate version 8 at the end of 2019, we decided that node-fetch v3.x will not only drop support for Node.js 4 and 6 (which were supported in v2.x), but also for Node.js 8. We strongly encourage you to upgrade, if you still haven't done so. Check out Node.js' official [LTS plan] for more information on Node.js' support lifetime.
 
@@ -36,10 +36,10 @@ Prior to v3.x, we included a `browser` field in the package.json file. Since nod
 If you want charset encoding detection, please use the [fetch-charset-detection] package ([documentation][fetch-charset-detection-docs]).
 
 ```js
-const fetch = require("node-fetch");
-const convertBody = require("fetch-charset-detection");
+const fetch = require('node-fetch');
+const convertBody = require('fetch-charset-detection');
 
-fetch("https://somewebsite.com").then(res => {
+fetch('https://somewebsite.com').then(res => {
 	const text = convertBody(res.buffer(), res.headers);
 });
 ```
@@ -49,9 +49,9 @@ fetch("https://somewebsite.com").then(res => {
 When attempting to parse invalid json via `res.json()`, a `SyntaxError` will now be thrown instead of a `FetchError` to align better with the spec.
 
 ```js
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
-fetch("https://somewebsitereturninginvalidjson.com").then(res => res.json())
+fetch('https://somewebsitereturninginvalidjson.com').then(res => res.json())
 // Throws 'Uncaught SyntaxError: Unexpected end of JSON input' or similar.
 ```
 
@@ -59,9 +59,17 @@ fetch("https://somewebsitereturninginvalidjson.com").then(res => res.json())
 
 If you are listening for errors via `res.body.on('error', () => ...)`, replace it with `res.body.once('error', () => ...)` so that your callback is not [fired twice](https://github.com/node-fetch/node-fetch/issues/668#issuecomment-569386115) in NodeJS >=13.5.
 
+## `req.body` can no longer be a string
+
+We are working towards changing body to become either null or a stream.
+
 ## Changed default user agent
 
 The default user agent has been changed from `node-fetch/1.0 (+https://github.com/node-fetch/node-fetch)` to `node-fetch (+https://github.com/node-fetch/node-fetch)`.
+
+## Arbitrary URLs are no longer supported
+
+Since in 3.x we are using the WHATWG's `new URL()`, arbitrary URL parsing will fail due to lack of base.
 
 # Enhancements
 
@@ -79,11 +87,13 @@ We now use the new Node.js [WHATWG-compliant URL API][whatwg-nodejs-url], so UTF
 
 ## Request errors are now piped using `stream.pipeline`
 
-Since the v3.x required at least Node.js 10, we can utilise the new API.
+Since the v3.x requires at least Node.js 10, we can utilise the new API.
 
-## `AbortError` now uses a w3c defined message
+## Creating Request/Response objects with relative URLs is no longer supported
 
-To stay spec-compliant, we changed the `AbortError` message to `The operation was aborted.`.
+We introduced Node.js `new URL()` API in 3.x, because it offers better UTF-8 support and is WHATWG URL compatible. The drawback is, given current limit of the API (nodejs/node#12682), it's not possible to support relative URL parsing without hacks.
+Due to the lack of a browsing context in Node.js, we opted to drop support for relative URLs on Request/Response object, and it will now throw errors if you do so.
+The main `fetch()` function will support absolute URLs and data url.
 
 ## Bundled TypeScript types
 

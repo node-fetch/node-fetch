@@ -1,12 +1,36 @@
-
 Changelog
 =========
 
 # 3.x release
 
-## v3.0.0
+## v3.0.0-beta.6
 
-<!--- Not completed yet, since the v3 roadmap is not fully finished -->
+**Work in progress!**
+
+- **Breaking:** minimum supported Node.js version is now 10.16.
+- Enhance: improve coverage.
+- Enhance: drop Babel (while keeping ESM) (#805).
+- Fix: export the `AbortError` class.
+- Fix: example using `file-type` (#804).
+- Other: readme update.
+
+## v3.0.0-beta.5
+
+> NOTE: Since the previous beta version included serious issues, such as [#749](https://github.com/node-fetch/node-fetch/issues/749), they will now be deprecated.
+
+- Enhance: use built-in AbortSignal for typings.
+- Enhance: compile CJS modules as a seperate set of files.
+- Enhance: add more complete stream download example.
+- Fix: question mark stripped from url when no params are given.
+- Fix: path to tests file in error handling doc.
+- Fix: import URL and URLSearchParams in typings.
+- Fix: Ensure search parameters are included in URL path (#759).
+
+## v3.0.0-beta.2
+
+- Fix: exporting `main` and `types` at the correct path, oops.
+
+## v3.0.0-beta.1
 
 - **Breaking:** minimum supported Node.js version is now 10.
 - Enhance: added new node-fetch-only option: `highWaterMark`.
@@ -14,7 +38,7 @@ Changelog
 - Enhance: data URI support.
 - Enhance: drop existing blob implementation code and use fetch-blob as dependency instead.
 - Enhance: modernise the code behind `FetchError` and `AbortError`.
-- Enhance: replace deprecated `url.parse()` and `url.replace()` with the new WHATWG `new URL()`
+- Enhance: replace deprecated `url.parse()` and `url.replace()` with the new WHATWG's `new URL()`
 - Enhance: allow excluding a `user-agent` in a fetch request by setting it's header to null.
 - Fix: `Response.statusText` no longer sets a default message derived from the HTTP status code.
 - Fix: missing response stream error events.

@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
 
-import {isBlob} from './is';
+import {isBlob} from './is.js';
 
 class FormDataStream extends Readable {
 	constructor(form, boundary) {

@@ -1,6 +1,7 @@
-import * as http from 'http';
-import * as zlib from 'zlib';
-import {multipart as Multipart} from 'parted';
+import http from 'http';
+import zlib from 'zlib';
+import parted from 'parted';
+const {multipart: Multipart} = parted;
 
 export default class TestServer {
 	constructor() {
@@ -31,15 +32,15 @@ export default class TestServer {
 		return `http://${this.hostname}:${this.port}/mocked`;
 	}
 
-	router(req, res) {
-		const p = req.url;
+	router(request, res) {
+		const p = request.url;
 
 		if (p === '/mocked') {
 			if (this.nextResponseHandler) {
 				this.nextResponseHandler(res);
 				this.nextResponseHandler = undefined;
 			} else {
-				throw new Error('No mocked response. Use \'TestServer.mockResponse()\'.');
+				throw new Error('No mocked response. Use ’TestServer.mockResponse()’.');
 			}
 		}
 
@@ -47,6 +48,12 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.end('world');
+		}
+
+		if (p.includes('question')) {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.end('ok');
 		}
 
 		if (p === '/plain') {
@@ -98,7 +105,7 @@ export default class TestServer {
 				}
 
 				// Truncate the CRC checksum and size check at the end of the stream
-				res.end(buffer.slice(0, buffer.length - 8));
+				res.end(buffer.slice(0, -8));
 			});
 		}
 
@@ -295,6 +302,14 @@ export default class TestServer {
 			res.destroy();
 		}
 
+		if (p === '/error/premature') {
+			res.writeHead(200, {'content-length': 50});
+			res.write('foo');
+			setTimeout(() => {
+				res.destroy();
+			}, 100);
+		}
+
 		if (p === '/error/json') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
@@ -333,14 +348,14 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
 			let body = '';
-			req.on('data', c => {
+			request.on('data', c => {
 				body += c;
 			});
-			req.on('end', () => {
+			request.on('end', () => {
 				res.end(JSON.stringify({
-					method: req.method,
-					url: req.url,
-					headers: req.headers,
+					method: request.method,
+					url: request.url,
+					headers: request.headers,
 					body
 				}));
 			});
@@ -349,27 +364,26 @@ export default class TestServer {
 		if (p === '/multipart') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
-			const parser = new Multipart(req.headers['content-type']);
+			const parser = new Multipart(request.headers['content-type']);
 			let body = '';
 			parser.on('part', (field, part) => {
 				body += field + '=' + part;
 			});
 			parser.on('end', () => {
 				res.end(JSON.stringify({
-					method: req.method,
-					url: req.url,
-					headers: req.headers,
+					method: request.method,
+					url: request.url,
+					headers: request.headers,
 					body
 				}));
 			});
-			req.pipe(parser);
+			request.pipe(parser);
+		}
+
+		if (p === '/m%C3%B6bius') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.end('ok');
 		}
 	}
-}
-
-if (require.main === module) {
-	const server = new TestServer();
-	server.start(() => {
-		console.log(`Server started listening at port ${server.port}`);
-	});
 }
