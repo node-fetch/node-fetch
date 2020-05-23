@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
     paths:
-      - '*.js'
+      - '**.js'
       - '**eslint**'
       - 'package.json'
       - '.github/workflows/lint.yml'
