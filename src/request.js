@@ -281,5 +281,6 @@ export function getNodeRequestOptions(request) {
 		requestOptions.sessionIdContext = request.tlsOptions.sessionIdContext;
 		requestOptions.highWaterMark = request.tlsOptions.highWaterMark;
 	}
+
 	return requestOptions;
 }
