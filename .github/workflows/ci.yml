@@ -1,11 +1,16 @@
-name: Node.js CI
+name: CI
 
 on:
-  [pull_request, push]
+  push:
+    branches: [ master ]
+  pull_request:
+    paths:
+      - '*.js'
+      - 'package.json'
+      - '.github/workflows/ci.yml'
 
 jobs:
-  build:
-
+  test:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
@@ -28,13 +33,15 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm test
-        if: matrix.node-version != '10.x'
-      - run: npm run coverage
-        if: matrix.node-version == '14.x' && matrix.os == 'ubuntu-latest'
 
-      - name: Test without coverage
-        if: matrix.node-version == '10.x'
-        run: |
-           npm install -D esm
-           npx mocha -r esm
+      - run: npm install
+
+      - run: npm test -- --colors
+
+      # upload coverage only once
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        if: matrix.node == '14.x' && matrix.os == 'ubuntu-latest'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
