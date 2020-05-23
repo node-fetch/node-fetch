@@ -10,9 +10,15 @@ Changelog
 - **Breaking:** minimum supported Node.js version is now 10.16.
 - Enhance: improve coverage.
 - Enhance: drop Babel (while keeping ESM) (#805).
+- Enhance: normalize export (#827).
+- Enhance: remove guard for Stream.Readable.destroy (#824).
+- Enhance: remove custom isArrayBuffer (#822).
 - Fix: export the `AbortError` class.
 - Fix: example using `file-type` (#804).
+- Fix: settle `consumeBody` promise when the response closes prematurely (#768).
+- Fix: disambiguate timeout behavior for response headers and body (#770).
 - Other: readme update.
+- Other: update copyright information.
 
 ## v3.0.0-beta.5
 
