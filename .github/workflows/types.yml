@@ -1,4 +1,4 @@
-name: TypeScript Check
+name: CI
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
       - .github/workflows/types.yml
 
 jobs:
-  tsc:
+  typescript:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
