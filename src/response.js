@@ -6,6 +6,7 @@
 
 import Headers from './headers.js';
 import Body, {clone, extractContentType} from './body.js';
+import {isRedirect} from './utils/is-redirect.js';
 
 const INTERNALS = Symbol('Response internals');
 
@@ -95,7 +96,7 @@ export default class Response {
 	 * @returns {Response}    A Response object.
 	 */
 	static redirect(url, status = 302) {
-		if (![301, 302, 303, 307, 308].includes(status)) {
+		if (!isRedirect(status)) {
 			throw new RangeError('Failed to execute "redirect" on "response": Invalid status code');
 		}
 
