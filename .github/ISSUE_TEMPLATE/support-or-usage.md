@@ -1,7 +1,7 @@
 ---
 name: "\U0001F914 Support or Usage Question"
 about: Get help using node-fetch
-title: '[QUESTION]'
+title: 'Question: '
 labels: question
 assignees: ''
 
@@ -17,28 +17,30 @@ Please read and follow the instructions before submitting an issue:
 ⚠️👆 Feel free to these instructions before submitting the issue 👆⚠️
 -->
 
-**Describe the issue**
-A clear and concise description of what the issue is.
+<!--- Provide a clear and concise description of what the bug is. -->
 
 **Example Code**
-Code snippet to illustrate your question
+
+<!--- Provide a ode snippet to illustrate your question. -->
 
 ```js
-// Example code here
 ```
 
 **Expected behavior, if applicable**
+
 A clear and concise description of what you expected to happen.
 
 ### Your Environment
+
 <!--- Include as many relevant details about the environment you experienced the bug in -->
 
 | software         | version
 | ---------------- | -------
-| node-fetch          |
+| node-fetch       |
 | node             |
 | npm              |
 | Operating System |
 
 **Additional context/Screenshots**
+
 Add any other context about the problem here. If applicable, add screenshots to help explain.
