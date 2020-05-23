@@ -8,19 +8,19 @@
 const invalidTokenRegex = /[^`\-\w!#$%&'*+.|~]/;
 const invalidHeaderCharRegex = /[^\t\u0020-\u007E\u0080-\u00FF]/;
 
-function validateName(name) {
+const validateName = name => {
 	name = `${name}`;
 	if (invalidTokenRegex.test(name) || name === '') {
 		throw new TypeError(`${name} is not a legal HTTP header name`);
 	}
-}
+};
 
-function validateValue(value) {
+const validateValue = value => {
 	value = `${value}`;
 	if (invalidHeaderCharRegex.test(value)) {
 		throw new TypeError(`${value} is not a legal HTTP header value`);
 	}
-}
+};
 
 /**
  * Find the key in the map object given a header name.
@@ -30,7 +30,7 @@ function validateValue(value) {
  * @param   String  name  Header name
  * @return  String|Undefined
  */
-function find(map, name) {
+const find = (map, name) => {
 	name = name.toLowerCase();
 	for (const key in map) {
 		if (key.toLowerCase() === name) {
@@ -39,7 +39,7 @@ function find(map, name) {
 	}
 
 	return undefined;
-}
+};
 
 const MAP = Symbol('map');
 export default class Headers {
@@ -73,7 +73,13 @@ export default class Headers {
 		} else if (typeof init === 'object') {
 			const method = init[Symbol.iterator];
 			// eslint-disable-next-line no-eq-null, eqeqeq
-			if (method != null) {
+			if (method == null) {
+				// Record<ByteString, ByteString>
+				for (const key of Object.keys(init)) {
+					const value = init[key];
+					this.append(key, value);
+				}
+			} else {
 				if (typeof method !== 'function') {
 					throw new TypeError('Header pairs must be iterable');
 				}
@@ -95,12 +101,6 @@ export default class Headers {
 					}
 
 					this.append(pair[0], pair[1]);
-				}
-			} else {
-				// Record<ByteString, ByteString>
-				for (const key of Object.keys(init)) {
-					const value = init[key];
-					this.append(key, value);
 				}
 			}
 		} else {
@@ -161,7 +161,7 @@ export default class Headers {
 		validateName(name);
 		validateValue(value);
 		const key = find(this[MAP], name);
-		this[MAP][key !== undefined ? key : name] = [value];
+		this[MAP][key === undefined ? name : key] = [value];
 	}
 
 	/**
@@ -177,10 +177,10 @@ export default class Headers {
 		validateName(name);
 		validateValue(value);
 		const key = find(this[MAP], name);
-		if (key !== undefined) {
-			this[MAP][key].push(value);
-		} else {
+		if (key === undefined) {
 			this[MAP][name] = [value];
+		} else {
+			this[MAP][key].push(value);
 		}
 	}
 
@@ -270,7 +270,7 @@ Object.defineProperties(Headers.prototype, {
 	entries: {enumerable: true}
 });
 
-function getHeaders(headers, kind = 'key+value') {
+const getHeaders = (headers, kind = 'key+value') => {
 	const keys = Object.keys(headers[MAP]).sort();
 
 	let iterator;
@@ -283,11 +283,11 @@ function getHeaders(headers, kind = 'key+value') {
 	}
 
 	return keys.map(header => iterator(header));
-}
+};
 
 const INTERNAL = Symbol('internal');
 
-function createHeadersIterator(target, kind) {
+const createHeadersIterator = (target, kind) => {
 	const iterator = Object.create(HeadersIteratorPrototype);
 	iterator[INTERNAL] = {
 		target,
@@ -295,7 +295,7 @@ function createHeadersIterator(target, kind) {
 		index: 0
 	};
 	return iterator;
-}
+};
 
 const HeadersIteratorPrototype = Object.setPrototypeOf({
 	next() {
@@ -343,7 +343,7 @@ Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
  * @param   Headers  headers
  * @return  Object
  */
-export function exportNodeCompatibleHeaders(headers) {
+export const exportNodeCompatibleHeaders = headers => {
 	const object = {__proto__: null, ...headers[MAP]};
 
 	// Http.request() only supports string as Host header. This hack makes
@@ -354,7 +354,7 @@ export function exportNodeCompatibleHeaders(headers) {
 	}
 
 	return object;
-}
+};
 
 /**
  * Create a Headers object from an object of headers, ignoring those that do
@@ -363,7 +363,7 @@ export function exportNodeCompatibleHeaders(headers) {
  * @param   Object  obj  Object of headers
  * @return  Headers
  */
-export function createHeadersLenient(object) {
+export const createHeadersLenient = object => {
 	const headers = new Headers();
 	for (const name of Object.keys(object)) {
 		if (invalidTokenRegex.test(name)) {
@@ -388,4 +388,4 @@ export function createHeadersLenient(object) {
 	}
 
 	return headers;
-}
+};
