@@ -138,8 +138,9 @@ export default function fetch(url, options_) {
 							try {
 								headers.set('Location', locationURL);
 							} catch (error) {
-								// istanbul ignore next: nodejs server prevent invalid response headers, we can't test this through normal request
+								/* c8 ignore next */
 								reject(error);
+								/* c8 ignore next */
 							}
 						}
 
