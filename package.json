@@ -13,9 +13,9 @@
 	"files": [
 		"src",
 		"dist",
-		"*.d.ts"
+		"@types/index.d.ts"
 	],
-	"types": "index.d.ts",
+	"types": "./@types/index.d.ts",
 	"engines": {
 		"node": ">=10.16"
 	},
@@ -60,14 +60,22 @@
 		"resumer": "0.0.0",
 		"rollup": "^2.10.5",
 		"string-to-arraybuffer": "^1.0.2",
+		"tsd": "0.11.0",
 		"xo": "^0.30.0"
 	},
 	"dependencies": {
 		"data-uri-to-buffer": "^3.0.0",
 		"fetch-blob": "^1.0.6"
 	},
-	"esm": {
-		"sourceMap": true
+	"tsd": {
+		"cwd": "@types",
+		"compilerOptions": {
+			"target": "esnext",
+			"lib": [
+				"es2018"
+			],
+			"allowSyntheticDefaultImports": true
+		}
 	},
 	"xo": {
 		"envs": [
