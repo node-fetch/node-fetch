@@ -2,6 +2,7 @@
 import zlib from 'zlib';
 import crypto from 'crypto';
 import {spawn} from 'child_process';
+import util from 'util';
 import http from 'http';
 import fs from 'fs';
 import stream from 'stream';
@@ -51,6 +52,9 @@ chai.use(chaiIterator);
 chai.use(chaiString);
 chai.use(chaiTimeout);
 const {expect} = chai;
+
+// * Promisify fs.stat because of fs.promises is currently restricted
+const stat = util.promisify(fs.stat)
 
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
@@ -1439,7 +1443,7 @@ describe('node-fetch', () => {
 
 		form.set('field', 'some text');
 		form.set('file', fs.createReadStream(filename), {
-			size: await fs.promises.stat(filename).then(({size}) => size)
+			size: await stat(filename).then(({size}) => size)
 		});
 
 		const url = `${base}multipart`;
