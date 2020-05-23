@@ -1,15 +1,13 @@
 ---
 name: 🐞 Bug report
 about: Create a report to help us improve node-fetch
-title: "[BUG] "
+title: "Bug: "
 labels: bug
 ---
 
-**Describe the bug**
+<!--- Provide a clear and concise description of what the bug is. -->
 
-<!--- A clear and concise description of what the bug is. -->
-
-**To Reproduce**
+**Reproduction**
 
 Steps to reproduce the behavior:
 
