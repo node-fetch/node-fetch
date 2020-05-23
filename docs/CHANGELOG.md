@@ -7,6 +7,7 @@ Changelog
 
 **Work in progress!**
 
+- **Breaking:** minimum supported Node.js version is now 10.16.
 - Enhance: improve coverage.
 - Enhance: drop Babel (while keeping ESM) (#805).
 - Fix: export the `AbortError` class.
