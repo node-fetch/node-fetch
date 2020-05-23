@@ -23,60 +23,60 @@ const INTERNALS = Symbol('Body internals');
  * @param   Object  opts  Response options
  * @return  Void
  */
-export default function Body(body, {
-	size = 0,
-	timeout = 0
-} = {}) {
-	if (body === null) {
+export default class Body {
+	constructor(body, {
+		size = 0,
+		timeout = 0
+	} = {}) {
+		if (body === null) {
 		// Body is undefined or null
-		body = null;
-	} else if (isURLSearchParams(body)) {
+			body = null;
+		} else if (isURLSearchParams(body)) {
 		// Body is a URLSearchParams
-		body = Buffer.from(body.toString());
-	} else if (isBlob(body)) {
+			body = Buffer.from(body.toString());
+		} else if (isBlob(body)) {
 		// Body is blob
-	} else if (Buffer.isBuffer(body)) {
+		} else if (Buffer.isBuffer(body)) {
 		// Body is Buffer
-	} else if (types.isAnyArrayBuffer(body)) {
+		} else if (types.isAnyArrayBuffer(body)) {
 		// Body is ArrayBuffer
-		body = Buffer.from(body);
-	} else if (ArrayBuffer.isView(body)) {
+			body = Buffer.from(body);
+		} else if (ArrayBuffer.isView(body)) {
 		// Body is ArrayBufferView
-		body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
-	} else if (body instanceof Stream) {
+			body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
+		} else if (body instanceof Stream) {
 		// Body is stream
-	} else {
+		} else {
 		// None of the above
 		// coerce to string then buffer
-		body = Buffer.from(String(body));
+			body = Buffer.from(String(body));
+		}
+
+		this[INTERNALS] = {
+			body,
+			disturbed: false,
+			error: null
+		};
+		this.size = size;
+		this.timeout = timeout;
+
+		if (body instanceof Stream) {
+			body.on('error', err => {
+				const error = isAbortError(err) ?
+					err :
+					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+				this[INTERNALS].error = error;
+			});
+		}
 	}
 
-	this[INTERNALS] = {
-		body,
-		disturbed: false,
-		error: null
-	};
-	this.size = size;
-	this.timeout = timeout;
-
-	if (body instanceof Stream) {
-		body.on('error', err => {
-			const error = isAbortError(err) ?
-				err :
-				new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
-			this[INTERNALS].error = error;
-		});
-	}
-}
-
-Body.prototype = {
 	get body() {
 		return this[INTERNALS].body;
-	},
+	}
 
 	get bodyUsed() {
 		return this[INTERNALS].disturbed;
-	},
+	}
 
 	/**
 	 * Decode response as ArrayBuffer
@@ -85,7 +85,7 @@ Body.prototype = {
 	 */
 	arrayBuffer() {
 		return consumeBody.call(this).then(({buffer, byteOffset, byteLength}) => buffer.slice(byteOffset, byteOffset + byteLength));
-	},
+	}
 
 	/**
 	 * Return raw response as Blob
@@ -98,7 +98,7 @@ Body.prototype = {
 			type: ct.toLowerCase(),
 			buffer: buf
 		}));
-	},
+	}
 
 	/**
 	 * Decode response as json
@@ -107,7 +107,7 @@ Body.prototype = {
 	 */
 	json() {
 		return consumeBody.call(this).then(buffer => JSON.parse(buffer.toString()));
-	},
+	}
 
 	/**
 	 * Decode response as text
@@ -116,7 +116,7 @@ Body.prototype = {
 	 */
 	text() {
 		return consumeBody.call(this).then(buffer => buffer.toString());
-	},
+	}
 
 	/**
 	 * Decode response as buffer (non-spec api)
@@ -126,7 +126,7 @@ Body.prototype = {
 	buffer() {
 		return consumeBody.call(this);
 	}
-};
+}
 
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
@@ -137,16 +137,6 @@ Object.defineProperties(Body.prototype, {
 	json: {enumerable: true},
 	text: {enumerable: true}
 });
-
-Body.mixIn = proto => {
-	for (const name of Object.getOwnPropertyNames(Body.prototype)) {
-		// istanbul ignore else: future proof
-		if (!Object.prototype.hasOwnProperty.call(proto, name)) {
-			const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
-			Object.defineProperty(proto, name, desc);
-		}
-	}
-};
 
 /**
  * Consume and convert an entire Body to a Buffer.

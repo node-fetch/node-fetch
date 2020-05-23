@@ -55,7 +55,7 @@ function parseURL(urlString) {
  * @param   Object  init   Custom options
  * @return  Void
  */
-export default class Request {
+export default class Request extends Body {
 	constructor(input, init = {}) {
 		let parsedURL;
 
@@ -92,7 +92,7 @@ export default class Request {
 				clone(input) :
 				null);
 
-		Body.call(this, inputBody, {
+		super(inputBody, {
 			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
 		});
@@ -165,16 +165,11 @@ export default class Request {
 	clone() {
 		return new Request(this);
 	}
+
+	get [Symbol.toStringTag]() {
+		return 'Request';
+	}
 }
-
-Body.mixIn(Request.prototype);
-
-Object.defineProperty(Request.prototype, Symbol.toStringTag, {
-	value: 'Request',
-	writable: false,
-	enumerable: false,
-	configurable: true
-});
 
 Object.defineProperties(Request.prototype, {
 	method: {enumerable: true},
