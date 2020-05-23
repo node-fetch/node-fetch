@@ -63,8 +63,8 @@ export function isFormData(object) {
 		typeof object.entries === 'function' &&
 		typeof object.constructor === 'function' &&
 		object.constructor.name === 'FormData'
-	)
-};
+	);
+}
 
 /**
  * Check if `obj` is an instance of AbortSignal.
