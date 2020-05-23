@@ -8,10 +8,10 @@ Please read and follow these instructions before creating and submitting a pull 
 
 **What is the purpose of this pull request?**
 
-[ ] Documentation update
-[ ] Bug fix
-[ ] New feature
-[ ] Other, please explain:
+- [ ] Documentation update
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Other, please explain:
 
 **What changes did you make? (provide an overview)**
 
