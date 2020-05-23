@@ -1435,7 +1435,7 @@ describe('node-fetch', () => {
 	it('should support formdata-node as POST body', async () => {
 		const form = new FormDataNode();
 
-		const filename = path.join('test/utils/dummy.txt');
+		const filename = path.join('test', 'utils', 'dummy.txt');
 
 		form.set('field', 'some text');
 		form.set('file', fs.createReadStream(filename), {
