@@ -5,7 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     paths:
-      - '*.js'
+      - '**.js'
       - 'package.json'
       - '.github/workflows/ci.yml'
 
