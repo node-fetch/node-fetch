@@ -8,15 +8,12 @@
  */
 
 import {format as formatUrl} from 'url';
-import Stream from 'stream';
 import Headers, {exportNodeCompatibleHeaders} from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
 
 const INTERNALS = Symbol('Request internals');
-
-const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
  * Check if `obj` is an instance of Request.
@@ -205,14 +202,6 @@ export function getNodeRequestOptions(request) {
 
 	if (!/^https?:$/.test(parsedURL.protocol)) {
 		throw new TypeError('Only HTTP(S) protocols are supported');
-	}
-
-	if (
-		request.signal &&
-		request.body instanceof Stream.Readable &&
-		!streamDestructionSupported
-	) {
-		throw new Error('Cancellation of streamed requests with AbortSignal is not supported');
 	}
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7
