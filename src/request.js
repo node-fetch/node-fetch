@@ -8,15 +8,12 @@
  */
 
 import {format as formatUrl} from 'url';
-import Stream from 'stream';
 import Headers, {exportNodeCompatibleHeaders} from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
 
 const INTERNALS = Symbol('Request internals');
-
-const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
  * Check if `obj` is an instance of Request.
@@ -207,14 +204,6 @@ export function getNodeRequestOptions(request) {
 		throw new TypeError('Only HTTP(S) protocols are supported');
 	}
 
-	if (
-		request.signal &&
-		request.body instanceof Stream.Readable &&
-		!streamDestructionSupported
-	) {
-		throw new Error('Cancellation of streamed requests with AbortSignal is not supported');
-	}
-
 	// HTTP-network-or-cache fetch steps 2.4-2.7
 	let contentLengthValue = null;
 	if (request.body === null && /^(post|put)$/i.test(request.method)) {
@@ -239,7 +228,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.15
 	if (request.compress && !headers.has('Accept-Encoding')) {
-		headers.set('Accept-Encoding', 'gzip,deflate');
+		headers.set('Accept-Encoding', 'gzip,deflate,br');
 	}
 
 	let {agent} = request;

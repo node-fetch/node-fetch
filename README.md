@@ -2,12 +2,12 @@
   	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
   	<br>
   	<p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
-	<a href="https://travis-ci.com/node-fetch/node-fetch"><img src="https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square" alt="Build status"></a>
-	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch?style=flat-square" alt="Coverage status"></a>
-	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://flat.badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
-	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch?style=flat-square" alt="Install size"></a>
-	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge-flat.svg" alt="Mentioned in Awesome Node.js"></a>
-	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square" alt="Discord"></a>
+	<a href="https://github.com/node-fetch/node-fetch/actions"><img src="https://github.com/node-fetch/node-fetch/workflows/CI/badge.svg?branch=master" alt="Build status"></a>
+	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch" alt="Coverage status"></a>
+	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
+	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch" alt="Install size"></a>
+	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Node.js"></a>
+	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord" alt="Discord"></a>
 	<br>
 	<br>
 	<b>Consider supporting us on our Open Collective:</b>
@@ -430,7 +430,7 @@ If no values are set, the following request headers will be sent automatically:
 
 | Header              | Value                                                    |
 | ------------------- | -------------------------------------------------------- |
-| `Accept-Encoding`   | `gzip,deflate` _(when `options.compress === true`)_      |
+| `Accept-Encoding`   | `gzip,deflate,br` _(when `options.compress === true`)_   |
 | `Accept`            | `*/*`                                                    |
 | `Connection`        | `close` _(when no `options.agent` is present)_           |
 | `Content-Length`    | _(automatically calculated, if possible)_                |
@@ -696,9 +696,9 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 ## Team
 
-[![David Frank](https://github.com/bitinn.png?size=100)](https://github.com/bitinn) | [![Jimmy Wärting](https://github.com/jimmywarting.png?size=100)](https://github.com/jimmywarting) | [![Antoni Kepinski](https://github.com/xxczaki.png?size=100)](https://github.com/xxczaki) | [![Richie Bendall](https://github.com/Richienb.png?size=100)](https://github.com/Richienb) | [![Gregor Martynus](https://github.com/gr2m.png?size=100)](https://github.com/gr2m)
----|---|---|---|---
-[David Frank](https://bitinn.net/) | [Jimmy Wärting](https://jimmy.warting.se/) | [Antoni Kepinski](https://kepinski.me) | [Richie Bendall](https://www.richie-bendall.ml/) | [Gregor Martynus](https://twitter.com/gr2m)
+| [![David Frank](https://github.com/bitinn.png?size=100)](https://github.com/bitinn) | [![Jimmy Wärting](https://github.com/jimmywarting.png?size=100)](https://github.com/jimmywarting) | [![Antoni Kepinski](https://github.com/xxczaki.png?size=100)](https://github.com/xxczaki) | [![Richie Bendall](https://github.com/Richienb.png?size=100)](https://github.com/Richienb) | [![Gregor Martynus](https://github.com/gr2m.png?size=100)](https://github.com/gr2m) |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [David Frank](https://bitinn.net/)                                                  | [Jimmy Wärting](https://jimmy.warting.se/)                                                        | [Antoni Kepinski](https://kepinski.me)                                                    | [Richie Bendall](https://www.richie-bendall.ml/)                                           | [Gregor Martynus](https://twitter.com/gr2m)                                         |
 
 ###### Former
 

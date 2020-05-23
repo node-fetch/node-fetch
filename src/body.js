@@ -6,10 +6,11 @@
  */
 
 import Stream, {PassThrough} from 'stream';
+import {types} from 'util';
 
 import Blob from 'fetch-blob';
 import FetchError from './errors/fetch-error.js';
-import {isBlob, isURLSearchParams, isArrayBuffer, isAbortError} from './utils/is.js';
+import {isBlob, isURLSearchParams, isAbortError} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -36,7 +37,7 @@ export default function Body(body, {
 		// Body is blob
 	} else if (Buffer.isBuffer(body)) {
 		// Body is Buffer
-	} else if (isArrayBuffer(body)) {
+	} else if (types.isAnyArrayBuffer(body)) {
 		// Body is ArrayBuffer
 		body = Buffer.from(body);
 	} else if (ArrayBuffer.isView(body)) {
@@ -200,7 +201,9 @@ function consumeBody() {
 		if (this.timeout) {
 			resTimeout = setTimeout(() => {
 				abort = true;
-				reject(new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout'));
+				const err = new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout');
+				reject(err);
+				body.destroy(err);
 			}, this.timeout);
 		}
 
@@ -313,7 +316,7 @@ export function extractContentType(body) {
 	}
 
 	// Body is a Buffer (Buffer, ArrayBuffer or ArrayBufferView)
-	if (Buffer.isBuffer(body) || isArrayBuffer(body) || ArrayBuffer.isView(body)) {
+	if (Buffer.isBuffer(body) || types.isAnyArrayBuffer(body) || ArrayBuffer.isView(body)) {
 		return null;
 	}
 
