@@ -18,12 +18,14 @@ import Headers, {createHeadersLenient} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
 import FetchError from './errors/fetch-error.js';
 import AbortError from './errors/abort-error.js';
+import {isRedirect} from './utils/is-redirect.js';
 
 export {default as Headers} from './headers.js';
 export {default as Request} from './request.js';
 export {default as Response} from './response.js';
 export {default as FetchError} from './errors/fetch-error.js';
 export {default as AbortError} from './errors/abort-error.js';
+export {isRedirect};
 
 /**
  * Fetch function
@@ -121,7 +123,7 @@ export default function fetch(url, options_) {
 			const headers = createHeadersLenient(res.headers);
 
 			// HTTP fetch step 5
-			if (fetch.isRedirect(res.statusCode)) {
+			if (isRedirect(res.statusCode)) {
 				// HTTP fetch step 5.2
 				const location = headers.get('Location');
 
@@ -301,14 +303,6 @@ export default function fetch(url, options_) {
 		writeToStream(request_, request);
 	});
 }
-
-/**
- * Redirect code matching
- *
- * @param   Number   code  Status code
- * @return  Boolean
- */
-fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
 
 // Expose Promise
 fetch.Promise = global.Promise;
