@@ -75,14 +75,11 @@
         ],
         "rules": {
             "complexity": 0,
-            "promise/prefer-await-to-then": 0,
             "no-mixed-operators": 0,
-            "no-negated-condition": 0,
-            "unicorn/prevent-abbreviations": 0,
             "@typescript-eslint/prefer-readonly-parameter-types": 0,
-            "import/extensions": 0,
-            "import/no-useless-path-segments": 0,
-            "unicorn/import-index": 0
+			"import/extensions": 0,
+			"unicorn/import-index": 0,
+			"import/no-useless-path-segments": 0
         },
         "ignores": [
             "dist",
@@ -96,6 +93,8 @@
                     "mocha"
                 ],
                 "rules": {
+					"promise/prefer-await-to-then": 0,
+					"unicorn/prevent-abbreviations": 0,
                     "max-nested-callbacks": 0,
                     "no-unused-expressions": 0,
                     "new-cap": 0,
