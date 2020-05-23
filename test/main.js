@@ -54,7 +54,7 @@ chai.use(chaiTimeout);
 const {expect} = chai;
 
 // * Promisify fs.stat because of fs.promises is currently restricted
-const stat = util.promisify(fs.stat)
+const stat = util.promisify(fs.stat);
 
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
