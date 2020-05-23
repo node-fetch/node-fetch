@@ -1,13 +1,7 @@
-<!-- 
+<!--
+Please read and follow these instructions before creating and submitting a pull request:
 
-#### Instructions
-
-Please read and follow the instructions before creating and submitting a pull request:
-
-- Create an issue explaining the feature. It could save you some effort in case we don't consider it should be included in node-fetch.
-- If you're fixing a bug, try to commit the failing test/s and the code fixing it in different commits.
-
-**⚠️👆 Delete the instructions before submitting the pull request 👆⚠️**
-
+- If you're fixing a bug, ensure you add unit tests to prove that it works.
+- Before adding a feature, it is best to create an issue explaining it first. It would save you some effort in case we don't consider it should be included in node-fetch.
+- If you are reporting a bug, adding failing units tests can be a good idea.
 -->
-Describe your pull request here.
