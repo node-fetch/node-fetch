@@ -8,6 +8,7 @@ Changelog
 **Work in progress!**
 
 - **Breaking:** minimum supported Node.js version is now 10.16.
+- **Breaking:** removed `timeout` option.
 - Enhance: improve coverage.
 - Enhance: drop Babel (while keeping ESM) (#805).
 - Enhance: normalize export (#827).

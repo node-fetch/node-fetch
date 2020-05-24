@@ -27,7 +27,6 @@ export class Request extends Body {
 	port?: number;
 	protocol: string;
 	size: number;
-	timeout: number;
 	highWaterMark?: number;
 
 	context: RequestContext;
@@ -50,7 +49,6 @@ export interface RequestInit {
 	compress?: boolean; // =true support gzip/deflate content encoding. false to disable
 	follow?: number; // =20 maximum redirect count. 0 to not follow redirect
 	size?: number; // =0 maximum response body size in bytes. 0 to disable
-	timeout?: number; // =0 req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
 	highWaterMark?: number; // =16384 the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
 
 	// node-fetch does not support mode, cache or credentials options
@@ -138,8 +136,7 @@ export class Body {
 	body: NodeJS.ReadableStream;
 	bodyUsed: boolean;
 	size: number;
-	timeout: number;
-	constructor(body?: any, opts?: { size?: number; timeout?: number });
+	constructor(body?: any, opts?: { size?: number; });
 	arrayBuffer(): Promise<ArrayBuffer>;
 	blob(): Promise<Blob>;
 	buffer(): Promise<Buffer>;
@@ -173,7 +170,6 @@ export class Response extends Body {
 	type: ResponseType;
 	url: string;
 	size: number;
-	timeout: number;
 	constructor(body?: BodyInit, init?: ResponseInit);
 	static error(): Response;
 	static redirect(url: string, status: number): Response;
@@ -193,7 +189,6 @@ export interface ResponseInit {
 	size?: number;
 	status?: number;
 	statusText?: string;
-	timeout?: number;
 	url?: string;
 }
 

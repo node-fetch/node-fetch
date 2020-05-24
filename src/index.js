@@ -101,13 +101,6 @@ export default function fetch(url, options_) {
 			}
 		}
 
-		if (request.timeout) {
-			request_.setTimeout(request.timeout, () => {
-				finalize();
-				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-			});
-		}
-
 		request_.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
@@ -168,8 +161,7 @@ export default function fetch(url, options_) {
 							compress: request.compress,
 							method: request.method,
 							body: request.body,
-							signal: request.signal,
-							timeout: request.timeout
+							signal: request.signal
 						};
 
 						// HTTP-redirect fetch step 9
@@ -214,7 +206,6 @@ export default function fetch(url, options_) {
 				statusText: res.statusMessage,
 				headers,
 				size: request.size,
-				timeout: request.timeout,
 				counter: request.counter,
 				highWaterMark: request.highWaterMark
 			};
