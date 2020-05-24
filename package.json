@@ -100,7 +100,7 @@
 		},
 		"ignores": [
 			"dist",
-			"index.d.ts"
+			"@types"
 		],
 		"overrides": [
 			{
