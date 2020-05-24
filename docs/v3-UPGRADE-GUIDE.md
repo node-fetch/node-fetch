@@ -29,7 +29,7 @@ Since this was never part of the fetch specification, it was removed. To workaro
 
 ```js
 const timeoutSignal = require('timeout-signal');
-const fetch = require('cross-fetch');
+const fetch = require('node-fetch');
 
 const {AbortError} = fetch
  
