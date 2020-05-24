@@ -94,7 +94,7 @@ export default class Body {
 	 * @return Promise
 	 */
 	async blob() {
-		const ct = this.headers && this.headers.get('content-type') || this[INTERNALS].body && this[INTERNALS].body.type || '';
+		const ct = (this.headers && this.headers.get('content-type')) || (this[INTERNALS].body && this[INTERNALS].body.type) || '';
 		const buf = await consumeBody(this);
 
 		return new Blob([], {
