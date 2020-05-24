@@ -20,12 +20,7 @@ import FetchError from './errors/fetch-error.js';
 import AbortError from './errors/abort-error.js';
 import {isRedirect} from './utils/is-redirect.js';
 
-export {default as Headers} from './headers.js';
-export {default as Request} from './request.js';
-export {default as Response} from './response.js';
-export {default as FetchError} from './errors/fetch-error.js';
-export {default as AbortError} from './errors/abort-error.js';
-export {isRedirect};
+export {Headers, Request, Response, FetchError, AbortError, isRedirect};
 
 /**
  * Fetch function
@@ -143,8 +138,9 @@ export default function fetch(url, options_) {
 							try {
 								headers.set('Location', locationURL);
 							} catch (error) {
-								// istanbul ignore next: nodejs server prevent invalid response headers, we can't test this through normal request
+								/* c8 ignore next */
 								reject(error);
+								/* c8 ignore next */
 							}
 						}
 
