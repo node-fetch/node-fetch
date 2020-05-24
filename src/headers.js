@@ -299,9 +299,8 @@ const createHeadersIterator = (target, kind) => {
 
 const HeadersIteratorPrototype = Object.setPrototypeOf({
 	next() {
-		// istanbul ignore if
-		if (!this ||
-			Object.getPrototypeOf(this) !== HeadersIteratorPrototype) {
+		/* c8 ignore next 3 */
+		if (!this || Object.getPrototypeOf(this) !== HeadersIteratorPrototype) {
 			throw new TypeError('Value of `this` is not a HeadersIterator');
 		}
 

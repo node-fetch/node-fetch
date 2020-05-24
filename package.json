@@ -96,13 +96,13 @@
                     "mocha"
                 ],
                 "rules": {
-		    "promise/prefer-await-to-then": 0,
-		    "unicorn/prevent-abbreviations": 0,
-		    "max-nested-callbacks": 0,
-		    "no-unused-expressions": 0,
-		    "new-cap": 0,
-		    "guard-for-in": 0
-                }	
+                    "promise/prefer-await-to-then": 0,
+                    "unicorn/prevent-abbreviations": 0,
+                    "max-nested-callbacks": 0,
+                    "no-unused-expressions": 0,
+                    "new-cap": 0,
+                    "guard-for-in": 0
+                }
             },
             {
                 "files": "example.js",

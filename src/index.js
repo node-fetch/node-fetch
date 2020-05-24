@@ -137,10 +137,9 @@ const fetch = (url, options_) => {
 							// Handle corrupted header
 							try {
 								headers.set('Location', locationURL);
+								/* c8 ignore next 3 */
 							} catch (error) {
-								/* c8 ignore next */
 								reject(error);
-								/* c8 ignore next */
 							}
 						}
 

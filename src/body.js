@@ -178,7 +178,7 @@ const consumeBody = data => {
 		return Body.Promise.resolve(body);
 	}
 
-	// istanbul ignore if: should never happen
+	/* c8 ignore next 3 */
 	if (!(body instanceof Stream)) {
 		return Body.Promise.resolve(Buffer.alloc(0));
 	}
