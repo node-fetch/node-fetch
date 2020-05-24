@@ -1791,6 +1791,13 @@ describe('node-fetch', () => {
 		);
 	});
 
+	it('the default highWaterMark should equal 16384', () => {
+		const url = `${base}hello`;
+		return fetch(url).then(res => {
+			expect(res.highWaterMark).to.equal(16384);
+		});
+	});
+
 	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', function () {
 		this.timeout(300);
 		const url = local.mockResponse(res => {
