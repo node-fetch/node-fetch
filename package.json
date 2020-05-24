@@ -20,8 +20,8 @@
     },
     "scripts": {
         "build": "rollup -c",
-        "test": "node --experimental-modules node_modules/c8/bin/c8 --reporter=html --reporter=lcov --reporter=text --check-coverage node --experimental-modules node_modules/mocha/bin/mocha",
-        "coverage": "c8 report --reporter=text-lcov | coveralls",
+        "test": "c8 --report=none --no-clean ava",
+        "coverage": "c8 report | coveralls",
         "lint": "xo"
     },
     "repository": {
@@ -46,15 +46,11 @@
     "devDependencies": {
         "abort-controller": "^3.0.0",
         "abortcontroller-polyfill": "^1.4.0",
+        "ava": "^3.8.2",
         "c8": "^7.1.2",
-        "chai": "^4.2.0",
-        "chai-as-promised": "^7.1.1",
-        "chai-iterator": "^3.0.2",
-        "chai-string": "^1.5.0",
         "coveralls": "^3.1.0",
         "delay": "^4.3.0",
         "form-data": "^3.0.0",
-        "mocha": "^7.2.0",
         "p-timeout": "^3.2.0",
         "parted": "^0.1.1",
         "promise": "^8.1.0",
