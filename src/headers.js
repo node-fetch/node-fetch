@@ -41,7 +41,7 @@ export default class Headers extends URLSearchParams {
 	 * @param {HeadersInit} [init] - Response headers
 	 */
 	constructor(init) {
-		// validate and normalize init object in [name, value(s)][]
+		// Validate and normalize init object in [name, value(s)][]
 
 		if (init instanceof Headers) {
 			const raw = init.raw();
@@ -51,14 +51,11 @@ export default class Headers extends URLSearchParams {
 					init.push([name, value]);
 				}
 			}
-		}
-
-		// We don't worry about converting prop to ByteString here as append()
-		// will handle it.
-		// eslint-disable-next-line no-eq-null, eqeqeq
-		else if (init == null) {
+		} else if (init == null) { // eslint-disable-line no-eq-null, eqeqeq
 			// No op
 		} else if (typeof init === 'object') {
+			// We don't worry about converting prop to ByteString here as append()
+			// will handle it.
 			const result = [];
 			const method = init[Symbol.iterator];
 			// eslint-disable-next-line no-eq-null, eqeqeq
@@ -85,6 +82,7 @@ export default class Headers extends URLSearchParams {
 					if (pair.length !== 2) {
 						throw new TypeError('Each header pair must be a name/value tuple');
 					}
+
 					result.push([pair[0], pair[1]]);
 				}
 			} else {
@@ -93,22 +91,24 @@ export default class Headers extends URLSearchParams {
 					result.push([key, value]);
 				}
 			}
-			// validate and lowercase
+
+			// Validate and lowercase
 			init =
-				result.length > 0
-					? result.map(([name, value]) => {
-							validateName(name);
-							validateValue(value);
-							return [String(name).toLowerCase(), value];
-					  })
-					: undefined;
+				result.length > 0 ?
+					result.map(([name, value]) => {
+						validateName(name);
+						validateValue(value);
+						return [String(name).toLowerCase(), value];
+					}) :
+					undefined;
 		} else {
 			throw new TypeError('Provided initializer must be an object');
 		}
 
 		super(init);
 
-		// returning a Proxy that will lowercase key names, validate parameters and sort keys
+		// Returning a Proxy that will lowercase key names, validate parameters and sort keys
+		// eslint-disable-next-line no-constructor-return
 		return new Proxy(this, {
 			get(target, p, receiver) {
 				switch (p) {
@@ -158,9 +158,12 @@ export default class Headers extends URLSearchParams {
 
 	get(name) {
 		const values = this.getAll(name);
-		if (values.length === 0) return null;
+		if (values.length === 0) {
+			return null;
+		}
+
 		let value = values.join(', ');
-		if (/^Content-Encoding$/i.test(name)) {
+		if (/^content-encoding$/i.test(name)) {
 			value = value.toLowerCase();
 		}
 
@@ -168,10 +171,12 @@ export default class Headers extends URLSearchParams {
 	}
 
 	forEach(callback) {
-		for (const name of this.keys()) callback(this.getAll(name).join(', '), name);
+		for (const name of this.keys()) {
+			callback(this.getAll(name).join(', '), name);
+		}
 	}
 
-	*values() {
+	* values() {
 		for (const name of this.keys()) {
 			yield this.getAll(name).join(', ');
 		}
@@ -180,7 +185,7 @@ export default class Headers extends URLSearchParams {
 	/**
 	 * @type {() => IterableIterator<[string, string]>}
 	 */
-	*entries() {
+	* entries() {
 		for (const name of this.keys()) {
 			yield [name, this.getAll(name).join(', ')];
 		}
@@ -191,7 +196,7 @@ export default class Headers extends URLSearchParams {
 	}
 
 	/**
-	 * node-fetch non-spec method
+	 * Node-fetch non-spec method
 	 * returning all headers and their values as array
 	 * @returns {Record<string, string[]>}
 	 */
@@ -210,8 +215,12 @@ export default class Headers extends URLSearchParams {
 			const values = this.getAll(key);
 			// Http.request() only supports string as Host header.
 			// This hack makes specifying custom Host header possible.
-			if (key === 'host') res[key] = values[0];
-			else res[key] = values.length > 1 ? values : values[0];
+			if (key === 'host') {
+				res[key] = values[0];
+			} else {
+				res[key] = values.length > 1 ? values : values[0];
+			}
+
 			return res;
 		}, {});
 	}
@@ -248,6 +257,7 @@ export function createHeadersLenient(object) {
 				if (invalidHeaderCharRegex.test(value)) {
 					continue;
 				}
+
 				headers.append(name, value);
 			}
 		} else if (!invalidHeaderCharRegex.test(values)) {
