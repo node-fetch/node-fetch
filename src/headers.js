@@ -22,7 +22,7 @@ function validateValue(value) {
 }
 
 /**
- * @typedef {Headers | string[][] | Record<string, string>} HeadersInit
+ * @typedef {Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<string>[]} HeadersInit
  */
 
 /**
