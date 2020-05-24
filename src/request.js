@@ -129,7 +129,7 @@ export default class Request extends Body {
 		this.compress = init.compress === undefined ? (input.compress === undefined ? true : input.compress) : init.compress;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
-		this.highWaterMark = init.highWaterMark || input.highWaterMark;
+		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
 	}
 
 	get method() {

@@ -15,11 +15,11 @@ import then from 'promise';
 import resumer from 'resumer';
 import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
-
-import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
+import delay from 'delay';
+import AbortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import AbortController2 from 'abort-controller';
 
-const {AbortController} = polyfill;
+const {AbortController} = AbortControllerPolyfill;
 
 // Test subjects
 import Blob from 'fetch-blob';
@@ -35,7 +35,6 @@ import HeadersOrig, {createHeadersLenient} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
-import delay from './utils/delay.js';
 import TestServer from './utils/server.js';
 
 const {
@@ -1789,6 +1788,13 @@ describe('node-fetch', () => {
 				}).to.throw(Error);
 			})
 		);
+	});
+
+	it('the default highWaterMark should equal 16384', () => {
+		const url = `${base}hello`;
+		return fetch(url).then(res => {
+			expect(res.highWaterMark).to.equal(16384);
+		});
 	});
 
 	it('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', function () {
