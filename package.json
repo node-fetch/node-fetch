@@ -52,8 +52,10 @@
         "chai-iterator": "^3.0.2",
         "chai-string": "^1.5.0",
         "coveralls": "^3.1.0",
+        "delay": "^4.3.0",
         "form-data": "^3.0.0",
         "mocha": "^7.2.0",
+        "p-timeout": "^3.2.0",
         "parted": "^0.1.1",
         "promise": "^8.1.0",
         "resumer": "0.0.0",
@@ -82,8 +84,8 @@
             "@typescript-eslint/prefer-readonly-parameter-types": 0,
             "import/extensions": 0,
             "import/no-useless-path-segments": 0,
-			"unicorn/import-index": 0,
-			"capitalized-comments": 0
+            "unicorn/import-index": 0,
+            "capitalized-comments": 0
         },
         "ignores": [
             "dist",
