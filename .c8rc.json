@@ -4,7 +4,7 @@
 		"{coverage,test,test-new}/**",
 		"*.config.js",
 		"example.js",
-		"index.d.ts"
+		"@types"
 	],
 	"reporter": [
 		"html",
