@@ -25,7 +25,7 @@ Since Node.js will deprecate version 8 at the end of 2019, we decided that node-
 
 ## The `timeout` option was removed.
 
-Since this was never part of the fetch specification, it was removed. To workaround this, you can use [timeout-signal](https://github.com/Richienb/timeout-signal):
+Since this was never part of the fetch specification, it was removed. AbortSignal offers a more finegrained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/Richienb/timeout-signal) as a workaround:
 
 ```js
 const timeoutSignal = require('timeout-signal');
