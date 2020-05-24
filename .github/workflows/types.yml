@@ -17,4 +17,4 @@ jobs:
       - run: npm install
 
       - name: Check typings file
-        run: npx tsd
+        run: npm run test-types
