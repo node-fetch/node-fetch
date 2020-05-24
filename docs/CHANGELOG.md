@@ -18,6 +18,7 @@ Changelog
 - Fix: example using `file-type` (#804).
 - Fix: settle `consumeBody` promise when the response closes prematurely (#768).
 - Fix: disambiguate timeout behavior for response headers and body (#770).
+- Fix: make sure the default `highWaterMark` equals 16384.
 - Other: readme update.
 - Other: update copyright information.
 
