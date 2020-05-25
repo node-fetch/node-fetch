@@ -16,11 +16,14 @@ Changelog
 - Enhance: remove guard for Stream.Readable.destroy (#824).
 - Enhance: remove custom isArrayBuffer (#822).
 - Enhance: use normal class inheritance instead of Body.mixIn (#828).
+- Enhance: follow xo linter rules more strictly (#829).
+- Enhance: revamp Headers module (#834).
 - Fix: export the `AbortError` class.
 - Fix: example using `file-type` (#804).
 - Fix: settle `consumeBody` promise when the response closes prematurely (#768).
 - Fix: disambiguate timeout behavior for response headers and body (#770).
 - Fix: make sure the default `highWaterMark` equals 16384.
+- Fix: default user agent (#818).
 - Other: readme update.
 - Other: update copyright information.
 
