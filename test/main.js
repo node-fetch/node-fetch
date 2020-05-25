@@ -30,7 +30,7 @@ import fetch, {
 	Response
 } from '../src/index.js';
 import FetchErrorOrig from '../src/errors/fetch-error.js';
-import HeadersOrig, {createHeadersLenient} from '../src/headers.js';
+import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
@@ -545,15 +545,18 @@ describe('node-fetch', () => {
 	});
 
 	it('should ignore invalid headers', () => {
-		let headers = {
-			'Invalid-Header ': 'abc\r\n',
-			'Invalid-Header-Value': '\u0007k\r\n',
-			'Set-Cookie': ['\u0007k\r\n', '\u0007kk\r\n']
-		};
-		headers = createHeadersLenient(headers);
-		expect(headers).to.not.have.property('Invalid-Header ');
-		expect(headers).to.not.have.property('Invalid-Header-Value');
-		expect(headers).to.not.have.property('Set-Cookie');
+		const headers = fromRawHeaders([
+			'Invalid-Header ',
+			'abc\r\n',
+			'Invalid-Header-Value',
+			'\u0007k\r\n',
+			'Cookie',
+			'\u0007k\r\n',
+			'Cookie',
+			'\u0007kk\r\n'
+		]);
+		expect(headers).to.be.instanceOf(Headers);
+		expect(headers.raw()).to.deep.equal({});
 	});
 
 	it('should handle client-error response', () => {

@@ -14,7 +14,7 @@ import dataURIToBuffer from 'data-uri-to-buffer';
 
 import Body, {writeToStream, getTotalBytes} from './body.js';
 import Response from './response.js';
-import Headers, {createHeadersLenient} from './headers.js';
+import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
 import FetchError from './errors/fetch-error.js';
 import AbortError from './errors/abort-error.js';
@@ -108,7 +108,7 @@ export default function fetch(url, options_) {
 
 		request_.on('response', res => {
 			request_.setTimeout(0);
-			const headers = createHeadersLenient(res.headers);
+			const headers = fromRawHeaders(res.rawHeaders);
 
 			// HTTP fetch step 5
 			if (isRedirect(res.statusCode)) {

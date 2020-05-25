@@ -8,7 +8,7 @@
  */
 
 import {format as formatUrl} from 'url';
-import Headers, {exportNodeCompatibleHeaders} from './headers.js';
+import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
@@ -251,7 +251,7 @@ export function getNodeRequestOptions(request) {
 		query: parsedURL.query,
 		href: parsedURL.href,
 		method: request.method,
-		headers: exportNodeCompatibleHeaders(headers),
+		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		agent
 	};
 
