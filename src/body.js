@@ -12,7 +12,7 @@ import Blob from 'fetch-blob';
 
 import getBoundary from './utils/boundary.js';
 import FetchError from './errors/fetch-error.js';
-import FormDataStream from './utils/form-data-stream.js';
+import formDataIterator from './utils/form-data-iterator.js'
 import {isBlob, isURLSearchParams, isAbortError, isFormData} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
@@ -53,7 +53,8 @@ export default function Body(body, {
 	} else if (isFormData(body)) {
 		// Body is an instance of formdata-node
 		boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
-		body = new FormDataStream(body, boundary);
+		// body = new FormDataStream(body, boundary);
+		body = Stream.Readable.from(formDataIterator(body, boundary));
 	} else {
 		// None of the above
 		// coerce to string then buffer
