@@ -12,14 +12,14 @@ const invalidHeaderCharRegex = /[^\t\u0020-\u007E\u0080-\u00FF]/;
 function validateName(name) {
 	name = String(name);
 	if (invalidTokenRegex.test(name) || name === '') {
-		throw new TypeError(`${name} is not a legal HTTP header name`);
+		throw new TypeError(`'${name}' is not a legal HTTP header name`);
 	}
 }
 
 function validateValue(value) {
 	value = String(value);
 	if (invalidHeaderCharRegex.test(value)) {
-		throw new TypeError(`${value} is not a legal HTTP header value`);
+		throw new TypeError(`'${value}' is not a legal HTTP header value`);
 	}
 }
 
@@ -231,24 +231,22 @@ Object.defineProperties(
 );
 
 /**
- * Create a Headers object from an object of headers, ignoring those that do
+ * Create a Headers object from an http.IncomingMessage.rawHeaders, ignoring those that do
  * not conform to HTTP grammar productions.
- *
- * @param {Record<string, string | string[]>} object  Object of headers
- * @returns {Headers}
+ * @param {import('http').IncomingMessage['rawHeaders']} headers
  */
-export function createHeadersLenient(object) {
+export function fromRawHeaders(headers = []) {
 	return new Headers(
-		Object.entries(object).reduce((result, [name, value]) => {
-			if (!invalidTokenRegex.test(name)) {
-				if (Array.isArray(value)) {
-					result.push(...value.filter(v => !invalidHeaderCharRegex.test(v)).map(v => [name, v]));
-				} else if (!invalidHeaderCharRegex.test(value)) {
-					result.push([name, value]);
+		headers
+			// Split into pairs
+			.reduce((result, value, index, array) => {
+				if (index % 2 === 0) {
+					result.push(array.slice(index, index + 2));
 				}
-			}
 
-			return result;
-		}, [])
+				return result;
+			}, [])
+			.filter(([name, value]) => !(invalidTokenRegex.test(name) || invalidHeaderCharRegex.test(value)))
+
 	);
 }
