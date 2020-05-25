@@ -8,15 +8,19 @@ Changelog
 **Work in progress!**
 
 - **Breaking:** minimum supported Node.js version is now 10.16.
+- **Breaking:** removed `timeout` option.
+- **Breaking:** revamp TypeScript declarations.
 - Enhance: improve coverage.
 - Enhance: drop Babel (while keeping ESM) (#805).
 - Enhance: normalize export (#827).
 - Enhance: remove guard for Stream.Readable.destroy (#824).
 - Enhance: remove custom isArrayBuffer (#822).
+- Enhance: use normal class inheritance instead of Body.mixIn (#828).
 - Fix: export the `AbortError` class.
 - Fix: example using `file-type` (#804).
 - Fix: settle `consumeBody` promise when the response closes prematurely (#768).
 - Fix: disambiguate timeout behavior for response headers and body (#770).
+- Fix: make sure the default `highWaterMark` equals 16384.
 - Other: readme update.
 - Other: update copyright information.
 

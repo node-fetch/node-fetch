@@ -88,7 +88,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native Node streams for body, on both request and response.
 - Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
-- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
+- Useful extensions such as redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
 
 ## Difference from client-side fetch
 
@@ -416,7 +416,6 @@ The default values are shown after each option key.
 
     // The following properties are node-fetch extensions
     follow: 20,             // maximum redirect count. 0 to not follow redirect
-    timeout: 0,             // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
     compress: true,         // support gzip/deflate content encoding. false to disable
     size: 0,                // maximum response body size in bytes. 0 to disable
     agent: null,            // http(s).Agent instance or function that returns an instance (see below)
