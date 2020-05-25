@@ -4,6 +4,8 @@
  * Headers class offers convenient helpers
  */
 
+import {types} from 'util';
+
 const invalidTokenRegex = /[^`\-\w!#$%&'*+.|~]/;
 const invalidHeaderCharRegex = /[^\t\u0020-\u007E\u0080-\u00FF]/;
 
@@ -42,21 +44,16 @@ export default class Headers extends URLSearchParams {
 	 */
 	constructor(init) {
 		// Validate and normalize init object in [name, value(s)][]
-
+		/** @type {string[][]} */
+		let result = [];
 		if (init instanceof Headers) {
 			const raw = init.raw();
-			init = [];
 			for (const [name, values] of Object.entries(raw)) {
-				for (const value of values) {
-					init.push([name, value]);
-				}
+				result.push(...values.map(value => [name, value]));
 			}
 		} else if (init == null) { // eslint-disable-line no-eq-null, eqeqeq
 			// No op
-		} else if (typeof init === 'object') {
-			// We don't worry about converting prop to ByteString here as append()
-			// will handle it.
-			const result = [];
+		} else if (typeof init === 'object' && !types.isBoxedPrimitive(init)) {
 			const method = init[Symbol.iterator];
 			// eslint-disable-next-line no-eq-null, eqeqeq
 			if (method != null) {
@@ -66,46 +63,41 @@ export default class Headers extends URLSearchParams {
 
 				// Sequence<sequence<ByteString>>
 				// Note: per spec we have to first exhaust the lists then process them
-				const pairs = [];
-				for (const pair of init) {
-					if (
-						typeof pair !== 'object' ||
-						typeof pair[Symbol.iterator] !== 'function'
-					) {
-						throw new TypeError('Each header pair must be iterable');
-					}
+				result = [...init]
+					.map(pair => {
+						if (
+							typeof pair !== 'object' || types.isBoxedPrimitive(pair)
+						) {
+							throw new TypeError('Each header pair must be an iterable object');
+						}
 
-					pairs.push([...pair]);
-				}
+						return [...pair];
+					}).map(pair => {
+						if (pair.length !== 2) {
+							throw new TypeError('Each header pair must be a name/value tuple');
+						}
 
-				for (const pair of pairs) {
-					if (pair.length !== 2) {
-						throw new TypeError('Each header pair must be a name/value tuple');
-					}
-
-					result.push([pair[0], pair[1]]);
-				}
+						return [...pair];
+					});
 			} else {
 				// Record<ByteString, ByteString>
-				for (const [key, value] of Object.entries(init)) {
-					result.push([key, value]);
-				}
+				result.push(...Object.entries(init));
 			}
-
-			// Validate and lowercase
-			init =
-				result.length > 0 ?
-					result.map(([name, value]) => {
-						validateName(name);
-						validateValue(value);
-						return [String(name).toLowerCase(), value];
-					}) :
-					undefined;
 		} else {
-			throw new TypeError('Provided initializer must be an object');
+			throw new TypeError('Failed to construct \'Headers\': The provided value is not of type \'(sequence<sequence<ByteString>> or record<ByteString, ByteString>)');
 		}
 
-		super(init);
+		// Validate and lowercase
+		result =
+			result.length > 0 ?
+				result.map(([name, value]) => {
+					validateName(name);
+					validateValue(value);
+					return [String(name).toLowerCase(), value];
+				}) :
+				undefined;
+
+		super(result);
 
 		// Returning a Proxy that will lowercase key names, validate parameters and sort keys
 		// eslint-disable-next-line no-constructor-return
@@ -172,13 +164,13 @@ export default class Headers extends URLSearchParams {
 
 	forEach(callback) {
 		for (const name of this.keys()) {
-			callback(this.getAll(name).join(', '), name);
+			callback(this.get(name), name);
 		}
 	}
 
 	* values() {
 		for (const name of this.keys()) {
-			yield this.getAll(name).join(', ');
+			yield this.get(name);
 		}
 	}
 
@@ -187,7 +179,7 @@ export default class Headers extends URLSearchParams {
 	 */
 	* entries() {
 		for (const name of this.keys()) {
-			yield [name, this.getAll(name).join(', ')];
+			yield [name, this.get(name)];
 		}
 	}
 
@@ -246,24 +238,17 @@ Object.defineProperties(
  * @returns {Headers}
  */
 export function createHeadersLenient(object) {
-	const headers = new Headers();
-	for (const [name, values] of Object.entries(object)) {
-		if (invalidTokenRegex.test(name)) {
-			continue;
-		}
-
-		if (Array.isArray(values)) {
-			for (const value of values) {
-				if (invalidHeaderCharRegex.test(value)) {
-					continue;
+	return new Headers(
+		Object.entries(object).reduce((result, [name, value]) => {
+			if (!invalidTokenRegex.test(name) && !invalidHeaderCharRegex.test(value)) {
+				if (Array.isArray(value)) {
+					result.push(...value.map(v => [name, v]));
+				} else {
+					result.push([name, value]);
 				}
-
-				headers.append(name, value);
 			}
-		} else if (!invalidHeaderCharRegex.test(values)) {
-			headers.append(name, values);
-		}
-	}
 
-	return headers;
+			return result;
+		}, [])
+	);
 }
