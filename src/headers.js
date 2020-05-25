@@ -14,14 +14,14 @@ function validateName(name) {
 	if (invalidTokenRegex.test(name) || name === '') {
 		throw new TypeError(`'${name}' is not a legal HTTP header name`);
 	}
-};
+}
 
 function validateValue(value) {
 	value = String(value);
 	if (invalidHeaderCharRegex.test(value)) {
 		throw new TypeError(`'${value}' is not a legal HTTP header value`);
 	}
-};
+}
 
 /**
  * @typedef {Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<string>[]} HeadersInit
@@ -58,10 +58,7 @@ export default class Headers extends URLSearchParams {
 			// eslint-disable-next-line no-eq-null, eqeqeq
 			if (method == null) {
 				// Record<ByteString, ByteString>
-				for (const key of Object.keys(init)) {
-					const value = init[key];
-					this.append(key, value);
-				}
+				result.push(...Object.entries(init));
 			} else {
 				if (typeof method !== 'function') {
 					throw new TypeError('Header pairs must be iterable');
@@ -85,9 +82,6 @@ export default class Headers extends URLSearchParams {
 
 						return [...pair];
 					});
-			} else {
-				// Record<ByteString, ByteString>
-				result.push(...Object.entries(init));
 			}
 		} else {
 			throw new TypeError('Failed to construct \'Headers\': The provided value is not of type \'(sequence<sequence<ByteString>> or record<ByteString, ByteString>)');
@@ -143,6 +137,7 @@ export default class Headers extends URLSearchParams {
 						return Reflect.get(target, p, receiver);
 				}
 			}
+			/* c8 ignore next */
 		});
 	}
 
@@ -199,9 +194,9 @@ export default class Headers extends URLSearchParams {
 	 * @returns {Record<string, string[]>}
 	 */
 	raw() {
-		return [...this.keys()].reduce((res, key) => {
-			res[key] = this.getAll(key);
-			return res;
+		return [...this.keys()].reduce((result, key) => {
+			result[key] = this.getAll(key);
+			return result;
 		}, {});
 	}
 
@@ -209,17 +204,17 @@ export default class Headers extends URLSearchParams {
 	 * For better console.log(headers) and also to convert Headers into Node.js Request compatible format
 	 */
 	[Symbol.for('nodejs.util.inspect.custom')]() {
-		return [...this.keys()].reduce((res, key) => {
+		return [...this.keys()].reduce((result, key) => {
 			const values = this.getAll(key);
 			// Http.request() only supports string as Host header.
 			// This hack makes specifying custom Host header possible.
 			if (key === 'host') {
-				res[key] = values[0];
+				result[key] = values[0];
 			} else {
-				res[key] = values.length > 1 ? values : values[0];
+				result[key] = values.length > 1 ? values : values[0];
 			}
 
-			return res;
+			return result;
 		}, {});
 	}
 }
@@ -230,9 +225,9 @@ export default class Headers extends URLSearchParams {
  */
 Object.defineProperties(
 	Headers.prototype,
-	['get', 'entries', 'forEach', 'values'].reduce((res, property) => {
-		res[property] = {enumerable: true};
-		return res;
+	['get', 'entries', 'forEach', 'values'].reduce((result, property) => {
+		result[property] = {enumerable: true};
+		return result;
 	}, {})
 );
 

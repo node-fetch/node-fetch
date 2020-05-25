@@ -108,7 +108,7 @@ const fetch = (url, options_) => {
 
 		request_.on('response', response_ => {
 			request_.setTimeout(0);
-			const headers = fromRawHeaders(res.rawHeaders);
+			const headers = fromRawHeaders(response_.rawHeaders);
 
 			// HTTP fetch step 5
 			if (isRedirect(response_.statusCode)) {
