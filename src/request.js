@@ -21,12 +21,12 @@ const INTERNALS = Symbol('Request internals');
  * @param  {*} obj
  * @return {boolean}
  */
-function isRequest(object) {
+const isRequest = object => {
 	return (
 		typeof object === 'object' &&
 		typeof object[INTERNALS] === 'object'
 	);
-}
+};
 
 /**
  * Wrapper around `new URL` to handle relative URLs (https://github.com/nodejs/node/issues/12682)
@@ -34,7 +34,7 @@ function isRequest(object) {
  * @param  {string} urlStr
  * @return {void}
  */
-function parseURL(urlString) {
+const parseURL = urlString => {
 	/*
 		Check whether the URL is absolute or not
 
@@ -46,7 +46,7 @@ function parseURL(urlString) {
 	}
 
 	throw new TypeError('Only absolute URLs are supported');
-}
+};
 
 /**
  * Request class
@@ -60,7 +60,9 @@ export default class Request extends Body {
 		let parsedURL;
 
 		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
-		if (!isRequest(input)) {
+		if (isRequest(input)) {
+			parsedURL = parseURL(input.url);
+		} else {
 			if (input && input.href) {
 				// In order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
@@ -72,21 +74,18 @@ export default class Request extends Body {
 			}
 
 			input = {};
-		} else {
-			parsedURL = parseURL(input.url);
 		}
 
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
 
 		// eslint-disable-next-line no-eq-null, eqeqeq
-		if ((init.body != null || isRequest(input) && input.body !== null) &&
+		if (((init.body != null || isRequest(input)) && input.body !== null) &&
 			(method === 'GET' || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
 
-		// eslint-disable-next-line no-eq-null, eqeqeq
-		const inputBody = init.body != null ?
+		const inputBody = init.body ?
 			init.body :
 			(isRequest(input) && input.body !== null ?
 				clone(input) :
@@ -125,12 +124,8 @@ export default class Request extends Body {
 		};
 
 		// Node-fetch-only options
-		this.follow = init.follow !== undefined ?
-			init.follow : (input.follow !== undefined ?
-				input.follow : 20);
-		this.compress = init.compress !== undefined ?
-			init.compress : (input.compress !== undefined ?
-				input.compress : true);
+		this.follow = init.follow === undefined ? (input.follow === undefined ? 20 : input.follow) : init.follow;
+		this.compress = init.compress === undefined ? (input.compress === undefined ? true : input.compress) : init.compress;
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
@@ -185,7 +180,7 @@ Object.defineProperties(Request.prototype, {
  * @param   Request  A Request instance
  * @return  Object   The options object to be passed to http.request
  */
-export function getNodeRequestOptions(request) {
+export const getNodeRequestOptions = request => {
 	const {parsedURL} = request[INTERNALS];
 	const headers = new Headers(request[INTERNALS].headers);
 
@@ -256,4 +251,4 @@ export function getNodeRequestOptions(request) {
 	};
 
 	return requestOptions;
-}
+};

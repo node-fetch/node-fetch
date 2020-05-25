@@ -1766,7 +1766,7 @@ describe('node-fetch', () => {
 	it('should not timeout on cloning response without consuming one of the streams when the response size is double the custom large highWaterMark - 1', function () {
 		this.timeout(300);
 		const url = local.mockResponse(res => {
-			res.end(crypto.randomBytes(2 * 512 * 1024 - 1));
+			res.end(crypto.randomBytes((2 * 512 * 1024) - 1));
 		});
 		return expect(
 			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
