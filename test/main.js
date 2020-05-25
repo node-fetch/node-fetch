@@ -53,9 +53,6 @@ chai.use(chaiString);
 chai.use(chaiTimeout);
 const {expect} = chai;
 
-// * Promisify fs.stat because of fs.promises is currently restricted
-const stat = util.promisify(fs.stat);
-
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
 
@@ -1436,14 +1433,14 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support formdata-node as POST body', async () => {
+	it('should support formdata-node as POST body', () => {
 		const form = new FormDataNode();
 
 		const filename = path.join('test', 'utils', 'dummy.txt');
 
 		form.set('field', 'some text');
 		form.set('file', fs.createReadStream(filename), {
-			size: await stat(filename).then(({size}) => size)
+			size: fs.statSync(filename).size
 		});
 
 		const url = `${base}multipart`;
