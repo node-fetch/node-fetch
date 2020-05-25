@@ -14,7 +14,7 @@ import dataURIToBuffer from 'data-uri-to-buffer';
 
 import Body, {writeToStream, getTotalBytes} from './body.js';
 import Response from './response.js';
-import Headers, {createHeadersLenient} from './headers.js';
+import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
 import FetchError from './errors/fetch-error.js';
 import AbortError from './errors/abort-error.js';
@@ -101,13 +101,6 @@ const fetch = (url, options_) => {
 			}
 		};
 
-		if (request.timeout) {
-			request_.setTimeout(request.timeout, () => {
-				finalize();
-				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-			});
-		}
-
 		request_.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
@@ -115,7 +108,7 @@ const fetch = (url, options_) => {
 
 		request_.on('response', response_ => {
 			request_.setTimeout(0);
-			const headers = createHeadersLenient(response_.headers);
+			const headers = fromRawHeaders(res.rawHeaders);
 
 			// HTTP fetch step 5
 			if (isRedirect(response_.statusCode)) {
@@ -167,8 +160,7 @@ const fetch = (url, options_) => {
 							compress: request.compress,
 							method: request.method,
 							body: request.body,
-							signal: request.signal,
-							timeout: request.timeout
+							signal: request.signal
 						};
 
 						// HTTP-redirect fetch step 9
@@ -213,7 +205,6 @@ const fetch = (url, options_) => {
 				statusText: response_.statusMessage,
 				headers,
 				size: request.size,
-				timeout: request.timeout,
 				counter: request.counter,
 				highWaterMark: request.highWaterMark
 			};

@@ -8,7 +8,7 @@
  */
 
 import {format as formatUrl} from 'url';
-import Headers, {exportNodeCompatibleHeaders} from './headers.js';
+import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
@@ -92,7 +92,6 @@ export default class Request extends Body {
 				null);
 
 		super(inputBody, {
-			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
 		});
 
@@ -213,7 +212,7 @@ export const getNodeRequestOptions = request => {
 
 	// HTTP-network-or-cache fetch step 2.11
 	if (!headers.has('User-Agent')) {
-		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+		headers.set('User-Agent', 'node-fetch');
 	}
 
 	// HTTP-network-or-cache fetch step 2.15
@@ -247,7 +246,7 @@ export const getNodeRequestOptions = request => {
 		query: parsedURL.query,
 		href: parsedURL.href,
 		method: request.method,
-		headers: exportNodeCompatibleHeaders(headers),
+		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		agent
 	};
 

@@ -88,7 +88,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native Node streams for body, on both request and response.
 - Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
-- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
+- Useful extensions such as redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
 
 ## Difference from client-side fetch
 
@@ -451,12 +451,11 @@ The default values are shown after each option key.
     signal: null,           // Pass an instance of AbortSignal to optionally abort requests
 
     // The following properties are node-fetch extensions
-    follow: 20,             // Maximum redirect count. 0 to not follow redirect
-    timeout: 0,             // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
-    compress: true,         // Support gzip/deflate content encoding. false to disable
-    size: 0,                // Maximum response body size in bytes. 0 to disable
-    agent: null,            // HTTP(S).Agent instance or function that returns an instance (see below)
-    highWaterMark: 16384    // The maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+    follow: 20,             // maximum redirect count. 0 to not follow redirect
+    compress: true,         // support gzip/deflate content encoding. false to disable
+    size: 0,                // maximum response body size in bytes. 0 to disable
+    agent: null,            // http(s).Agent instance or function that returns an instance (see below)
+    highWaterMark: 16384    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
 }
 ```
 
@@ -464,14 +463,15 @@ The default values are shown after each option key.
 
 If no values are set, the following request headers will be sent automatically:
 
-| Header              | Value                                                    |
-| ------------------- | -------------------------------------------------------- |
-| `Accept-Encoding`   | `gzip,deflate,br` _(when `options.compress === true`)_   |
-| `Accept`            | `*/*`                                                    |
-| `Connection`        | `close` _(when no `options.agent` is present)_           |
-| `Content-Length`    | _(automatically calculated, if possible)_                |
-| `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_                |
-| `User-Agent`        | `node-fetch (+https://github.com/node-fetch/node-fetch)` |
+| Header              | Value                                                  |
+| ------------------- | ------------------------------------------------------ |
+| `Accept-Encoding`   | `gzip,deflate,br` _(when `options.compress === true`)_ |
+| `Accept`            | `*/*`                                                  |
+| `Connection`        | `close` _(when no `options.agent` is present)_         |
+| `Content-Length`    | _(automatically calculated, if possible)_              |
+| `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_              |
+| `User-Agent`        | `node-fetch`                                           |
+
 
 Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
 

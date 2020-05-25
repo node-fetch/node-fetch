@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - '**.ts'
+      - package.json
+      - .github/workflows/types.yml
+
+jobs:
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+
+      - run: npm install
+
+      - name: Check typings file
+        run: npm run test-types

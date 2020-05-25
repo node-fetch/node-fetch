@@ -23,6 +23,27 @@ other comparatively minor modifications.
 
 Since Node.js will deprecate version 8 at the end of 2019, we decided that node-fetch v3.x will not only drop support for Node.js 4 and 6 (which were supported in v2.x), but also for Node.js 8. We strongly encourage you to upgrade, if you still haven't done so. Check out Node.js' official [LTS plan] for more information on Node.js' support lifetime.
 
+## The `timeout` option was removed.
+
+Since this was never part of the fetch specification, it was removed. AbortSignal offers a more finegrained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/Richienb/timeout-signal) as a workaround:
+
+```js
+const timeoutSignal = require('timeout-signal');
+const fetch = require('node-fetch');
+
+const {AbortError} = fetch
+ 
+fetch('https://www.google.com', { signal: timeoutSignal(5000) })
+    .then(response => {
+        // Handle response
+    })
+    .catch(error => {
+        if (error instanceof AbortError) {
+            // Handle timeout
+        }
+    })
+```
+
 ## `Response.statusText` no longer sets a default message derived from the HTTP status code
 
 If the server didn't respond with status text, node-fetch would set a default message derived from the HTTP status code. This behavior was not spec-compliant and now the `statusText` will remain blank instead.
