@@ -29,7 +29,7 @@ export {Headers, Request, Response, FetchError, AbortError, isRedirect};
  * @param   Object   opts  Fetch options
  * @return  Promise
  */
-const fetch = (url, options_) => {
+export default function fetch(url, options_) {
 	// Allow custom promise
 	if (!fetch.Promise) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
@@ -288,9 +288,7 @@ const fetch = (url, options_) => {
 
 		writeToStream(request_, request);
 	});
-};
-
-export default fetch;
+}
 
 // Expose Promise
 fetch.Promise = global.Promise;
