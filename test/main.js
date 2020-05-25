@@ -547,7 +547,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should ignore invalid headers', () => {
-		const  headers = fromRawHeaders([
+		const headers = fromRawHeaders([
 			'Invalid-Header ',
 			'abc\r\n',
 			'Invalid-Header-Value',
@@ -558,7 +558,7 @@ describe('node-fetch', () => {
 			'\u0007kk\r\n'
 		]);
 		expect(headers).to.be.instanceOf(Headers);
-		expect(headers.raw()).to.deep.equal({})
+		expect(headers.raw()).to.deep.equal({});
 	});
 
 	it('should handle client-error response', () => {
