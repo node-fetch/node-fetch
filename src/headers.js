@@ -240,10 +240,10 @@ Object.defineProperties(
 export function createHeadersLenient(object) {
 	return new Headers(
 		Object.entries(object).reduce((result, [name, value]) => {
-			if (!invalidTokenRegex.test(name) && !invalidHeaderCharRegex.test(value)) {
+			if (!invalidTokenRegex.test(name)) {
 				if (Array.isArray(value)) {
-					result.push(...value.map(v => [name, v]));
-				} else {
+					result.push(...value.filter(v => !invalidHeaderCharRegex.test(v)).map(v => [name, v]));
+				} else if (!invalidHeaderCharRegex.test(value)) {
 					result.push([name, value]);
 				}
 			}
