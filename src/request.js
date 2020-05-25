@@ -8,7 +8,6 @@
  */
 
 import {format as formatUrl} from 'url';
-import Stream from 'stream';
 import Headers, {exportNodeCompatibleHeaders} from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
@@ -16,7 +15,6 @@ import {getSearch} from './utils/get-search.js';
 
 const INTERNALS = Symbol('Request internals');
 
-const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
  * Check if `obj` is an instance of Request.
@@ -234,7 +232,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.11
 	if (!headers.has('User-Agent')) {
-		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+		headers.set('User-Agent', 'node-fetch');
 	}
 
 	// HTTP-network-or-cache fetch step 2.15
