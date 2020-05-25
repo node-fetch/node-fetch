@@ -87,11 +87,11 @@
 			"browser"
 		],
 		"rules": {
-      "complexity": 0,
-      "import/extensions": 0,
-      "import/no-useless-path-segments": 0,
-      "unicorn/import-index": 0,
-      "capitalized-comments": 0
+			"complexity": 0,
+			"import/extensions": 0,
+			"import/no-useless-path-segments": 0,
+			"unicorn/import-index": 0,
+			"capitalized-comments": 0
 		},
 		"ignores": [
 			"dist",
@@ -108,7 +108,10 @@
 					"max-nested-callbacks": 0,
 					"no-unused-expressions": 0,
 					"new-cap": 0,
-					"guard-for-in": 0
+					"guard-for-in": 0,
+					"unicorn/prevent-abbreviations": 0,
+					"promise/prefer-await-to-then": 0,
+					"ava/no-import-test-files": 0
 				}
 			},
 			{
