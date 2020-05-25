@@ -14,16 +14,13 @@ import dataURIToBuffer from 'data-uri-to-buffer';
 
 import Body, {writeToStream, getTotalBytes} from './body.js';
 import Response from './response.js';
-import Headers, {createHeadersLenient} from './headers.js';
+import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
 import FetchError from './errors/fetch-error.js';
 import AbortError from './errors/abort-error.js';
+import {isRedirect} from './utils/is-redirect.js';
 
-export {default as Headers} from './headers.js';
-export {default as Request} from './request.js';
-export {default as Response} from './response.js';
-export {default as FetchError} from './errors/fetch-error.js';
-export {default as AbortError} from './errors/abort-error.js';
+export {Headers, Request, Response, FetchError, AbortError, isRedirect};
 
 /**
  * Fetch function
@@ -104,23 +101,17 @@ export default function fetch(url, options_) {
 			}
 		}
 
-		if (request.timeout) {
-			request_.setTimeout(request.timeout, () => {
-				finalize();
-				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-			});
-		}
-
 		request_.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
 		});
 
 		request_.on('response', res => {
-			const headers = createHeadersLenient(res.headers);
+			request_.setTimeout(0);
+			const headers = fromRawHeaders(res.rawHeaders);
 
 			// HTTP fetch step 5
-			if (fetch.isRedirect(res.statusCode)) {
+			if (isRedirect(res.statusCode)) {
 				// HTTP fetch step 5.2
 				const location = headers.get('Location');
 
@@ -140,8 +131,9 @@ export default function fetch(url, options_) {
 							try {
 								headers.set('Location', locationURL);
 							} catch (error) {
-								// istanbul ignore next: nodejs server prevent invalid response headers, we can't test this through normal request
+								/* c8 ignore next */
 								reject(error);
+								/* c8 ignore next */
 							}
 						}
 
@@ -169,8 +161,7 @@ export default function fetch(url, options_) {
 							compress: request.compress,
 							method: request.method,
 							body: request.body,
-							signal: request.signal,
-							timeout: request.timeout
+							signal: request.signal
 						};
 
 						// HTTP-redirect fetch step 9
@@ -215,7 +206,6 @@ export default function fetch(url, options_) {
 				statusText: res.statusMessage,
 				headers,
 				size: request.size,
-				timeout: request.timeout,
 				counter: request.counter,
 				highWaterMark: request.highWaterMark
 			};
@@ -283,7 +273,7 @@ export default function fetch(url, options_) {
 			}
 
 			// For br
-			if (codings === 'br' && typeof zlib.createBrotliDecompress === 'function') {
+			if (codings === 'br') {
 				body = pump(body, zlib.createBrotliDecompress(), error => {
 					reject(error);
 				});
@@ -300,14 +290,6 @@ export default function fetch(url, options_) {
 		writeToStream(request_, request);
 	});
 }
-
-/**
- * Redirect code matching
- *
- * @param   Number   code  Status code
- * @return  Boolean
- */
-fetch.isRedirect = code => [301, 302, 303, 307, 308].includes(code);
 
 // Expose Promise
 fetch.Promise = global.Promise;

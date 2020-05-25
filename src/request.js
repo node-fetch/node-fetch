@@ -8,15 +8,12 @@
  */
 
 import {format as formatUrl} from 'url';
-import Stream from 'stream';
-import Headers, {exportNodeCompatibleHeaders} from './headers.js';
+import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
 
 const INTERNALS = Symbol('Request internals');
-
-const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
  * Check if `obj` is an instance of Request.
@@ -58,7 +55,7 @@ function parseURL(urlString) {
  * @param   Object  init   Custom options
  * @return  Void
  */
-export default class Request {
+export default class Request extends Body {
 	constructor(input, init = {}) {
 		let parsedURL;
 
@@ -95,8 +92,7 @@ export default class Request {
 				clone(input) :
 				null);
 
-		Body.call(this, inputBody, {
-			timeout: init.timeout || input.timeout || 0,
+		super(inputBody, {
 			size: init.size || input.size || 0
 		});
 
@@ -137,7 +133,7 @@ export default class Request {
 				input.compress : true);
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
-		this.highWaterMark = init.highWaterMark || input.highWaterMark;
+		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
 	}
 
 	get method() {
@@ -168,16 +164,11 @@ export default class Request {
 	clone() {
 		return new Request(this);
 	}
+
+	get [Symbol.toStringTag]() {
+		return 'Request';
+	}
 }
-
-Body.mixIn(Request.prototype);
-
-Object.defineProperty(Request.prototype, Symbol.toStringTag, {
-	value: 'Request',
-	writable: false,
-	enumerable: false,
-	configurable: true
-});
 
 Object.defineProperties(Request.prototype, {
 	method: {enumerable: true},
@@ -207,14 +198,6 @@ export function getNodeRequestOptions(request) {
 		throw new TypeError('Only HTTP(S) protocols are supported');
 	}
 
-	if (
-		request.signal &&
-		request.body instanceof Stream.Readable &&
-		!streamDestructionSupported
-	) {
-		throw new Error('Cancellation of streamed requests with AbortSignal is not supported');
-	}
-
 	// HTTP-network-or-cache fetch steps 2.4-2.7
 	let contentLengthValue = null;
 	if (request.body === null && /^(post|put)$/i.test(request.method)) {
@@ -239,7 +222,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.15
 	if (request.compress && !headers.has('Accept-Encoding')) {
-		headers.set('Accept-Encoding', 'gzip,deflate');
+		headers.set('Accept-Encoding', 'gzip,deflate,br');
 	}
 
 	let {agent} = request;
@@ -268,7 +251,7 @@ export function getNodeRequestOptions(request) {
 		query: parsedURL.query,
 		href: parsedURL.href,
 		method: request.method,
-		headers: exportNodeCompatibleHeaders(headers),
+		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		agent
 	};
 

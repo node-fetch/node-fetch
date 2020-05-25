@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    paths:
+      - '**.js'
+      - 'package.json'
+      - '.github/workflows/ci.yml'
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node: [14.x, 12.x, 10.x]
+        exclude:
+          # On Windows, run tests with only the LTS environments.
+          - os: windows-latest
+            node: 10.x
+          - os: windows-latest
+            node: 14.x
+          # On macOS, run tests with only the LTS environments.
+          - os: macOS-latest
+            node: 10.x
+          - os: macOS-latest
+            node: 14.x
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: npm install
+
+      - run: npm test -- --colors
+
+      # upload coverage only once
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        if: matrix.node == '14.x' && matrix.os == 'ubuntu-latest'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+

@@ -58,16 +58,6 @@ export function isAbortSignal(object) {
 }
 
 /**
- * Check if `obj` is an instance of ArrayBuffer.
- *
- * @param  {*} obj
- * @return {boolean}
- */
-export function isArrayBuffer(object) {
-	return object[NAME] === 'ArrayBuffer';
-}
-
-/**
  * Check if `obj` is an instance of AbortError.
  *
  * @param  {*} obj

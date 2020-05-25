@@ -2,12 +2,12 @@
   	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
   	<br>
   	<p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
-	<a href="https://travis-ci.com/node-fetch/node-fetch"><img src="https://img.shields.io/travis/com/node-fetch/node-fetch/master?style=flat-square" alt="Build status"></a>
-	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch?style=flat-square" alt="Coverage status"></a>
-	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://flat.badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
-	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch?style=flat-square" alt="Install size"></a>
-	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge-flat.svg" alt="Mentioned in Awesome Node.js"></a>
-	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord&style=flat-square" alt="Discord"></a>
+	<a href="https://github.com/node-fetch/node-fetch/actions"><img src="https://github.com/node-fetch/node-fetch/workflows/CI/badge.svg?branch=master" alt="Build status"></a>
+	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch" alt="Coverage status"></a>
+	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
+	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch" alt="Install size"></a>
+	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Node.js"></a>
+	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord" alt="Discord"></a>
 	<br>
 	<br>
 	<b>Consider supporting us on our Open Collective:</b>
@@ -88,7 +88,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 - Use native promise, but allow substituting it with [insert your favorite promise library].
 - Use native Node streams for body, on both request and response.
 - Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
-- Useful extensions such as timeout, redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
+- Useful extensions such as redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
 
 ## Difference from client-side fetch
 
@@ -416,7 +416,6 @@ The default values are shown after each option key.
 
     // The following properties are node-fetch extensions
     follow: 20,             // maximum redirect count. 0 to not follow redirect
-    timeout: 0,             // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies). Signal is recommended instead.
     compress: true,         // support gzip/deflate content encoding. false to disable
     size: 0,                // maximum response body size in bytes. 0 to disable
     agent: null,            // http(s).Agent instance or function that returns an instance (see below)

@@ -302,6 +302,14 @@ export default class TestServer {
 			res.destroy();
 		}
 
+		if (p === '/error/premature') {
+			res.writeHead(200, {'content-length': 50});
+			res.write('foo');
+			setTimeout(() => {
+				res.destroy();
+			}, 100);
+		}
+
 		if (p === '/error/json') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
