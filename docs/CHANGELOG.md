@@ -3,6 +3,10 @@ Changelog
 
 # 3.x release
 
+## v3.0.0-beta.6-exportfix
+
+- Fix: `fetch` function export & declaration, which broke the previous release.
+
 ## v3.0.0-beta.6
 
 **Work in progress!**
