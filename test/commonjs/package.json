@@ -1,0 +1,6 @@
+{
+	"name": "commonjs",
+	"version": "1.0.0",
+	"main": "../../dist/index.cjs",
+	"type": "commonjs"
+}

@@ -24,7 +24,8 @@
 		"test": "node --experimental-modules node_modules/c8/bin/c8 --reporter=html --reporter=lcov --reporter=text --check-coverage node --experimental-modules node_modules/mocha/bin/mocha",
 		"coverage": "c8 report --reporter=text-lcov | coveralls",
 		"test-types": "tsd",
-		"lint": "xo"
+		"lint": "xo",
+		"prepublishOnly": "node ./test/commonjs/test-artifact.js"
 	},
 	"repository": {
 		"type": "git",
