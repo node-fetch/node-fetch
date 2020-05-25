@@ -428,14 +428,15 @@ The default values are shown after each option key.
 
 If no values are set, the following request headers will be sent automatically:
 
-| Header              | Value                                                    |
-| ------------------- | -------------------------------------------------------- |
-| `Accept-Encoding`   | `gzip,deflate` _(when `options.compress === true`)_      |
-| `Accept`            | `*/*`                                                    |
-| `Connection`        | `close` _(when no `options.agent` is present)_           |
-| `Content-Length`    | _(automatically calculated, if possible)_                |
-| `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_                |
-| `User-Agent`        | `node-fetch (+https://github.com/node-fetch/node-fetch)` |
+| Header              | Value                                                  |
+| ------------------- | ------------------------------------------------------ |
+| `Accept-Encoding`   | `gzip,deflate,br` _(when `options.compress === true`)_ |
+| `Accept`            | `*/*`                                                  |
+| `Connection`        | `close` _(when no `options.agent` is present)_         |
+| `Content-Length`    | _(automatically calculated, if possible)_              |
+| `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_              |
+| `User-Agent`        | `node-fetch`                                           |
+
 
 Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
 
@@ -696,9 +697,9 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 
 ## Team
 
-[![David Frank](https://github.com/bitinn.png?size=100)](https://github.com/bitinn) | [![Jimmy Wärting](https://github.com/jimmywarting.png?size=100)](https://github.com/jimmywarting) | [![Antoni Kepinski](https://github.com/xxczaki.png?size=100)](https://github.com/xxczaki) | [![Richie Bendall](https://github.com/Richienb.png?size=100)](https://github.com/Richienb) | [![Gregor Martynus](https://github.com/gr2m.png?size=100)](https://github.com/gr2m)
----|---|---|---|---
-[David Frank](https://bitinn.net/) | [Jimmy Wärting](https://jimmy.warting.se/) | [Antoni Kepinski](https://kepinski.me) | [Richie Bendall](https://www.richie-bendall.ml/) | [Gregor Martynus](https://twitter.com/gr2m)
+| [![David Frank](https://github.com/bitinn.png?size=100)](https://github.com/bitinn) | [![Jimmy Wärting](https://github.com/jimmywarting.png?size=100)](https://github.com/jimmywarting) | [![Antoni Kepinski](https://github.com/xxczaki.png?size=100)](https://github.com/xxczaki) | [![Richie Bendall](https://github.com/Richienb.png?size=100)](https://github.com/Richienb) | [![Gregor Martynus](https://github.com/gr2m.png?size=100)](https://github.com/gr2m) |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [David Frank](https://bitinn.net/)                                                  | [Jimmy Wärting](https://jimmy.warting.se/)                                                        | [Antoni Kepinski](https://kepinski.me)                                                    | [Richie Bendall](https://www.richie-bendall.ml/)                                           | [Gregor Martynus](https://twitter.com/gr2m)                                         |
 
 ###### Former
 

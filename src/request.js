@@ -8,6 +8,7 @@
  */
 
 import {format as formatUrl} from 'url';
+import Stream from 'stream';
 import Headers, {exportNodeCompatibleHeaders} from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
@@ -15,6 +16,7 @@ import {getSearch} from './utils/get-search.js';
 
 const INTERNALS = Symbol('Request internals');
 
+const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
 /**
  * Check if `obj` is an instance of Request.
