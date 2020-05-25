@@ -217,7 +217,7 @@ export function getNodeRequestOptions(request) {
 
 	// HTTP-network-or-cache fetch step 2.11
 	if (!headers.has('User-Agent')) {
-		headers.set('User-Agent', 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)');
+		headers.set('User-Agent', 'node-fetch');
 	}
 
 	// HTTP-network-or-cache fetch step 2.15
