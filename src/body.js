@@ -25,30 +25,29 @@ const INTERNALS = Symbol('Body internals');
  */
 export default class Body {
 	constructor(body, {
-		size = 0,
-		timeout = 0
+		size = 0
 	} = {}) {
 		if (body === null) {
-		// Body is undefined or null
+			// Body is undefined or null
 			body = null;
 		} else if (isURLSearchParams(body)) {
-		// Body is a URLSearchParams
+			// Body is a URLSearchParams
 			body = Buffer.from(body.toString());
 		} else if (isBlob(body)) {
-		// Body is blob
+			// Body is blob
 		} else if (Buffer.isBuffer(body)) {
-		// Body is Buffer
+			// Body is Buffer
 		} else if (types.isAnyArrayBuffer(body)) {
-		// Body is ArrayBuffer
+			// Body is ArrayBuffer
 			body = Buffer.from(body);
 		} else if (ArrayBuffer.isView(body)) {
-		// Body is ArrayBufferView
+			// Body is ArrayBufferView
 			body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 		} else if (body instanceof Stream) {
-		// Body is stream
+			// Body is stream
 		} else {
-		// None of the above
-		// coerce to string then buffer
+			// None of the above
+			// coerce to string then buffer
 			body = Buffer.from(String(body));
 		}
 
@@ -58,7 +57,6 @@ export default class Body {
 			error: null
 		};
 		this.size = size;
-		this.timeout = timeout;
 
 		if (body instanceof Stream) {
 			body.on('error', err => {
@@ -185,18 +183,6 @@ function consumeBody() {
 	let abort = false;
 
 	return new Body.Promise((resolve, reject) => {
-		let resTimeout;
-
-		// Allow timeout on slow response body
-		if (this.timeout) {
-			resTimeout = setTimeout(() => {
-				abort = true;
-				const err = new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout');
-				reject(err);
-				body.destroy(err);
-			}, this.timeout);
-		}
-
 		body.on('data', chunk => {
 			if (abort || chunk === null) {
 				return;
@@ -213,7 +199,6 @@ function consumeBody() {
 		});
 
 		finished(body, {writable: false}, err => {
-			clearTimeout(resTimeout);
 			if (err) {
 				if (isAbortError(err)) {
 					// If the request was aborted, reject with this Error

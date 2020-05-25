@@ -93,7 +93,6 @@ export default class Request extends Body {
 				null);
 
 		super(inputBody, {
-			timeout: init.timeout || input.timeout || 0,
 			size: init.size || input.size || 0
 		});
 

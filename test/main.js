@@ -1,7 +1,6 @@
 // Test tools
 import zlib from 'zlib';
 import crypto from 'crypto';
-import {spawn} from 'child_process';
 import http from 'http';
 import fs from 'fs';
 import stream from 'stream';
@@ -844,78 +843,6 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow custom timeout', () => {
-		const url = `${base}timeout`;
-		const options = {
-			timeout: 20
-		};
-		return expect(fetch(url, options)).to.eventually.be.rejected
-			.and.be.an.instanceOf(FetchError)
-			.and.have.property('type', 'request-timeout');
-	});
-
-	it('should allow custom timeout on response body', () => {
-		const url = `${base}slow`;
-		const options = {
-			timeout: 20
-		};
-		return fetch(url, options).then(res => {
-			expect(res.ok).to.be.true;
-			return expect(res.text()).to.eventually.be.rejected
-				.and.be.an.instanceOf(FetchError)
-				.and.have.property('type', 'body-timeout');
-		});
-	});
-
-	it('should not allow socket timeout before body is read', () => {
-		const url = `${base}slow`;
-		const options = {
-			timeout: 100
-		};
-		// Await the response, then delay, allowing enough time for the timeout
-		// to be created just before the socket timeout
-		return fetch(url, options).then(delay(75)).then(res => {
-			expect(res.ok).to.be.true;
-			return expect(res.text()).to.eventually.be.rejected
-				.and.be.an.instanceOf(FetchError)
-				.and.have.property('type', 'body-timeout');
-		});
-	});
-
-	it('should allow custom timeout on redirected requests', () => {
-		const url = `${base}redirect/slow-chain`;
-		const options = {
-			timeout: 20
-		};
-		return expect(fetch(url, options)).to.eventually.be.rejected
-			.and.be.an.instanceOf(FetchError)
-			.and.have.property('type', 'request-timeout');
-	});
-
-	it('should clear internal timeout on fetch response', function (done) {
-		this.timeout(2000);
-		spawn('node', ['-e', `require(’./’)(’${base}hello’, { timeout: 10000 })`])
-			.on('exit', () => {
-				done();
-			});
-	});
-
-	it('should clear internal timeout on fetch redirect', function (done) {
-		this.timeout(2000);
-		spawn('node', ['-e', `require(’./’)(’${base}redirect/301’, { timeout: 10000 })`])
-			.on('exit', () => {
-				done();
-			});
-	});
-
-	it('should clear internal timeout on fetch error', function (done) {
-		this.timeout(2000);
-		spawn('node', ['-e', `require(’./’)(’${base}error/reset’, { timeout: 10000 })`])
-			.on('exit', () => {
-				done();
-			});
-	});
-
 	it('should support request cancellation with signal', function () {
 		this.timeout(500);
 		const controller = new AbortController();
@@ -964,23 +891,6 @@ describe('node-fetch', () => {
 			.and.include({
 				type: 'aborted',
 				name: 'AbortError'
-			});
-	});
-
-	it('should clear internal timeout when request is cancelled with an AbortSignal', function (done) {
-		this.timeout(2000);
-		const script = `
-			var AbortController = require(’abortcontroller-polyfill/dist/cjs-ponyfill’).AbortController;
-			var controller = new AbortController();
-			require(’./’)(
-				’${base}timeout’,
-				{ signal: controller.signal, timeout: 10000 }
-			);
-			setTimeout(function () { controller.abort(); }, 20);
-		`;
-		spawn('node', ['-e', script])
-			.on('exit', () => {
-				done();
 			});
 	});
 
