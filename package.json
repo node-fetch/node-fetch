@@ -1,6 +1,6 @@
 {
 	"name": "node-fetch",
-	"version": "3.0.0-beta.6",
+	"version": "3.0.0-beta.6-exportfix",
 	"description": "A light-weight module that brings window.fetch to node.js",
 	"main": "./dist/index.cjs",
 	"module": "./src/index.js",
