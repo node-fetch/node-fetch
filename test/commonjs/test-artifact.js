@@ -8,14 +8,14 @@ console.log('Building CommonJS version...');
 execFileSync('npm', ['run', 'build'], {stdio: 'inherit'});
 
 const assert = require('assert');
-const fetch = require('./');
+const fetch = require('../../');
 assert.strictEqual(
 	typeof fetch,
 	'function',
 	'default import must be a function'
 );
 
-const {Request, Response, Headers, FetchError, AbortError} = require('./');
+const {Request, Response, Headers, FetchError, AbortError} = require('../../');
 assert.ok(new FetchError() instanceof Error, 'FetchError must be an Error');
 assert.ok(
 	new AbortError() instanceof Error,
