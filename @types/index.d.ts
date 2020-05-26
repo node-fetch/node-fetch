@@ -79,7 +79,6 @@ interface RequestInit {
 	port?: number;
 	protocol?: string;
 	size?: number;
-	timeout?: number;
 	highWaterMark?: number;
 }
 
@@ -99,7 +98,6 @@ interface Body {
 	readonly body: NodeJS.ReadableStream | null;
 	readonly bodyUsed: boolean;
 	readonly size: number;
-	readonly timeout: number;
 	buffer: () => Promise<Buffer>;
 	arrayBuffer: () => Promise<ArrayBuffer>;
 	blob: () => Promise<Blob>;
@@ -108,7 +106,7 @@ interface Body {
 }
 declare var Body: {
 	prototype: Body;
-	new (body?: BodyInit, opts?: {size?: number; timeout?: number}): Body;
+	new (body?: BodyInit, opts?: {size?: number}): Body;
 };
 
 type RequestRedirect = 'error' | 'follow' | 'manual';

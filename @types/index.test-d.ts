@@ -34,7 +34,6 @@ async function run() {
 		const request = new Request('http://byjka.com/buka');
 		expectType<string>(request.url);
 		expectType<Headers>(request.headers);
-		expectType<number>(request.timeout);
 
 		const headers = new Headers({byaka: 'buke'});
 		expectType<(a: string, b: string) => void>(headers.append);
