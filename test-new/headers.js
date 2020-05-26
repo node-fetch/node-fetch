@@ -139,7 +139,6 @@ test('should reject illegal header', t => {
 });
 
 test('should ignore unsupported attributes while reading headers', t => {
-
 	const FakeHeader = function () { };
 	FakeHeader.prototype.z = 'fake';
 
