@@ -1443,10 +1443,6 @@ describe('node-fetch', () => {
 			size: fs.statSync(filename).size
 		});
 
-		// for await (const ch of form) {
-		// 	console.log(String(ch))
-		// }
-
 		const url = `${base}multipart`;
 		const options = {
 			method: 'POST',
