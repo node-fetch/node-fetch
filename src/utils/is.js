@@ -13,7 +13,7 @@ const NAME = Symbol.toStringTag;
  * @param  {*} obj
  * @return {boolean}
  */
-export function isURLSearchParams(object) {
+export const isURLSearchParameters = object => {
 	return (
 		typeof object === 'object' &&
 		typeof object.append === 'function' &&
@@ -25,7 +25,7 @@ export function isURLSearchParams(object) {
 		typeof object.sort === 'function' &&
 		object[NAME] === 'URLSearchParams'
 	);
-}
+};
 
 /**
  * Check if `object` is a W3C `Blob` object (which `File` inherits from)
@@ -33,7 +33,7 @@ export function isURLSearchParams(object) {
  * @param  {*} obj
  * @return {boolean}
  */
-export function isBlob(object) {
+export const isBlob = object => {
 	return (
 		typeof object === 'object' &&
 		typeof object.arrayBuffer === 'function' &&
@@ -42,7 +42,7 @@ export function isBlob(object) {
 		typeof object.constructor === 'function' &&
 		/^(Blob|File)$/.test(object[NAME])
 	);
-}
+};
 
 /**
  * Check if `obj` is a spec-compliant `FormData` object
@@ -72,12 +72,12 @@ export function isFormData(object) {
  * @param  {*} obj
  * @return {boolean}
  */
-export function isAbortSignal(object) {
+export const isAbortSignal = object => {
 	return (
 		typeof object === 'object' &&
 		object[NAME] === 'AbortSignal'
 	);
-}
+};
 
 /**
  * Check if `obj` is an instance of AbortError.
@@ -85,6 +85,6 @@ export function isAbortSignal(object) {
  * @param  {*} obj
  * @return {boolean}
  */
-export function isAbortError(object) {
+export const isAbortError = object => {
 	return object[NAME] === 'AbortError';
-}
+};

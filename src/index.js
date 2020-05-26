@@ -14,18 +14,13 @@ import dataURIToBuffer from 'data-uri-to-buffer';
 
 import Body, {writeToStream, getTotalBytes} from './body.js';
 import Response from './response.js';
-import Headers, {createHeadersLenient} from './headers.js';
+import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
 import FetchError from './errors/fetch-error.js';
 import AbortError from './errors/abort-error.js';
 import {isRedirect} from './utils/is-redirect.js';
 
-export {default as Headers} from './headers.js';
-export {default as Request} from './request.js';
-export {default as Response} from './response.js';
-export {default as FetchError} from './errors/fetch-error.js';
-export {default as AbortError} from './errors/abort-error.js';
-export {isRedirect};
+export {Headers, Request, Response, FetchError, AbortError, isRedirect};
 
 /**
  * Fetch function
@@ -46,8 +41,8 @@ export default function fetch(url, options_) {
 	// If valid data uri
 	if (dataUriRegex.test(url)) {
 		const data = dataURIToBuffer(url);
-		const res = new Response(data, {headers: {'Content-Type': data.type}});
-		return fetch.Promise.resolve(res);
+		const response = new Response(data, {headers: {'Content-Type': data.type}});
+		return fetch.Promise.resolve(response);
 	}
 
 	// If invalid data uri
@@ -99,31 +94,24 @@ export default function fetch(url, options_) {
 			signal.addEventListener('abort', abortAndFinalize);
 		}
 
-		function finalize() {
+		const finalize = () => {
 			request_.abort();
 			if (signal) {
 				signal.removeEventListener('abort', abortAndFinalize);
 			}
-		}
-
-		if (request.timeout) {
-			request_.setTimeout(request.timeout, () => {
-				finalize();
-				reject(new FetchError(`network timeout at: ${request.url}`, 'request-timeout'));
-			});
-		}
+		};
 
 		request_.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
 			finalize();
 		});
 
-		request_.on('response', res => {
+		request_.on('response', response_ => {
 			request_.setTimeout(0);
-			const headers = createHeadersLenient(res.headers);
+			const headers = fromRawHeaders(response_.rawHeaders);
 
 			// HTTP fetch step 5
-			if (isRedirect(res.statusCode)) {
+			if (isRedirect(response_.statusCode)) {
 				// HTTP fetch step 5.2
 				const location = headers.get('Location');
 
@@ -142,8 +130,8 @@ export default function fetch(url, options_) {
 							// Handle corrupted header
 							try {
 								headers.set('Location', locationURL);
+								/* c8 ignore next 3 */
 							} catch (error) {
-								// istanbul ignore next: nodejs server prevent invalid response headers, we can't test this through normal request
 								reject(error);
 							}
 						}
@@ -172,19 +160,18 @@ export default function fetch(url, options_) {
 							compress: request.compress,
 							method: request.method,
 							body: request.body,
-							signal: request.signal,
-							timeout: request.timeout
+							signal: request.signal
 						};
 
 						// HTTP-redirect fetch step 9
-						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
+						if (response_.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
 							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'));
 							finalize();
 							return;
 						}
 
 						// HTTP-redirect fetch step 11
-						if (res.statusCode === 303 || ((res.statusCode === 301 || res.statusCode === 302) && request.method === 'POST')) {
+						if (response_.statusCode === 303 || ((response_.statusCode === 301 || response_.statusCode === 302) && request.method === 'POST')) {
 							requestOptions.method = 'GET';
 							requestOptions.body = undefined;
 							requestOptions.headers.delete('content-length');
@@ -202,23 +189,22 @@ export default function fetch(url, options_) {
 			}
 
 			// Prepare response
-			res.once('end', () => {
+			response_.once('end', () => {
 				if (signal) {
 					signal.removeEventListener('abort', abortAndFinalize);
 				}
 			});
 
-			let body = pump(res, new PassThrough(), error => {
+			let body = pump(response_, new PassThrough(), error => {
 				reject(error);
 			});
 
 			const responseOptions = {
 				url: request.url,
-				status: res.statusCode,
-				statusText: res.statusMessage,
+				status: response_.statusCode,
+				statusText: response_.statusMessage,
 				headers,
 				size: request.size,
-				timeout: request.timeout,
 				counter: request.counter,
 				highWaterMark: request.highWaterMark
 			};
@@ -234,7 +220,7 @@ export default function fetch(url, options_) {
 			// 3. no Content-Encoding header
 			// 4. no content response (204)
 			// 5. content not modified response (304)
-			if (!request.compress || request.method === 'HEAD' || codings === null || res.statusCode === 204 || res.statusCode === 304) {
+			if (!request.compress || request.method === 'HEAD' || codings === null || response_.statusCode === 204 || response_.statusCode === 304) {
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
@@ -264,7 +250,7 @@ export default function fetch(url, options_) {
 			if (codings === 'deflate' || codings === 'x-deflate') {
 				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = pump(res, new PassThrough(), error => {
+				const raw = pump(response_, new PassThrough(), error => {
 					reject(error);
 				});
 				raw.once('data', chunk => {

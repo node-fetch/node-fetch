@@ -17,9 +17,9 @@ const INTERNALS = Symbol('Response internals');
  * @param   Object  opts  Response options
  * @return  Void
  */
-export default class Response {
+export default class Response extends Body {
 	constructor(body = null, options = {}) {
-		Body.call(this, body, options);
+		super(body, options);
 
 		const status = options.status || 200;
 		const headers = new Headers(options.headers);
@@ -85,8 +85,7 @@ export default class Response {
 			headers: this.headers,
 			ok: this.ok,
 			redirected: this.redirected,
-			size: this.size,
-			timeout: this.timeout
+			size: this.size
 		});
 	}
 
@@ -107,9 +106,11 @@ export default class Response {
 			status
 		});
 	}
-}
 
-Body.mixIn(Response.prototype);
+	get [Symbol.toStringTag]() {
+		return 'Response';
+	}
+}
 
 Object.defineProperties(Response.prototype, {
 	url: {enumerable: true},
@@ -121,9 +122,3 @@ Object.defineProperties(Response.prototype, {
 	clone: {enumerable: true}
 });
 
-Object.defineProperty(Response.prototype, Symbol.toStringTag, {
-	value: 'Response',
-	writable: false,
-	enumerable: false,
-	configurable: true
-});

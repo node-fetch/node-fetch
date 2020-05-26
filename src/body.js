@@ -5,7 +5,7 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, {PassThrough} from 'stream';
+import Stream, {finished, PassThrough} from 'stream';
 import {types} from 'util';
 
 import Blob from 'fetch-blob';
@@ -13,7 +13,7 @@ import Blob from 'fetch-blob';
 import getBoundary from './utils/boundary.js';
 import FetchError from './errors/fetch-error.js';
 import formDataIterator from './utils/form-data-iterator.js'
-import {isBlob, isURLSearchParams, isAbortError, isFormData} from './utils/is.js';
+import {isBlob, isURLSearchParameters, isAbortError, isFormData} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -26,107 +26,110 @@ const INTERNALS = Symbol('Body internals');
  * @param   Object  opts  Response options
  * @return  Void
  */
-export default function Body(body, {
-	size = 0,
-	timeout = 0
-} = {}) {
-	let boundary = null;
+export default class Body {
+	constructor(body, {
+		size = 0
+	} = {}) {
+		let boundary = null;
 
-	if (body === null) {
-		// Body is undefined or null
-		body = null;
-	} else if (isURLSearchParams(body)) {
+		if (body === null) {
+			// Body is undefined or null
+			body = null;
+		} else if (isURLSearchParameters(body)) {
 		// Body is a URLSearchParams
-		body = Buffer.from(body.toString());
-	} else if (isBlob(body)) {
-		// Body is blob
-	} else if (Buffer.isBuffer(body)) {
-		// Body is Buffer
-	} else if (types.isAnyArrayBuffer(body)) {
-		// Body is ArrayBuffer
-		body = Buffer.from(body);
-	} else if (ArrayBuffer.isView(body)) {
-		// Body is ArrayBufferView
-		body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
-	} else if (body instanceof Stream) {
-		// Body is stream
-	} else if (isFormData(body)) {
-		// Body is an instance of formdata-node
-		boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
-		body = Stream.Readable.from(formDataIterator(body, boundary));
-	} else {
-		// None of the above
-		// coerce to string then buffer
-		body = Buffer.from(String(body));
+			body = Buffer.from(body.toString());
+		} else if (isBlob(body)) {
+			// Body is blob
+		} else if (Buffer.isBuffer(body)) {
+			// Body is Buffer
+		} else if (types.isAnyArrayBuffer(body)) {
+			// Body is ArrayBuffer
+			body = Buffer.from(body);
+		} else if (ArrayBuffer.isView(body)) {
+			// Body is ArrayBufferView
+			body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
+		} else if (body instanceof Stream) {
+			// Body is stream
+		} else if (isFormData(body)) {
+			// Body is an instance of formdata-node
+			boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
+			body = Stream.Readable.from(formDataIterator(body, boundary));
+		} else {
+			// None of the above
+			// coerce to string then buffer
+			body = Buffer.from(String(body));
+		}
+
+		this[INTERNALS] = {
+			body,
+			boundary,
+			disturbed: false,
+			error: null
+		};
+		this.size = size;
+
+		if (body instanceof Stream) {
+			body.on('error', err => {
+				const error = isAbortError(err) ?
+					err :
+					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+				this[INTERNALS].error = error;
+			});
+		}
 	}
 
-	this[INTERNALS] = {
-		body,
-		boundary,
-		disturbed: false,
-		error: null
-	};
-	this.size = size;
-	this.timeout = timeout;
-
-	if (body instanceof Stream) {
-		body.on('error', err => {
-			const error = isAbortError(err) ?
-				err :
-				new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
-			this[INTERNALS].error = error;
-		});
-	}
-}
-
-Body.prototype = {
 	get body() {
 		return this[INTERNALS].body;
-	},
+	}
 
 	get bodyUsed() {
 		return this[INTERNALS].disturbed;
-	},
+	}
 
 	/**
 	 * Decode response as ArrayBuffer
 	 *
 	 * @return  Promise
 	 */
-	arrayBuffer() {
-		return consumeBody.call(this).then(({buffer, byteOffset, byteLength}) => buffer.slice(byteOffset, byteOffset + byteLength));
-	},
+	async arrayBuffer() {
+		const {buffer, byteOffset, byteLength} = await consumeBody(this);
+		return buffer.slice(byteOffset, byteOffset + byteLength);
+	}
 
 	/**
 	 * Return raw response as Blob
 	 *
 	 * @return Promise
 	 */
-	blob() {
-		const ct = this.headers && this.headers.get('content-type') || this[INTERNALS].body && this[INTERNALS].body.type || '';
-		return consumeBody.call(this).then(buf => new Blob([], {
+	async blob() {
+		const ct = (this.headers && this.headers.get('content-type')) || (this[INTERNALS].body && this[INTERNALS].body.type) || '';
+		const buf = await consumeBody(this);
+
+		return new Blob([], {
 			type: ct.toLowerCase(),
 			buffer: buf
-		}));
-	},
+		});
+	}
 
 	/**
 	 * Decode response as json
 	 *
 	 * @return  Promise
 	 */
-	json() {
-		return consumeBody.call(this).then(buffer => JSON.parse(buffer.toString()));
-	},
+	async json() {
+		const buffer = await consumeBody(this);
+		return JSON.parse(buffer.toString());
+	}
 
 	/**
 	 * Decode response as text
 	 *
 	 * @return  Promise
 	 */
-	text() {
-		return consumeBody.call(this).then(buffer => buffer.toString());
-	},
+	async text() {
+		const buffer = await consumeBody(this);
+		return buffer.toString();
+	}
 
 	/**
 	 * Decode response as buffer (non-spec api)
@@ -134,9 +137,9 @@ Body.prototype = {
 	 * @return  Promise
 	 */
 	buffer() {
-		return consumeBody.call(this);
+		return consumeBody(this);
 	}
-};
+}
 
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
@@ -148,16 +151,6 @@ Object.defineProperties(Body.prototype, {
 	text: {enumerable: true}
 });
 
-Body.mixIn = proto => {
-	for (const name of Object.getOwnPropertyNames(Body.prototype)) {
-		// istanbul ignore else: future proof
-		if (!Object.prototype.hasOwnProperty.call(proto, name)) {
-			const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
-			Object.defineProperty(proto, name, desc);
-		}
-	}
-};
-
 /**
  * Consume and convert an entire Body to a Buffer.
  *
@@ -165,18 +158,18 @@ Body.mixIn = proto => {
  *
  * @return Promise
  */
-function consumeBody() {
-	if (this[INTERNALS].disturbed) {
-		return Body.Promise.reject(new TypeError(`body used already for: ${this.url}`));
+const consumeBody = data => {
+	if (data[INTERNALS].disturbed) {
+		return Body.Promise.reject(new TypeError(`body used already for: ${data.url}`));
 	}
 
-	this[INTERNALS].disturbed = true;
+	data[INTERNALS].disturbed = true;
 
-	if (this[INTERNALS].error) {
-		return Body.Promise.reject(this[INTERNALS].error);
+	if (data[INTERNALS].error) {
+		return Body.Promise.reject(data[INTERNALS].error);
 	}
 
-	let {body} = this;
+	let {body} = data;
 
 	// Body is null
 	if (body === null) {
@@ -193,7 +186,7 @@ function consumeBody() {
 		return Body.Promise.resolve(body);
 	}
 
-	// istanbul ignore if: should never happen
+	/* c8 ignore next 3 */
 	if (!(body instanceof Stream)) {
 		return Body.Promise.resolve(Buffer.alloc(0));
 	}
@@ -205,38 +198,14 @@ function consumeBody() {
 	let abort = false;
 
 	return new Body.Promise((resolve, reject) => {
-		let resTimeout;
-
-		// Allow timeout on slow response body
-		if (this.timeout) {
-			resTimeout = setTimeout(() => {
-				abort = true;
-				const err = new FetchError(`Response timeout while trying to fetch ${this.url} (over ${this.timeout}ms)`, 'body-timeout');
-				reject(err);
-				body.destroy(err);
-			}, this.timeout);
-		}
-
-		// Handle stream errors
-		body.on('error', err => {
-			if (isAbortError(err)) {
-				// If the request was aborted, reject with this Error
-				abort = true;
-				reject(err);
-			} else {
-				// Other errors, such as incorrect content-encoding
-				reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
-			}
-		});
-
 		body.on('data', chunk => {
 			if (abort || chunk === null) {
 				return;
 			}
 
-			if (this.size && accumBytes + chunk.length > this.size) {
+			if (data.size && accumBytes + chunk.length > data.size) {
 				abort = true;
-				reject(new FetchError(`content size at ${this.url} over limit: ${this.size}`, 'max-size'));
+				reject(new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size'));
 				return;
 			}
 
@@ -244,22 +213,31 @@ function consumeBody() {
 			accum.push(chunk);
 		});
 
-		body.on('end', () => {
-			if (abort) {
-				return;
-			}
+		finished(body, {writable: false}, err => {
+			if (err) {
+				if (isAbortError(err)) {
+					// If the request was aborted, reject with this Error
+					abort = true;
+					reject(err);
+				} else {
+					// Other errors, such as incorrect content-encoding
+					reject(new FetchError(`Invalid response body while trying to fetch ${data.url}: ${err.message}`, 'system', err));
+				}
+			} else {
+				if (abort) {
+					return;
+				}
 
-			clearTimeout(resTimeout);
-
-			try {
-				resolve(Buffer.concat(accum, accumBytes));
-			} catch (error) {
-				// Handle streams that have accumulated too much data (issue #414)
-				reject(new FetchError(`Could not create Buffer from response body for ${this.url}: ${error.message}`, 'system', error));
+				try {
+					resolve(Buffer.concat(accum, accumBytes));
+				} catch (error) {
+					// Handle streams that have accumulated too much data (issue #414)
+					reject(new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error));
+				}
 			}
 		});
 	});
-}
+};
 
 /**
  * Clone body given Res/Req instance
@@ -268,7 +246,7 @@ function consumeBody() {
  * @param   String  highWaterMark  highWaterMark for both PassThrough body streams
  * @return  Mixed
  */
-export function clone(instance, highWaterMark) {
+export const clone = (instance, highWaterMark) => {
 	let p1;
 	let p2;
 	let {body} = instance;
@@ -292,7 +270,7 @@ export function clone(instance, highWaterMark) {
 	}
 
 	return body;
-}
+};
 
 /**
  * Performs the operation "extract a `Content-Type` value from |object|" as
@@ -304,7 +282,7 @@ export function clone(instance, highWaterMark) {
  * @param {any} body Any options.body input
  * @returns {string | null}
  */
-export function extractContentType(body, request) {
+export const extractContentType = (body, request) => {
 	// Body is null or undefined
 	if (body === null) {
 		return null;
@@ -316,7 +294,7 @@ export function extractContentType(body, request) {
 	}
 
 	// Body is a URLSearchParams
-	if (isURLSearchParams(body)) {
+	if (isURLSearchParameters(body)) {
 		return 'application/x-www-form-urlencoded;charset=UTF-8';
 	}
 
@@ -346,7 +324,7 @@ export function extractContentType(body, request) {
 
 	// Body constructor defaults other things to string
 	return 'text/plain;charset=UTF-8';
-}
+};
 
 /**
  * The Fetch Standard treats this as if "total bytes" is a property on the body.
@@ -357,7 +335,7 @@ export function extractContentType(body, request) {
  * @param {any} obj.body Body object from the Body instance.
  * @returns {number | null}
  */
-export function getTotalBytes({body}) {
+export const getTotalBytes = ({body}) => {
 	// Body is null or undefined
 	if (body === null) {
 		return 0;
@@ -380,7 +358,7 @@ export function getTotalBytes({body}) {
 
 	// Body is stream
 	return null;
-}
+};
 
 /**
  * Write a Body to a Node.js WritableStream (e.g. http.Request) object.
@@ -389,7 +367,7 @@ export function getTotalBytes({body}) {
  * @param obj.body Body object from the Body instance.
  * @returns {void}
  */
-export function writeToStream(dest, {body}) {
+export const writeToStream = (dest, {body}) => {
 	if (body === null) {
 		// Body is null
 		dest.end();
@@ -404,7 +382,7 @@ export function writeToStream(dest, {body}) {
 		// Body is stream
 		body.pipe(dest);
 	}
-}
+};
 
 // Expose Promise
 Body.Promise = global.Promise;
