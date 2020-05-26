@@ -12,7 +12,7 @@ import Blob from 'fetch-blob';
 
 import getBoundary from './utils/boundary.js';
 import FetchError from './errors/fetch-error.js';
-import formDataIterator from './utils/form-data-iterator.js'
+import formDataIterator from './utils/form-data-iterator.js';
 import {isBlob, isURLSearchParameters, isAbortError, isFormData} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
