@@ -1,5 +1,6 @@
 import {expectType} from 'tsd';
 import fetch, {Request, Response, Headers, FetchError, AbortError} from '.';
+import AbortController from 'abort-controller';
 
 async function run() {
 	const getRes = await fetch('https://bigfile.com/test.zip');
@@ -58,6 +59,11 @@ async function run() {
 
 	const response = new Response();
 	expectType<string>(response.url);
+
+	const abortController = new AbortController()
+	const request = new Request("url", {
+		signal: abortController.signal
+	});
 }
 
 run().finally(() => {

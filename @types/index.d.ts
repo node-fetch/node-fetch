@@ -3,10 +3,16 @@
 /* eslint-disable no-var, import/no-mutable-exports */
 
 import {Agent} from 'http';
-import {AbortSignal} from 'abort-controller';
-import Blob from 'fetch-blob';
+import * as Blob from 'fetch-blob';
 
-type HeadersInit = Headers | string[][] | Record<string, string>;
+export type AbortSignal = {
+	readonly aborted: boolean;
+
+    addEventListener(type: "abort", listener: (this: AbortSignal, ev: Event) => any, options?: boolean | { passive?: boolean; once?: boolean; }): void;
+    removeEventListener(type: "abort", listener: (this: AbortSignal, ev: Event) => any, options?: boolean | { capture?: boolean; }): void;
+};
+
+export type HeadersInit = Headers | string[][] | Record<string, string>;
 
 /**
  * This Fetch API interface allows you to perform various actions on HTTP request and response headers.
@@ -15,40 +21,38 @@ type HeadersInit = Headers | string[][] | Record<string, string>;
  * You can add to this using methods like append() (see Examples.)
  * In all methods of this interface, header names are matched by case-insensitive byte sequence.
  * */
-interface Headers {
-	append: (name: string, value: string) => void;
-	delete: (name: string) => void;
-	get: (name: string) => string | null;
-	has: (name: string) => boolean;
-	set: (name: string, value: string) => void;
-	forEach: (
+export class Headers {
+	constructor(init?: HeadersInit);
+
+	append(name: string, value: string): void;
+	delete(name: string): void;
+	get(name: string): string | null;
+	has(name: string): boolean;
+	set(name: string, value: string): void;
+	forEach(
 		callbackfn: (value: string, key: string, parent: Headers) => void,
 		thisArg?: any
-	) => void;
+	): void;
 
-	[Symbol.iterator]: () => IterableIterator<[string, string]>;
+	[Symbol.iterator](): IterableIterator<[string, string]>;
 	/**
 	 * Returns an iterator allowing to go through all key/value pairs contained in this object.
 	 */
-	entries: () => IterableIterator<[string, string]>;
+	entries(): IterableIterator<[string, string]>;
 	/**
 	 * Returns an iterator allowing to go through all keys of the key/value pairs contained in this object.
 	 */
-	keys: () => IterableIterator<string>;
+	keys(): IterableIterator<string>;
 	/**
 	 * Returns an iterator allowing to go through all values of the key/value pairs contained in this object.
 	 */
-	values: () => IterableIterator<string>;
+	values(): IterableIterator<string>;
 
 	/** Node-fetch extension */
-	raw: () => Record<string, string[]>;
+	raw(): Record<string, string[]>;
 }
-declare var Headers: {
-	prototype: Headers;
-	new (init?: HeadersInit): Headers;
-};
 
-interface RequestInit {
+export interface RequestInit {
 	/**
 	 * A BodyInit object or null to set request's body.
 	 */
@@ -82,35 +86,39 @@ interface RequestInit {
 	highWaterMark?: number;
 }
 
-interface ResponseInit {
+export interface ResponseInit {
 	headers?: HeadersInit;
 	status?: number;
 	statusText?: string;
 }
 
-type BodyInit =
+export type BodyInit =
 	| Blob
 	| Buffer
 	| URLSearchParams
 	| NodeJS.ReadableStream
 	| string;
-interface Body {
+export interface Body {
 	readonly body: NodeJS.ReadableStream | null;
 	readonly bodyUsed: boolean;
 	readonly size: number;
-	buffer: () => Promise<Buffer>;
-	arrayBuffer: () => Promise<ArrayBuffer>;
-	blob: () => Promise<Blob>;
-	json: () => Promise<unknown>;
-	text: () => Promise<string>;
+
+	buffer(): Promise<Buffer>;
+	arrayBuffer(): Promise<ArrayBuffer>;
+	blob(): Promise<Blob>;
+	json(): Promise<unknown>;
+	text(): Promise<string>;
 }
 declare var Body: {
 	prototype: Body;
-	new (body?: BodyInit, opts?: {size?: number}): Body;
-};
+	new(body?: BodyInit, opts?: {size?: number}): Body;
+}
 
-type RequestRedirect = 'error' | 'follow' | 'manual';
-interface Request extends Body {
+export type RequestRedirect = 'error' | 'follow' | 'manual';
+export type RequestInfo = string | Body;
+export class Request extends Body {
+	constructor(input: RequestInfo, init?: RequestInit);
+
 	/**
 	 * Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header.
 	 */
@@ -131,46 +139,30 @@ interface Request extends Body {
 	 * Returns the URL of request as a string.
 	 */
 	readonly url: string;
-	clone: () => Request;
+	clone(): Request;
 }
-type RequestInfo = string | Body;
-declare var Request: {
-	prototype: Request;
-	new (input: RequestInfo, init?: RequestInit): Request;
-};
 
-interface Response extends Body {
+export class Response extends Body {
+	constructor(body?: BodyInit | null, init?: ResponseInit);
+
 	readonly headers: Headers;
 	readonly ok: boolean;
 	readonly redirected: boolean;
 	readonly status: number;
 	readonly statusText: string;
 	readonly url: string;
-	clone: () => Response;
+	clone(): Response;
 }
 
-declare var Response: {
-	prototype: Response;
-	new (body?: BodyInit | null, init?: ResponseInit): Response;
-};
-
-declare function fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
-
-declare namespace fetch {
-	function isRedirect(code: number): boolean;
-}
-
-interface FetchError extends Error {
+export class FetchError extends Error {
+	constructor(message: string, type: string, systemError?: object);
+	
 	name: 'FetchError';
 	[Symbol.toStringTag]: 'FetchError';
 	type: string;
 	code?: string;
 	errno?: string;
 }
-declare var FetchError: {
-	prototype: FetchError;
-	new (message: string, type: string, systemError?: object): FetchError;
-};
 
 export class AbortError extends Error {
 	type: string;
@@ -178,5 +170,6 @@ export class AbortError extends Error {
 	[Symbol.toStringTag]: 'AbortError';
 }
 
-export {Headers, Request, Response, FetchError};
-export default fetch;
+export function isRedirect(code: number): boolean;
+
+export default function fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
