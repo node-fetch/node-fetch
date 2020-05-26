@@ -142,22 +142,22 @@ test('should ignore unsupported attributes while reading headers', t => {
 	const FakeHeader = function () { };
 	FakeHeader.prototype.z = 'fake';
 
-	const res = new FakeHeader();
-	res.a = 'string';
-	res.b = ['1', '2'];
-	res.c = '';
-	res.d = [];
-	res.e = 1;
-	res.f = [1, 2];
-	res.g = {a: 1};
-	res.h = undefined;
-	res.i = null;
-	res.j = Number.NaN;
-	res.k = true;
-	res.l = false;
-	res.m = Buffer.from('test');
+	const response = new FakeHeader();
+	response.a = 'string';
+	response.b = ['1', '2'];
+	response.c = '';
+	response.d = [];
+	response.e = 1;
+	response.f = [1, 2];
+	response.g = {a: 1};
+	response.h = undefined;
+	response.i = null;
+	response.j = Number.NaN;
+	response.k = true;
+	response.l = false;
+	response.m = Buffer.from('test');
 
-	const h1 = new Headers(res);
+	const h1 = new Headers(response);
 	h1.set('n', [1, 2]);
 	h1.append('n', ['3', 4]);
 

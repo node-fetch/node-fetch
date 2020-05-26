@@ -64,13 +64,13 @@ test('should support empty options', async t => {
 });
 
 test('should support parsing headers', t => {
-	const res = new Response(null, {
+	const response = new Response(null, {
 		headers: {
 			a: '1'
 		}
 	});
 
-	t.is(res.headers.get('a'), '1');
+	t.is(response.headers.get('a'), '1');
 });
 
 test('should support text() method', async t => {
