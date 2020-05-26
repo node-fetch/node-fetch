@@ -1,4 +1,4 @@
-export function getSearch(parsedURL) {
+export const getSearch = parsedURL => {
 	if (parsedURL.search) {
 		return parsedURL.search;
 	}
@@ -6,4 +6,4 @@ export function getSearch(parsedURL) {
 	const lastOffset = parsedURL.href.length - 1;
 	const hash = parsedURL.hash || (parsedURL.href[lastOffset] === '#' ? '#' : '');
 	return parsedURL.href[lastOffset - hash.length] === '?' ? '?' : '';
-}
+};

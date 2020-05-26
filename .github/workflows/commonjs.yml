@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - src/**.js
+      - package.json
+      - test/commonjs/**
+      - rollup.config.js
+      - .github/workflows/commonjs.yml
+
+jobs:
+  commonjs-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get Node.JS version from package.json
+        id: get-versions
+        run: echo ::set-output name=node::$(jq -r .engines.node ./package.json | sed 's/[^0-9.]//g')
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{steps.get-versions.outputs.node}}
+
+      - run: npm install
+
+      - run: npm run prepublishOnly
