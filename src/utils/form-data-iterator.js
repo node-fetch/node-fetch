@@ -30,7 +30,7 @@ function getHeader(boundary, name, field) {
  * @param {FormData} form
  * @param {string} boundary
  */
-async function* formDataIterator(form, boundary) {
+export default async function* formDataIterator(form, boundary) {
 	for (const [name, value] of form) {
 			yield getHeader(boundary, name, value);
 
@@ -45,5 +45,3 @@ async function* formDataIterator(form, boundary) {
 
 	yield `${dashes}${boundary}${dashes}${carriage.repeat(2)}`;
 }
-
-export default formDataIterator;

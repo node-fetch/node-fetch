@@ -100,7 +100,7 @@ export default class Request {
 		const headers = new Headers(init.headers || input.headers || {});
 
 		if (inputBody !== null && !headers.has('Content-Type')) {
-			const contentType = extractContentType.call(this, inputBody);
+			const contentType = extractContentType(inputBody, this);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
 			}

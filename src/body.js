@@ -304,7 +304,7 @@ export function clone(instance, highWaterMark) {
  * @param {any} body Any options.body input
  * @returns {string | null}
  */
-export function extractContentType(body) {
+export function extractContentType(body, request) {
 	// Body is null or undefined
 	if (body === null) {
 		return null;
@@ -336,7 +336,7 @@ export function extractContentType(body) {
 	}
 
 	if (isFormData(body)) {
-		return `multipart/form-data; boundary=${this[INTERNALS].boundary}`;
+		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
 	}
 
 	// Body is stream - can't really do much about this
