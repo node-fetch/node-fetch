@@ -61,9 +61,12 @@ async function run() {
 	expectType<string>(response.url);
 
 	const abortController = new AbortController()
-	const request = new Request("url", {
-		signal: abortController.signal
-	});
+	new Request('url', { signal: abortController.signal });
+
+	new Headers({'Header': 'value'});
+	// new Headers(['header', 'value']); // should not work
+	new Headers([['header', 'value']]);
+	new Headers(new Headers());
 }
 
 run().finally(() => {
