@@ -20,7 +20,5 @@ test('should accept data uri of plain text', async t => {
 });
 
 test('should reject invalid data uri', async t => {
-	const error = await t.throwsAsync(fetch('data:@@@@'));
-
-	t.regex(error.message, /invalid URL/);
+	await t.throwsAsync(fetch('data:@@@@'), {message: /invalid URL/});
 });
