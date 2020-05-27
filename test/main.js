@@ -28,7 +28,7 @@ import fetch, {
 	Request,
 	Response
 } from '../src/index.js';
-import FetchErrorOrig from '../src/errors/fetch-error.js';
+import {FetchError as FetchErrorOrig} from '../src/errors/fetch-error.js';
 import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';

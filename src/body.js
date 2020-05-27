@@ -9,7 +9,7 @@ import Stream, {PassThrough} from 'stream';
 import {types} from 'util';
 
 import Blob from 'fetch-blob';
-import FetchError from './errors/fetch-error.js';
+import {FetchError} from './errors/fetch-error.js';
 import {isBlob, isURLSearchParameters, isAbortError} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
