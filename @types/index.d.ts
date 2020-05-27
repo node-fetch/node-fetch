@@ -6,7 +6,7 @@ import {Agent} from 'http';
 import * as Blob from 'fetch-blob';
 
 export type AbortSignal = {
-	readonly aborted: boolean;
+    readonly aborted: boolean;
 
     addEventListener(type: "abort", listener: (this: AbortSignal, ev: Event) => any, options?: boolean | { passive?: boolean; once?: boolean; }): void;
     removeEventListener(type: "abort", listener: (this: AbortSignal, ev: Event) => any, options?: boolean | { capture?: boolean; }): void;

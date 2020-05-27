@@ -79,7 +79,8 @@
 			"lib": [
 				"es2018"
 			],
-			"allowSyntheticDefaultImports": true
+			"allowSyntheticDefaultImports": false,
+			"esModuleInterop": false
 		}
 	},
 	"xo": {
