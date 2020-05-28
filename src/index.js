@@ -12,7 +12,7 @@ import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
 import dataURIToBuffer from 'data-uri-to-buffer';
 
-import Body, {writeToStream, getTotalBytes} from './body.js';
+import {writeToStream, getTotalBytes} from './body.js';
 import Response from './response.js';
 import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
@@ -50,8 +50,6 @@ export default function fetch(url, options_) {
 		const request = new Request(url, options_);
 		return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system'));
 	}
-
-	Body.Promise = fetch.Promise;
 
 	// Wrap http.request into fetch
 	return new fetch.Promise((resolve, reject) => {

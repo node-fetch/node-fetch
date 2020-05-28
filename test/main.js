@@ -601,8 +601,9 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
-			return expect(res.text()).to.eventually.be.rejectedWith(Error)
-				.and.have.property('message').includes('Premature close');
+			return res.text().then(text => {
+				expect(text).to.equal('foo');
+			});
 		});
 	});
 
