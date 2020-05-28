@@ -12,7 +12,7 @@ type AbortSignal = {
 	removeEventListener(type: "abort", listener: (this: AbortSignal, ev: Event) => any, options?: boolean | { capture?: boolean; }): void;
 };
 
-type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<string[]>;
+type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
 
 /**
  * This Fetch API interface allows you to perform various actions on HTTP request and response headers.

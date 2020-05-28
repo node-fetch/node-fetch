@@ -89,6 +89,11 @@ async function run() {
 	// new Headers(['header', 'value']); // should not work
 	new Headers([['header', 'value']]);
 	new Headers(new Headers());
+	new Headers([
+		new Set(['a', '1']),
+		['b', '2'],
+		new Map([['a', null], ['3', null]]).keys()
+	]);
 
 	fetch.isRedirect = (code: number) => true;
 }
