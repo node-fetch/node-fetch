@@ -1,6 +1,9 @@
-import {expectType} from 'tsd';
-import fetch, {Request, Response, Headers, FetchError, AbortError} from '.';
+import {expectType, expectAssignable} from 'tsd';
 import AbortController from 'abort-controller';
+
+import fetch, {Request, Response, Headers, Body, FetchError, AbortError} from '.';
+import * as _fetch from '.';
+import __fetch = require('.');
 
 async function run() {
 	const getRes = await fetch('https://bigfile.com/test.zip');
@@ -57,16 +60,37 @@ async function run() {
 		}
 	}
 
+	// export *
+	const wildRes = await _fetch('https://google.com');
+	expectType<boolean>(wildRes.ok);
+	expectType<number>(wildRes.size);
+	expectType<number>(wildRes.status);
+	expectType<string>(wildRes.statusText);
+	expectType<() => Response>(wildRes.clone);
+
+	// export = require
+	const reqRes = await __fetch('https://google.com');
+	expectType<boolean>(reqRes.ok);
+	expectType<number>(reqRes.size);
+	expectType<number>(reqRes.status);
+	expectType<string>(reqRes.statusText);
+	expectType<() => Response>(reqRes.clone);
+
+	// Others
 	const response = new Response();
 	expectType<string>(response.url);
+	expectAssignable<Body>(response);
 
 	const abortController = new AbortController()
-	new Request('url', { signal: abortController.signal });
+	const request = new Request('url', { signal: abortController.signal });
+	expectAssignable<Body>(request);
 
 	new Headers({'Header': 'value'});
 	// new Headers(['header', 'value']); // should not work
 	new Headers([['header', 'value']]);
 	new Headers(new Headers());
+
+	fetch.isRedirect = (code: number) => true;
 }
 
 run().finally(() => {
