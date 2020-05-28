@@ -5,7 +5,7 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, {finished, PassThrough} from 'stream';
+import Stream, {PassThrough} from 'stream';
 import {types} from 'util';
 
 import Blob from 'fetch-blob';
@@ -148,22 +148,22 @@ Object.defineProperties(Body.prototype, {
  *
  * @return  Promise
  */
-const consumeBody = data => {
+async function consumeBody(data) {
 	if (data[INTERNALS].disturbed) {
-		return Body.Promise.reject(new TypeError(`body used already for: ${data.url}`));
+		throw new TypeError(`body used already for: ${data.url}`);
 	}
 
 	data[INTERNALS].disturbed = true;
 
 	if (data[INTERNALS].error) {
-		return Body.Promise.reject(data[INTERNALS].error);
+		throw data[INTERNALS].error;
 	}
 
 	let {body} = data;
 
 	// Body is null
 	if (body === null) {
-		return Body.Promise.resolve(Buffer.alloc(0));
+		return Buffer.alloc(0);
 	}
 
 	// Body is blob
@@ -173,61 +173,49 @@ const consumeBody = data => {
 
 	// Body is buffer
 	if (Buffer.isBuffer(body)) {
-		return Body.Promise.resolve(body);
+		return body;
 	}
 
 	/* c8 ignore next 3 */
 	if (!(body instanceof Stream)) {
-		return Body.Promise.resolve(Buffer.alloc(0));
+		return Buffer.alloc(0);
 	}
 
 	// Body is stream
 	// get ready to actually consume the body
 	const accum = [];
 	let accumBytes = 0;
-	let abort = false;
 
-	return new Body.Promise((resolve, reject) => {
-		body.on('data', chunk => {
-			if (abort || chunk === null) {
-				return;
-			}
-
-			if (data.size && accumBytes + chunk.length > data.size) {
-				abort = true;
-				reject(new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size'));
-				return;
+	try {
+		for await (const chunk of body) {
+			if (data.size > 0 && accumBytes + chunk.length > data.size) {
+				const err = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
+				body.destroy(err);
+				throw err;
 			}
 
 			accumBytes += chunk.length;
 			accum.push(chunk);
-		});
+		}
+	} catch (error) {
+		if (isAbortError(error) || error instanceof FetchError) {
+			throw error;
+		} else {
+			// Other errors, such as incorrect content-encoding
+			throw new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, 'system', error);
+		}
+	}
 
-		finished(body, {writable: false}, err => {
-			if (err) {
-				if (isAbortError(err)) {
-					// If the request was aborted, reject with this Error
-					abort = true;
-					reject(err);
-				} else {
-					// Other errors, such as incorrect content-encoding
-					reject(new FetchError(`Invalid response body while trying to fetch ${data.url}: ${err.message}`, 'system', err));
-				}
-			} else {
-				if (abort) {
-					return;
-				}
-
-				try {
-					resolve(Buffer.concat(accum, accumBytes));
-				} catch (error) {
-					// Handle streams that have accumulated too much data (issue #414)
-					reject(new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error));
-				}
-			}
-		});
-	});
-};
+	if (body.readableEnded === true || body._readableState.ended === true) {
+		try {
+			return Buffer.concat(accum, accumBytes);
+		} catch (error) {
+			throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error);
+		}
+	} else {
+		throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
+	}
+}
 
 /**
  * Clone body given Res/Req instance
@@ -370,5 +358,3 @@ export const writeToStream = (dest, {body}) => {
 	}
 };
 
-// Expose Promise
-Body.Promise = global.Promise;

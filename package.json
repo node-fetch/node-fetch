@@ -60,7 +60,6 @@
 		"mocha": "^7.1.2",
 		"p-timeout": "^3.2.0",
 		"parted": "^0.1.1",
-		"promise": "^8.1.0",
 		"resumer": "0.0.0",
 		"rollup": "^2.10.8",
 		"string-to-arraybuffer": "^1.0.2",
