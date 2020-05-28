@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
     paths:
-      - '**.js'
-      - 'package.json'
-      - '.github/workflows/ci.yml'
+      - "**.js"
+      - "package.json"
+      - ".github/workflows/ci.yml"
 
 jobs:
   test:
@@ -41,7 +41,6 @@ jobs:
       # upload coverage only once
       - name: Coveralls
         uses: coverallsapp/github-action@master
-        if: matrix.node == '14.x' && matrix.os == 'ubuntu-latest'
+        if: matrix.node == '12.x' && matrix.os == 'ubuntu-latest'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
