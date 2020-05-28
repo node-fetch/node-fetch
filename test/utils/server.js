@@ -305,9 +305,9 @@ export default class TestServer {
 		if (p === '/error/premature') {
 			res.writeHead(200, {'content-length': 50});
 			res.write('foo');
-			setTimeout(() => {
-				res.destroy();
-			}, 100);
+			setImmediate(() => {
+				res.socket.destroy();
+			});
 		}
 
 		if (p === '/error/json') {

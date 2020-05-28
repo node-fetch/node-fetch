@@ -116,15 +116,6 @@ const fetch = require('node-fetch');
 import fetch from 'node-fetch';
 ```
 
-If you are using a Promise library other than native, set it through `fetch.Promise`:
-
-```js
-const fetch = require('node-fetch');
-const Bluebird = require('bluebird');
-
-fetch.Promise = Bluebird;
-```
-
 If you want to patch the global object in node:
 
 ```js

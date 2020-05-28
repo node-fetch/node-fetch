@@ -217,11 +217,14 @@ async function consumeBody(data) {
 	}
 
 	if (!abort) {
-		try {
-			return Buffer.concat(accum, accumBytes);
-		} catch (error) {
-			// Handle streams that have accumulated too much data (issue #414)
-			throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error);
+		if (body.readableEnded === true || body._readableState.ended === true) {
+			try {
+				return Buffer.concat(accum, accumBytes);
+			} catch (error) {
+				throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error);
+			}
+		} else {
+			throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
 		}
 	}
 }

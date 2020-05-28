@@ -29,12 +29,7 @@ export {Headers, Request, Response, FetchError, AbortError, isRedirect};
  * @param   Object   opts  Fetch options
  * @return  Promise
  */
-export default function fetch(url, options_) {
-	// Allow custom promise
-	if (!fetch.Promise) {
-		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
-	}
-
+export default async function fetch(url, options_) {
 	// Regex for data uri
 	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[\w!$&',()*+;=\-.~:@/?%\s]*\s*$/i;
 
@@ -42,17 +37,17 @@ export default function fetch(url, options_) {
 	if (dataUriRegex.test(url)) {
 		const data = dataURIToBuffer(url);
 		const response = new Response(data, {headers: {'Content-Type': data.type}});
-		return fetch.Promise.resolve(response);
+		return response;
 	}
 
 	// If invalid data uri
 	if (url.toString().startsWith('data:')) {
 		const request = new Request(url, options_);
-		return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system'));
+		throw new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system');
 	}
 
 	// Wrap http.request into fetch
-	return new fetch.Promise((resolve, reject) => {
+	return new Promise((resolve, reject) => {
 		// Build request object
 		const request = new Request(url, options_);
 		const options = getNodeRequestOptions(request);
@@ -288,5 +283,3 @@ export default function fetch(url, options_) {
 	});
 }
 
-// Expose Promise
-fetch.Promise = global.Promise;
