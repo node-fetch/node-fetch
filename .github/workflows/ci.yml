@@ -14,18 +14,18 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        node: [14.x, 12.x, engines]
+        node: [">=14.3", "^12.17", engines]
         exclude:
           # On Windows, run tests with only the LTS environments.
           - os: windows-latest
             node: engines
           - os: windows-latest
-            node: 14.x
+            node: ">=14.3"
           # On macOS, run tests with only the LTS environments.
           - os: macOS-latest
             node: engines
           - os: macOS-latest
-            node: 14.x
+            node: ">=14.3"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -36,12 +36,12 @@ jobs:
         id: get-version
         run: echo ::set-output name=node::$(npx --q minimum-node-version)
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2-beta
         if: matrix.node != 'engines'
         with:
           node-version: ${{ matrix.node }}
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2-beta
         if: matrix.node == 'engines'
         with:
           node-version: ${{steps.get-version.outputs.node}}

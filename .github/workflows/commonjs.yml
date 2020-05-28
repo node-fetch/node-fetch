@@ -21,7 +21,7 @@ jobs:
         id: get-version
         run: echo ::set-output name=node::$(npx --q minimum-node-version)
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: ${{steps.get-version.outputs.node}}
 
