@@ -2,41 +2,60 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
     paths:
-      - '**.js'
-      - 'package.json'
-      - '.github/workflows/ci.yml'
+      - "**.js"
+      - "package.json"
+      - ".github/workflows/ci.yml"
 
 jobs:
   test:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        node: [14.x, 12.x, 10.x]
+        node: [14.x, 12.x, engines]
         exclude:
           # On Windows, run tests with only the LTS environments.
           - os: windows-latest
-            node: 10.x
+            node: engines
           - os: windows-latest
             node: 14.x
           # On macOS, run tests with only the LTS environments.
           - os: macOS-latest
-            node: 10.x
+            node: engines
           - os: macOS-latest
             node: 14.x
 
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+
+      - name: Get Node.JS version from package.json
+        if: matrix.node == 'engines'
+        id: get-version
+        run: echo ::set-output name=node::$(npx --q minimum-node-version)
+
       - uses: actions/setup-node@v1
+        if: matrix.node != 'engines'
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node }}
+
+      - uses: actions/setup-node@v1
+        if: matrix.node == 'engines'
+        with:
+          node-version: ${{steps.get-version.outputs.node}}
 
       - run: npm install
 
       - run: npm test -- --colors
+        if: matrix.node != 'engines'
+
+      - name: Test without coverage
+        if: matrix.node == 'engines'
+        run: |
+          npm i esm
+          npx mocha -r esm
 
       # upload coverage only once
       - name: Coveralls
@@ -44,4 +63,3 @@ jobs:
         if: matrix.node == '14.x' && matrix.os == 'ubuntu-latest'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
