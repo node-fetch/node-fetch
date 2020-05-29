@@ -576,7 +576,7 @@ describe('node-fetch', () => {
 			.and.have.property('code', 'ECONNRESET');
 	});
 
-	itIf(process.version >= 'v12.')('should handle network-error partial response', () => {
+	itIf(process.version >= 'v12.10')('should handle network-error partial response', () => {
 		const url = `${base}error/premature`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
