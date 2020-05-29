@@ -576,13 +576,13 @@ describe('node-fetch', () => {
 			.and.have.property('code', 'ECONNRESET');
 	});
 
-	itIf(process.version >= 'v12.10')('should handle network-error partial response', () => {
+	it('should handle network-error partial response', () => {
 		const url = `${base}error/premature`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejectedWith(Error)
-				.and.have.property('message').includes('Premature close');
+				.and.have.property('message').matches(/Premature close|The operation was aborted/);
 		});
 	});
 
