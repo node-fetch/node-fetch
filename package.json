@@ -67,7 +67,7 @@
 		"xo": "^0.30.0"
 	},
 	"dependencies": {
-		"data-uri-to-buffer": "^3.0.0",
+		"data-uri-to-buffer": "^3.0.1",
 		"fetch-blob": "^1.0.6"
 	},
 	"tsd": {

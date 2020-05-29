@@ -29,26 +29,6 @@ const isRequest = object => {
 };
 
 /**
- * Wrapper around `new URL` to handle relative URLs (https://github.com/nodejs/node/issues/12682)
- *
- * @param  {string} urlStr
- * @return {void}
- */
-const parseURL = urlString => {
-	/*
-		Check whether the URL is absolute or not
-
-		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
-		Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
-	*/
-	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlString)) {
-		return new URL(urlString);
-	}
-
-	throw new TypeError('Only absolute URLs are supported');
-};
-
-/**
  * Request class
  *
  * @param   Mixed   input  Url or Request instance
@@ -61,18 +41,9 @@ export default class Request extends Body {
 
 		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
 		if (isRequest(input)) {
-			parsedURL = parseURL(input.url);
+			parsedURL = new URL(input.url);
 		} else {
-			if (input && input.href) {
-				// In order to support Node.js' Url objects; though WHATWG's URL objects
-				// will fall into this branch also (since their `toString()` will return
-				// `href` property anyway)
-				parsedURL = parseURL(input.href);
-			} else {
-				// Coerce input to a string before attempting to parse
-				parsedURL = parseURL(`${input}`);
-			}
-
+			parsedURL = new URL(input);
 			input = {};
 		}
 
@@ -187,10 +158,6 @@ export const getNodeRequestOptions = request => {
 	// Fetch step 1.3
 	if (!headers.has('Accept')) {
 		headers.set('Accept', '*/*');
-	}
-
-	if (!/^https?:$/.test(parsedURL.protocol)) {
-		throw new TypeError('Only HTTP(S) protocols are supported');
 	}
 
 	// HTTP-network-or-cache fetch steps 2.4-2.7
