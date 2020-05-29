@@ -15,8 +15,9 @@ import {isBlob, isURLSearchParameters, isAbortError} from './utils/is.js';
 const INTERNALS = Symbol('Body internals');
 
 function isStream(body) {
-	return body instanceof Stream || (body && body.constructor && /Stream/.exec(body.constructor.name))
+	return body instanceof Stream || (body && body.constructor && /Stream/.exec(body.constructor.name));
 }
+
 /**
  * Body mixin
  *
