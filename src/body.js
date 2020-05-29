@@ -14,6 +14,9 @@ import {isBlob, isURLSearchParameters, isAbortError} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
+function isStream(body) {
+	return body instanceof Stream || (body.constructor && /Stream/.exec(body.constructor.name))
+}
 /**
  * Body mixin
  *
@@ -43,7 +46,7 @@ export default class Body {
 		} else if (ArrayBuffer.isView(body)) {
 			// Body is ArrayBufferView
 			body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
-		} else if (body instanceof Stream) {
+		} else if (isStream(body)) {
 			// Body is stream
 		} else {
 			// None of the above
@@ -58,7 +61,7 @@ export default class Body {
 		};
 		this.size = size;
 
-		if (body instanceof Stream) {
+		if (isStream(body)) {
 			body.on('error', err => {
 				const error = isAbortError(err) ?
 					err :
@@ -177,7 +180,7 @@ async function consumeBody(data) {
 	}
 
 	/* c8 ignore next 3 */
-	if (!(body instanceof Stream)) {
+	if (!isStream(body)) {
 		return Buffer.alloc(0);
 	}
 
@@ -236,7 +239,7 @@ export const clone = (instance, highWaterMark) => {
 
 	// Check that body is a stream and not form-data object
 	// note: we can't clone the form-data object without having it as a dependency
-	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
+	if (isStream(body) && (typeof body.getBoundary !== 'function')) {
 		// Tee instance body
 		p1 = new PassThrough({highWaterMark});
 		p2 = new PassThrough({highWaterMark});
@@ -292,7 +295,7 @@ export const extractContentType = body => {
 	}
 
 	// Body is stream - can't really do much about this
-	if (body instanceof Stream) {
+	if (isStream(body)) {
 		return null;
 	}
 
