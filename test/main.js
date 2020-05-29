@@ -10,7 +10,6 @@ import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
-import then from 'promise';
 import resumer from 'resumer';
 import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
@@ -77,27 +76,8 @@ describe('node-fetch', () => {
 	it('should return a promise', () => {
 		const url = `${base}hello`;
 		const p = fetch(url);
-		expect(p).to.be.an.instanceof(fetch.Promise);
+		expect(p).to.be.an.instanceof(Promise);
 		expect(p).to.have.property('then');
-	});
-
-	it('should allow custom promise', () => {
-		const url = `${base}hello`;
-		const old = fetch.Promise;
-		fetch.Promise = then;
-		expect(fetch(url)).to.be.an.instanceof(then);
-		expect(fetch(url)).to.not.be.an.instanceof(old);
-		fetch.Promise = old;
-	});
-
-	it('should throw error when no promise implementation are found', () => {
-		const url = `${base}hello`;
-		const old = fetch.Promise;
-		fetch.Promise = undefined;
-		expect(() => {
-			fetch(url);
-		}).to.throw(Error);
-		fetch.Promise = old;
 	});
 
 	it('should expose Headers, Response and Request constructors', () => {
