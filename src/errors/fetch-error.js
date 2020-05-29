@@ -11,7 +11,7 @@ import {FetchBaseError} from './base.js';
 export class FetchError extends FetchBaseError {
 	/**
 	 * @param  {string} message -      Error message for human
-	 * @param  {string} type -        Error type for machine
+	 * @param  {string} [type] -        Error type for machine
 	 * @param  {SystemError} [systemError] - For Node.js system error
 	 */
 	constructor(message, type, systemError) {
