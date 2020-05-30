@@ -278,4 +278,3 @@ export default async function fetch(url, options_) {
 		writeToStream(request_, request);
 	});
 }
-
