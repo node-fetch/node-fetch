@@ -10,7 +10,7 @@ import http from 'http';
 const validateHeaderName = typeof http.validateHeaderName === 'function' ?
 	http.validateHeaderName :
 	name => {
-		if (/[^`\-\w!#$%&'*+.|~]/.test(name) || name === '') {
+		if (!/^[\^`\-\w!#$%&'*+.|~]+$/.test(name)) {
 			const err = new TypeError(`Header name must be a valid HTTP token [${name}]`);
 			Object.defineProperty(err, 'code', {value: 'ERR_INVALID_HTTP_TOKEN'});
 			throw err;
