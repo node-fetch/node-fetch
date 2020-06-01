@@ -446,7 +446,8 @@ The default values are shown after each option key.
     compress: true,         // support gzip/deflate content encoding. false to disable
     size: 0,                // maximum response body size in bytes. 0 to disable
     agent: null,            // http(s).Agent instance or function that returns an instance (see below)
-    highWaterMark: 16384    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+	highWaterMark: 16384,    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+	extraHTTPOptions: {}	// additional options to include in http(s).request options that cannot be configured by the http(s).Agent override.
 }
 ```
 
@@ -536,6 +537,13 @@ const fetch = require('node-fetch');
 	return res.clone().buffer();
 })();
 ```
+
+
+#### Extra HTTP Options
+
+Extra options to pass to http.request.
+See [`http.request`](https://nodejs.org/api/http.html#http_http_request_url_options_callback) for more information.
+
 
 <a id="class-request"></a>
 

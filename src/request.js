@@ -100,6 +100,7 @@ export default class Request extends Body {
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
+		this.extraHTTPOptions = init.extraHTTPOptions || input.extraHTTPOptions || {};
 	}
 
 	get method() {
@@ -203,6 +204,7 @@ export const getNodeRequestOptions = request => {
 
 	// Manually spread the URL object instead of spread syntax
 	const requestOptions = {
+		...request.extraHTTPOptions,
 		path: parsedURL.pathname + search,
 		pathname: parsedURL.pathname,
 		hostname: parsedURL.hostname,
