@@ -100,6 +100,7 @@ export default class Request extends Body {
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
+		this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
 	}
 
 	get method() {
@@ -214,6 +215,7 @@ export const getNodeRequestOptions = request => {
 		href: parsedURL.href,
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
+		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
 
