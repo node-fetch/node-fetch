@@ -539,9 +539,9 @@ const fetch = require('node-fetch');
 ```
 
 
-#### Extra HTTP Options
+#### HTTP Options
 
-Extra options to pass to http.request.
+Additional options to pass to http.request.
 See [`http.request`](https://nodejs.org/api/http.html#http_http_request_url_options_callback) for more information.
 
 
