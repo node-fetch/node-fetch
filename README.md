@@ -447,7 +447,7 @@ The default values are shown after each option key.
     size: 0,                // maximum response body size in bytes. 0 to disable
     agent: null,            // http(s).Agent instance or function that returns an instance (see below)
 	highWaterMark: 16384,    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
-	extraHTTPOptions: {}	// additional options to include in http(s).request options that cannot be configured by the http(s).Agent override.
+	httpOptions: {}	// additional options to include in http(s).request options that cannot be configured by the http(s).Agent override.
 }
 ```
 
