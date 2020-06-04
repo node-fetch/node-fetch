@@ -1334,7 +1334,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should support formdata-node as POST body', () => {
+	it('should support spec-compliant form-data as POST body', () => {
 		const form = new FormDataNode();
 
 		const filename = path.join('test', 'utils', 'dummy.txt');

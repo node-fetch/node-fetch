@@ -1,6 +1,8 @@
+import {randomBytes} from 'crypto'
+
 /**
  * @api private
  */
-const boundary = () => Math.random().toString(32).slice(2);
+const boundary = () => randomBytes(8).toString('hex');
 
 export default boundary;

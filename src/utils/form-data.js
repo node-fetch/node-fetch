@@ -2,6 +2,12 @@ import {isBlob} from './is.js';
 
 const carriage = '\r\n';
 const dashes = '-'.repeat(2);
+const carriageLength = Buffer.byteLength(carriage);
+
+/**
+ * @param {string} boundary
+ */
+const getFooter = boundary => `${dashes}${boundary}${dashes}${carriage.repeat(2)}`;
 
 /**
  * @param {string} boundary
@@ -28,7 +34,7 @@ function getHeader(boundary, name, field) {
  * @param {FormData} form
  * @param {string} boundary
  */
-export default async function * formDataIterator(form, boundary) {
+export async function * formDataIterator(form, boundary) {
 	for (const [name, value] of form) {
 		yield getHeader(boundary, name, value);
 
@@ -42,4 +48,33 @@ export default async function * formDataIterator(form, boundary) {
 	}
 
 	yield `${dashes}${boundary}${dashes}${carriage.repeat(2)}`;
+}
+
+/**
+ * @param {FormData} form
+ * @param {string} boundary
+ */
+export function getFormDataLength(form, boundary) {
+	let length = 0;
+
+	for (const [name, value] of form) {
+		length += Buffer.byteLength(getHeader(boundary, name, value));
+
+		if (isBlob(value)) {
+			length = value.size;
+		} else {
+			length += Buffer.byteLength(value);
+		}
+
+		length += carriageLength;
+	}
+
+	// The FormData is empty?
+	if (length === 0) {
+		return length;
+	}
+
+	length += Buffer.byteLength(getFooter(boundary));
+
+	return length;
 }
