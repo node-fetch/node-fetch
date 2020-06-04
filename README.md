@@ -634,7 +634,7 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
-const Headers = require('node-fetch');
+const { Headers } = require('node-fetch');
 
 const meta = {
 	'Content-Type': 'text/xml',
