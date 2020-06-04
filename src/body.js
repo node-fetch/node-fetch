@@ -11,7 +11,7 @@ import {types} from 'util';
 import Blob from 'fetch-blob';
 
 import FetchError from './errors/fetch-error.js';
-import {formDataIterator, getBoundary} from './utils/form-data.js';
+import {formDataIterator, getBoundary, getFormDataLength} from './utils/form-data.js';
 import {isBlob, isURLSearchParameters, isAbortError, isFormData} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
@@ -322,7 +322,9 @@ export const extractContentType = (body, request) => {
  * @param {any} obj.body Body object from the Body instance.
  * @returns {number | null}
  */
-export const getTotalBytes = ({body}) => {
+export const getTotalBytes = (request) => {
+	const {body} = request;
+
 	// Body is null or undefined
 	if (body === null) {
 		return 0;
@@ -341,6 +343,11 @@ export const getTotalBytes = ({body}) => {
 	// Detect form data input from form-data module
 	if (body && typeof body.getLengthSync === 'function') {
 		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
+	}
+
+	// Body is a spec-compliant form-data
+	if (isFormData(body)) {
+		return getFormDataLength(request[INTERNALS].boundary);
 	}
 
 	// Body is stream
