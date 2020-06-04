@@ -11,7 +11,6 @@ import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
-import then from 'promise';
 import resumer from 'resumer';
 import FormData from 'form-data';
 import FormDataNode from 'formdata-node';
@@ -79,27 +78,8 @@ describe('node-fetch', () => {
 	it('should return a promise', () => {
 		const url = `${base}hello`;
 		const p = fetch(url);
-		expect(p).to.be.an.instanceof(fetch.Promise);
+		expect(p).to.be.an.instanceof(Promise);
 		expect(p).to.have.property('then');
-	});
-
-	it('should allow custom promise', () => {
-		const url = `${base}hello`;
-		const old = fetch.Promise;
-		fetch.Promise = then;
-		expect(fetch(url)).to.be.an.instanceof(then);
-		expect(fetch(url)).to.not.be.an.instanceof(old);
-		fetch.Promise = old;
-	});
-
-	it('should throw error when no promise implementation are found', () => {
-		const url = `${base}hello`;
-		const old = fetch.Promise;
-		fetch.Promise = undefined;
-		expect(() => {
-			fetch(url);
-		}).to.throw(Error);
-		fetch.Promise = old;
 	});
 
 	it('should expose Headers, Response and Request constructors', () => {
@@ -117,17 +97,17 @@ describe('node-fetch', () => {
 
 	it('should reject with error if url is protocol relative', () => {
 		const url = '//example.com/';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /Invalid URL/);
 	});
 
 	it('should reject with error if url is relative path', () => {
 		const url = '/some/path';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /Invalid URL/);
 	});
 
 	it('should reject with error if protocol is unsupported', () => {
 		const url = 'ftp://example.com/';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only HTTP(S) protocols are supported');
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /URL scheme "ftp" is not supported/);
 	});
 
 	itIf(process.platform !== 'win32')('should reject with error on network failure', () => {
@@ -2176,6 +2156,15 @@ describe('node-fetch', () => {
 					console.assert(b instanceof Buffer);
 				});
 			});
+		});
+
+		it('should accept data uri 2', async () => {
+			const r = await fetch('data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678');
+			expect(r.status).to.equal(200);
+			expect(r.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8;page=21');
+
+			const b = await r.text();
+			expect(b).to.equal('the data:1234,5678');
 		});
 
 		it('should reject invalid data uri', () => {

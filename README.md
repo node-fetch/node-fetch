@@ -85,9 +85,9 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 
 - Stay consistent with `window.fetch` API.
 - Make conscious trade-off when following [WHATWG fetch spec][whatwg-fetch] and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known differences.
-- Use native promise, but allow substituting it with [insert your favorite promise library].
+- Use native promise and async functions.
 - Use native Node streams for body, on both request and response.
-- Decode content encoding (gzip/deflate) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
+- Decode content encoding (gzip/deflate/brotli) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
 - Useful extensions such as redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
 
 ## Difference from client-side fetch
@@ -114,15 +114,6 @@ const fetch = require('node-fetch');
 
 // ES Module
 import fetch from 'node-fetch';
-```
-
-If you are using a Promise library other than native, set it through `fetch.Promise`:
-
-```js
-const fetch = require('node-fetch');
-const Bluebird = require('bluebird');
-
-fetch.Promise = Bluebird;
 ```
 
 If you want to patch the global object in node:
@@ -469,7 +460,8 @@ The default values are shown after each option key.
     compress: true,         // support gzip/deflate content encoding. false to disable
     size: 0,                // maximum response body size in bytes. 0 to disable
     agent: null,            // http(s).Agent instance or function that returns an instance (see below)
-    highWaterMark: 16384    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+    highWaterMark: 16384,   // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+    insecureHTTPParser: false	// Use an insecure HTTP parser that accepts invalid HTTP headers when `true`.
 }
 ```
 
@@ -559,6 +551,11 @@ const fetch = require('node-fetch');
 	return res.clone().buffer();
 })();
 ```
+
+#### Insecure HTTP Parser
+
+Passed through to the `insecureHTTPParser` option on http(s).request. See [`http.request`](https://nodejs.org/api/http.html#http_http_request_url_options_callback) for more information.
+
 
 <a id="class-request"></a>
 
@@ -651,7 +648,7 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
-const Headers = require('node-fetch');
+const { Headers } = require('node-fetch');
 
 const meta = {
 	'Content-Type': 'text/xml',

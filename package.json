@@ -61,16 +61,14 @@
 		"mocha": "^7.1.2",
 		"p-timeout": "^3.2.0",
 		"parted": "^0.1.1",
-		"promise": "^8.1.0",
 		"resumer": "0.0.0",
 		"rollup": "^2.10.8",
 		"string-to-arraybuffer": "^1.0.2",
-		"tsc": "^1.20150623.0",
 		"tsd": "^0.11.0",
 		"xo": "^0.30.0"
 	},
 	"dependencies": {
-		"data-uri-to-buffer": "^3.0.0",
+		"data-uri-to-buffer": "^3.0.1",
 		"fetch-blob": "^1.0.6"
 	},
 	"tsd": {
@@ -80,7 +78,8 @@
 			"lib": [
 				"es2018"
 			],
-			"allowSyntheticDefaultImports": true
+			"allowSyntheticDefaultImports": false,
+			"esModuleInterop": false
 		}
 	},
 	"xo": {

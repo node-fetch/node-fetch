@@ -19,7 +19,7 @@ describe('external encoding', () => {
 		it('should accept data uri of plain text', () => {
 			return fetch('data:,Hello%20World!').then(r => {
 				expect(r.status).to.equal(200);
-				expect(r.headers.get('Content-Type')).to.equal('text/plain');
+				expect(r.headers.get('Content-Type')).to.equal('text/plain;charset=US-ASCII');
 				return r.text().then(t => expect(t).to.equal('Hello World!'));
 			});
 		});
@@ -27,7 +27,7 @@ describe('external encoding', () => {
 		it('should reject invalid data uri', () => {
 			return fetch('data:@@@@').catch(error => {
 				expect(error).to.exist;
-				expect(error.message).to.include('invalid URL');
+				expect(error.message).to.include('malformed data: URI');
 			});
 		});
 	});
