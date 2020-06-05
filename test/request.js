@@ -4,7 +4,6 @@ import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import chai from 'chai';
 import FormData from 'form-data';
 import Blob from 'fetch-blob';
-import resumer from 'resumer';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 
 import TestServer from './utils/server.js';
@@ -201,8 +200,7 @@ describe('Request', () => {
 
 	it('should support clone() method', () => {
 		const url = base;
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
+		let body = stream.Readable.from('a=1');
 		const agent = new http.Agent();
 		const {signal} = new AbortController();
 		const request = new Request(url, {
