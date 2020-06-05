@@ -1,3 +1,5 @@
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
 import * as stream from 'stream';
 import chai from 'chai';
 import stringToArrayBuffer from 'string-to-arraybuffer';
@@ -104,7 +106,7 @@ describe('Response', () => {
 	});
 
 	it('should support clone() method', () => {
-		let body = stream.Readable.from('a=1');
+		const body = stream.Readable.from('a=1');
 		const res = new Response(body, {
 			headers: {
 				a: '1'

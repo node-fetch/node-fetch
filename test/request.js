@@ -1,3 +1,5 @@
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
 import stream from 'stream';
 import http from 'http';
 import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
@@ -200,7 +202,7 @@ describe('Request', () => {
 
 	it('should support clone() method', () => {
 		const url = base;
-		let body = stream.Readable.from('a=1');
+		const body = stream.Readable.from('a=1');
 		const agent = new http.Agent();
 		const {signal} = new AbortController();
 		const request = new Request(url, {

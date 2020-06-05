@@ -1,4 +1,5 @@
 // Test tools
+/* eslint-disable node/no-unsupported-features/node-builtins */
 import zlib from 'zlib';
 import crypto from 'crypto';
 import http from 'http';
@@ -1967,18 +1968,16 @@ describe('node-fetch', () => {
 
 	// Issue #414
 	it('should reject if attempt to accumulate body stream throws', () => {
-		const res = new Response(stream.Readable.from((async function* () {
+		const res = new Response(stream.Readable.from((async function * () {
 			yield Buffer.from('tada');
 			await new Promise(resolve => setTimeout(resolve, 200));
-			yield { tada: 'yes' }
+			yield {tada: 'yes'};
 		})()));
 
-		const textPromise = res.text();
-
-		return expect(textPromise).to.eventually.be.rejected
+		return expect(res.text()).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.include({type: 'system'})
-			.and.have.property('message').that.includes('Could not create Buffer')
+			.and.have.property('message').that.include('Could not create Buffer');
 	});
 
 	it('supports supplying a lookup function to the agent', () => {
@@ -2040,7 +2039,7 @@ describe('node-fetch', () => {
 		const url = `${base}hello`;
 		const bodyContent = 'a=1';
 
-		let streamBody = stream.Readable.from(bodyContent);
+		const streamBody = stream.Readable.from(bodyContent);
 		const streamRequest = new Request(url, {
 			method: 'POST',
 			body: streamBody,
