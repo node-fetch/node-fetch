@@ -62,5 +62,14 @@ describe('FormData', () => {
 		const boundary = getBoundary();
 
 		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(getFooter(boundary));
-	})
+	});
+
+	it('should set default content-type', async () => {
+		const form = new FormData();
+		const boundary = getBoundary();
+
+		form.set('blob', new Blob([]));
+
+		expect(String(await read(formDataIterator(form, boundary)))).to.contain('Content-Type: application/octet-stream');
+	});
 });
