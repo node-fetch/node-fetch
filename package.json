@@ -17,7 +17,7 @@
 	],
 	"types": "./@types/index.d.ts",
 	"engines": {
-		"node": ">=10.16"
+		"node": ">=10.17"
 	},
 	"scripts": {
 		"build": "rollup -c",
