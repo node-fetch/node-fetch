@@ -76,11 +76,6 @@ export function getFormDataLength(form, boundary) {
 		length += carriageLength;
 	}
 
-	// The FormData is empty?
-	if (length === 0) {
-		return length;
-	}
-
 	length += Buffer.byteLength(getFooter(boundary));
 
 	return length;
