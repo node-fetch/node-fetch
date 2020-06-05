@@ -1,6 +1,6 @@
 import pTimeout from 'p-timeout';
 
-export default ({Assertion}, utils) => {
+const chaiTimeout = ({Assertion}, utils) => {
 	utils.addProperty(Assertion.prototype, 'timeout', async function () {
 		let timeouted = false;
 		await pTimeout(this._obj, 150, () => {
@@ -13,3 +13,5 @@ export default ({Assertion}, utils) => {
 		);
 	});
 };
+
+export default chaiTimeout;

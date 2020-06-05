@@ -1,7 +1,7 @@
 import {builtinModules} from 'module';
 import {dependencies} from './package.json';
 
-export default {
+const configuration = {
 	input: 'src/index.js',
 	output: {
 		file: 'dist/index.cjs',
@@ -16,3 +16,5 @@ export default {
 	},
 	external: [...builtinModules, ...Object.keys(dependencies)]
 };
+
+export default configuration;
