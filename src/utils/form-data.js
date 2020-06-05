@@ -54,7 +54,7 @@ export async function * formDataIterator(form, boundary) {
 		yield carriage;
 	}
 
-	yield `${dashes}${boundary}${dashes}${carriage.repeat(2)}`;
+	yield getFooter(boundary);
 }
 
 /**
@@ -68,9 +68,9 @@ export function getFormDataLength(form, boundary) {
 		length += Buffer.byteLength(getHeader(boundary, name, value));
 
 		if (isBlob(value)) {
-			length = value.size;
+			length += value.size;
 		} else {
-			length += Buffer.byteLength(value);
+			length += Buffer.byteLength(String(value));
 		}
 
 		length += carriageLength;
