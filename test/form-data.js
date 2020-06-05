@@ -5,6 +5,8 @@ import Blob from 'fetch-blob';
 
 import chai from 'chai';
 
+import read from './utils/read-stream.js';
+
 import {getFormDataLength, getBoundary, formDataIterator} from '../src/utils/form-data.js';
 
 const {expect} = chai;
@@ -20,7 +22,7 @@ describe('FormData', () => {
 		expect(getFormDataLength(form, boundary)).to.be.equal(Buffer.byteLength(getFooter(boundary)));
 	});
 
-	it('should add a Blob field\'s size to the FormData length', async () => {
+	it('should add a Blob field\'s size to the FormData length', () => {
 		const form = new FormData();
 		const boundary = getBoundary();
 
@@ -54,4 +56,11 @@ describe('FormData', () => {
 
 		expect(getFormDataLength(form, boundary)).to.be.equal(expected);
 	});
+
+	it('should create a body from empty form-data', async () => {
+		const form = new FormData();
+		const boundary = getBoundary();
+
+		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(getFooter(boundary));
+	})
 });
