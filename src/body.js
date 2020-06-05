@@ -322,7 +322,7 @@ export const extractContentType = (body, request) => {
  * @param {any} obj.body Body object from the Body instance.
  * @returns {number | null}
  */
-export const getTotalBytes = (request) => {
+export const getTotalBytes = request => {
 	const {body} = request;
 
 	// Body is null or undefined
