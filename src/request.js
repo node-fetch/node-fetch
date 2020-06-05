@@ -39,7 +39,7 @@ export default class Request extends Body {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
+		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/node-fetch/node-fetch/issues/245)
 		if (isRequest(input)) {
 			parsedURL = new URL(input.url);
 		} else {
