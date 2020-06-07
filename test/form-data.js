@@ -72,4 +72,34 @@ describe('FormData', () => {
 
 		expect(String(await read(formDataIterator(form, boundary)))).to.contain('Content-Type: application/octet-stream');
 	});
+
+	it('should create a body with a FormData field', async () => {
+		const form = new FormData();
+		const boundary = getBoundary();
+		const string = 'Hello, World!';
+
+		form.set('field', string);
+
+		const expected = `--${boundary}${carriage}`
+			+ `Content-Disposition: form-data; name="field"${carriage.repeat(2)}`
+			+ string
+			+ `${carriage}${getFooter(boundary)}`;
+
+		expect(String(await read(formDataIterator(form, boundary)))).to.be.eqls(expected);
+	});
+
+	it('should create a body with a FormData Blob field', async () => {
+		const form = new FormData();
+		const boundary = getBoundary();
+
+		const expected = `--${boundary}${carriage}`
+			+ 'Content-Disposition: form-data; name="blob"; '
+			+ `filename="blob"${carriage}Content-Type: text/plain${carriage.repeat(2)}`
+			+ 'Hello, World!'
+			+ `${carriage}${getFooter(boundary)}`;
+
+		form.set('blob', new Blob(['Hello, World!'], {type: 'text/plain'}));
+
+		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(expected);
+	});
 });
