@@ -84,7 +84,7 @@ describe('FormData', () => {
 		string +
 		`${carriage}${getFooter(boundary)}`;
 
-		expect(String(await read(formDataIterator(form, boundary)))).to.be.eqls(expected);
+		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(expected);
 	});
 
 	it('should create a body with a FormData Blob field', async () => {
