@@ -62,7 +62,7 @@ export function isFormData(object) {
 		typeof object.values === 'function' &&
 		typeof object.entries === 'function' &&
 		typeof object.constructor === 'function' &&
-		object.constructor.name === 'FormData'
+		object[NAME] === 'FormData'
 	);
 }
 
