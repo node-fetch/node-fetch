@@ -1,5 +1,3 @@
-import stream from 'stream';
-
 import FormData from 'formdata-node';
 import Blob from 'fetch-blob';
 
@@ -28,10 +26,10 @@ describe('FormData', () => {
 
 		const string = 'Hello, world!';
 		const expected = Buffer.byteLength(
-			`--${boundary}${carriage}`
-				+ `Content-Disposition: form-data; name="field"${carriage.repeat(2)}`
-				+ string
-				+ `${carriage}${getFooter(boundary)}`
+			`--${boundary}${carriage}` +
+			`Content-Disposition: form-data; name="field"${carriage.repeat(2)}` +
+			string +
+			`${carriage}${getFooter(boundary)}`
 		);
 
 		form.set('field', string);
@@ -48,10 +46,10 @@ describe('FormData', () => {
 		form.set('blob', blob);
 
 		const expected = blob.size + Buffer.byteLength(
-			`--${boundary}${carriage}`
-				+ 'Content-Disposition: form-data; name="blob"; '
-				+ `filename="blob"${carriage}Content-Type: text/plain`
-				+ `${carriage.repeat(3)}${getFooter(boundary)}`
+			`--${boundary}${carriage}` +
+			'Content-Disposition: form-data; name="blob"; ' +
+			`filename="blob"${carriage}Content-Type: text/plain` +
+			`${carriage.repeat(3)}${getFooter(boundary)}`
 		);
 
 		expect(getFormDataLength(form, boundary)).to.be.equal(expected);
@@ -80,10 +78,10 @@ describe('FormData', () => {
 
 		form.set('field', string);
 
-		const expected = `--${boundary}${carriage}`
-			+ `Content-Disposition: form-data; name="field"${carriage.repeat(2)}`
-			+ string
-			+ `${carriage}${getFooter(boundary)}`;
+		const expected = `--${boundary}${carriage}` +
+		`Content-Disposition: form-data; name="field"${carriage.repeat(2)}` +
+		string +
+		`${carriage}${getFooter(boundary)}`;
 
 		expect(String(await read(formDataIterator(form, boundary)))).to.be.eqls(expected);
 	});
@@ -92,11 +90,11 @@ describe('FormData', () => {
 		const form = new FormData();
 		const boundary = getBoundary();
 
-		const expected = `--${boundary}${carriage}`
-			+ 'Content-Disposition: form-data; name="blob"; '
-			+ `filename="blob"${carriage}Content-Type: text/plain${carriage.repeat(2)}`
-			+ 'Hello, World!'
-			+ `${carriage}${getFooter(boundary)}`;
+		const expected = `--${boundary}${carriage}` +
+		'Content-Disposition: form-data; name="blob"; ' +
+		`filename="blob"${carriage}Content-Type: text/plain${carriage.repeat(2)}` +
+		'Hello, World!' +
+		`${carriage}${getFooter(boundary)}`;
 
 		form.set('blob', new Blob(['Hello, World!'], {type: 'text/plain'}));
 
