@@ -10,6 +10,7 @@ import {getFormDataLength, getBoundary, formDataIterator} from '../src/utils/for
 const {expect} = chai;
 
 const carriage = '\r\n';
+
 const getFooter = boundary => `--${boundary}--${carriage.repeat(2)}`;
 
 describe('FormData', () => {
@@ -37,7 +38,7 @@ describe('FormData', () => {
 		expect(getFormDataLength(form, boundary)).to.be.equal(expected);
 	});
 
-	it('should return a length for a Blog field', () => {
+	it('should return a length for a Blob field', () => {
 		const form = new FormData();
 		const boundary = getBoundary();
 
