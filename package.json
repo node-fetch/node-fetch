@@ -63,12 +63,11 @@
 		"resumer": "0.0.0",
 		"rollup": "^2.11.2",
 		"string-to-arraybuffer": "^1.0.2",
-		"tsc": "^1.20150623.0",
 		"tsd": "^0.11.0",
 		"xo": "^0.30.0"
 	},
 	"dependencies": {
-		"data-uri-to-buffer": "^3.0.0",
+		"data-uri-to-buffer": "^3.0.1",
 		"fetch-blob": "^1.0.6"
 	},
 	"esm": {
@@ -82,7 +81,8 @@
 			"lib": [
 				"es2018"
 			],
-			"allowSyntheticDefaultImports": true
+			"allowSyntheticDefaultImports": false,
+			"esModuleInterop": false
 		}
 	},
 	"xo": {
