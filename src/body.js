@@ -7,6 +7,8 @@
 
 import Stream, {PassThrough} from 'stream';
 import {types} from 'util';
+import Worker from './utils/worker_thread/index.js';
+import {once} from 'events';
 
 import Blob from 'fetch-blob';
 import {FetchError} from './errors/fetch-error.js';
@@ -108,8 +110,17 @@ export default class Body {
 	 * @return  Promise
 	 */
 	async json() {
-		const buffer = await consumeBody(this);
-		return JSON.parse(buffer.toString());
+		const text = await this.text();
+		if (text.length > 50000 && typeof Worker === 'function') {
+			const worker = new Worker(`
+			const { parentPort, workerData } = require('worker_threads');
+			parentPort.postMessage(JSON.parse(workerData));
+		`, {eval: true, workerData: text});
+			const [json] = await once(worker, 'message');
+			return json;
+		}
+
+		return JSON.parse(text);
 	}
 
 	/**

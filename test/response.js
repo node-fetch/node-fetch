@@ -1,9 +1,12 @@
 /* eslint-disable node/no-unsupported-features/node-builtins */
 
-import * as stream from 'stream';
+import stream from 'stream';
 import chai from 'chai';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import Blob from 'fetch-blob';
+import {readFileSync} from 'fs';
+import {builtinModules} from 'module';
+import path from 'path';
 import {Response} from '../src/index.js';
 import TestServer from './utils/server.js';
 
@@ -194,4 +197,20 @@ describe('Response', () => {
 		const res = new Response();
 		expect(res.url).to.equal('');
 	});
+
+	if (builtinModules.includes('worker_threads')) {
+		it('should not block message loop on large json', async () => {
+			const buf = readFileSync('./test/utils/big-fixture.json');
+			const res = new Response(buf);
+			let ticks = 0;
+			const start = Date.now();
+			await Promise.race([res.json(), new Promise(resolve => {
+				setInterval(() => {
+					ticks++;
+				}, 0);
+			})]);
+			const elapsed = Date.now() - start;
+			expect(ticks / elapsed).to.be.greaterThan(0.4);
+		});
+	}
 });
