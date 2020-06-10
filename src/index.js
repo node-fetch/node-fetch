@@ -12,7 +12,7 @@ import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
 import dataUriToBuffer from 'data-uri-to-buffer';
 
-import {writeToStream, getTotalBytes} from './body.js';
+import {writeToStream} from './body.js';
 import Response from './response.js';
 import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
@@ -153,7 +153,7 @@ export default async function fetch(url, options_) {
 						};
 
 						// HTTP-redirect fetch step 9
-						if (response_.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
+						if (response_.statusCode !== 303 && request.body && options_.body instanceof Stream.Readable) {
 							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'));
 							finalize();
 							return;

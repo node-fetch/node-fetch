@@ -17,7 +17,7 @@
 	],
 	"types": "./@types/index.d.ts",
 	"engines": {
-		"node": ">=10.16"
+		"node": ">=10.17"
 	},
 	"scripts": {
 		"build": "rollup -c",
@@ -60,7 +60,6 @@
 		"mocha": "^7.2.0",
 		"p-timeout": "^3.2.0",
 		"parted": "^0.1.1",
-		"resumer": "0.0.0",
 		"rollup": "^2.15.0",
 		"string-to-arraybuffer": "^1.0.2",
 		"tsd": "^0.11.0",

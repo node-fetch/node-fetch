@@ -1,4 +1,5 @@
 // Test tools
+/* eslint-disable node/no-unsupported-features/node-builtins */
 import zlib from 'zlib';
 import crypto from 'crypto';
 import http from 'http';
@@ -10,7 +11,6 @@ import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
-import resumer from 'resumer';
 import FormData from 'form-data';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import delay from 'delay';
@@ -404,7 +404,7 @@ describe('node-fetch', () => {
 		const url = `${base}redirect/307`;
 		const options = {
 			method: 'PATCH',
-			body: resumer().queue('a=1').end()
+			body: stream.Readable.from('tada')
 		};
 		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -1250,13 +1250,10 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with readable stream as body', () => {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body
+			body: stream.Readable.from('a=1')
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -1971,27 +1968,16 @@ describe('node-fetch', () => {
 
 	// Issue #414
 	it('should reject if attempt to accumulate body stream throws', () => {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-		const res = new Response(body);
-		const bufferConcat = Buffer.concat;
-		const restoreBufferConcat = () => {
-			Buffer.concat = bufferConcat;
-		};
+		const res = new Response(stream.Readable.from((async function * () {
+			yield Buffer.from('tada');
+			await new Promise(resolve => setTimeout(resolve, 200));
+			yield {tada: 'yes'};
+		})()));
 
-		Buffer.concat = () => {
-			throw new Error('embedded error');
-		};
-
-		const textPromise = res.text();
-		// Ensure that `Buffer.concat` is always restored:
-		textPromise.then(restoreBufferConcat, restoreBufferConcat);
-
-		return expect(textPromise).to.eventually.be.rejected
+		return expect(res.text()).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.include({type: 'system'})
-			.and.have.property('message').that.includes('Could not create Buffer')
-			.and.that.includes('embedded error');
+			.and.have.property('message').that.include('Could not create Buffer');
 	});
 
 	it('supports supplying a lookup function to the agent', () => {
@@ -2053,8 +2039,7 @@ describe('node-fetch', () => {
 		const url = `${base}hello`;
 		const bodyContent = 'a=1';
 
-		let streamBody = resumer().queue(bodyContent).end();
-		streamBody = streamBody.pipe(new stream.PassThrough());
+		const streamBody = stream.Readable.from(bodyContent);
 		const streamRequest = new Request(url, {
 			method: 'POST',
 			body: streamBody,

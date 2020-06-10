@@ -208,6 +208,10 @@ async function consumeBody(data) {
 
 	if (body.readableEnded === true || body._readableState.ended === true) {
 		try {
+			if (accum.every(c => typeof c === 'string')) {
+				return Buffer.from(accum.join(''));
+			}
+
 			return Buffer.concat(accum, accumBytes);
 		} catch (error) {
 			throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error);
