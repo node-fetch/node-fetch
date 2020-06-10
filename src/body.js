@@ -10,9 +10,10 @@ import {types} from 'util';
 
 import Blob from 'fetch-blob';
 
-import FetchError from './errors/fetch-error.js';
+import {FetchError} from './errors/fetch-error.js';
+import {FetchBaseError} from './errors/base.js';
 import {formDataIterator, getBoundary, getFormDataLength} from './utils/form-data.js';
-import {isBlob, isURLSearchParameters, isAbortError, isFormData} from './utils/is.js';
+import {isBlob, isURLSearchParameters, isFormData} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -69,7 +70,7 @@ export default class Body {
 
 		if (body instanceof Stream) {
 			body.on('error', err => {
-				const error = isAbortError(err) ?
+				const error = err instanceof FetchBaseError ?
 					err :
 					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 				this[INTERNALS].error = error;
@@ -207,7 +208,7 @@ async function consumeBody(data) {
 			accum.push(chunk);
 		}
 	} catch (error) {
-		if (isAbortError(error) || error instanceof FetchError) {
+		if (error instanceof FetchBaseError) {
 			throw error;
 		} else {
 			// Other errors, such as incorrect content-encoding
@@ -217,6 +218,10 @@ async function consumeBody(data) {
 
 	if (body.readableEnded === true || body._readableState.ended === true) {
 		try {
+			if (accum.every(c => typeof c === 'string')) {
+				return Buffer.from(accum.join(''));
+			}
+
 			return Buffer.concat(accum, accumBytes);
 		} catch (error) {
 			throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error);
