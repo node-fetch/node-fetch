@@ -103,7 +103,7 @@
 				{
 					"ignores": [
 						"worker_threads",
-						"events.once"
+						"events.once",
 						"stream.Readable.from"
 					]
 				}
