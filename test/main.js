@@ -1,5 +1,4 @@
 // Test tools
-/* eslint-disable node/no-unsupported-features/node-builtins */
 import zlib from 'zlib';
 import crypto from 'crypto';
 import http from 'http';
