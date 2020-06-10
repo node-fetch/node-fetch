@@ -69,7 +69,7 @@ export default class Request extends Body {
 		const headers = new Headers(init.headers || input.headers || {});
 
 		if (inputBody !== null && !headers.has('Content-Type')) {
-			const contentType = extractContentType(inputBody);
+			const contentType = extractContentType(inputBody, this);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
 			}
@@ -169,7 +169,8 @@ export const getNodeRequestOptions = request => {
 
 	if (request.body !== null) {
 		const totalBytes = getTotalBytes(request);
-		if (typeof totalBytes === 'number') {
+		// Set Content-Length if totalBytes is a number (that is not NaN)
+		if (typeof totalBytes === 'number' && !Number.isNaN(totalBytes)) {
 			contentLengthValue = String(totalBytes);
 		}
 	}

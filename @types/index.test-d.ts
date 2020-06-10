@@ -1,7 +1,8 @@
-import {expectType, expectAssignable} from 'tsd';
+import { expectType, expectAssignable } from 'tsd';
 import AbortController from 'abort-controller';
+import Blob = require('fetch-blob');
 
-import fetch, {Request, Response, Headers, Body, FetchError, AbortError} from '.';
+import fetch, { Request, Response, Headers, Body, FetchError, AbortError } from '.';
 import * as _fetch from '.';
 import __fetch = require('.');
 
@@ -39,7 +40,7 @@ async function run() {
 		expectType<string>(request.url);
 		expectType<Headers>(request.headers);
 
-		const headers = new Headers({byaka: 'buke'});
+		const headers = new Headers({ byaka: 'buke' });
 		expectType<(a: string, b: string) => void>(headers.append);
 		expectType<(a: string) => string | null>(headers.get);
 		expectType<(name: string, value: string) => void>(headers.set);
@@ -48,7 +49,7 @@ async function run() {
 		expectType<() => IterableIterator<[string, string]>>(headers.entries);
 		expectType<() => IterableIterator<[string, string]>>(headers[Symbol.iterator]);
 
-		const postRes = await fetch(request, {method: 'POST', headers});
+		const postRes = await fetch(request, { method: 'POST', headers });
 		expectType<Blob>(await postRes.blob());
 	} catch (error) {
 		if (error instanceof FetchError) {
@@ -85,7 +86,7 @@ async function run() {
 	const request = new Request('url', { signal: abortController.signal });
 	expectAssignable<Body>(request);
 
-	new Headers({'Header': 'value'});
+	new Headers({ 'Header': 'value' });
 	// new Headers(['header', 'value']); // should not work
 	new Headers([['header', 'value']]);
 	new Headers(new Headers());
