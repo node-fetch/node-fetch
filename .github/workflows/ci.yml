@@ -55,7 +55,7 @@ jobs:
         if: matrix.node == 'engines'
         run: |
           npm i esm
-          npx mocha -r esm
+          npx mocha -r esm --colors
 
       # upload coverage only once
       - name: Coveralls
