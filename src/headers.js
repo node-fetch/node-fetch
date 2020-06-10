@@ -5,23 +5,27 @@
  */
 
 import {types} from 'util';
+import http from 'http';
 
-const invalidTokenRegex = /[^`\-\w!#$%&'*+.|~]/;
-const invalidHeaderCharRegex = /[^\t\u0020-\u007E\u0080-\u00FF]/;
+const validateHeaderName = typeof http.validateHeaderName === 'function' ?
+	http.validateHeaderName :
+	name => {
+		if (!/^[\^`\-\w!#$%&'*+.|~]+$/.test(name)) {
+			const err = new TypeError(`Header name must be a valid HTTP token [${name}]`);
+			Object.defineProperty(err, 'code', {value: 'ERR_INVALID_HTTP_TOKEN'});
+			throw err;
+		}
+	};
 
-function validateName(name) {
-	name = String(name);
-	if (invalidTokenRegex.test(name) || name === '') {
-		throw new TypeError(`'${name}' is not a legal HTTP header name`);
-	}
-}
-
-function validateValue(value) {
-	value = String(value);
-	if (invalidHeaderCharRegex.test(value)) {
-		throw new TypeError(`'${value}' is not a legal HTTP header value`);
-	}
-}
+const validateHeaderValue = typeof http.validateHeaderValue === 'function' ?
+	http.validateHeaderValue :
+	(name, value) => {
+		if (/[^\t\u0020-\u007E\u0080-\u00FF]/.test(value)) {
+			const err = new TypeError(`Invalid character in header content ["${name}"]`);
+			Object.defineProperty(err, 'code', {value: 'ERR_INVALID_CHAR'});
+			throw err;
+		}
+	};
 
 /**
  * @typedef {Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>} HeadersInit
@@ -91,9 +95,9 @@ export default class Headers extends URLSearchParams {
 		result =
 			result.length > 0 ?
 				result.map(([name, value]) => {
-					validateName(name);
-					validateValue(value);
-					return [String(name).toLowerCase(), value];
+					validateHeaderName(name);
+					validateHeaderValue(name, String(value));
+					return [String(name).toLowerCase(), String(value)];
 				}) :
 				undefined;
 
@@ -107,12 +111,12 @@ export default class Headers extends URLSearchParams {
 					case 'append':
 					case 'set':
 						return (name, value) => {
-							validateName(name);
-							validateValue(value);
+							validateHeaderName(name);
+							validateHeaderValue(name, String(value));
 							return URLSearchParams.prototype[p].call(
 								receiver,
 								String(name).toLowerCase(),
-								value
+								String(value)
 							);
 						};
 
@@ -120,7 +124,7 @@ export default class Headers extends URLSearchParams {
 					case 'has':
 					case 'getAll':
 						return name => {
-							validateName(name);
+							validateHeaderName(name);
 							return URLSearchParams.prototype[p].call(
 								receiver,
 								String(name).toLowerCase()
@@ -142,7 +146,7 @@ export default class Headers extends URLSearchParams {
 	}
 
 	get [Symbol.toStringTag]() {
-		return 'Headers';
+		return this.constructor.name;
 	}
 
 	toString() {
@@ -247,7 +251,15 @@ export function fromRawHeaders(headers = []) {
 
 				return result;
 			}, [])
-			.filter(([name, value]) => !(invalidTokenRegex.test(name) || invalidHeaderCharRegex.test(value)))
+			.filter(([name, value]) => {
+				try {
+					validateHeaderName(name);
+					validateHeaderValue(name, String(value));
+					return true;
+				} catch {
+					return false;
+				}
+			})
 
 	);
 }

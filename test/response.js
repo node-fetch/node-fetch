@@ -1,6 +1,7 @@
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
 import * as stream from 'stream';
 import chai from 'chai';
-import resumer from 'resumer';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import Blob from 'fetch-blob';
 import {Response} from '../src/index.js';
@@ -54,9 +55,7 @@ describe('Response', () => {
 	});
 
 	it('should support empty options', () => {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-		const res = new Response(body);
+		const res = new Response(stream.Readable.from('a=1'));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
@@ -107,8 +106,7 @@ describe('Response', () => {
 	});
 
 	it('should support clone() method', () => {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
+		const body = stream.Readable.from('a=1');
 		const res = new Response(body, {
 			headers: {
 				a: '1'
@@ -131,8 +129,7 @@ describe('Response', () => {
 	});
 
 	it('should support stream as body', () => {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
+		const body = stream.Readable.from('a=1');
 		const res = new Response(body);
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');

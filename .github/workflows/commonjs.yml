@@ -18,12 +18,12 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Get Node.JS version from package.json
-        id: get-versions
-        run: echo ::set-output name=node::$(jq -r .engines.node ./package.json | sed 's/[^0-9.]//g')
+        id: get-version
+        run: echo ::set-output name=node::$(npx --q minimum-node-version)
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2-beta
         with:
-          node-version: ${{steps.get-versions.outputs.node}}
+          node-version: ${{steps.get-version.outputs.node}}
 
       - run: npm install
 
