@@ -1,3 +1,6 @@
 {
-	"type": "commonjs"
+	"type": "commonjs",
+	"engines": {
+		"node": ">=10.17"
+	}
 }

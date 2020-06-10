@@ -95,7 +95,16 @@
 			"import/extensions": 0,
 			"import/no-useless-path-segments": 0,
 			"unicorn/import-index": 0,
-			"capitalized-comments": 0
+			"capitalized-comments": 0,
+			"node/no-unsupported-features/node-builtins": [
+				"error",
+				{
+					"ignores": [
+						"worker_threads",
+						"events.once"
+					]
+				}
+			]
 		},
 		"ignores": [
 			"dist",
