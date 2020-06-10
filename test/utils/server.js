@@ -366,7 +366,7 @@ export default class TestServer {
 			const busboy = new Busboy({headers: request.headers});
 			let body = '';
 			busboy.on('file', async (fieldName, file, fileName) => {
-				body += `file=${fileName}`;
+				body += `${fieldName}=${fileName}`;
 				// consume file data
 				// eslint-disable-next-line no-empty, no-unused-vars
 				for await (const c of file) { }
