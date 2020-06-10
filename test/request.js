@@ -2,7 +2,7 @@
 
 import stream from 'stream';
 import http from 'http';
-import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
+import AbortController from 'abort-controller';
 import chai from 'chai';
 import FormData from 'form-data';
 import Blob from 'fetch-blob';
@@ -11,7 +11,6 @@ import stringToArrayBuffer from 'string-to-arraybuffer';
 import TestServer from './utils/server.js';
 import {Request} from '../src/index.js';
 
-const {AbortController} = polyfill;
 const {expect} = chai;
 
 const local = new TestServer();

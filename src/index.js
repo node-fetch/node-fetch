@@ -187,6 +187,10 @@ export default async function fetch(url, options_) {
 			let body = pump(response_, new PassThrough(), error => {
 				reject(error);
 			});
+			// see https://github.com/nodejs/node/pull/29376
+			if (process.version < 'v12.10') {
+				response_.on('aborted', abortAndFinalize);
+			}
 
 			const responseOptions = {
 				url: request.url,

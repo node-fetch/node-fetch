@@ -126,6 +126,6 @@ Since v3.x you no longer need to install `@types/node-fetch` package in order to
 [cross-fetch]: https://github.com/lquixada/cross-fetch
 [fetch-charset-detection]: https://github.com/Richienb/fetch-charset-detection
 [fetch-charset-detection-docs]: https://richienb.github.io/fetch-charset-detection/globals.html#convertbody
-[fetch-blob]: https://github.com/bitinn/fetch-blob#readme
+[fetch-blob]: https://github.com/node-fetch/fetch-blob#readme
 [whatwg-nodejs-url]: https://nodejs.org/api/url.html#url_the_whatwg_url_api
 [changelog]: CHANGELOG.md

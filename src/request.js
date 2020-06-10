@@ -39,7 +39,7 @@ export default class Request extends Body {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
+		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/node-fetch/node-fetch/issues/245)
 		if (isRequest(input)) {
 			parsedURL = new URL(input.url);
 		} else {
@@ -100,6 +100,7 @@ export default class Request extends Body {
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
+		this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
 	}
 
 	get method() {
@@ -214,6 +215,7 @@ export const getNodeRequestOptions = request => {
 		href: parsedURL.href,
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
+		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
 

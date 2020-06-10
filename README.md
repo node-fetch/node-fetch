@@ -277,10 +277,10 @@ const streamPipeline = util.promisify(require('stream').pipeline);
 	const response = await fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
 	
 	if (response.ok) {
-		return streamPipeline(res.body, fs.createWriteStream('./octocat.png'));
+		return streamPipeline(response.body, fs.createWriteStream('./octocat.png'));
 	}
 
-	throw new Error(`unexpected response ${res.statusText}`);
+	throw new Error(`unexpected response ${response.statusText}`);
 })();
 ```
 
@@ -309,11 +309,11 @@ const fetch = require('node-fetch');
 (async () => {
 	const response = await fetch('https://github.com/');
 	
-	console.log(res.ok);
-	console.log(res.status);
-	console.log(res.statusText);
-	console.log(res.headers.raw());
-	console.log(res.headers.get('content-type'));
+	console.log(response.ok);
+	console.log(response.status);
+	console.log(response.statusText);
+	console.log(response.headers.raw());
+	console.log(response.headers.get('content-type'));
 })();
 ```
 
@@ -328,7 +328,7 @@ const fetch = require('node-fetch');
 	const response = await fetch('https://example.com');
 	
 	// Returns an array of values, instead of a string of comma-separated values
-	console.log(res.headers.raw()['set-cookie']);
+	console.log(response.headers.raw()['set-cookie']);
 })();
 ```
 
@@ -446,7 +446,8 @@ The default values are shown after each option key.
     compress: true,         // support gzip/deflate content encoding. false to disable
     size: 0,                // maximum response body size in bytes. 0 to disable
     agent: null,            // http(s).Agent instance or function that returns an instance (see below)
-    highWaterMark: 16384    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+    highWaterMark: 16384,   // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+    insecureHTTPParser: false	// Use an insecure HTTP parser that accepts invalid HTTP headers when `true`.
 }
 ```
 
@@ -536,6 +537,11 @@ const fetch = require('node-fetch');
 	return res.clone().buffer();
 })();
 ```
+
+#### Insecure HTTP Parser
+
+Passed through to the `insecureHTTPParser` option on http(s).request. See [`http.request`](https://nodejs.org/api/http.html#http_http_request_url_options_callback) for more information.
+
 
 <a id="class-request"></a>
 
@@ -628,7 +634,7 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
-const Headers = require('node-fetch');
+const { Headers } = require('node-fetch');
 
 const meta = {
 	'Content-Type': 'text/xml',
