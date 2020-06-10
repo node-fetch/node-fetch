@@ -209,7 +209,7 @@ describe('Response', () => {
 				}, 0);
 			})]);
 			const elapsed = Date.now() - start;
-			expect(ticks / elapsed).to.be.greaterThan(0.4);
+			expect(ticks / elapsed).to.be.greaterThan(0.2);
 			expect(json).to.be.instanceOf(Array);
 			expect(json).to.have.length(3000);
 		});
