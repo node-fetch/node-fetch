@@ -37,5 +37,5 @@ fetch(
 	.then(res => res.text())
 	.then(text => assert.strictEqual(text, 'Hello World!'))
 	.then(() => {
-		console.info('✅ CommonJS build artefact fitness testes successfully');
+		console.log('CommonJS build artifact fitness tests successfully');
 	});
