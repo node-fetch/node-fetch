@@ -3,13 +3,14 @@
 /* eslint-disable no-var, import/no-mutable-exports */
 
 import { Agent } from 'http';
+import { URL, URLSearchParams } from 'url'
 import Blob = require('fetch-blob');
 
 type AbortSignal = {
 	readonly aborted: boolean;
 
-	addEventListener(type: "abort", listener: (this: AbortSignal, ev: Event) => any, options?: boolean | { passive?: boolean; once?: boolean; }): void;
-	removeEventListener(type: "abort", listener: (this: AbortSignal, ev: Event) => any, options?: boolean | { capture?: boolean; }): void;
+	addEventListener(type: "abort", listener: (this: AbortSignal) => void): void;
+	removeEventListener(type: "abort", listener: (this: AbortSignal) => void): void;
 };
 
 type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
