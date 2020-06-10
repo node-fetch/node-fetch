@@ -277,10 +277,10 @@ const streamPipeline = util.promisify(require('stream').pipeline);
 	const response = await fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
 	
 	if (response.ok) {
-		return streamPipeline(res.body, fs.createWriteStream('./octocat.png'));
+		return streamPipeline(response.body, fs.createWriteStream('./octocat.png'));
 	}
 
-	throw new Error(`unexpected response ${res.statusText}`);
+	throw new Error(`unexpected response ${response.statusText}`);
 })();
 ```
 
@@ -309,11 +309,11 @@ const fetch = require('node-fetch');
 (async () => {
 	const response = await fetch('https://github.com/');
 	
-	console.log(res.ok);
-	console.log(res.status);
-	console.log(res.statusText);
-	console.log(res.headers.raw());
-	console.log(res.headers.get('content-type'));
+	console.log(response.ok);
+	console.log(response.status);
+	console.log(response.statusText);
+	console.log(response.headers.raw());
+	console.log(response.headers.get('content-type'));
 })();
 ```
 
@@ -328,7 +328,7 @@ const fetch = require('node-fetch');
 	const response = await fetch('https://example.com');
 	
 	// Returns an array of values, instead of a string of comma-separated values
-	console.log(res.headers.raw()['set-cookie']);
+	console.log(response.headers.raw()['set-cookie']);
 })();
 ```
 
