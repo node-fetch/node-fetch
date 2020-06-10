@@ -203,13 +203,15 @@ describe('Response', () => {
 			const res = new Response(buf);
 			let ticks = 0;
 			const start = Date.now();
-			await Promise.race([res.json(), new Promise(() => {
+			const [json] = await Promise.race([res.json(), new Promise(() => {
 				setInterval(() => {
 					ticks++;
 				}, 0);
 			})]);
 			const elapsed = Date.now() - start;
 			expect(ticks / elapsed).to.be.greaterThan(0.4);
+			expect(json).to.be.instanceOf(Array)
+			expect(json).to.have.length(3000);
 		});
 	}
 });
