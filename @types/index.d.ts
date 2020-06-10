@@ -2,8 +2,8 @@
 
 /* eslint-disable no-var, import/no-mutable-exports */
 
-import {Agent} from 'http';
-import * as Blob from 'fetch-blob';
+import { Agent } from 'http';
+import Blob = require('fetch-blob');
 
 type AbortSignal = {
 	readonly aborted: boolean;
