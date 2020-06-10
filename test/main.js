@@ -590,7 +590,7 @@ describe('node-fetch', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.have.property('code', 'ENOTFOUND');
+			.and.have.property('code').that.matches(/ENOTFOUND|EAI_AGAIN/);
 	});
 
 	it('should reject invalid json response', () => {
