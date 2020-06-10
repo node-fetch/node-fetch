@@ -93,8 +93,9 @@
 			"complexity": 0,
 			"import/extensions": 0,
 			"import/no-useless-path-segments": 0,
+			"import/no-anonymous-default-export": 0,
 			"unicorn/import-index": 0,
-      "unicorn/no-reduce": 0,
+			"unicorn/no-reduce": 0,
 			"capitalized-comments": 0
 		},
 		"ignores": [
