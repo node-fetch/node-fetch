@@ -57,12 +57,3 @@ export const isAbortSignal = object => {
 	);
 };
 
-/**
- * Check if `obj` is an instance of AbortError.
- *
- * @param  {*} obj
- * @return {boolean}
- */
-export const isAbortError = object => {
-	return object[NAME] === 'AbortError';
-};

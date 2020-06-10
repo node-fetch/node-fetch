@@ -16,8 +16,8 @@ import {writeToStream} from './body.js';
 import Response from './response.js';
 import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
-import FetchError from './errors/fetch-error.js';
-import AbortError from './errors/abort-error.js';
+import {FetchError} from './errors/fetch-error.js';
+import {AbortError} from './errors/abort-error.js';
 import {isRedirect} from './utils/is-redirect.js';
 
 export {Headers, Request, Response, FetchError, AbortError, isRedirect};

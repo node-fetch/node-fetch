@@ -9,8 +9,9 @@ import Stream, {PassThrough} from 'stream';
 import {types} from 'util';
 
 import Blob from 'fetch-blob';
-import FetchError from './errors/fetch-error.js';
-import {isBlob, isURLSearchParameters, isAbortError} from './utils/is.js';
+import {FetchError} from './errors/fetch-error.js';
+import {FetchBaseError} from './errors/base.js';
+import {isBlob, isURLSearchParameters} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -60,7 +61,7 @@ export default class Body {
 
 		if (body instanceof Stream) {
 			body.on('error', err => {
-				const error = isAbortError(err) ?
+				const error = err instanceof FetchBaseError ?
 					err :
 					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
 				this[INTERNALS].error = error;
@@ -198,7 +199,7 @@ async function consumeBody(data) {
 			accum.push(chunk);
 		}
 	} catch (error) {
-		if (isAbortError(error) || error instanceof FetchError) {
+		if (error instanceof FetchBaseError) {
 			throw error;
 		} else {
 			// Other errors, such as incorrect content-encoding

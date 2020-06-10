@@ -1,34 +1,26 @@
+
+import {FetchBaseError} from './base.js';
+
 /**
- * Fetch-error.js
- *
+ * @typedef {{ address?: string, code: string, dest?: string, errno: number, info?: object, message: string, path?: string, port?: number, syscall: string}} SystemError
+*/
+
+/**
  * FetchError interface for operational errors
  */
-
-/**
- * Create FetchError instance
- *
- * @param   String      message      Error message for human
- * @param   String      type         Error type for machine
- * @param   Object      systemError  For Node.js system error
- * @return  FetchError
- */
-export default class FetchError extends Error {
+export class FetchError extends FetchBaseError {
+	/**
+	 * @param  {string} message -      Error message for human
+	 * @param  {string} [type] -        Error type for machine
+	 * @param  {SystemError} [systemError] - For Node.js system error
+	 */
 	constructor(message, type, systemError) {
-		super(message);
-
-		this.message = message;
-		this.type = type;
-		this.name = 'FetchError';
-		this[Symbol.toStringTag] = 'FetchError';
-
+		super(message, type);
 		// When err.type is `system`, err.erroredSysCall contains system error and err.code contains system error code
 		if (systemError) {
 			// eslint-disable-next-line no-multi-assign
 			this.code = this.errno = systemError.code;
-			this.erroredSysCall = systemError;
+			this.erroredSysCall = systemError.syscall;
 		}
-
-		// Hide custom error implementation details from end-users
-		Error.captureStackTrace(this, this.constructor);
 	}
 }
