@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unsupported-features/node-builtins */
 
 import stream from 'stream';
 import http from 'http';

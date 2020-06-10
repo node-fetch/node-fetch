@@ -9,9 +9,11 @@ import Stream, {PassThrough} from 'stream';
 import {types} from 'util';
 
 import Blob from 'fetch-blob';
+
 import {FetchError} from './errors/fetch-error.js';
 import {FetchBaseError} from './errors/base.js';
-import {isBlob, isURLSearchParameters} from './utils/is.js';
+import {formDataIterator, getBoundary, getFormDataLength} from './utils/form-data.js';
+import {isBlob, isURLSearchParameters, isFormData} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -28,6 +30,8 @@ export default class Body {
 	constructor(body, {
 		size = 0
 	} = {}) {
+		let boundary = null;
+
 		if (body === null) {
 			// Body is undefined or null
 			body = null;
@@ -46,6 +50,10 @@ export default class Body {
 			body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 		} else if (body instanceof Stream) {
 			// Body is stream
+		} else if (isFormData(body)) {
+			// Body is an instance of formdata-node
+			boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
+			body = Stream.Readable.from(formDataIterator(body, boundary));
 		} else {
 			// None of the above
 			// coerce to string then buffer
@@ -54,6 +62,7 @@ export default class Body {
 
 		this[INTERNALS] = {
 			body,
+			boundary,
 			disturbed: false,
 			error: null
 		};
@@ -146,7 +155,7 @@ Object.defineProperties(Body.prototype, {
  *
  * Ref: https://fetch.spec.whatwg.org/#concept-body-consume-body
  *
- * @return  Promise
+ * @return Promise
  */
 async function consumeBody(data) {
 	if (data[INTERNALS].disturbed) {
@@ -264,7 +273,7 @@ export const clone = (instance, highWaterMark) => {
  * @param {any} body Any options.body input
  * @returns {string | null}
  */
-export const extractContentType = body => {
+export const extractContentType = (body, request) => {
 	// Body is null or undefined
 	if (body === null) {
 		return null;
@@ -295,6 +304,10 @@ export const extractContentType = body => {
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
 	}
 
+	if (isFormData(body)) {
+		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
+	}
+
 	// Body is stream - can't really do much about this
 	if (body instanceof Stream) {
 		return null;
@@ -313,7 +326,9 @@ export const extractContentType = body => {
  * @param {any} obj.body Body object from the Body instance.
  * @returns {number | null}
  */
-export const getTotalBytes = ({body}) => {
+export const getTotalBytes = request => {
+	const {body} = request;
+
 	// Body is null or undefined
 	if (body === null) {
 		return 0;
@@ -332,6 +347,11 @@ export const getTotalBytes = ({body}) => {
 	// Detect form data input from form-data module
 	if (body && typeof body.getLengthSync === 'function') {
 		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
+	}
+
+	// Body is a spec-compliant form-data
+	if (isFormData(body)) {
+		return getFormDataLength(request[INTERNALS].boundary);
 	}
 
 	// Body is stream

@@ -1,10 +1,10 @@
 // Test tools
-/* eslint-disable node/no-unsupported-features/node-builtins */
 import zlib from 'zlib';
 import crypto from 'crypto';
 import http from 'http';
 import fs from 'fs';
 import stream from 'stream';
+import path from 'path';
 import {lookup} from 'dns';
 import vm from 'vm';
 import chai from 'chai';
@@ -12,6 +12,7 @@ import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
+import FormDataNode from 'formdata-node';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import delay from 'delay';
 import AbortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
@@ -57,8 +58,6 @@ before(done => {
 after(done => {
 	local.stop(done);
 });
-
-const itIf = value => value ? it : it.skip;
 
 function streamToPromise(stream, dataHandler) {
 	return new Promise((resolve, reject) => {
@@ -108,7 +107,8 @@ describe('node-fetch', () => {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /URL scheme "ftp" is not supported/);
 	});
 
-	itIf(process.platform !== 'win32')('should reject with error on network failure', () => {
+	it('should reject with error on network failure', function () {
+		this.timeout(5000);
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -125,7 +125,8 @@ describe('node-fetch', () => {
 		return expect(err).to.not.have.property('erroredSysCall');
 	});
 
-	itIf(process.platform !== 'win32')('system error is extracted from failed requests', () => {
+	it('system error is extracted from failed requests', function () {
+		this.timeout(5000);
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -1285,7 +1286,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	itIf(process.platform !== 'win32')('should allow POST request with form-data using stream as body', () => {
+	it('should allow POST request with form-data using stream as body', () => {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream('test/utils/dummy.txt'));
 
@@ -1326,6 +1327,30 @@ describe('node-fetch', () => {
 			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.headers.b).to.equal('2');
 			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	it('should support spec-compliant form-data as POST body', () => {
+		const form = new FormDataNode();
+
+		const filename = path.join('test', 'utils', 'dummy.txt');
+
+		form.set('field', 'some text');
+		form.set('file', fs.createReadStream(filename), {
+			size: fs.statSync(filename).size
+		});
+
+		const url = `${base}multipart`;
+		const options = {
+			method: 'POST',
+			body: form
+		};
+
+		return fetch(url, options).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.startWith('multipart/form-data');
+			expect(res.body).to.contain('field=');
+			expect(res.body).to.contain('file=');
 		});
 	});
 

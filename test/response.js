@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unsupported-features/node-builtins */
 
 import * as stream from 'stream';
 import chai from 'chai';
