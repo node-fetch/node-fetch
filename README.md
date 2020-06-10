@@ -381,6 +381,20 @@ const options = {
 })();
 ```
 
+node-fetch also supports spec-compliant FormData implementations such as [formdata-node](https://github.com/octet-stream/form-data):
+
+```js
+const fetch = require('node-fetch');
+const FormData = require('formdata-node');
+
+const form = new FormData();
+form.set('greeting', 'Hello, world!');
+
+fetch('https://httpbin.org/post', {method: 'POST', body: form})
+	.then(res => res.json())
+	.then(json => console.log(json));
+```
+
 ### Request cancellation with AbortSignal
 
 You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).

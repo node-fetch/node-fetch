@@ -49,6 +49,7 @@
 	"devDependencies": {
 		"abort-controller": "^3.0.0",
 		"abortcontroller-polyfill": "^1.4.0",
+		"busboy": "^0.3.1",
 		"c8": "^7.1.2",
 		"chai": "^4.2.0",
 		"chai-as-promised": "^7.1.1",
@@ -57,6 +58,7 @@
 		"coveralls": "^3.1.0",
 		"delay": "^4.3.0",
 		"form-data": "^3.0.0",
+		"formdata-node": "^2.0.0",
 		"mocha": "^7.2.0",
 		"p-timeout": "^3.2.0",
 		"parted": "^0.1.1",
@@ -94,7 +96,15 @@
 			"import/extensions": 0,
 			"import/no-useless-path-segments": 0,
 			"unicorn/import-index": 0,
-			"capitalized-comments": 0
+			"capitalized-comments": 0,
+			"node/no-unsupported-features/node-builtins": [
+				"error",
+				{
+					"ignores": [
+						"stream.Readable.from"
+					]
+				}
+			]
 		},
 		"ignores": [
 			"dist",

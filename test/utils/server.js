@@ -1,7 +1,6 @@
 import http from 'http';
 import zlib from 'zlib';
-import parted from 'parted';
-const {multipart: Multipart} = parted;
+import Busboy from 'busboy';
 
 export default class TestServer {
 	constructor() {
@@ -364,12 +363,19 @@ export default class TestServer {
 		if (p === '/multipart') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
-			const parser = new Multipart(request.headers['content-type']);
+			const busboy = new Busboy({headers: request.headers});
 			let body = '';
-			parser.on('part', (field, part) => {
-				body += field + '=' + part;
+			busboy.on('file', async (fieldName, file, fileName) => {
+				body += `${fieldName}=${fileName}`;
+				// consume file data
+				// eslint-disable-next-line no-empty, no-unused-vars
+				for await (const c of file) { }
 			});
-			parser.on('end', () => {
+
+			busboy.on('field', (fieldName, value) => {
+				body += `${fieldName}=${value}`;
+			});
+			busboy.on('finish', () => {
 				res.end(JSON.stringify({
 					method: request.method,
 					url: request.url,
@@ -377,7 +383,7 @@ export default class TestServer {
 					body
 				}));
 			});
-			request.pipe(parser);
+			request.pipe(busboy);
 		}
 
 		if (p === '/m%C3%B6bius') {
@@ -387,4 +393,3 @@ export default class TestServer {
 		}
 	}
 }
-
