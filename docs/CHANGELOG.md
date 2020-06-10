@@ -12,6 +12,7 @@ Changelog
 - Enhance: polyfill `http.validateHeaderName` and `http.validateHeaderValue` (#843).
 - Enhance: should check body _source_ on redirect (#866).
 - Enhance: remove code duplication in custom errors (#842).
+- Enhance: implement form-data encoding (#603).
 - Fix: improve TypeScript types (#841).
 - Fix: data URI handling and drop all URL analysis RegExps (#853).
 - Fix: headers import statement (#859).
