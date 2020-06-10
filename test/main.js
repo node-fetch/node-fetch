@@ -5,7 +5,7 @@ import http from 'http';
 import fs from 'fs';
 import stream from 'stream';
 import path from 'path';
-import {lookup} from 'dns';
+import { lookup } from 'dns';
 import vm from 'vm';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
@@ -18,7 +18,7 @@ import delay from 'delay';
 import AbortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import AbortController2 from 'abort-controller';
 
-const {AbortController} = AbortControllerPolyfill;
+const { AbortController } = AbortControllerPolyfill;
 
 // Test subjects
 import Blob from 'fetch-blob';
@@ -29,11 +29,11 @@ import fetch, {
 	Request,
 	Response
 } from '../src/index.js';
-import {FetchError as FetchErrorOrig} from '../src/errors/fetch-error.js';
-import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
+import { FetchError as FetchErrorOrig } from '../src/errors/fetch-error.js';
+import HeadersOrig, { fromRawHeaders } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body, {getTotalBytes, extractContentType} from '../src/body.js';
+import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import TestServer from './utils/server.js';
 
 const {
@@ -46,7 +46,7 @@ chai.use(chaiPromised);
 chai.use(chaiIterator);
 chai.use(chaiString);
 chai.use(chaiTimeout);
-const {expect} = chai;
+const { expect } = chai;
 
 const local = new TestServer();
 const base = `http://${local.hostname}:${local.port}/`;
@@ -58,8 +58,6 @@ before(done => {
 after(done => {
 	local.stop(done);
 });
-
-const itIf = value => value ? it : it.skip;
 
 function streamToPromise(stream, dataHandler) {
 	return new Promise((resolve, reject) => {
@@ -109,11 +107,12 @@ describe('node-fetch', () => {
 		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /URL scheme "ftp" is not supported/);
 	});
 
-	itIf(process.platform !== 'win32')('should reject with error on network failure', () => {
+	it('should reject with error on network failure', function () {
+		this.timeout(5000);
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'});
+			.and.include({ type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED' });
 	});
 
 	it('error should contain system error if one occurred', () => {
@@ -126,7 +125,7 @@ describe('node-fetch', () => {
 		return expect(err).to.not.have.property('erroredSysCall');
 	});
 
-	itIf(process.platform !== 'win32')('system error is extracted from failed requests', () => {
+	if ('system error is extracted from failed requests', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -199,7 +198,7 @@ describe('node-fetch', () => {
 			return res.json().then(result => {
 				expect(res.bodyUsed).to.be.true;
 				expect(result).to.be.an('object');
-				expect(result).to.deep.equal({name: 'value'});
+				expect(result).to.deep.equal({ name: 'value' });
 			});
 		});
 	});
@@ -207,7 +206,7 @@ describe('node-fetch', () => {
 	it('should send request with custom headers', () => {
 		const url = `${base}inspect`;
 		const options = {
-			headers: {'x-custom-header': 'abc'}
+			headers: { 'x-custom-header': 'abc' }
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -219,7 +218,7 @@ describe('node-fetch', () => {
 	it('should accept headers instance', () => {
 		const url = `${base}inspect`;
 		const options = {
-			headers: new Headers({'x-custom-header': 'abc'})
+			headers: new Headers({ 'x-custom-header': 'abc' })
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -480,7 +479,7 @@ describe('node-fetch', () => {
 	it('should follow redirect code 301 and keep existing headers', () => {
 		const url = `${base}redirect/301`;
 		const options = {
-			headers: new Headers({'x-custom-header': 'abc'})
+			headers: new Headers({ 'x-custom-header': 'abc' })
 		};
 		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
@@ -833,8 +832,8 @@ describe('node-fetch', () => {
 		const controller2 = new AbortController2();
 
 		const fetches = [
-			fetch(`${base}timeout`, {signal: controller.signal}),
-			fetch(`${base}timeout`, {signal: controller2.signal}),
+			fetch(`${base}timeout`, { signal: controller.signal }),
+			fetch(`${base}timeout`, { signal: controller2.signal }),
 			fetch(
 				`${base}timeout`,
 				{
@@ -842,7 +841,7 @@ describe('node-fetch', () => {
 					signal: controller.signal,
 					headers: {
 						'Content-Type': 'application/json',
-						body: JSON.stringify({hello: 'world'})
+						body: JSON.stringify({ hello: 'world' })
 					}
 				}
 			)
@@ -880,10 +879,10 @@ describe('node-fetch', () => {
 
 	it('should remove internal AbortSignal event listener after request is aborted', () => {
 		const controller = new AbortController();
-		const {signal} = controller;
+		const { signal } = controller;
 		const promise = fetch(
 			`${base}timeout`,
-			{signal}
+			{ signal }
 		);
 		const result = expect(promise).to.eventually.be.rejected
 			.and.be.an.instanceof(Error)
@@ -925,11 +924,11 @@ describe('node-fetch', () => {
 
 	it('should remove internal AbortSignal event listener after request and response complete without aborting', () => {
 		const controller = new AbortController();
-		const {signal} = controller;
-		const fetchHtml = fetch(`${base}html`, {signal})
+		const { signal } = controller;
+		const fetchHtml = fetch(`${base}html`, { signal })
 			.then(res => res.text());
-		const fetchResponseError = fetch(`${base}error/reset`, {signal});
-		const fetchRedirect = fetch(`${base}redirect/301`, {signal}).then(res => res.json());
+		const fetchResponseError = fetch(`${base}error/reset`, { signal });
+		const fetchRedirect = fetch(`${base}redirect/301`, { signal }).then(res => res.json());
 		return Promise.all([
 			expect(fetchHtml).to.eventually.be.fulfilled.and.equal('<html></html>'),
 			expect(fetchResponseError).to.be.eventually.rejected,
@@ -943,7 +942,7 @@ describe('node-fetch', () => {
 		const controller = new AbortController();
 		return expect(fetch(
 			`${base}slow`,
-			{signal: controller.signal}
+			{ signal: controller.signal }
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
@@ -960,7 +959,7 @@ describe('node-fetch', () => {
 		const controller = new AbortController();
 		return expect(fetch(
 			`${base}slow`,
-			{signal: controller.signal}
+			{ signal: controller.signal }
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
@@ -976,7 +975,7 @@ describe('node-fetch', () => {
 		const controller = new AbortController();
 		expect(fetch(
 			`${base}slow`,
-			{signal: controller.signal}
+			{ signal: controller.signal }
 		))
 			.to.eventually.be.fulfilled
 			.then(res => {
@@ -992,11 +991,11 @@ describe('node-fetch', () => {
 
 	it('should cancel request body of type Stream with AbortError when aborted', () => {
 		const controller = new AbortController();
-		const body = new stream.Readable({objectMode: true});
+		const body = new stream.Readable({ objectMode: true });
 		body._read = () => { };
 		const promise = fetch(
 			`${base}slow`,
-			{signal: controller.signal, body, method: 'POST'}
+			{ signal: controller.signal, body, method: 'POST' }
 		);
 
 		const result = Promise.all([
@@ -1022,15 +1021,15 @@ describe('node-fetch', () => {
 
 	it('should throw a TypeError if a signal is not of type AbortSignal', () => {
 		return Promise.all([
-			expect(fetch(`${base}inspect`, {signal: {}}))
+			expect(fetch(`${base}inspect`, { signal: {} }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal'),
-			expect(fetch(`${base}inspect`, {signal: ''}))
+			expect(fetch(`${base}inspect`, { signal: '' }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal'),
-			expect(fetch(`${base}inspect`, {signal: Object.create(null)}))
+			expect(fetch(`${base}inspect`, { signal: Object.create(null) }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal')
@@ -1286,7 +1285,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	itIf(process.platform !== 'win32')('should allow POST request with form-data using stream as body', () => {
+	if ('should allow POST request with form-data using stream as body', () => {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream('test/utils/dummy.txt'));
 
@@ -1359,7 +1358,7 @@ describe('node-fetch', () => {
 		// Note that fetch simply calls tostring on an object
 		const options = {
 			method: 'POST',
-			body: {a: 1}
+			body: { a: 1 }
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -1380,7 +1379,7 @@ describe('node-fetch', () => {
 
 	it('constructing a Request with URLSearchParams as body should have a Content-Type', () => {
 		const parameters = new URLSearchParams();
-		const request = new Request(base, {method: 'POST', body: parameters});
+		const request = new Request(base, { method: 'POST', body: parameters });
 		expect(request.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
 	});
 
@@ -1395,7 +1394,7 @@ describe('node-fetch', () => {
 	// Body should been cloned...
 	it('constructing a Request/Response with URLSearchParams and mutating it should not affected body', () => {
 		const parameters = new URLSearchParams();
-		const request = new Request(`${base}inspect`, {method: 'POST', body: parameters});
+		const request = new Request(`${base}inspect`, { method: 'POST', body: parameters });
 		parameters.append('a', '1');
 		return request.text().then(text => {
 			expect(text).to.equal('');
@@ -1662,7 +1661,7 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return Promise.all([res.json(), r1.text()]).then(results => {
-				expect(results[0]).to.deep.equal({name: 'value'});
+				expect(results[0]).to.deep.equal({ name: 'value' });
 				expect(results[1]).to.equal('{"name":"value"}');
 			});
 		});
@@ -1673,7 +1672,7 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return res.json().then(result => {
-				expect(result).to.deep.equal({name: 'value'});
+				expect(result).to.deep.equal({ name: 'value' });
 				return r1.text().then(result => {
 					expect(result).to.equal('{"name":"value"}');
 				});
@@ -1688,7 +1687,7 @@ describe('node-fetch', () => {
 			return r1.text().then(result => {
 				expect(result).to.equal('{"name":"value"}');
 				return res.json().then(result => {
-					expect(result).to.deep.equal({name: 'value'});
+					expect(result).to.deep.equal({ name: 'value' });
 				});
 			});
 		});
@@ -1737,7 +1736,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, { highWaterMark: 10 }).then(res => res.clone().buffer())
 		).to.timeout;
 	});
 
@@ -1761,7 +1760,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, { highWaterMark: 10 }).then(res => res.clone().buffer())
 		).not.to.timeout;
 	});
 
@@ -1771,7 +1770,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes((2 * 512 * 1024) - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
+			fetch(url, { highWaterMark: 512 * 1024 }).then(res => res.clone().buffer())
 		).not.to.timeout;
 	});
 
@@ -1925,7 +1924,7 @@ describe('node-fetch', () => {
 				method: 'POST',
 				body: blob
 			});
-		}).then(res => res.json()).then(({body, headers}) => {
+		}).then(res => res.json()).then(({ body, headers }) => {
 			expect(body).to.equal('world');
 			expect(headers['content-type']).to.equal(type);
 			expect(headers['content-length']).to.equal(String(length));
@@ -1993,15 +1992,15 @@ describe('node-fetch', () => {
 
 	// Issue #414
 	it('should reject if attempt to accumulate body stream throws', () => {
-		const res = new Response(stream.Readable.from((async function * () {
+		const res = new Response(stream.Readable.from((async function* () {
 			yield Buffer.from('tada');
 			await new Promise(resolve => setTimeout(resolve, 200));
-			yield {tada: 'yes'};
+			yield { tada: 'yes' };
 		})()));
 
 		return expect(res.text()).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({type: 'system'})
+			.and.include({ type: 'system' })
 			.and.have.property('message').that.include('Could not create Buffer');
 	});
 
@@ -2013,8 +2012,8 @@ describe('node-fetch', () => {
 			return lookup(hostname, options, callback);
 		}
 
-		const agent = http.Agent({lookup: lookupSpy});
-		return fetch(url, {agent}).then(() => {
+		const agent = http.Agent({ lookup: lookupSpy });
+		return fetch(url, { agent }).then(() => {
 			expect(called).to.equal(2);
 		});
 	});
@@ -2028,8 +2027,8 @@ describe('node-fetch', () => {
 			return lookup(hostname, {}, callback);
 		}
 
-		const agent = http.Agent({lookup: lookupSpy, family});
-		return fetch(url, {agent}).then(() => {
+		const agent = http.Agent({ lookup: lookupSpy, family });
+		return fetch(url, { agent }).then(() => {
 			expect(families).to.have.length(2);
 			expect(families[0]).to.equal(family);
 			expect(families[1]).to.equal(family);
@@ -2071,7 +2070,7 @@ describe('node-fetch', () => {
 			size: 1024
 		});
 
-		const blobBody = new Blob([bodyContent], {type: 'text/plain'});
+		const blobBody = new Blob([bodyContent], { type: 'text/plain' });
 		const blobRequest = new Request(url, {
 			method: 'POST',
 			body: blobBody,
