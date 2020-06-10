@@ -16,5 +16,5 @@ export default {
 		intro: 'exports = module.exports = fetch;'
 	},
 	external: [...builtinModules, ...Object.keys(dependencies)],
-	plugins: [commonjs({ cache: false })]
+	plugins: [commonjs({cache: false})]
 };
