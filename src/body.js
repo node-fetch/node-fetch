@@ -94,10 +94,10 @@ export default class Body {
 	 */
 	async blob() {
 		const ct = (this.headers && this.headers.get('content-type')) || (this[INTERNALS].body && this[INTERNALS].body.type) || '';
-		const buf = await this.buffer()
+		const buf = await this.buffer();
 
 		return new Blob([buf], {
-			type: ct,
+			type: ct
 		});
 	}
 
