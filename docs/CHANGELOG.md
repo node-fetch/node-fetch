@@ -26,8 +26,6 @@ Changelog
 
 ## v3.0.0-beta.6
 
-**Work in progress!**
-
 - **Breaking:** minimum supported Node.js version is now 10.16.
 - **Breaking:** removed `timeout` option.
 - **Breaking:** revamp TypeScript declarations.
