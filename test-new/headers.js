@@ -13,13 +13,15 @@ test('should have attributes conforming to Web IDL', t => {
 	const toCheck = [
 		'get',
 		'forEach',
-		'set',
-		'append',
-		'has',
-		'delete',
-		'keys',
 		'values',
-		'entries'
+		'entries',
+		'append',
+		'delete',
+		'getAll',
+		'has',
+		'set',
+		'sort',
+		'keys'
 	];
 
 	t.deepEqual(enumerableProperties, toCheck);

@@ -20,7 +20,6 @@ test('should have attributes conforming to Web IDL', t => {
 
 	const toCheck = [
 		'size',
-		'timeout',
 		'url',
 		'status',
 		'ok',
