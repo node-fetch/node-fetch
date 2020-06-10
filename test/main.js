@@ -582,7 +582,7 @@ describe('node-fetch', () => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejectedWith(Error)
-				.and.have.property('message').includes('Premature close');
+				.and.have.property('message').matches(/Premature close|The operation was aborted/);
 		});
 	});
 
@@ -590,7 +590,7 @@ describe('node-fetch', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.have.property('code', 'ENOTFOUND');
+			.and.have.property('code').that.matches(/ENOTFOUND|EAI_AGAIN/);
 	});
 
 	it('should reject invalid json response', () => {
