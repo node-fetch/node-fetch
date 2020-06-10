@@ -202,14 +202,12 @@ describe('Response', () => {
 			const buf = readFileSync('./test/utils/big-fixture.json');
 			const res = new Response(buf);
 			let ticks = 0;
-			const start = Date.now();
 			const [json] = await Promise.race([res.json(), new Promise(() => {
 				setInterval(() => {
 					ticks++;
 				}, 0);
 			})]);
-			const elapsed = Date.now() - start;
-			expect(ticks / elapsed).to.be.greaterThan(0.2);
+			expect(ticks).to.be.greaterThan(5); // magic number, but it's actually is 0 when message loop blocks
 			expect(json).to.be.instanceOf(Array);
 			expect(json).to.have.length(3000);
 		});
