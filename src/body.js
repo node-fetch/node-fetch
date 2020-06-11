@@ -123,9 +123,7 @@ export default class Body {
 			const worker = new Worker(`
 			const { parentPort, workerData } = require('worker_threads');
 			parentPort.postMessage(JSON.parse(workerData));
-			process.exit(0);
 			`, {eval: true, workerData: text});
-			worker.unref();
 			const json = await once(worker, 'message');
 			return json;
 		}
