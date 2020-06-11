@@ -115,7 +115,7 @@ export default class Body {
 	/**
 	 * Decode response as json
 	 *
-	 * @return  Promise
+	 * @returns {Promise<unknown>}
 	 */
 	async json() {
 		const text = await this.text();
