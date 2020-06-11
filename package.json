@@ -1,7 +1,7 @@
 {
 	"name": "node-fetch",
 	"version": "3.0.0-beta.7",
-	"description": "A light-weight module that brings window.fetch to node.js",
+	"description": "A light-weight module that brings Fetch API to node.js",
 	"main": "./dist/index.cjs",
 	"module": "./src/index.js",
 	"sideEffects": false,
@@ -34,7 +34,12 @@
 	"keywords": [
 		"fetch",
 		"http",
-		"promise"
+		"promise",
+		"request",
+		"curl",
+		"wget",
+		"xhr",
+		"whatwg"
 	],
 	"author": "David Frank",
 	"license": "MIT",
