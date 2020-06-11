@@ -200,7 +200,7 @@ describe('Response', () => {
 			const [json] = await Promise.race([res.json(), new Promise(resolve => {
 				const interval = setInterval(() => {
 					ticks++;
-					if (ticks > 50) {
+					if (ticks > 500) {
 						resolve(clearInterval(interval));
 					}
 				}, 0);
