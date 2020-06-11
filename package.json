@@ -63,6 +63,7 @@
         "p-timeout": "^3.2.0",
         "parted": "^0.1.1",
         "rollup": "^2.15.0",
+        "rollup-plugin-cjs-es": "^1.0.0",
         "string-to-arraybuffer": "^1.0.2",
         "tsd": "^0.11.0",
         "xo": "^0.32.0"
@@ -99,16 +100,16 @@
             "unicorn/import-index": 0,
             "unicorn/no-reduce": 0,
             "capitalized-comments": 0,
-			"node/no-unsupported-features/node-builtins": [
-				"error",
-				{
-					"ignores": [
-						"worker_threads",
-						"events.once",
-						"stream.Readable.from"
-					]
-				}
-			]
+            "node/no-unsupported-features/node-builtins": [
+                "error",
+                {
+                    "ignores": [
+                        "worker_threads",
+                        "events.once",
+                        "stream.Readable.from"
+                    ]
+                }
+            ]
         },
         "ignores": [
             "dist",
