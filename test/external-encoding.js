@@ -16,6 +16,15 @@ describe('external encoding', () => {
 			});
 		});
 
+		it('should accept data uri 2', async () => {
+			const r = await fetch('data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678');
+			expect(r.status).to.equal(200);
+			expect(r.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8;page=21');
+
+			const b = await r.text();
+			expect(b).to.equal('the data:1234,5678');
+		});
+
 		it('should accept data uri of plain text', () => {
 			return fetch('data:,Hello%20World!').then(r => {
 				expect(r.status).to.equal(200);
@@ -28,6 +37,13 @@ describe('external encoding', () => {
 			return fetch('data:@@@@').catch(error => {
 				expect(error).to.exist;
 				expect(error.message).to.include('malformed data: URI');
+			});
+		});
+
+		it('should reject invalid data uri 2', () => {
+			return fetch('data:@@@@').catch(error => {
+				console.assert(error);
+				console.assert(error.message.includes('invalid URL'));
 			});
 		});
 	});
