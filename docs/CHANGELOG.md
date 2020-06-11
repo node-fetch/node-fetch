@@ -3,13 +3,29 @@ Changelog
 
 # 3.x release
 
+## v3.0.0-beta.7
+
+- **Breaking:** minimum supported Node.js version is now 10.17.
+- Enhance: update `fetch-blob`.
+- Enhance: add insecureHTTPParser Parameter (#856).
+- Enhance: drop custom Promises and refactor to `async` functions (#845).
+- Enhance: polyfill `http.validateHeaderName` and `http.validateHeaderValue` (#843).
+- Enhance: should check body _source_ on redirect (#866).
+- Enhance: remove code duplication in custom errors (#842).
+- Enhance: implement form-data encoding (#603).
+- Fix: improve TypeScript types (#841).
+- Fix: data URI handling and drop all URL analysis RegExps (#853).
+- Fix: headers import statement (#859).
+- Fix: correct Node versions were not installed on test matrix (#846).
+- Other: test CommonJS build artifact (#838).
+- Other: create Code of Conduct (#849).
+- Other: readme update.
+
 ## v3.0.0-beta.6-exportfix
 
 - Fix: `fetch` function export & declaration, which broke the previous release.
 
 ## v3.0.0-beta.6
-
-**Work in progress!**
 
 - **Breaking:** minimum supported Node.js version is now 10.16.
 - **Breaking:** removed `timeout` option.
