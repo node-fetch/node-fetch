@@ -6,12 +6,9 @@ import Blob from 'fetch-blob';
 import {readFileSync} from 'fs';
 import {builtinModules} from 'module';
 import {Response} from '../src/index.js';
-import TestServer from './utils/server.js';
 
 const {expect} = chai;
 
-const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
 
 describe('Response', () => {
 	it('should have attributes conforming to Web IDL', () => {
@@ -112,13 +109,13 @@ describe('Response', () => {
 			headers: {
 				a: '1'
 			},
-			url: base,
+			url: 'https://dummy.com',
 			status: 346,
 			statusText: 'production'
 		});
 		const cl = res.clone();
 		expect(cl.headers.get('a')).to.equal('1');
-		expect(cl.url).to.equal(base);
+		expect(cl.url).to.equal('https://dummy.com');
 		expect(cl.status).to.equal(346);
 		expect(cl.statusText).to.equal('production');
 		expect(cl.ok).to.be.false;
@@ -197,13 +194,14 @@ describe('Response', () => {
 	});
 
 	if (builtinModules.includes('worker_threads')) {
-		it('should not block message loop on large json', async () => {
+		it('should not block message loop on large json', async function() {
 			const buf = readFileSync('./test/utils/big-fixture.json');
 			const res = new Response(buf);
 			let ticks = 0;
-			const [json] = await Promise.race([res.json(), new Promise(() => {
-				setInterval(() => {
+			const [json] = await Promise.race([res.json(), new Promise(resolve => {
+				const interval = setInterval(() => {
 					ticks++;
+					if(ticks > 50) { clearInterval(interval); resolve(); }
 				}, 0);
 			})]);
 			expect(ticks).to.be.greaterThan(5); // magic number, but it's actually is 0 when message loop blocks
