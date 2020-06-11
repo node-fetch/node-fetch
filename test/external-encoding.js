@@ -39,12 +39,5 @@ describe('external encoding', () => {
 				expect(error.message).to.include('malformed data: URI');
 			});
 		});
-
-		it('should reject invalid data uri 2', () => {
-			return fetch('data:@@@@').catch(error => {
-				console.assert(error);
-				console.assert(error.message.includes('invalid URL'));
-			});
-		});
 	});
 });
