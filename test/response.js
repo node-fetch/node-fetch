@@ -9,7 +9,6 @@ import {Response} from '../src/index.js';
 
 const {expect} = chai;
 
-
 describe('Response', () => {
 	it('should have attributes conforming to Web IDL', () => {
 		const res = new Response();
@@ -194,14 +193,16 @@ describe('Response', () => {
 	});
 
 	if (builtinModules.includes('worker_threads')) {
-		it('should not block message loop on large json', async function() {
+		it('should not block message loop on large json', async () => {
 			const buf = readFileSync('./test/utils/big-fixture.json');
 			const res = new Response(buf);
 			let ticks = 0;
 			const [json] = await Promise.race([res.json(), new Promise(resolve => {
 				const interval = setInterval(() => {
 					ticks++;
-					if(ticks > 50) { clearInterval(interval); resolve(); }
+					if (ticks > 50) {
+						resolve(clearInterval(interval));
+					}
 				}, 0);
 			})]);
 			expect(ticks).to.be.greaterThan(5); // magic number, but it's actually is 0 when message loop blocks
