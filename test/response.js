@@ -1,13 +1,16 @@
 
 import stream from 'stream';
 import chai from 'chai';
+import chaiPromised from 'chai-as-promised';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import Blob from 'fetch-blob';
 import {readFileSync} from 'fs';
 import {builtinModules} from 'module';
+import {randomBytes} from 'crypto'
 import {Response} from '../src/index.js';
 
 const {expect} = chai;
+chai.use(chaiPromised);
 
 describe('Response', () => {
 	it('should have attributes conforming to Web IDL', () => {
@@ -209,5 +212,10 @@ describe('Response', () => {
 			expect(json).to.be.instanceOf(Array);
 			expect(json).to.have.length(3000);
 		});
+
+		it('should be possible to catch JSON parsing error on a large response', async () => {
+			const res = new Response(randomBytes(0xFFFF).toString('base64'));
+			return expect(res.json()).to.eventually.be.rejectedWith(SyntaxError, /Unexpected token/)
+		})
 	}
 });
