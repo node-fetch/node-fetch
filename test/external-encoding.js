@@ -16,7 +16,7 @@ describe('external encoding', () => {
 			});
 		});
 
-		it('should accept plain text data uri', async () => {
+		it('should accept data uri with specified charset', async () => {
 			const r = await fetch('data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678');
 			expect(r.status).to.equal(200);
 			expect(r.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8;page=21');
