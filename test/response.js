@@ -8,10 +8,19 @@ import TestServer from './utils/server.js';
 
 const {expect} = chai;
 
-const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
-
 describe('Response', () => {
+	const local = new TestServer();
+	let base;
+
+	before(async () => {
+		await local.start();
+		base = `http://${local.hostname}:${local.port}/`;
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
 	it('should have attributes conforming to Web IDL', () => {
 		const res = new Response();
 		const enumerableProperties = [];
