@@ -200,7 +200,7 @@ describe('Response', () => {
 			const buf = readFileSync('./test/utils/big-fixture.json');
 			const res = new Response(buf);
 			let ticks = 0;
-			const [json] = await Promise.race([res.json(), new Promise(resolve => {
+			const json = await Promise.race([res.json(), new Promise(resolve => {
 				const interval = setInterval(() => {
 					ticks++;
 					if (ticks > 500) {
