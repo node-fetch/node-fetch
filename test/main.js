@@ -2125,37 +2125,4 @@ describe('node-fetch', () => {
 
 		fetch(url).then(res => expect(res.url).to.equal(`${base}m%C3%B6bius`));
 	});
-
-	describe('data uri', () => {
-		const dataUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
-
-		const invalidDataUrl = 'data:@@@@';
-
-		it('should accept data uri', () => {
-			return fetch(dataUrl).then(r => {
-				console.assert(r.status === 200);
-				console.assert(r.headers.get('Content-Type') === 'image/gif');
-
-				return r.buffer().then(b => {
-					console.assert(b instanceof Buffer);
-				});
-			});
-		});
-
-		it('should accept data uri 2', async () => {
-			const r = await fetch('data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678');
-			expect(r.status).to.equal(200);
-			expect(r.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8;page=21');
-
-			const b = await r.text();
-			expect(b).to.equal('the data:1234,5678');
-		});
-
-		it('should reject invalid data uri', () => {
-			return fetch(invalidDataUrl).catch(error => {
-				console.assert(error);
-				console.assert(error.message.includes('invalid URL'));
-			});
-		});
-	});
 });
