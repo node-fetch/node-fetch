@@ -18,6 +18,7 @@ import {formDataIterator, getBoundary, getFormDataLength} from './utils/form-dat
 import {isBlob, isURLSearchParameters, isFormData} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
+const NODE_FETCH_THREADED_PARSER_THRESHOLD = parseInt(process.env.NODE_FETCH_THREADED_PARSER_THRESHOLD || '50000', 10);
 
 /**
  * Body mixin
@@ -119,7 +120,7 @@ export default class Body {
 	 */
 	async json() {
 		const text = await this.text();
-		if (text.length > 50000 && typeof Worker === 'function') {
+		if (text.length > NODE_FETCH_THREADED_PARSER_THRESHOLD && typeof Worker === 'function') {
 			const worker = new Worker(`
 			const { parentPort, workerData } = require('worker_threads');
 			parentPort.postMessage(JSON.parse(workerData));
