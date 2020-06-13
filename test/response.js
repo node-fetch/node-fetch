@@ -12,18 +12,6 @@ const {expect} = chai;
 chai.use(chaiPromised);
 
 describe('Response', () => {
-	const local = new TestServer();
-	let base;
-
-	before(async () => {
-		await local.start();
-		base = `http://${local.hostname}:${local.port}/`;
-	});
-
-	after(async () => {
-		return local.stop();
-	});
-
 	it('should have attributes conforming to Web IDL', () => {
 		const res = new Response();
 		const enumerableProperties = [];
