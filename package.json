@@ -21,11 +21,11 @@
 	},
 	"scripts": {
 		"build": "rollup -c",
-		"test": "node --experimental-modules node_modules/c8/bin/c8 --check-coverage node --experimental-modules node_modules/ava/cli",
+		"test": "node --experimental-modules node_modules/c8/bin/c8 --check-coverage node --experimental-modules node_modules/ava/cli --config ava.config.js",
 		"coverage": "c8 report --reporter=text-lcov | coveralls",
 		"test-types": "tsd",
 		"lint": "xo",
-		"prepublishOnly": "node ./test/commonjs/test-artifact.js"
+		"prepublishOnly": "ava --config ava.config.cjs"
 	},
 	"repository": {
 		"type": "git",
