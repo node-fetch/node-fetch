@@ -7,13 +7,13 @@ import stream from 'stream';
 import path from 'path';
 import {lookup} from 'dns';
 import vm from 'vm';
+import {TextEncoder} from 'util';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
 import FormDataNode from 'formdata-node';
-import stringToArrayBuffer from 'string-to-arraybuffer';
 import delay from 'delay';
 import AbortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import AbortController2 from 'abort-controller';
@@ -1125,10 +1125,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBuffer body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: stringToArrayBuffer('Hello, world!\n')
+			body: encoder.encode('Hello, world!\n').buffer
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1155,10 +1156,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (Uint8Array) body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'))
+			body: encoder.encode('Hello, world!\n')
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1170,10 +1172,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (DataView) body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new DataView(stringToArrayBuffer('Hello, world!\n'))
+			body: new DataView(encoder.encode('Hello, world!\n').buffer)
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1200,10 +1203,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'), 7, 6)
+			body: encoder.encode('Hello, world!\n').subarray(7, 13)
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
