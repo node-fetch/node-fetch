@@ -4,7 +4,6 @@ import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import Blob from 'fetch-blob';
-import {readFileSync} from 'fs';
 import {builtinModules} from 'module';
 import {randomBytes} from 'crypto';
 import {Response} from '../src/index.js';
@@ -197,8 +196,11 @@ describe('Response', () => {
 
 	if (builtinModules.includes('worker_threads')) {
 		it('should not block message loop on large json', async () => {
-			const buf = readFileSync('./test/utils/big-fixture.json');
-			const res = new Response(buf);
+			const bigObject = {
+				a: randomBytes(0o100000).toString('hex'),
+				b: [randomBytes(0xFFFF).toString('base64')]
+			};
+			const res = new Response(Buffer.from(JSON.stringify(bigObject)));
 			let ticks = 0;
 			const json = await Promise.race([res.json(), new Promise(resolve => {
 				const interval = setInterval(() => {
@@ -208,9 +210,8 @@ describe('Response', () => {
 					}
 				}, 0);
 			})]);
-			expect(ticks).to.be.greaterThan(5); // magic number, but it's actually is 0 when message loop blocks
-			expect(json).to.be.instanceOf(Array);
-			expect(json).to.have.length(3000);
+			expect(ticks).to.be.greaterThan(5); // magic number, but it's actually is 0 when sync JSON.parse is used
+			expect(json).to.be.deep.equal(bigObject)
 		});
 
 		it('should be possible to catch JSON parsing error on a large response', async () => {
