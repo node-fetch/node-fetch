@@ -1,13 +1,21 @@
 import test from 'ava';
 import * as stream from 'stream';
-import resumer from 'resumer';
-import stringToArrayBuffer from 'string-to-arraybuffer';
+import {TextEncoder} from 'util';
 import Blob from 'fetch-blob';
 import {Response} from '../src/index.js';
 import TestServer from './utils/server.js';
 
 const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
+let base;
+
+test.before(() => {
+	local.start();
+	base = `http://${local.hostname}:${local.port}/`;
+});
+
+test.after(() => {
+	local.stop();
+});
 
 test('should have attributes conforming to Web IDL', t => {
 	const response = new Response();
@@ -54,9 +62,7 @@ test('should have attributes conforming to Web IDL', t => {
 });
 
 test('should support empty options', async t => {
-	let body = resumer().queue('a=1').end();
-	body = body.pipe(new stream.PassThrough());
-	const response = new Response(body);
+	const response = new Response(stream.Readable.from('a=1'));
 	const result = await response.text();
 
 	t.is(result, 'a=1');
@@ -108,8 +114,7 @@ test('should support blob() method', async t => {
 });
 
 test('should support clone() method', async t => {
-	let body = resumer().queue('a=1').end();
-	body = body.pipe(new stream.PassThrough());
+	const body = stream.Readable.from('a=1');
 	const response = new Response(body, {
 		headers: {
 			a: '1'
@@ -132,8 +137,7 @@ test('should support clone() method', async t => {
 });
 
 test('should support stream as body', async t => {
-	let body = resumer().queue('a=1').end();
-	body = body.pipe(new stream.PassThrough());
+	const body = stream.Readable.from('a=1');
 	const response = new Response(body);
 	const result = await response.text();
 
@@ -155,7 +159,8 @@ test('should support buffer as body', async t => {
 });
 
 test('should support ArrayBuffer as body', async t => {
-	const response = new Response(stringToArrayBuffer('a=1'));
+	const encoder = new TextEncoder();
+	const response = new Response(encoder.encode('a=1'));
 	const result = await response.text();
 
 	t.is(result, 'a=1');
@@ -169,14 +174,16 @@ test('should support blob as body', async t => {
 });
 
 test('should support Uint8Array as body', async t => {
-	const response = new Response(new Uint8Array(stringToArrayBuffer('a=1')));
+	const encoder = new TextEncoder();
+	const response = new Response(encoder.encode('a=1'));
 	const result = await response.text();
 
 	t.is(result, 'a=1');
 });
 
 test('should support DataView as body', async t => {
-	const response = new Response(new DataView(stringToArrayBuffer('a=1')));
+	const encoder = new TextEncoder();
+	const response = new Response(new DataView(encoder.encode('a=1').buffer));
 	const result = await response.text();
 
 	t.is(result, 'a=1');

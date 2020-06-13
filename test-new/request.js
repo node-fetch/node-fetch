@@ -1,19 +1,25 @@
 import test from 'ava';
 import stream from 'stream';
 import http from 'http';
-import polyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
+import {TextEncoder} from 'util';
+import AbortController from 'abort-controller';
 import FormData from 'form-data';
 import Blob from 'fetch-blob';
-import resumer from 'resumer';
-import stringToArrayBuffer from 'string-to-arraybuffer';
 
 import TestServer from './utils/server.js';
 import {Request} from '../src/index.js';
 
-const {AbortController} = polyfill;
-
 const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
+let base;
+
+test.before(() => {
+	local.start();
+	base = `http://${local.hostname}:${local.port}/`;
+});
+
+test.after(() => {
+	local.stop();
+});
 
 test('should have attributes conforming to Web IDL', t => {
 	const request = new Request('https://github.com/');
@@ -31,6 +37,7 @@ test('should have attributes conforming to Web IDL', t => {
 		'counter',
 		'agent',
 		'highWaterMark',
+		'insecureHTTPParser',
 		'method',
 		'url',
 		'headers',
@@ -206,8 +213,7 @@ test('should support blob() method', async t => {
 
 test('should support clone() method', async t => {
 	const url = base;
-	let body = resumer().queue('a=1').end();
-	body = body.pipe(new stream.PassThrough());
+	const body = stream.Readable.from('a=1');
 	const agent = new http.Agent();
 	const {signal} = new AbortController();
 	const request = new Request(url, {
@@ -241,9 +247,10 @@ test('should support clone() method', async t => {
 });
 
 test('should support ArrayBuffer as body', async t => {
+	const encoder = new TextEncoder();
 	const request = new Request(base, {
 		method: 'POST',
-		body: stringToArrayBuffer('a=1')
+		body: encoder.encode('a=1').buffer
 	});
 	const result = await request.text();
 
@@ -251,9 +258,10 @@ test('should support ArrayBuffer as body', async t => {
 });
 
 test('should support Uint8Array as body', async t => {
+	const encoder = new TextEncoder();
 	const request = new Request(base, {
 		method: 'POST',
-		body: new Uint8Array(stringToArrayBuffer('a=1'))
+		body: encoder.encode('a=1')
 	});
 	const result = await request.text();
 
@@ -261,9 +269,10 @@ test('should support Uint8Array as body', async t => {
 });
 
 test('should support DataView as body', async t => {
+	const encoder = new TextEncoder();
 	const request = new Request(base, {
 		method: 'POST',
-		body: new DataView(stringToArrayBuffer('a=1'))
+		body: new DataView(encoder.encode('a=1').buffer)
 	});
 	const result = await request.text();
 
