@@ -1,5 +1,8 @@
 import {Headers} from '../src/index.js';
 import chai from 'chai';
+import chaiIterator from 'chai-iterator';
+
+chai.use(chaiIterator);
 
 const {expect} = chai;
 
