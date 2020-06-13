@@ -48,17 +48,6 @@ chai.use(chaiString);
 chai.use(chaiTimeout);
 const {expect} = chai;
 
-const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
-
-before(done => {
-	local.start(done);
-});
-
-after(done => {
-	local.stop(done);
-});
-
 function streamToPromise(stream, dataHandler) {
 	return new Promise((resolve, reject) => {
 		stream.on('data', (...args) => {
@@ -72,6 +61,18 @@ function streamToPromise(stream, dataHandler) {
 }
 
 describe('node-fetch', () => {
+	const local = new TestServer();
+	let base;
+
+	before(async () => {
+		await local.start();
+		base = `http://${local.hostname}:${local.port}/`;
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
 	it('should return a promise', () => {
 		const url = `${base}hello`;
 		const p = fetch(url);
@@ -2124,9 +2125,9 @@ describe('node-fetch', () => {
 		expect(extractContentType(null)).to.be.null;
 	});
 
-	it('should encode URLs as UTF-8', () => {
+	it('should encode URLs as UTF-8', async () => {
 		const url = `${base}möbius`;
-
-		fetch(url).then(res => expect(res.url).to.equal(`${base}m%C3%B6bius`));
+		const res = await fetch(url);
+		expect(res.url).to.equal(`${base}m%C3%B6bius`);
 	});
 });

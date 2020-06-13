@@ -1,12 +1,11 @@
 import http from 'http';
 import zlib from 'zlib';
 import Busboy from 'busboy';
+import {once} from 'events';
 
 export default class TestServer {
 	constructor() {
 		this.server = http.createServer(this.router);
-		this.port = 30001;
-		this.hostname = 'localhost';
 		// Node 8 default keepalive timeout is 5000ms
 		// make it shorter here as we want to close server quickly at the end of tests
 		this.server.keepAliveTimeout = 1000;
@@ -18,12 +17,22 @@ export default class TestServer {
 		});
 	}
 
-	start(cb) {
-		this.server.listen(this.port, this.hostname, cb);
+	async start() {
+		this.server.listen(0, 'localhost');
+		return once(this.server, 'listening');
 	}
 
-	stop(cb) {
-		this.server.close(cb);
+	async stop() {
+		this.server.close();
+		return once(this.server, 'close');
+	}
+
+	get port() {
+		return this.server.address().port;
+	}
+
+	get hostname() {
+		return 'localhost';
 	}
 
 	mockResponse(responseHandler) {

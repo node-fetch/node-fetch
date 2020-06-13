@@ -13,10 +13,19 @@ import {Request} from '../src/index.js';
 
 const {expect} = chai;
 
-const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
-
 describe('Request', () => {
+	const local = new TestServer();
+	let base;
+
+	before(async () => {
+		await local.start();
+		base = `http://${local.hostname}:${local.port}/`;
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
 	it('should have attributes conforming to Web IDL', () => {
 		const request = new Request('https://github.com/');
 		const enumerableProperties = [];
