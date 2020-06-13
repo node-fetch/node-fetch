@@ -1,7 +1,7 @@
 <div align="center">
   	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
   	<br>
-  	<p>A light-weight module that brings <code>window.fetch</code> to Node.js.</p>
+  	<p>A light-weight module that brings <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to Node.js.</p>
 	<a href="https://github.com/node-fetch/node-fetch/actions"><img src="https://github.com/node-fetch/node-fetch/workflows/CI/badge.svg?branch=master" alt="Build status"></a>
 	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch" alt="Coverage status"></a>
 	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
@@ -49,6 +49,7 @@
 		- [Default Headers](#default-headers)
 		- [Custom Agent](#custom-agent)
 		- [Custom highWaterMark](#custom-highwatermark)
+		- [Insecure HTTP Parser](#insecure-http-parser)
 	- [Class: Request](#class-request)
 		- [new Request(input[, options])](#new-requestinput-options)
 	- [Class: Response](#class-response)
@@ -277,10 +278,10 @@ const streamPipeline = util.promisify(require('stream').pipeline);
 	const response = await fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
 	
 	if (response.ok) {
-		return streamPipeline(res.body, fs.createWriteStream('./octocat.png'));
+		return streamPipeline(response.body, fs.createWriteStream('./octocat.png'));
 	}
 
-	throw new Error(`unexpected response ${res.statusText}`);
+	throw new Error(`unexpected response ${response.statusText}`);
 })();
 ```
 
@@ -309,11 +310,11 @@ const fetch = require('node-fetch');
 (async () => {
 	const response = await fetch('https://github.com/');
 	
-	console.log(res.ok);
-	console.log(res.status);
-	console.log(res.statusText);
-	console.log(res.headers.raw());
-	console.log(res.headers.get('content-type'));
+	console.log(response.ok);
+	console.log(response.status);
+	console.log(response.statusText);
+	console.log(response.headers.raw());
+	console.log(response.headers.get('content-type'));
 })();
 ```
 
@@ -328,7 +329,7 @@ const fetch = require('node-fetch');
 	const response = await fetch('https://example.com');
 	
 	// Returns an array of values, instead of a string of comma-separated values
-	console.log(res.headers.raw()['set-cookie']);
+	console.log(response.headers.raw()['set-cookie']);
 })();
 ```
 
@@ -379,6 +380,20 @@ const options = {
 	
 	console.log(json)
 })();
+```
+
+node-fetch also supports spec-compliant FormData implementations such as [formdata-node](https://github.com/octet-stream/form-data):
+
+```js
+const fetch = require('node-fetch');
+const FormData = require('formdata-node');
+
+const form = new FormData();
+form.set('greeting', 'Hello, world!');
+
+fetch('https://httpbin.org/post', {method: 'POST', body: form})
+	.then(res => res.json())
+	.then(json => console.log(json));
 ```
 
 ### Request cancellation with AbortSignal
@@ -446,7 +461,8 @@ The default values are shown after each option key.
     compress: true,         // support gzip/deflate content encoding. false to disable
     size: 0,                // maximum response body size in bytes. 0 to disable
     agent: null,            // http(s).Agent instance or function that returns an instance (see below)
-    highWaterMark: 16384    // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+    highWaterMark: 16384,   // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+    insecureHTTPParser: false	// Use an insecure HTTP parser that accepts invalid HTTP headers when `true`.
 }
 ```
 
@@ -536,6 +552,11 @@ const fetch = require('node-fetch');
 	return res.clone().buffer();
 })();
 ```
+
+#### Insecure HTTP Parser
+
+Passed through to the `insecureHTTPParser` option on http(s).request. See [`http.request`](https://nodejs.org/api/http.html#http_http_request_url_options_callback) for more information.
+
 
 <a id="class-request"></a>
 
@@ -628,7 +649,7 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
-const Headers = require('node-fetch');
+const { Headers } = require('node-fetch');
 
 const meta = {
 	'Content-Type': 'text/xml',

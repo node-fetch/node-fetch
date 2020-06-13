@@ -29,26 +29,6 @@ const isRequest = object => {
 };
 
 /**
- * Wrapper around `new URL` to handle relative URLs (https://github.com/nodejs/node/issues/12682)
- *
- * @param  {string} urlStr
- * @return {void}
- */
-const parseURL = urlString => {
-	/*
-		Check whether the URL is absolute or not
-
-		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
-		Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
-	*/
-	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlString)) {
-		return new URL(urlString);
-	}
-
-	throw new TypeError('Only absolute URLs are supported');
-};
-
-/**
  * Request class
  *
  * @param   Mixed   input  Url or Request instance
@@ -59,20 +39,11 @@ export default class Request extends Body {
 	constructor(input, init = {}) {
 		let parsedURL;
 
-		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/bitinn/node-fetch/issues/245)
+		// Normalize input and force URL to be encoded as UTF-8 (https://github.com/node-fetch/node-fetch/issues/245)
 		if (isRequest(input)) {
-			parsedURL = parseURL(input.url);
+			parsedURL = new URL(input.url);
 		} else {
-			if (input && input.href) {
-				// In order to support Node.js' Url objects; though WHATWG's URL objects
-				// will fall into this branch also (since their `toString()` will return
-				// `href` property anyway)
-				parsedURL = parseURL(input.href);
-			} else {
-				// Coerce input to a string before attempting to parse
-				parsedURL = parseURL(`${input}`);
-			}
-
+			parsedURL = new URL(input);
 			input = {};
 		}
 
@@ -98,7 +69,7 @@ export default class Request extends Body {
 		const headers = new Headers(init.headers || input.headers || {});
 
 		if (inputBody !== null && !headers.has('Content-Type')) {
-			const contentType = extractContentType(inputBody);
+			const contentType = extractContentType(inputBody, this);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
 			}
@@ -129,6 +100,7 @@ export default class Request extends Body {
 		this.counter = init.counter || input.counter || 0;
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
+		this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
 	}
 
 	get method() {
@@ -189,10 +161,6 @@ export const getNodeRequestOptions = request => {
 		headers.set('Accept', '*/*');
 	}
 
-	if (!/^https?:$/.test(parsedURL.protocol)) {
-		throw new TypeError('Only HTTP(S) protocols are supported');
-	}
-
 	// HTTP-network-or-cache fetch steps 2.4-2.7
 	let contentLengthValue = null;
 	if (request.body === null && /^(post|put)$/i.test(request.method)) {
@@ -201,7 +169,8 @@ export const getNodeRequestOptions = request => {
 
 	if (request.body !== null) {
 		const totalBytes = getTotalBytes(request);
-		if (typeof totalBytes === 'number') {
+		// Set Content-Length if totalBytes is a number (that is not NaN)
+		if (typeof totalBytes === 'number' && !Number.isNaN(totalBytes)) {
 			contentLengthValue = String(totalBytes);
 		}
 	}
@@ -247,6 +216,7 @@ export const getNodeRequestOptions = request => {
 		href: parsedURL.href,
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
+		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
 

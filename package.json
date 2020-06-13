@@ -1,7 +1,7 @@
 {
 	"name": "node-fetch",
-	"version": "3.0.0-beta.6-exportfix",
-	"description": "A light-weight module that brings window.fetch to node.js",
+	"version": "3.0.0-beta.7",
+	"description": "A light-weight module that brings Fetch API to node.js",
 	"main": "./dist/index.cjs",
 	"module": "./src/index.js",
 	"sideEffects": false,
@@ -17,7 +17,7 @@
 	],
 	"types": "./@types/index.d.ts",
 	"engines": {
-		"node": ">=10.16"
+		"node": "^10.17 || >=12.3"
 	},
 	"scripts": {
 		"build": "rollup -c",
@@ -34,7 +34,12 @@
 	"keywords": [
 		"fetch",
 		"http",
-		"promise"
+		"promise",
+		"request",
+		"curl",
+		"wget",
+		"xhr",
+		"whatwg"
 	],
 	"author": "David Frank",
 	"license": "MIT",
@@ -50,21 +55,26 @@
 		"abort-controller": "^3.0.0",
 		"abortcontroller-polyfill": "^1.4.0",
 		"ava": "^3.8.2",
+		"busboy": "^0.3.1",
 		"c8": "^7.1.2",
 		"coveralls": "^3.1.0",
 		"delay": "^4.3.0",
 		"form-data": "^3.0.0",
+		"formdata-node": "^2.2.0",
 		"p-timeout": "^3.2.0",
 		"parted": "^0.1.1",
-		"resumer": "0.0.0",
-		"rollup": "^2.10.8",
+		"rollup": "^2.15.0",
 		"string-to-arraybuffer": "^1.0.2",
 		"tsd": "^0.11.0",
-		"xo": "^0.30.0"
+		"xo": "^0.32.0"
 	},
 	"dependencies": {
-		"data-uri-to-buffer": "^3.0.0",
-		"fetch-blob": "^1.0.6"
+		"data-uri-to-buffer": "^3.0.1",
+		"fetch-blob": "^2.0.0"
+	},
+	"esm": {
+		"sourceMap": true,
+		"cjs": false
 	},
 	"tsd": {
 		"cwd": "@types",
@@ -86,7 +96,9 @@
 			"complexity": 0,
 			"import/extensions": 0,
 			"import/no-useless-path-segments": 0,
+			"import/no-anonymous-default-export": 0,
 			"unicorn/import-index": 0,
+			"unicorn/no-reduce": 0,
 			"capitalized-comments": 0
 		},
 		"ignores": [

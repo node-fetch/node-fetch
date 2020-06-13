@@ -10,48 +10,44 @@ import http from 'http';
 import https from 'https';
 import zlib from 'zlib';
 import Stream, {PassThrough, pipeline as pump} from 'stream';
-import dataURIToBuffer from 'data-uri-to-buffer';
+import dataUriToBuffer from 'data-uri-to-buffer';
 
-import {writeToStream, getTotalBytes} from './body.js';
+import {writeToStream} from './body.js';
 import Response from './response.js';
 import Headers, {fromRawHeaders} from './headers.js';
 import Request, {getNodeRequestOptions} from './request.js';
-import FetchError from './errors/fetch-error.js';
-import AbortError from './errors/abort-error.js';
+import {FetchError} from './errors/fetch-error.js';
+import {AbortError} from './errors/abort-error.js';
 import {isRedirect} from './utils/is-redirect.js';
 
 export {Headers, Request, Response, FetchError, AbortError, isRedirect};
 
+const supportedSchemas = new Set(['data:', 'http:', 'https:']);
+
 /**
  * Fetch function
  *
- * @param   Mixed    url   Absolute url or Request instance
- * @param   Object   opts  Fetch options
- * @return  Promise
+ * @param   {string | URL | import('./request').default} url - Absolute url or Request instance
+ * @param   {*} [options_] - Fetch options
+ * @return  {Promise<import('./response').default>}
  */
 export default async function fetch(url, options_) {
-	// Regex for data uri
-	const dataUriRegex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[\w!$&',()*+;=\-.~:@/?%\s]*\s*$/i;
-
-	// If valid data uri
-	if (dataUriRegex.test(url)) {
-		const data = dataURIToBuffer(url);
-		const response = new Response(data, {headers: {'Content-Type': data.type}});
-		return response;
-	}
-
-	// If invalid data uri
-	if (url.toString().startsWith('data:')) {
-		const request = new Request(url, options_);
-		throw new FetchError(`[${request.method}] ${request.url} invalid URL`, 'system');
-	}
-
-	// Wrap http.request into fetch
 	return new Promise((resolve, reject) => {
 		// Build request object
 		const request = new Request(url, options_);
 		const options = getNodeRequestOptions(request);
+		if (!supportedSchemas.has(options.protocol)) {
+			throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${options.protocol.replace(/:$/, '')}" is not supported.`);
+		}
 
+		if (options.protocol === 'data:') {
+			const data = dataUriToBuffer(request.url);
+			const response = new Response(data, {headers: {'Content-Type': data.typeFull}});
+			resolve(response);
+			return;
+		}
+
+		// Wrap http.request into fetch
 		const send = (options.protocol === 'https:' ? https : http).request;
 		const {signal} = request;
 		let response = null;
@@ -157,7 +153,7 @@ export default async function fetch(url, options_) {
 						};
 
 						// HTTP-redirect fetch step 9
-						if (response_.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
+						if (response_.statusCode !== 303 && request.body && options_.body instanceof Stream.Readable) {
 							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'));
 							finalize();
 							return;
@@ -191,6 +187,10 @@ export default async function fetch(url, options_) {
 			let body = pump(response_, new PassThrough(), error => {
 				reject(error);
 			});
+			// see https://github.com/nodejs/node/pull/29376
+			if (process.version < 'v12.10') {
+				response_.on('aborted', abortAndFinalize);
+			}
 
 			const responseOptions = {
 				url: request.url,
@@ -282,4 +282,3 @@ export default async function fetch(url, options_) {
 		writeToStream(request_, request);
 	});
 }
-

@@ -4,14 +4,15 @@ import crypto from 'crypto';
 import http from 'http';
 import fs from 'fs';
 import stream from 'stream';
+import path from 'path';
 import {lookup} from 'dns';
 import vm from 'vm';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
-import resumer from 'resumer';
 import FormData from 'form-data';
+import FormDataNode from 'formdata-node';
 import stringToArrayBuffer from 'string-to-arraybuffer';
 import delay from 'delay';
 import AbortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
@@ -28,7 +29,7 @@ import fetch, {
 	Request,
 	Response
 } from '../src/index.js';
-import FetchErrorOrig from '../src/errors/fetch-error.js';
+import {FetchError as FetchErrorOrig} from '../src/errors/fetch-error.js';
 import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
@@ -57,8 +58,6 @@ before(done => {
 after(done => {
 	local.stop(done);
 });
-
-const itIf = value => value ? it : it.skip;
 
 function streamToPromise(stream, dataHandler) {
 	return new Promise((resolve, reject) => {
@@ -95,20 +94,21 @@ describe('node-fetch', () => {
 
 	it('should reject with error if url is protocol relative', () => {
 		const url = '//example.com/';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /Invalid URL/);
 	});
 
 	it('should reject with error if url is relative path', () => {
 		const url = '/some/path';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only absolute URLs are supported');
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /Invalid URL/);
 	});
 
 	it('should reject with error if protocol is unsupported', () => {
 		const url = 'ftp://example.com/';
-		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, 'Only HTTP(S) protocols are supported');
+		return expect(fetch(url)).to.eventually.be.rejectedWith(TypeError, /URL scheme "ftp" is not supported/);
 	});
 
-	itIf(process.platform !== 'win32')('should reject with error on network failure', () => {
+	it('should reject with error on network failure', function () {
+		this.timeout(5000);
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -125,7 +125,8 @@ describe('node-fetch', () => {
 		return expect(err).to.not.have.property('erroredSysCall');
 	});
 
-	itIf(process.platform !== 'win32')('system error is extracted from failed requests', () => {
+	it('system error is extracted from failed requests', function () {
+		this.timeout(5000);
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -404,7 +405,7 @@ describe('node-fetch', () => {
 		const url = `${base}redirect/307`;
 		const options = {
 			method: 'PATCH',
-			body: resumer().queue('a=1').end()
+			body: stream.Readable.from('tada')
 		};
 		return expect(fetch(url, options)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
@@ -582,7 +583,7 @@ describe('node-fetch', () => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejectedWith(Error)
-				.and.have.property('message').includes('Premature close');
+				.and.have.property('message').matches(/Premature close|The operation was aborted/);
 		});
 	});
 
@@ -590,7 +591,7 @@ describe('node-fetch', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.have.property('code', 'ENOTFOUND');
+			.and.have.property('code').that.matches(/ENOTFOUND|EAI_AGAIN/);
 	});
 
 	it('should reject invalid json response', () => {
@@ -1250,13 +1251,10 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with readable stream as body', () => {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body
+			body: stream.Readable.from('a=1')
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -1288,7 +1286,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	itIf(process.platform !== 'win32')('should allow POST request with form-data using stream as body', () => {
+	it('should allow POST request with form-data using stream as body', () => {
 		const form = new FormData();
 		form.append('my_field', fs.createReadStream('test/utils/dummy.txt'));
 
@@ -1329,6 +1327,30 @@ describe('node-fetch', () => {
 			expect(res.headers['content-length']).to.be.a('string');
 			expect(res.headers.b).to.equal('2');
 			expect(res.body).to.equal('a=1');
+		});
+	});
+
+	it('should support spec-compliant form-data as POST body', () => {
+		const form = new FormDataNode();
+
+		const filename = path.join('test', 'utils', 'dummy.txt');
+
+		form.set('field', 'some text');
+		form.set('file', fs.createReadStream(filename), {
+			size: fs.statSync(filename).size
+		});
+
+		const url = `${base}multipart`;
+		const options = {
+			method: 'POST',
+			body: form
+		};
+
+		return fetch(url, options).then(res => res.json()).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.headers['content-type']).to.startWith('multipart/form-data');
+			expect(res.body).to.contain('field=');
+			expect(res.body).to.contain('file=');
 		});
 	});
 
@@ -1971,27 +1993,16 @@ describe('node-fetch', () => {
 
 	// Issue #414
 	it('should reject if attempt to accumulate body stream throws', () => {
-		let body = resumer().queue('a=1').end();
-		body = body.pipe(new stream.PassThrough());
-		const res = new Response(body);
-		const bufferConcat = Buffer.concat;
-		const restoreBufferConcat = () => {
-			Buffer.concat = bufferConcat;
-		};
+		const res = new Response(stream.Readable.from((async function * () {
+			yield Buffer.from('tada');
+			await new Promise(resolve => setTimeout(resolve, 200));
+			yield {tada: 'yes'};
+		})()));
 
-		Buffer.concat = () => {
-			throw new Error('embedded error');
-		};
-
-		const textPromise = res.text();
-		// Ensure that `Buffer.concat` is always restored:
-		textPromise.then(restoreBufferConcat, restoreBufferConcat);
-
-		return expect(textPromise).to.eventually.be.rejected
+		return expect(res.text()).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
 			.and.include({type: 'system'})
-			.and.have.property('message').that.includes('Could not create Buffer')
-			.and.that.includes('embedded error');
+			.and.have.property('message').that.include('Could not create Buffer');
 	});
 
 	it('supports supplying a lookup function to the agent', () => {
@@ -2053,8 +2064,7 @@ describe('node-fetch', () => {
 		const url = `${base}hello`;
 		const bodyContent = 'a=1';
 
-		let streamBody = resumer().queue(bodyContent).end();
-		streamBody = streamBody.pipe(new stream.PassThrough());
+		const streamBody = stream.Readable.from(bodyContent);
 		const streamRequest = new Request(url, {
 			method: 'POST',
 			body: streamBody,
