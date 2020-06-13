@@ -211,7 +211,7 @@ describe('Response', () => {
 				}, 0);
 			})]);
 			expect(ticks).to.be.greaterThan(5); // magic number, but it's actually is 0 when sync JSON.parse is used
-			expect(json).to.be.deep.equal(bigObject)
+			expect(json).to.be.deep.equal(bigObject);
 		});
 
 		it('should be possible to catch JSON parsing error on a large response', async () => {
