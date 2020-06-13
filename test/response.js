@@ -200,7 +200,7 @@ describe('Response', () => {
 				a: randomBytes(0o100000).toString('hex'),
 				b: [randomBytes(0xFFFF).toString('base64')]
 			};
-			const res = new Response(Buffer.from(JSON.stringify(bigObject)));
+			const res = new Response(JSON.stringify(bigObject));
 			let ticks = 0;
 			const json = await Promise.race([res.json(), new Promise(resolve => {
 				const interval = setInterval(() => {
