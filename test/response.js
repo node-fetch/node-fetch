@@ -219,7 +219,7 @@ describe('Response', () => {
 
 		it('should be possible to catch JSON parsing error on a large response', async () => {
 			const res = new Response(randomBytes(0xFFFF).toString('base64'));
-			return expect(res.json()).to.eventually.be.rejectedWith(SyntaxError, /Unexpected token/);
+			return expect(res.json()).to.eventually.be.rejectedWith(SyntaxError, /Unexpected/);
 		});
 	}
 });
