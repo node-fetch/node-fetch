@@ -1,21 +1,31 @@
 
 import stream from 'stream';
 import http from 'http';
+import {TextEncoder} from 'util';
+
 import AbortController from 'abort-controller';
 import chai from 'chai';
 import FormData from 'form-data';
 import Blob from 'fetch-blob';
-import stringToArrayBuffer from 'string-to-arraybuffer';
 
 import TestServer from './utils/server.js';
 import {Request} from '../src/index.js';
 
 const {expect} = chai;
 
-const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
-
 describe('Request', () => {
+	const local = new TestServer();
+	let base;
+
+	before(async () => {
+		await local.start();
+		base = `http://${local.hostname}:${local.port}/`;
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
 	it('should have attributes conforming to Web IDL', () => {
 		const request = new Request('https://github.com/');
 		const enumerableProperties = [];
@@ -235,9 +245,10 @@ describe('Request', () => {
 	});
 
 	it('should support ArrayBuffer as body', () => {
+		const encoder = new TextEncoder();
 		const request = new Request(base, {
 			method: 'POST',
-			body: stringToArrayBuffer('a=1')
+			body: encoder.encode('a=1').buffer
 		});
 		return request.text().then(result => {
 			expect(result).to.equal('a=1');
@@ -245,9 +256,10 @@ describe('Request', () => {
 	});
 
 	it('should support Uint8Array as body', () => {
+		const encoder = new TextEncoder();
 		const request = new Request(base, {
 			method: 'POST',
-			body: new Uint8Array(stringToArrayBuffer('a=1'))
+			body: encoder.encode('a=1')
 		});
 		return request.text().then(result => {
 			expect(result).to.equal('a=1');
@@ -255,9 +267,10 @@ describe('Request', () => {
 	});
 
 	it('should support DataView as body', () => {
+		const encoder = new TextEncoder();
 		const request = new Request(base, {
 			method: 'POST',
-			body: new DataView(stringToArrayBuffer('a=1'))
+			body: new DataView(encoder.encode('a=1').buffer)
 		});
 		return request.text().then(result => {
 			expect(result).to.equal('a=1');
