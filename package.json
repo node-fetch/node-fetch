@@ -8,7 +8,8 @@
 	"type": "module",
 	"exports": {
 		"import": "./src/index.js",
-		"require": "./dist/index.cjs"
+		"require": "./dist/index.cjs",
+    "./package.json": "./package.json"
 	},
 	"files": [
 		"src",
