@@ -20,7 +20,6 @@ export const isURLSearchParameters = object => {
 		typeof object.delete === 'function' &&
 		typeof object.get === 'function' &&
 		typeof object.getAll === 'function' &&
-		typeof object.has === 'function' &&
 		typeof object.set === 'function' &&
 		typeof object.sort === 'function' &&
 		object[NAME] === 'URLSearchParams'
