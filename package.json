@@ -7,8 +7,11 @@
 	"sideEffects": false,
 	"type": "module",
 	"exports": {
-		"import": "./src/index.js",
-		"require": "./dist/index.cjs"
+    ".": {
+      "import": "./src/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
 	},
 	"files": [
 		"src",
@@ -66,10 +69,8 @@
 		"formdata-node": "^2.2.0",
 		"mocha": "^8.0.0",
 		"p-timeout": "^3.2.0",
-		"parted": "^0.1.1",
 		"rollup": "^2.15.0",
-		"string-to-arraybuffer": "^1.0.2",
-		"tsd": "^0.11.0",
+		"tsd": "^0.13.1",
 		"xo": "^0.32.0"
 	},
 	"dependencies": {

@@ -7,13 +7,13 @@ import stream from 'stream';
 import path from 'path';
 import {lookup} from 'dns';
 import vm from 'vm';
+import {TextEncoder} from 'util';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
 import FormDataNode from 'formdata-node';
-import stringToArrayBuffer from 'string-to-arraybuffer';
 import delay from 'delay';
 import AbortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import AbortController2 from 'abort-controller';
@@ -48,17 +48,6 @@ chai.use(chaiString);
 chai.use(chaiTimeout);
 const {expect} = chai;
 
-const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
-
-before(done => {
-	local.start(done);
-});
-
-after(done => {
-	local.stop(done);
-});
-
 function streamToPromise(stream, dataHandler) {
 	return new Promise((resolve, reject) => {
 		stream.on('data', (...args) => {
@@ -72,6 +61,18 @@ function streamToPromise(stream, dataHandler) {
 }
 
 describe('node-fetch', () => {
+	const local = new TestServer();
+	let base;
+
+	before(async () => {
+		await local.start();
+		base = `http://${local.hostname}:${local.port}/`;
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
 	it('should return a promise', () => {
 		const url = `${base}hello`;
 		const p = fetch(url);
@@ -1125,10 +1126,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBuffer body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: stringToArrayBuffer('Hello, world!\n')
+			body: encoder.encode('Hello, world!\n').buffer
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1155,10 +1157,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (Uint8Array) body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'))
+			body: encoder.encode('Hello, world!\n')
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1170,10 +1173,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (DataView) body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new DataView(stringToArrayBuffer('Hello, world!\n'))
+			body: new DataView(encoder.encode('Hello, world!\n').buffer)
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1200,10 +1204,11 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', () => {
+		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new Uint8Array(stringToArrayBuffer('Hello, world!\n'), 7, 6)
+			body: encoder.encode('Hello, world!\n').subarray(7, 13)
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -2120,42 +2125,9 @@ describe('node-fetch', () => {
 		expect(extractContentType(null)).to.be.null;
 	});
 
-	it('should encode URLs as UTF-8', () => {
+	it('should encode URLs as UTF-8', async () => {
 		const url = `${base}möbius`;
-
-		fetch(url).then(res => expect(res.url).to.equal(`${base}m%C3%B6bius`));
-	});
-
-	describe('data uri', () => {
-		const dataUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
-
-		const invalidDataUrl = 'data:@@@@';
-
-		it('should accept data uri', () => {
-			return fetch(dataUrl).then(r => {
-				console.assert(r.status === 200);
-				console.assert(r.headers.get('Content-Type') === 'image/gif');
-
-				return r.buffer().then(b => {
-					console.assert(b instanceof Buffer);
-				});
-			});
-		});
-
-		it('should accept data uri 2', async () => {
-			const r = await fetch('data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678');
-			expect(r.status).to.equal(200);
-			expect(r.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8;page=21');
-
-			const b = await r.text();
-			expect(b).to.equal('the data:1234,5678');
-		});
-
-		it('should reject invalid data uri', () => {
-			return fetch(invalidDataUrl).catch(error => {
-				console.assert(error);
-				console.assert(error.message.includes('invalid URL'));
-			});
-		});
+		const res = await fetch(url);
+		expect(res.url).to.equal(`${base}m%C3%B6bius`);
 	});
 });

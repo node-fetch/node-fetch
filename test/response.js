@@ -1,17 +1,26 @@
 
 import * as stream from 'stream';
+import {TextEncoder} from 'util';
 import chai from 'chai';
-import stringToArrayBuffer from 'string-to-arraybuffer';
 import Blob from 'fetch-blob';
 import {Response} from '../src/index.js';
 import TestServer from './utils/server.js';
 
 const {expect} = chai;
 
-const local = new TestServer();
-const base = `http://${local.hostname}:${local.port}/`;
-
 describe('Response', () => {
+	const local = new TestServer();
+	let base;
+
+	before(async () => {
+		await local.start();
+		base = `http://${local.hostname}:${local.port}/`;
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
 	it('should have attributes conforming to Web IDL', () => {
 		const res = new Response();
 		const enumerableProperties = [];
@@ -150,7 +159,8 @@ describe('Response', () => {
 	});
 
 	it('should support ArrayBuffer as body', () => {
-		const res = new Response(stringToArrayBuffer('a=1'));
+		const encoder = new TextEncoder();
+		const res = new Response(encoder.encode('a=1'));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
@@ -164,14 +174,16 @@ describe('Response', () => {
 	});
 
 	it('should support Uint8Array as body', () => {
-		const res = new Response(new Uint8Array(stringToArrayBuffer('a=1')));
+		const encoder = new TextEncoder();
+		const res = new Response(encoder.encode('a=1'));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
 	});
 
 	it('should support DataView as body', () => {
-		const res = new Response(new DataView(stringToArrayBuffer('a=1')));
+		const encoder = new TextEncoder();
+		const res = new Response(new DataView(encoder.encode('a=1').buffer));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
