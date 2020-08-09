@@ -3,6 +3,14 @@ Changelog
 
 # 3.x release
 
+## v3.0.0-beta.8
+
+- Enhance: remove string-to-arraybuffer (#882).
+- Enhance: remove parted dependency (#883).
+- Fix: export package.json (#908).
+- Fix: minimum Node.js version (#874).
+- Other: fix typo.
+
 ## v3.0.0-beta.7
 
 - **Breaking:** minimum supported Node.js version is now 10.17.
