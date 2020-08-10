@@ -1,17 +1,17 @@
 {
 	"name": "node-fetch",
-	"version": "3.0.0-beta.7",
+	"version": "3.0.0-beta.8",
 	"description": "A light-weight module that brings Fetch API to node.js",
 	"main": "./dist/index.cjs",
 	"module": "./src/index.js",
 	"sideEffects": false,
 	"type": "module",
 	"exports": {
-    ".": {
-      "import": "./src/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json"
+		".": {
+			"import": "./src/index.js",
+			"require": "./dist/index.cjs"
+		},
+		"./package.json": "./package.json"
 	},
 	"files": [
 		"src",
@@ -110,8 +110,7 @@
 			"dist",
 			"@types"
 		],
-		"overrides": [
-			{
+		"overrides": [{
 				"files": "test/**/*.js",
 				"envs": [
 					"node",
