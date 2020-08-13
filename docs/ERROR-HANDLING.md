@@ -9,7 +9,7 @@ The basics:
 - A cancelled request is rejected with an [`AbortError`](https://github.com/node-fetch/node-fetch/blob/master/README.md#class-aborterror). You can check if the reason for rejection was that the request was aborted by checking the `Error`'s `name` is `AbortError`.
 
 ```js
-const fetch = required('node-fetch');
+const fetch = require('node-fetch');
 
 (async () => {
 		try {
