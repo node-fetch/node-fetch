@@ -223,7 +223,7 @@ params.append('a', 1);
 
 NOTE: 3xx-5xx responses are _NOT_ exceptions, and should be handled in `then()`, see the next section.
 
-Wrapping the fetch function into a `try/catch` block will catch _all_ exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document][error-handling.md] for more details.
+Wrapping the fetch function into a `try/catch` block will catch _all_ exceptions, such as errors originating from node core libraries, like network errors, and operational errors which are instances of FetchError. See the [error handling document][error-handling] for more details.
 
 ```js
 const fetch = require('node-fetch');
@@ -723,7 +723,7 @@ Consume the body and return a promise that will resolve to a Buffer.
 
 <small>_(node-fetch extension)_</small>
 
-An operational error in the fetching process. See [ERROR-HANDLING.md][] for more info.
+An operational error in the fetching process. See [ERROR-HANDLING.md][error-handling] for more info.
 
 <a id="class-aborterror"></a>
 
@@ -731,7 +731,7 @@ An operational error in the fetching process. See [ERROR-HANDLING.md][] for more
 
 <small>_(node-fetch extension)_</small>
 
-An Error thrown when the request is aborted in response to an `AbortSignal`'s `abort` event. It has a `name` property of `AbortError`. See [ERROR-HANDLING.MD][] for more info.
+An Error thrown when the request is aborted in response to an `AbortSignal`'s `abort` event. It has a `name` property of `AbortError`. See [ERROR-HANDLING.MD][error-handling] for more info.
 
 ## TypeScript
 
@@ -766,4 +766,4 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 [response-init]: https://fetch.spec.whatwg.org/#responseinit
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
-[error-handling.md]: https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md
+[error-handling]: https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md
