@@ -36,7 +36,7 @@ export default class Body {
 			// Body is undefined or null
 			body = null;
 		} else if (isURLSearchParameters(body)) {
-		// Body is a URLSearchParams
+			// Body is a URLSearchParams
 			body = Buffer.from(body.toString());
 		} else if (isBlob(body)) {
 			// Body is blob
@@ -79,7 +79,8 @@ export default class Body {
 	}
 
 	get body() {
-		return this[INTERNALS].body;
+		const {body} = this[INTERNALS];
+		return Buffer.isBuffer(body) ? Stream.Readable.from(body) : body;
 	}
 
 	get bodyUsed() {
@@ -327,7 +328,7 @@ export const extractContentType = (body, request) => {
  * @returns {number | null}
  */
 export const getTotalBytes = request => {
-	const {body} = request;
+	const {body} = request[INTERNALS];
 
 	// Body is null or undefined
 	if (body === null) {
