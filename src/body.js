@@ -52,7 +52,7 @@ export default class Body {
 			// Body is stream
 		} else if (isFormData(body)) {
 			// Body is an instance of formdata-node
-			boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
+			boundary = `nodefetchformdataboundary${getBoundary()}`;
 			body = Stream.Readable.from(formDataIterator(body, boundary));
 		} else {
 			// None of the above
