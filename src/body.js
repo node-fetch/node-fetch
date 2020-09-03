@@ -80,7 +80,7 @@ export default class Body {
 
 	get body() {
 		const {body} = this[INTERNALS];
-		return Buffer.isBuffer(body) ? Stream.Readable.from(body) : body;
+		return Buffer.isBuffer(body) ? Stream.Readable.from(body) : isBlob(body) ? body.stream() : body;
 	}
 
 	get bodyUsed() {
@@ -382,4 +382,3 @@ export const writeToStream = (dest, {body}) => {
 		body.pipe(dest);
 	}
 };
-
