@@ -216,6 +216,11 @@ describe('Response', () => {
 		expect(res.body).to.be.an.instanceof(stream.Readable);
 	});
 
+	it('should cast blob to stream using res.body', () => {
+		const res = new Response(new Blob(['a']));
+		expect(res.body).to.be.an.instanceof(stream.Readable);
+	});
+
 	it('should not cast null to stream using res.body', () => {
 		const res = new Response(null);
 		expect(res.body).to.be.null;
