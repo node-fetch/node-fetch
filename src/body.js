@@ -176,16 +176,6 @@ async function consumeBody(data) {
 		return Buffer.alloc(0);
 	}
 
-	// Body is blob
-	if (isBlob(body)) {
-		body = body.stream();
-	}
-
-	// Body is buffer
-	if (Buffer.isBuffer(body)) {
-		return body;
-	}
-
 	/* c8 ignore next 3 */
 	if (!(body instanceof Stream)) {
 		return Buffer.alloc(0);
@@ -369,13 +359,6 @@ export const getTotalBytes = request => {
 export const writeToStream = (dest, {body}) => {
 	if (body === null) {
 		// Body is null
-		dest.end();
-	} else if (isBlob(body)) {
-		// Body is Blob
-		body.stream().pipe(dest);
-	} else if (Buffer.isBuffer(body)) {
-		// Body is buffer
-		dest.write(body);
 		dest.end();
 	} else {
 		// Body is stream
