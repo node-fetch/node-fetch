@@ -60,12 +60,12 @@ export default class Body {
 			body = Buffer.from(String(body));
 		}
 
+		let stream = body;
+
 		if (Buffer.isBuffer(body)) {
-			var stream = Stream.Readable.from(body);
+			stream = Stream.Readable.from(body);
 		} else if (isBlob(body)) {
 			stream = body.stream();
-		} else {
-			stream = body;
 		}
 
 		this[INTERNALS] = {
