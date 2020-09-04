@@ -60,8 +60,17 @@ export default class Body {
 			body = Buffer.from(String(body));
 		}
 
+		if (Buffer.isBuffer(body)) {
+			var stream = Stream.Readable.from(body);
+		} else if (isBlob(body)) {
+			stream = body.stream();
+		} else {
+			stream = body;
+		}
+
 		this[INTERNALS] = {
 			body,
+			stream,
 			boundary,
 			disturbed: false,
 			error: null
@@ -79,8 +88,7 @@ export default class Body {
 	}
 
 	get body() {
-		const {body} = this[INTERNALS];
-		return Buffer.isBuffer(body) ? Stream.Readable.from(body) : isBlob(body) ? body.stream() : body;
+		return this[INTERNALS].stream;
 	}
 
 	get bodyUsed() {
@@ -169,7 +177,7 @@ async function consumeBody(data) {
 		throw data[INTERNALS].error;
 	}
 
-	let {body} = data;
+	const {body} = data;
 
 	// Body is null
 	if (body === null) {
@@ -231,7 +239,7 @@ async function consumeBody(data) {
 export const clone = (instance, highWaterMark) => {
 	let p1;
 	let p2;
-	let {body} = instance;
+	let {body} = instance[INTERNALS];
 
 	// Don't allow cloning a used body
 	if (instance.bodyUsed) {
@@ -247,7 +255,7 @@ export const clone = (instance, highWaterMark) => {
 		body.pipe(p1);
 		body.pipe(p2);
 		// Set instance body to teed body and return the other teed body
-		instance[INTERNALS].body = p1;
+		instance[INTERNALS].stream = p1;
 		body = p2;
 	}
 
