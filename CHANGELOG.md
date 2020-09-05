@@ -7,7 +7,7 @@ Changelog
 
 ## v2.6.1
 
-**This is an important security release. We strongly encourage everyone to update as soon as possible.**
+**This is an important security release. It is strongly recommended to update as soon as possible.**
 
 - Fix: honor the `size` option after following a redirect.
 
