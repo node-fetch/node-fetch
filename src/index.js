@@ -149,7 +149,8 @@ export default async function fetch(url, options_) {
 							compress: request.compress,
 							method: request.method,
 							body: request.body,
-							signal: request.signal
+							signal: request.signal,
+							size: request.size
 						};
 
 						// HTTP-redirect fetch step 9
