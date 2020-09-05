@@ -2000,7 +2000,9 @@ describe('node-fetch', () => {
 	it('should reject if attempt to accumulate body stream throws', () => {
 		const res = new Response(stream.Readable.from((async function * () {
 			yield Buffer.from('tada');
-			await new Promise(resolve => setTimeout(resolve, 200));
+			await new Promise(resolve => {
+				setTimeout(resolve, 200);
+			});
 			yield {tada: 'yes'};
 		})()));
 

@@ -3,6 +3,12 @@ Changelog
 
 # 3.x release
 
+## v3.0.0-beta.9
+
+**This is an important security release. It is strongly recommended to update as soon as possible.**
+
+- Fix: honor the `size` option after following a redirect.
+
 ## v3.0.0-beta.8
 
 - Enhance: remove string-to-arraybuffer (#882).
@@ -95,6 +101,12 @@ Changelog
 
 
 # 2.x release
+
+## v2.6.1
+
+**This is an important security release. It is strongly recommended to update as soon as possible.**
+
+- Fix: honor the `size` option after following a redirect.
 
 ## v2.6.0
 
