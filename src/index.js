@@ -38,17 +38,6 @@ export default function fetch(url, opts) {
 		throw new Error('native promise missing, set fetch.Promise to your favorite alternative');
 	}
 
-	if (/^data:/.test(url)) {
-		const request = new Request(url, opts);
-		try {
-			const data = Buffer.from(url.split(',')[1], 'base64')
-			const res = new Response(data.body, { headers: { 'Content-Type': data.mimeType || url.match(/^data:(.+);base64,.*$/)[1] } });
-			return fetch.Promise.resolve(res);
-		} catch (err) {
-			return fetch.Promise.reject(new FetchError(`[${request.method}] ${request.url} invalid URL, ${err.message}`, 'system', err));
-		}
-	}
-
 	Body.Promise = fetch.Promise;
 
 	// wrap http.request into fetch
@@ -164,7 +153,8 @@ export default function fetch(url, opts) {
 							method: request.method,
 							body: request.body,
 							signal: request.signal,
-							timeout: request.timeout
+							timeout: request.timeout,
+                            size: request.size
 						};
 
 						// HTTP-redirect fetch step 9
