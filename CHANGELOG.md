@@ -5,6 +5,12 @@ Changelog
 
 # 2.x release
 
+## v2.6.1
+
+**This is an important security release. We strongly encourage everyone to update as soon as possible.**
+
+- Fix: honor the `size` option after following a redirect.
+
 ## v2.6.0
 
 - Enhance: `options.agent`, it now accepts a function that returns custom http(s).Agent instance based on current URL, see readme for more information.
