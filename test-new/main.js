@@ -1,6 +1,20 @@
 // Test tools
 import test from 'ava';
 import stream from 'stream';
+import zlib from 'zlib';
+import delay from 'delay';
+import AbortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
+import AbortController2 from 'abort-controller';
+import vm from 'vm';
+import fs from 'fs';
+import FormData from 'form-data';
+import FormDataNode from 'formdata-node';
+import path from 'path';
+
+const {AbortController} = AbortControllerPolyfill;
+
+// Test subjects
+import Blob from 'fetch-blob';
 
 import fetch, {
 	FetchError,
@@ -13,6 +27,10 @@ import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import TestServer from './utils/server.js';
+
+const {
+	Uint8Array: VMUint8Array
+} = vm.runInNewContext('this');
 
 const local = new TestServer();
 let base;
@@ -347,7 +365,6 @@ test('should follow PATCH request redirect code 307 with PATCH', t => {
 	return fetch(url, options).then(res => {
 		t.is(res.url, `${base}inspect`);
 		t.is(res.status, 200);
-		t.log(res)
 		return res.json().then(result => {
 			t.is(result.method, 'PATCH');
 			t.is(result.body, 'a=1');
@@ -528,6 +545,742 @@ test('should handle network-error response', async t => {
 	const url = `${base}error/reset`;
 	const err = await t.throwsAsync(async () => await fetch(url));
 	t.true(err instanceof FetchError);
-	t.log(err)
 	t.is(err.code, 'ECONNRESET');
+});
+
+test.serial('should handle network-error partial response', async t => {
+	const url = `${base}error/premature`;
+	return fetch(url).then(async res => {
+		t.is(res.status, 200);
+		t.true(res.ok);
+		await t.throwsAsync(() => res.text(), {instanceOf: Error, message: /Premature close|The operation was aborted/});
+	})
+});
+
+test.skip('should handle DNS-error response', async t => {
+	const url = 'http://domain.invalid';
+	const err = await t.throwsAsync(() => fetch(url));
+	t.true(err instanceof FetchError);
+	t.is(err.code, /ENOTFOUND|EAI_AGAIN/);
+});
+
+test.serial('should reject invalid json response', t => {
+	const url = `${base}error/json`;
+	return fetch(url).then(async res => {
+		t.is(res.headers.get('content-type'), 'application/json');
+		await t.throwsAsync(() => res.json(), {instanceOf: Error});
+	})
+})
+
+test('should handle no content response', t => {
+	const url = `${base}no-content`;
+	return fetch(url).then(res => {
+		t.is(res.status, 204);
+		t.is(res.statusText, 'No Content');
+		t.true(res.ok)
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.falsy(result);
+		});
+	});
+});
+
+test('should reject when trying to parse no content response as json', t => {
+	const url = `${base}no-content`;
+	return fetch(url).then(async res => {
+		t.is(res.status, 204);
+		t.is(res.statusText, 'No Content');
+		t.true(res.ok);
+		await t.throwsAsync(() => res.json(), {instanceOf: Error});
+	});
+});
+
+test('should handle no content response with gzip encoding', t => {
+	const url = `${base}no-content/gzip`;
+	return fetch(url).then(res => {
+		t.is(res.status, 204);
+		t.is(res.statusText, 'No Content');
+		t.is(res.headers.get('content-encoding'), 'gzip');
+		t.true(res.ok);
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.falsy(result);
+		});
+	});
+});
+
+test('should handle not modified response', t => {
+	const url = `${base}not-modified`;
+	return fetch(url).then(res => {
+		t.is(res.status, 304);
+		t.is(res.statusText, 'Not Modified');
+		t.false(res.ok);
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.falsy(result);
+		});
+	});
+});
+
+test('should handle not modified response with gzip encoding', t => {
+	const url = `${base}not-modified/gzip`;
+	return fetch(url).then(res => {
+		t.is(res.status, 304);
+		t.is(res.statusText, 'Not Modified');
+		t.is(res.headers.get('content-encoding'), 'gzip');
+		t.false(res.ok);
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.falsy(result);
+		});
+	});
+});
+
+test('should decompress gzip response', t => {
+	const url = `${base}gzip`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.is(result, 'hello world');
+		});
+	});
+});
+
+test('should decompress slightly invalid gzip response', t => {
+	const url = `${base}gzip-truncated`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.is(result, 'hello world');
+		});
+	});
+});
+
+test('should make capitalised Content-Encoding lowercase', t => {
+	const url = `${base}gzip-capital`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-encoding'), 'gzip');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.is(result, 'hello world');
+		});
+	});
+});
+
+test('should decompress deflate response', t => {
+	const url = `${base}deflate`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.is(result, 'hello world');
+		});
+	});
+});
+
+test('should decompress deflate raw response from old apache server', t => {
+	const url = `${base}deflate-raw`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.is(result, 'hello world');
+		});
+	});
+});
+
+test('should decompress brotli response', t => {
+	if (typeof zlib.createBrotliDecompress !== 'function') {
+		t.pass()
+	}
+
+	const url = `${base}brotli`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.is(result, 'hello world');
+		});
+	});
+});
+
+test('should handle no content response with brotli encoding', t => {
+	if (typeof zlib.createBrotliDecompress !== 'function') {
+		t.pass();
+	}
+
+	const url = `${base}no-content/brotli`;
+	return fetch(url).then(res => {
+		t.is(res.status, 204);
+		t.is(res.statusText, 'No Content');
+		t.is(res.headers.get('content-encoding'), 'br');
+		t.true(res.ok);
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.falsy(result);
+		});
+	});
+});
+
+test('should skip decompression if unsupported', t => {
+	const url = `${base}sdch`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.is(result, 'fake sdch string');
+		});
+	});
+});
+
+test('should reject if response compression is invalid', t => {
+	const url = `${base}invalid-content-encoding`;
+	return fetch(url).then(async res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		const err = await t.throwsAsync(() => res.text(), {instanceOf: FetchError});
+		t.is(err.code, 'Z_DATA_ERROR');
+	});
+});
+
+test.cb('should handle errors on the body stream even if it is not used', t => {
+	const url = `${base}invalid-content-encoding`;
+	fetch(url)
+		.then(res => {
+			t.is(res.status, 200);
+		})
+		.catch(() => { })
+		.then(() => {
+			// Wait a few ms to see if a uncaught error occurs
+			setTimeout(() => {
+				t.end()
+			}, 20);
+		});
+});
+
+test('should collect handled errors on the body stream to reject if the body is used later', t => {
+	const url = `${base}invalid-content-encoding`;
+	return fetch(url).then(delay(20)).then(async res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		const err = await t.throwsAsync(() => res.text(), {instanceOf: FetchError});
+		t.is(err.code, 'Z_DATA_ERROR');
+	});
+});
+
+test('should allow disabling auto decompression', t => {
+	const url = `${base}gzip`;
+	const options = {
+		compress: false
+	};
+	return fetch(url, options).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(result => {
+			t.is(typeof result, 'string');
+			t.not(result, 'hello world');
+		});
+	});
+});
+
+test('should not overwrite existing accept-encoding header when auto decompression is true', t => {
+	const url = `${base}inspect`;
+	const options = {
+		compress: true,
+		headers: {
+			'Accept-Encoding': 'gzip'
+		}
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.headers['accept-encoding'], 'gzip');
+	});
+});
+
+test('should support request cancellation with signal', async t => {
+	t.timeout(500);
+	const controller = new AbortController();
+	const controller2 = new AbortController2();
+
+	const fetches = [
+		fetch(`${base}timeout`, {signal: controller.signal}),
+		fetch(`${base}timeout`, {signal: controller2.signal}),
+		fetch(`${base}timeout`, {
+			method: 'POST',
+			signal: controller.signal,
+			headers: {
+				'Content-Type': 'application/json',
+				body: JSON.stringify({hello: 'world'})
+			}
+		})
+	];
+
+	setTimeout(() => {
+		controller.abort();
+		controller2.abort();
+	}, 100)
+
+	for (const fetched of fetches) {
+		const err = await t.throwsAsync(() => fetched, {instanceOf: Error, name: 'AbortError'});
+		t.is(err.type, 'aborted');
+	}
+});
+
+test('should reject immediately if signal has already been aborted', async t => {
+	const url = `${base}timeout`;
+	const controller = new AbortController();
+	const options = {
+		signal: controller.signal
+	};
+	controller.abort();
+	const fetched = fetch(url, options);
+	const err = await t.throwsAsync(() => fetched, {instanceOf: Error, name: 'AbortError'});
+	t.is(err.type, 'aborted');
+});
+
+test.skip('should remove internal AbortSignal event listener after request is aborted', async t => {
+	const controller = new AbortController();
+	const {signal} = controller;
+	const promise = fetch(
+		`${base}timeout`,
+		{signal}
+	);
+
+	await t.throwsAsync(() => promise.then(() => {
+		t.is(signal.listeners.abort.length, 0);
+	}), {instanceOf: Error, name: 'AbortError'});
+	// controller.abort();
+	// return;
+});
+
+test('should allow redirects to be aborted', async t => {
+	const abortController = new AbortController();
+	const request = new Request(`${base}redirect/slow`, {
+		signal: abortController.signal
+	});
+	setTimeout(() => {
+		abortController.abort();
+	}, 20);
+	await t.throwsAsync(() => fetch(request), {instanceOf: Error, name: 'AbortError'});
+});
+
+test('should allow redirected response body to be aborted', async t => {
+	const abortController = new AbortController();
+	const request = new Request(`${base}redirect/slow-stream`, {
+		signal: abortController.signal
+	});
+
+	await t.throwsAsync(() => fetch(request).then(res => {
+		t.log(res)
+		t.is(res.headers.get('Content-type'), 'text/plain');
+		const result = res.text();
+		abortController.abort();
+		return result;
+	}), {instanceOf: Error, name: 'AbortError'});
+});
+
+test.skip('should remove internal AbortSignal event listener after request and response complete without aborting', async t => {
+	const controller = new AbortController();
+	const {signal} = controller;
+	const fetchHtml = fetch(`${base}html`, {signal})
+		.then(res => res.text());
+	const fetchResponseError = fetch(`${base}error/reset`, {signal});
+	const fetchRedirect = fetch(`${base}redirect/301`, {signal}).then(res => res.json());
+
+	await Promise.all([
+		t.notThrows(() => fetchHtml),
+		t.throwsAsync(() => fetchResponseError),
+		t.notThrows(() => fetchRedirect)
+	]).then(() => {
+		t.is(signal.listeners.abort.length, 0);
+	});
+});
+
+test('should reject response body with AbortError when aborted before stream has been read completely', t => {
+	const controller = new AbortController();
+	return fetch(`${base}slow`, {signal: controller.signal})
+		.then(async res => {
+			const promise = res.text();
+			controller.abort()
+			await t.throwsAsync(() => promise, {instanceOf: Error, name: 'AbortError'})
+		});
+});
+
+test('should reject response body methods immediately with AbortError when aborted before stream is disturbed', t => {
+	const controller = new AbortController();
+	return fetch(`${base}slow`, {signal: controller.signal})
+		.then(async res => {
+			controller.abort()
+			await t.throwsAsync(() => res.text(), {instanceOf: Error, name: 'AbortError'});
+		});
+});
+
+test.cb('should emit error event to response body with an AbortError when aborted before underlying stream is closed', t => {
+	const controller = new AbortController();
+	fetch(`${base}slow`, {signal: controller.signal})
+		.then(res => {
+			res.body.once('error', err => {
+				t.true(err instanceof Error);
+				t.is(err.name, 'AbortError');
+				t.end()
+			});
+			controller.abort();
+		});
+});
+
+test('should cancel request body of type Stream with AbortError when aborted', async t => {
+	const controller = new AbortController();
+	const body = new stream.Readable({objectMode: true});
+	body._read = () => { };
+	const promise = fetch(
+		`${base}slow`,
+		{signal: controller.signal, body, method: 'POST'}
+	);
+
+	const result = Promise.all([
+		new Promise((resolve, reject) => {
+			body.on('error', error => {
+				try {
+					t.true(error instanceof Error);
+					t.is(error.name, 'AbortError')
+					resolve();
+				} catch (error_) {
+					reject(error_);
+				}
+			});
+		}),
+		t.throwsAsync(() => promise, {instanceOf: Error, name: 'AbortError'})
+	]);
+
+	controller.abort();
+
+	await result
+});
+
+test('should throw a TypeError if a signal is not of type AbortSignal', async t => {
+	const url = `${base}inspect`
+	await Promise.all([
+		t.throwsAsync(() => fetch(url, {signal: {}}), {instanceOf: TypeError, message: /AbortSignal/}),
+		t.throwsAsync(() => fetch(url, {signal: ''}), {instanceOf: TypeError, message: /AbortSignal/}),
+		t.throwsAsync(() => fetch(url, {signal: Object.create(null)}), {instanceOf: TypeError, message: /AbortSignal/})
+	]);
+});
+
+test('should set default User-Agent', t => {
+	const url = `${base}inspect`;
+	return fetch(url).then(res => res.json()).then(res => {
+		t.is(res.headers['user-agent'], 'node-fetch');
+	});
+});
+
+test('should allow setting User-Agent', t => {
+	const url = `${base}inspect`;
+	const options = {
+		headers: {
+			'user-agent': 'faked'
+		}
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.headers['user-agent'], 'faked');
+	});
+});
+
+test('should set default Accept header', t => {
+	const url = `${base}inspect`;
+	return fetch(url).then(res => res.json()).then(res => {
+		t.is(res.headers.accept, '*/*');
+	});
+});
+
+test('should allow setting Accept header', t => {
+	const url = `${base}inspect`;
+	const options = {
+		headers: {
+			accept: 'application/json'
+		}
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.headers.accept, 'application/json');
+	});
+});
+
+test('should allow POST request', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST'
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '0');
+	});
+});
+
+test('should allow POST request with buffer body', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: Buffer.from('a=1', 'utf-8')
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'a=1');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '3');
+	});
+});
+
+test('should allow POST request with ArrayBuffer body', t => {
+	const encoder = new TextEncoder();
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: encoder.encode('Hello, world!\n').buffer
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'Hello, world!\n');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '14');
+	});
+});
+
+test('should allow POST request with ArrayBuffer body from a VM context', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: new VMUint8Array(Buffer.from('Hello, world!\n')).buffer
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'Hello, world!\n');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '14');
+	});
+});
+
+test('should allow POST request with ArrayBufferView (Uint8Array) body', t => {
+	const encoder = new TextEncoder();
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: encoder.encode('Hello, world!\n')
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'Hello, world!\n');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '14');
+	});
+});
+
+test('should allow POST request with ArrayBufferView (DataView) body', t => {
+	const encoder = new TextEncoder();
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: new DataView(encoder.encode('Hello, world!\n').buffer)
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'Hello, world!\n');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '14');
+	});
+});
+
+test('should allow POST request with ArrayBufferView (Uint8Array) body from a VM context', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: new VMUint8Array(Buffer.from('Hello, world!\n'))
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'Hello, world!\n');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '14');
+	});
+});
+
+test('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', t => {
+	const encoder = new TextEncoder();
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: encoder.encode('Hello, world!\n').subarray(7, 13)
+	};
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'world!');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '6');
+	});
+});
+
+test('should allow POST request with blob body without type', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: new Blob(['a=1'])
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'a=1');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], '3');
+	});
+});
+
+test('should allow POST request with blob body with type', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: new Blob(['a=1'], {
+			type: 'text/plain;charset=UTF-8'
+		})
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'a=1');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], 'text/plain;charset=utf-8');
+		t.is(res.headers['content-length'], '3');
+	});
+});
+
+test('should allow POST request with readable stream as body', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: stream.Readable.from('a=1')
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'a=1');
+		t.is(res.headers['transfer-encoding'], 'chunked');
+		t.is(res.headers['content-type'], undefined);
+		t.is(res.headers['content-length'], undefined);
+	});
+});
+
+test('should allow POST request with form-data as body', t => {
+	const form = new FormData();
+	form.append('a', '1');
+
+	const url = `${base}multipart`;
+	const options = {
+		method: 'POST',
+		body: form
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.true(res.headers['content-type'].startsWith('multipart/form-data;boundary='));
+		t.is(typeof res.headers['content-length'], 'string');
+		t.is(res.body, 'a=1');
+	});
+});
+
+test('should allow POST request with form-data using stream as body', t => {
+	const form = new FormData();
+	form.append('my_field', fs.createReadStream('test-new/utils/dummy.txt'));
+
+	const url = `${base}multipart`;
+	const options = {
+		method: 'POST',
+		body: form
+	};
+
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.true(res.headers['content-type'].startsWith('multipart/form-data;boundary='));
+		t.is(res.headers['content-length'], undefined);
+		t.true(res.body.startsWith('my_field='));
+	});
+});
+
+test('should allow POST request with form-data as body and custom headers', t => {
+	const form = new FormData();
+	form.append('a', '1');
+
+	const headers = form.getHeaders();
+	headers.b = '2';
+
+	const url = `${base}multipart`;
+	const options = {
+		method: 'POST',
+		body: form,
+		headers
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.true(res.headers['content-type'].startsWith('multipart/form-data; boundary='));
+		t.is(typeof res.headers['content-length'], 'string');
+		t.is(res.headers.b, '2');
+		t.is(res.body, 'a=1');
+	});
+});
+
+test('should support spec-compliant form-data as POST body', t => {
+	const form = new FormDataNode();
+
+	const filename = path.join('test-new', 'utils', 'dummy.txt');
+
+	form.set('field', 'some text');
+	form.set('file', fs.createReadStream(filename), {
+		size: fs.statSync(filename).size
+	});
+
+	const url = `${base}multipart`;
+	const options = {
+		method: 'POST',
+		body: form
+	};
+
+	return fetch(url, options).then(res => res.json()).then(res => {
+		t.is(res.method, 'POST');
+		t.true(res.headers['content-type'].startsWith('multipart/form-data'));
+		t.true(res.body.includes('field='));
+		t.true(res.body.includes('file='));
+	});
+});
+
+test('should allow POST request with object body', t => {
+	const url = `${base}inspect`;
+	// Note that fetch simply calls tostring on an object
+	const options = {
+		method: 'POST',
+		body: {a: 1}
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, '[object Object]');
+		t.is(res.headers['content-type'], 'text/plain;charset=UTF-8');
+		t.is(res.headers['content-length'], '15');
+	});
 });
