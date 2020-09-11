@@ -8,6 +8,8 @@ import Blob from 'fetch-blob';
 
 import TestServer from './utils/server.js';
 import {Request} from '../src/index.js';
+import RequestOrig from '../src/request.js';
+import {getTotalBytes, extractContentType} from '../src/body.js';
 
 const local = new TestServer();
 let base;
@@ -279,3 +281,85 @@ test('should support DataView as body', async t => {
 	t.is(result, 'a=1');
 });
 
+test('constructing a Request with URLSearchParams as body should have a Content-Type', t => {
+	const parameters = new URLSearchParams();
+	const request = new Request(base, {method: 'POST', body: parameters});
+	t.is(request.headers.get('Content-Type'), 'application/x-www-form-urlencoded;charset=UTF-8');
+});
+
+// Body should been cloned...
+test('constructing a Request/Response with URLSearchParams and mutating it should not affected body', async t => {
+	const parameters = new URLSearchParams();
+	const request = new Request(`${base}inspect`, {method: 'POST', body: parameters});
+	parameters.append('a', '1');
+	const result = await request.text();
+	t.is(result, '');
+});
+
+test('should calculate content length and extract content type for each body type', t => {
+	const url = `${base}hello`;
+	const bodyContent = 'a=1';
+
+	const streamBody = stream.Readable.from(bodyContent);
+	const streamRequest = new Request(url, {
+		method: 'POST',
+		body: streamBody,
+		size: 1024
+	});
+
+	const blobBody = new Blob([bodyContent], {type: 'text/plain'});
+	const blobRequest = new Request(url, {
+		method: 'POST',
+		body: blobBody,
+		size: 1024
+	});
+
+	const formBody = new FormData();
+	formBody.append('a', '1');
+	const formRequest = new Request(url, {
+		method: 'POST',
+		body: formBody,
+		size: 1024
+	});
+
+	const bufferBody = Buffer.from(bodyContent);
+	const bufferRequest = new Request(url, {
+		method: 'POST',
+		body: bufferBody,
+		size: 1024
+	});
+
+	const stringRequest = new Request(url, {
+		method: 'POST',
+		body: bodyContent,
+		size: 1024
+	});
+
+	const nullRequest = new Request(url, {
+		method: 'GET',
+		body: null,
+		size: 1024
+	});
+
+	t.is(getTotalBytes(streamRequest), null);
+	t.is(getTotalBytes(blobRequest), blobBody.size);
+	t.not(getTotalBytes(formRequest), null);
+	t.is(getTotalBytes(bufferRequest), bufferBody.length);
+	t.is(getTotalBytes(stringRequest), bodyContent.length);
+	t.is(getTotalBytes(nullRequest), 0);
+
+	t.is(extractContentType(streamBody), null);
+	t.is(extractContentType(blobBody), 'text/plain');
+	t.true(extractContentType(formBody).startsWith('multipart/form-data'));
+	t.is(extractContentType(bufferBody), null);
+	t.is(extractContentType(bodyContent), 'text/plain;charset=UTF-8');
+	t.is(extractContentType(null), null);
+});
+
+test('should expose Request constructor', t => {
+	t.is(Request, RequestOrig);
+});
+
+test('should support proper toString output for Request object', t => {
+	t.is(new Request(base).toString(), '[object Request]');
+});
