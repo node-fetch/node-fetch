@@ -1,5 +1,6 @@
 import test from 'ava';
 import {Headers} from '../src/index.js';
+import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 
 test('should have attributes conforming to Web IDL', t => {
 	const headers = new Headers();
@@ -242,4 +243,27 @@ test('should throw a TypeError if non-tuple exists in a headers initializer', t 
 	t.throws(() => new Headers(['b2']), {instanceOf: TypeError});
 	t.throws(() => new Headers('b2'), {instanceOf: TypeError});
 	t.throws(() => new Headers({[Symbol.iterator]: 42}), {instanceOf: TypeError});
+});
+
+test('should ignore invalid headers', t => {
+	const headers = fromRawHeaders([
+		'Invalid-Header ',
+		'abc\r\n',
+		'Invalid-Header-Value',
+		'\u0007k\r\n',
+		'Cookie',
+		'\u0007k\r\n',
+		'Cookie',
+		'\u0007kk\r\n'
+	]);
+	t.true(headers instanceof Headers);
+	t.deepEqual(headers.raw(), {});
+});
+
+test('should expose Headers constructor', t => {
+	t.is(Headers, HeadersOrig);
+});
+
+test('should support proper toString output for Headers object', t => {
+	t.is(new Headers().toString(), '[object Headers]');
 });
