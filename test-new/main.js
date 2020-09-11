@@ -10,6 +10,9 @@ import fs from 'fs';
 import FormData from 'form-data';
 import FormDataNode from 'formdata-node';
 import path from 'path';
+import crypto from 'crypto';
+import http from 'http';
+import {lookup} from 'dns';
 
 const {AbortController} = AbortControllerPolyfill;
 
@@ -26,11 +29,14 @@ import * as FetchErrorOrig from '../src/errors/fetch-error.js';
 import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
+import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
 
 const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
+
+import pTimeout from 'p-timeout';
 
 const local = new TestServer();
 let base;
@@ -548,7 +554,7 @@ test('should handle network-error response', async t => {
 	t.is(err.code, 'ECONNRESET');
 });
 
-test.serial('should handle network-error partial response', async t => {
+test('should handle network-error partial response', async t => {
 	const url = `${base}error/premature`;
 	return fetch(url).then(async res => {
 		t.is(res.status, 200);
@@ -559,8 +565,7 @@ test.serial('should handle network-error partial response', async t => {
 
 test.skip('should handle DNS-error response', async t => {
 	const url = 'http://domain.invalid';
-	const err = await t.throwsAsync(() => fetch(url));
-	t.true(err instanceof FetchError);
+	const err = await t.throwsAsync(() => fetch(url), {instanceOf: FetchError});
 	t.is(err.code, /ENOTFOUND|EAI_AGAIN/);
 });
 
@@ -847,8 +852,8 @@ test.skip('should remove internal AbortSignal event listener after request is ab
 	await t.throwsAsync(() => promise.then(() => {
 		t.is(signal.listeners.abort.length, 0);
 	}), {instanceOf: Error, name: 'AbortError'});
-	// controller.abort();
-	// return;
+	controller.abort();
+	return res;
 });
 
 test('should allow redirects to be aborted', async t => {
@@ -1283,4 +1288,761 @@ test('should allow POST request with object body', t => {
 		t.is(res.headers['content-type'], 'text/plain;charset=UTF-8');
 		t.is(res.headers['content-length'], '15');
 	});
+});
+
+test('constructing a Response with URLSearchParams as body should have a Content-Type', t => {
+	const parameters = new URLSearchParams();
+	const res = new Response(parameters);
+	res.headers.get('Content-Type');
+	t.is(res.headers.get('Content-Type'), 'application/x-www-form-urlencoded;charset=UTF-8');
+});
+
+test('constructing a Request with URLSearchParams as body should have a Content-Type', t => {
+	const parameters = new URLSearchParams();
+	const request = new Request(base, {method: 'POST', body: parameters});
+	t.is(request.headers.get('Content-Type'), 'application/x-www-form-urlencoded;charset=UTF-8');
+});
+
+test('Reading a body with URLSearchParams should echo back the result', t => {
+	const parameters = new URLSearchParams();
+	parameters.append('a', '1');
+	return new Response(parameters).text().then(text => {
+		t.is(text, 'a=1');
+	});
+});
+
+// Body should been cloned...
+test('constructing a Request/Response with URLSearchParams and mutating it should not affected body', t => {
+	const parameters = new URLSearchParams();
+	const request = new Request(`${base}inspect`, {method: 'POST', body: parameters});
+	parameters.append('a', '1');
+	return request.text().then(text => {
+		t.is(text, '');
+	});
+});
+
+test('should allow POST request with URLSearchParams as body', t => {
+	const parameters = new URLSearchParams();
+	parameters.append('a', '1');
+
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: parameters
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.headers['content-type'], 'application/x-www-form-urlencoded;charset=UTF-8');
+		t.is(res.headers['content-length'], '3');
+		t.is(res.body, 'a=1');
+	});
+});
+
+test('should still recognize URLSearchParams when extended', t => {
+	class CustomSearchParameters extends URLSearchParams { }
+	const parameters = new CustomSearchParameters();
+	parameters.append('a', '1');
+
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: parameters
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.headers['content-type'], 'application/x-www-form-urlencoded;charset=UTF-8');
+		t.is(res.headers['content-length'], '3');
+		t.is(res.body, 'a=1');
+	});
+});
+
+/* For 100% code coverage, checks for duck-typing-only detection
+	* where both constructor.name and brand tests fail */
+test('should still recognize URLSearchParams when extended from polyfill', t => {
+	class CustomPolyfilledSearchParameters extends URLSearchParams { }
+	const parameters = new CustomPolyfilledSearchParameters();
+	parameters.append('a', '1');
+
+	const url = `${base}inspect`;
+	const options = {
+		method: 'POST',
+		body: parameters
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.headers['content-type'], 'application/x-www-form-urlencoded;charset=UTF-8');
+		t.is(res.headers['content-length'], '3');
+		t.is(res.body, 'a=1');
+	});
+});
+
+test('should overwrite Content-Length if possible', t => {
+	const url = `${base}inspect`;
+	// Note that fetch simply calls tostring on an object
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Length': '1000'
+		},
+		body: 'a=1'
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'POST');
+		t.is(res.body, 'a=1');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-type'], 'text/plain;charset=UTF-8');
+		t.is(res.headers['content-length'], '3');
+	});
+});
+
+test('should allow PUT request', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'PUT',
+		body: 'a=1'
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'PUT');
+		t.is(res.body, 'a=1');
+	});
+});
+
+test('should allow DELETE request', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'DELETE'
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'DELETE');
+	});
+});
+
+test('should allow DELETE request with string body', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'DELETE',
+		body: 'a=1'
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'DELETE');
+		t.is(res.body, 'a=1');
+		t.is(res.headers['transfer-encoding'], undefined);
+		t.is(res.headers['content-length'], '3');
+	});
+});
+
+test('should allow PATCH request', t => {
+	const url = `${base}inspect`;
+	const options = {
+		method: 'PATCH',
+		body: 'a=1'
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.method, 'PATCH');
+		t.is(res.body, 'a=1');
+	});
+});
+
+test('should allow HEAD request', t => {
+	const url = `${base}hello`;
+	const options = {
+		method: 'HEAD'
+	};
+	return fetch(url, options).then(res => {
+		t.is(res.status, 200);
+		t.is(res.statusText, 'OK');
+		t.is(res.headers.get('content-type'), 'text/plain');
+		t.true(res.body instanceof stream.Transform);
+		return res.text();
+	}).then(text => {
+		t.is(text, '');
+	});
+});
+
+test('should allow HEAD request with content-encoding header', t => {
+	const url = `${base}error/404`;
+	const options = {
+		method: 'HEAD'
+	};
+	return fetch(url, options).then(res => {
+		t.is(res.status, 404);
+		t.is(res.headers.get('content-encoding'), 'gzip');
+		return res.text();
+	}).then(text => {
+		t.is(text, '');
+	});
+});
+
+test('should allow OPTIONS request', t => {
+	const url = `${base}options`;
+	const options = {
+		method: 'OPTIONS'
+	};
+	return fetch(url, options).then(res => {
+		t.is(res.status, 200);
+		t.is(res.statusText, 'OK');
+		t.is(res.headers.get('allow'), 'GET, HEAD, OPTIONS');
+		t.true(res.body instanceof stream.Transform);
+	});
+});
+
+test('should reject decoding body twice', t => {
+	const url = `${base}plain`;
+	return fetch(url).then(res => {
+		t.is(res.headers.get('content-type'), 'text/plain');
+		return res.text().then(async () => {
+			t.true(res.bodyUsed);
+			await t.throwsAsync(() => res.text(), {instanceOf: Error});
+		});
+	});
+});
+
+test('should support maximum response size, multiple chunk', t => {
+	const url = `${base}size/chunk`;
+	const options = {
+		size: 5
+	};
+	return fetch(url, options).then(async res => {
+		t.is(res.status, 200);
+		t.is(res.headers.get('content-type'), 'text/plain');
+		const err = await t.throwsAsync(() => res.text(), {instanceOf: FetchError});
+		t.is(err.type, 'max-size');
+	});
+});
+
+test('should support maximum response size, single chunk', async t => {
+	const url = `${base}size/long`;
+	const options = {
+		size: 5
+	};
+	const res = await fetch(url, options);
+	t.is(res.status, 200);
+	t.is(res.headers.get('content-type'), 'text/plain');
+	const err = t.throwsAsync(() => res.text(), {instanceOf:FetchError});
+	t.is(err.type, 'max-size');
+	// return fetch(url, options).then(async res => {
+	// 	t.is(res.status, 200);
+	// 	t.is(res.headers.get('content-type'), 'text/plain');
+	// 	const err = t.throwsAsync(() => res.text(), {instanceOf:FetchError});
+	// 	t.is(err.type, 'max-size');
+	// });
+});
+
+test('should allow piping response body as stream', async t => {
+	const url = `${base}hello`;
+	return fetch(url).then(res => {
+		t.true(res.body instanceof stream.Transform);
+		return streamToPromise(res.body, chunk => {
+			if (chunk === null) {
+				return;
+			}
+
+			t.is(chunk.toString(), 'world');
+		});
+	});
+});
+
+test('should allow cloning a response, and use both as stream', async t => {
+	const url = `${base}hello`;
+	const res = await fetch(url);
+	const r1 = res.clone();
+	t.true(res.body instanceof stream.Transform);
+	t.true(r1.body instanceof stream.Transform);
+	const dataHandler = chunk => {
+		if (chunk === null) {
+			return;
+		}
+		t.is(chunk.toString(), 'world');
+	}
+	await Promise.all([
+		streamToPromise(res.body, dataHandler),
+		streamToPromise(r1.body, dataHandler)
+	]);
+});
+
+test('should allow cloning a json response and log it as text response', t => {
+	const url = `${base}json`;
+	return fetch(url).then(res => {
+		const r1 = res.clone();
+		return Promise.all([res.json(), r1.text()]).then(results => {
+		t.log({results})
+		t.deepEqual(results[0], {name: 'value'});
+		t.is(results[1], '{"name":"value"}');
+		});
+	});
+});
+
+test('should allow cloning a json response, and then log it as text response', t => {
+	const url = `${base}json`;
+	return fetch(url).then(res => {
+		const r1 = res.clone();
+		return res.json().then(result => {
+			t.deepEqual(result, {name: 'value'});
+			return r1.text().then(result => {
+				t.is(result, '{"name":"value"}');
+			});
+		});
+	});
+});
+
+test('should allow cloning a json response, first log as text response, then return json object', t => {
+	const url = `${base}json`;
+	return fetch(url).then(res => {
+		const r1 = res.clone();
+		return r1.text().then(result => {
+			t.is(result, '{"name":"value"}');
+			return res.json().then(result => {
+				t.deepEqual(result, {name: 'value'});
+			});
+		});
+	});
+});
+
+test('should not allow cloning a response after its been used', t => {
+	const url = `${base}hello`;
+	return fetch(url).then(res =>
+		res.text().then(async () => {
+			await t.throws(() => res.clone(), {instanceOf: Error});
+		})
+	);
+});
+
+test('the default highWaterMark should equal 16384', t => {
+	const url = `${base}hello`;
+	return fetch(url).then(res => {
+		t.is(res.highWaterMark, 16384);
+	});
+});
+
+test.skip('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', async t => {
+	const url = local.mockResponse(res => {
+		// Observed behavior of TCP packets splitting:
+		// - response body size <= 65438 → single packet sent
+		// - response body size  > 65438 → multiple packets sent
+		// Max TCP packet size is 64kB (https://stackoverflow.com/a/2614188/5763764),
+		// but first packet probably transfers more than the response body.
+		const firstPacketMaxSize = 65438;
+		const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
+		res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
+	});
+	let timedOut = false;
+	const fetchPromise = fetch(url).then(res => res.clone().buffer());
+	await pTimeout(fetchPromise, 300, () => {
+		timedOut = true
+	});
+	return t.true(timedOut);
+});
+
+test.skip('should timeout on cloning response without consuming one of the streams when the second packet size is equal custom highWaterMark', async t => {
+	const url = local.mockResponse(res => {
+		const firstPacketMaxSize = 65438;
+		const secondPacketSize = 10;
+		res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
+	});
+	let timedOut = false;
+	const fetchPromise = fetch(url).then(res => res.clone().buffer());
+	await pTimeout(fetchPromise, 300, () => {
+		timedOut = true;
+	});
+	return t.true(timedOut);
+});
+
+test.skip('should not timeout on cloning response without consuming one of the streams when the second packet size is less than default highWaterMark', async t => {
+	t.timeout(300);
+	const url = local.mockResponse(res => {
+		const firstPacketMaxSize = 65438;
+		const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
+		res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
+	});
+	const res = await fetch(url)
+	t.log(res)
+	t.is(res, '')
+	// return t.is(fetch(url).then(res => res.clone().buffer()), '');
+});
+
+test.skip('should not timeout on cloning response without consuming one of the streams when the second packet size is less than custom highWaterMark', async t => {
+	t.timeout(300);
+	const url = local.mockResponse(res => {
+		const firstPacketMaxSize = 65438;
+		const secondPacketSize = 10;
+		res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
+	});
+	// return expect(
+	// 	fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+	// ).not.to.timeout;
+});
+
+test.skip('should not timeout on cloning response without consuming one of the streams when the response size is double the custom large highWaterMark - 1', async t => {
+	t.timeout(300);
+	const url = local.mockResponse(res => {
+		res.end(crypto.randomBytes((2 * 512 * 1024) - 1));
+	});
+	// return expect(
+	// 	fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
+	// ).not.to.timeout;
+});
+
+test('should allow get all responses of a header', t => {
+	const url = `${base}cookie`;
+	return fetch(url).then(res => {
+		const expected = 'a=1, b=1';
+		t.is(res.headers.get('set-cookie'), expected);
+		t.is(res.headers.get('Set-Cookie'), expected);
+	});
+});
+
+test('should return all headers using raw()', t => {
+	const url = `${base}cookie`;
+	return fetch(url).then(res => {
+		const expected = [
+			'a=1',
+			'b=1'
+		];
+		t.deepEqual(res.headers.raw()['set-cookie'], expected);
+	});
+});
+
+test('should allow deleting header', t => {
+	const url = `${base}cookie`;
+	return fetch(url).then(res => {
+		res.headers.delete('set-cookie');
+		t.is(res.headers.get('set-cookie'), null);
+	});
+});
+
+test('should send request with connection keep-alive if agent is provided', t => {
+	const url = `${base}inspect`;
+	const options = {
+		agent: new http.Agent({
+			keepAlive: true
+		})
+	};
+	return fetch(url, options).then(res => {
+		return res.json();
+	}).then(res => {
+		t.is(res.headers.connection, 'keep-alive');
+	});
+});
+
+test('should support fetch with Request instance', t => {
+	const url = `${base}hello`;
+	const request = new Request(url);
+	return fetch(request).then(res => {
+		t.is(res.url, url);
+		t.true(res.ok);
+		t.is(res.status, 200);
+	});
+});
+
+test('should support fetch with Node.js URL object', t => {
+	const url = `${base}hello`;
+	const urlObject = new URL(url);
+	const request = new Request(urlObject);
+	return fetch(request).then(res => {
+		t.is(res.url, url);
+		t.true(res.ok);
+		t.is(res.status, 200);
+	});
+});
+
+test('should support fetch with WHATWG URL object', t => {
+	const url = `${base}hello`;
+	const urlObject = new URL(url);
+	const request = new Request(urlObject);
+	return fetch(request).then(res => {
+		t.is(res.url, url);
+		t.true(res.ok);
+		t.is(res.status, 200);
+	});
+});
+
+test('should keep `?` sign in URL when no params are given', t => {
+	const url = `${base}question?`;
+	const urlObject = new URL(url);
+	const request = new Request(urlObject);
+	return fetch(request).then(res => {
+		t.is(res.url, url);
+		t.true(res.ok);
+		t.is(res.status, 200);
+	});
+});
+
+test('if params are given, do not modify anything', t => {
+	const url = `${base}question?a=1`;
+	const urlObject = new URL(url);
+	const request = new Request(urlObject);
+	return fetch(request).then(res => {
+		t.is(res.url, url);
+		t.true(res.ok);
+		t.is(res.status, 200);
+	});
+});
+
+test('should preserve the hash (#) symbol', t => {
+	const url = `${base}question?#`;
+	const urlObject = new URL(url);
+	const request = new Request(urlObject);
+	return fetch(request).then(res => {
+		t.is(res.url, url);
+		t.true(res.ok);
+		t.is(res.status, 200);
+	});
+});
+
+test('should support reading blob as text', t => {
+	return new Response('hello')
+		.blob()
+		.then(blob => blob.text())
+		.then(body => {
+			t.is(body, 'hello');
+		});
+});
+
+test('should support reading blob as arrayBuffer', t => {
+	return new Response('hello')
+		.blob()
+		.then(blob => blob.arrayBuffer())
+		.then(ab => {
+			const string = String.fromCharCode.apply(null, new Uint8Array(ab));
+			t.is(string, 'hello');
+		});
+});
+
+test('should support reading blob as stream', t => {
+	return new Response('hello')
+		.blob()
+		.then(blob => streamToPromise(blob.stream(), data => {
+			const string = data.toString();
+			t.is(string, 'hello');
+		}));
+});
+
+test('should support blob round-trip', t => {
+	const url = `${base}hello`;
+
+	let length;
+	let type;
+
+	return fetch(url).then(res => res.blob()).then(blob => {
+		const url = `${base}inspect`;
+		length = blob.size;
+		type = blob.type;
+		return fetch(url, {
+			method: 'POST',
+			body: blob
+		});
+	}).then(res => res.json()).then(({body, headers}) => {
+		t.is(body, 'world');
+		t.is(headers['content-type'], type);
+		t.is(headers['content-length'], String(length));
+	});
+});
+
+test('should support overwrite Request instance', t => {
+	const url = `${base}inspect`;
+	const request = new Request(url, {
+		method: 'POST',
+		headers: {
+			a: '1'
+		}
+	});
+	return fetch(request, {
+		method: 'GET',
+		headers: {
+			a: '2'
+		}
+	}).then(res => {
+		return res.json();
+	}).then(body => {
+		t.is(body.method, 'GET');
+		t.is(body.headers.a, '2');
+	});
+});
+
+test.skip('should support arrayBuffer(), blob(), text(), json() and buffer() method in Body constructor', t => {
+	const body = new Body('a=1');
+	t.log(body.constructor.hasOwnProperty('arrayBuffer'));
+	t.true(body.constructor.hasOwnProperty('arrayBuffer'));
+	t.true(body.hasOwnProperty('blob'));
+	t.true(body.hasOwnProperty('text'));
+	t.true(body.hasOwnProperty('json'));
+	t.true(body.hasOwnProperty('buffer'));
+});
+
+/* eslint-disable-next-line func-names */
+test('should create custom FetchError', function funcName (t) {
+	const systemError = new Error('system');
+	systemError.code = 'ESOMEERROR';
+
+	const err = new FetchError('test message', 'test-error', systemError);
+	t.true(err instanceof Error);
+	t.true(err instanceof FetchError);
+	t.is(err.name, 'FetchError');
+	t.is(err.message, 'test message');
+	t.is(err.type, 'test-error');
+	t.is(err.code, 'ESOMEERROR');
+	t.is(err.errno, 'ESOMEERROR');
+	// Reading the stack is quite slow (~30-50ms)
+	t.true((err.stack.includes('funcName') && err.stack.startsWith(`${err.name}: ${err.message}`)));
+});
+
+test('should support https request', t => {
+	t.timeout(5000);
+	const url = 'https://github.com/';
+	const options = {
+		method: 'HEAD'
+	};
+	return fetch(url, options).then(res => {
+		t.is(res.status, 200);
+		t.true(res.ok);
+	});
+});
+
+// Issue #414
+test('should reject if attempt to accumulate body stream throws', async t => {
+	const res = new Response(stream.Readable.from((async function * () {
+		yield Buffer.from('tada');
+		await new Promise(resolve => setTimeout(resolve, 200));
+		yield {tada: 'yes'};
+	})()));
+
+	const err = await t.throwsAsync(() => res.text(), {instanceOf: FetchError, message: /Could not create Buffer/});
+	t.is(err.type, 'system');
+});
+
+test('supports supplying a lookup function to the agent', t => {
+	const url = `${base}redirect/301`;
+	let called = 0;
+	function lookupSpy(hostname, options, callback) {
+		called++;
+		return lookup(hostname, options, callback);
+	}
+
+	const agent = new http.Agent({lookup: lookupSpy});
+	return fetch(url, {agent}).then(() => {
+		t.is(called, 2);
+	});
+});
+
+test('supports supplying a famliy option to the agent', t => {
+	const url = `${base}redirect/301`;
+	const families = [];
+	const family = Symbol('family');
+	function lookupSpy(hostname, options, callback) {
+		families.push(options.family);
+		return lookup(hostname, {}, callback);
+	}
+
+	const agent = new http.Agent({lookup: lookupSpy, family});
+	return fetch(url, {agent}).then(() => {
+		t.is(families.length, 2);
+		t.is(families[0], family);
+		t.is(families[1], family);
+	});
+});
+
+test('should allow a function supplying the agent', t => {
+	const url = `${base}inspect`;
+
+	const agent = new http.Agent({
+		keepAlive: true
+	});
+
+	let parsedURL;
+
+	return fetch(url, {
+		agent(_parsedURL) {
+			parsedURL = _parsedURL;
+			return agent;
+		}
+	}).then(res => {
+		return res.json();
+	}).then(res => {
+		// The agent provider should have been called
+		t.is(parsedURL.protocol, 'http:');
+		// The agent we returned should have been used
+		t.is(res.headers.connection, 'keep-alive');
+	});
+});
+
+test('should calculate content length and extract content type for each body type', t => {
+	const url = `${base}hello`;
+	const bodyContent = 'a=1';
+
+	const streamBody = stream.Readable.from(bodyContent);
+	const streamRequest = new Request(url, {
+		method: 'POST',
+		body: streamBody,
+		size: 1024
+	});
+
+	const blobBody = new Blob([bodyContent], {type: 'text/plain'});
+	const blobRequest = new Request(url, {
+		method: 'POST',
+		body: blobBody,
+		size: 1024
+	});
+
+	const formBody = new FormData();
+	formBody.append('a', '1');
+	const formRequest = new Request(url, {
+		method: 'POST',
+		body: formBody,
+		size: 1024
+	});
+
+	const bufferBody = Buffer.from(bodyContent);
+	const bufferRequest = new Request(url, {
+		method: 'POST',
+		body: bufferBody,
+		size: 1024
+	});
+
+	const stringRequest = new Request(url, {
+		method: 'POST',
+		body: bodyContent,
+		size: 1024
+	});
+
+	const nullRequest = new Request(url, {
+		method: 'GET',
+		body: null,
+		size: 1024
+	});
+
+	t.is(getTotalBytes(streamRequest), null);
+	t.is(getTotalBytes(blobRequest), blobBody.size);
+	t.is(getTotalBytes(formRequest), null);
+	t.is(getTotalBytes(bufferRequest), bufferBody.length);
+	t.is(getTotalBytes(stringRequest), bodyContent.length);
+	t.is(getTotalBytes(nullRequest), 0);
+
+	t.is(extractContentType(streamBody), null);
+	t.is(extractContentType(blobBody), 'text/plain');
+	t.is(extractContentType(formBody), 'multipart/form-data');
+	t.is(extractContentType(bufferBody), null);
+	t.is(extractContentType(bodyContent), 'text/plain;charset=UTF-8');
+	t.is(extractContentType(null), null);
+});
+
+test('should encode URLs as UTF-8', async t => {
+	const url = `${base}möbius`;
+	const res = await fetch(url);
+	t.is(res.url, `${base}m%C3%B6bius`);
 });
