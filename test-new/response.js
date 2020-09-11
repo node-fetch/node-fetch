@@ -2,7 +2,12 @@ import test from 'ava';
 import * as stream from 'stream';
 import {TextEncoder} from 'util';
 import Blob from 'fetch-blob';
-import {Response} from '../src/index.js';
+import {
+	Response,
+	Headers,
+	FetchError
+} from '../src/index.js';
+import ResponseOrig from '../src/response.js';
 import TestServer from './utils/server.js';
 
 const local = new TestServer();
@@ -16,6 +21,18 @@ test.before(() => {
 test.after(() => {
 	local.stop();
 });
+
+function streamToPromise(stream, dataHandler) {
+	return new Promise((resolve, reject) => {
+		stream.on('data', (...args) => {
+			Promise.resolve()
+				.then(() => dataHandler(...args))
+				.catch(reject);
+		});
+		stream.on('end', resolve);
+		stream.on('error', reject);
+	});
+}
 
 test('should have attributes conforming to Web IDL', t => {
 	const response = new Response();
@@ -208,3 +225,83 @@ test('should default to empty string as url', t => {
 	t.is(response.url, '');
 });
 
+test('constructing a Response with URLSearchParams as body should have a Content-Type', t => {
+	const parameters = new URLSearchParams();
+	const res = new Response(parameters);
+	res.headers.get('Content-Type');
+	t.is(res.headers.get('Content-Type'), 'application/x-www-form-urlencoded;charset=UTF-8');
+});
+
+test('Reading a body with URLSearchParams should echo back the result', async t => {
+	const parameters = new URLSearchParams();
+	parameters.append('a', '1');
+	const response = new Response(parameters);
+	const result = await response.text();
+	t.is(result, 'a=1');
+});
+
+test('should support reading blob as text', async t => {
+	const response = new Response('hello');
+	const blob = await response.blob();
+	const body = await blob.text();
+	t.is(body, 'hello');
+});
+
+test('should support reading blob as arrayBuffer', async t => {
+	const response = await new Response('hello');
+	const blob = await response.blob();
+	const ab = await blob.arrayBuffer();
+	const string = String.fromCharCode.apply(null, new Uint8Array(ab));
+	t.is(string, 'hello');
+});
+
+test('should support reading blob as stream', async t => {
+	const response = new Response('hello');
+	const blob = await response.blob();
+	const dataHandler = chunk => {
+		if (chunk === null) {
+			return;
+		}
+		const string = chunk.toString()
+		t.is(string, 'hello')
+	}
+	await Promise.all([
+		streamToPromise(blob.stream(), dataHandler)
+	]);
+});
+
+test('Response.redirect should resolve into response', t => {
+	const res = Response.redirect('http://localhost');
+	t.true(res instanceof Response);
+	t.true(res.headers instanceof Headers);
+	t.is(res.headers.get('location'), 'http://localhost/');
+	t.is(res.status, 302);
+});
+
+test('Response.redirect /w invalid url should fail', t => {
+  t.throws(() => Response.redirect('localhost'), {instanceOf: TypeError, code: 'ERR_INVALID_URL'});
+});
+
+test('Response.redirect /w invalid status should fail', t => {
+	t.throws(() => Response.redirect('http://localhost', 200), {instanceOf: RangeError});
+});
+
+// Issue #414
+test('should reject if attempt to accumulate body stream throws', async t => {
+	const res = new Response(stream.Readable.from((async function * () {
+		yield Buffer.from('tada');
+		await new Promise(resolve => setTimeout(resolve, 200));
+		yield {tada: 'yes'};
+	})()));
+
+	const err = await t.throwsAsync(() => res.text(), {instanceOf: FetchError, message: /Could not create Buffer/});
+	t.is(err.type, 'system');
+});
+
+test('should expose Response constructor', t => {
+	t.is(Response, ResponseOrig);
+});
+
+test('should support proper toString output for Response object', t => {
+	t.is(new Response().toString(), '[object Response]');
+});
