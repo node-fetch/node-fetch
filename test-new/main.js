@@ -25,11 +25,6 @@ import fetch, {
 	Request,
 	Response
 } from '../src/index.js';
-import * as FetchErrorOrig from '../src/errors/fetch-error.js';
-import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
-import RequestOrig from '../src/request.js';
-import ResponseOrig from '../src/response.js';
-import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
 
 const {
@@ -62,25 +57,12 @@ function streamToPromise(stream, dataHandler) {
 	});
 }
 
-test(`node-fetch - should return a promise`, t => {
+test(`should return a promise`, t => {
 	const url = `${base}hello`;
 	const p = fetch(url);
 	t.true(p instanceof Promise);
-	// t.true(p.hasOwnProperty('then'), 'is chainable'); // FIXME:
+	t.assert(p.then, 'has then property');
 })
-
-test('should expose Headers, Response and Request constructors', t => {
-	t.is(FetchError, FetchErrorOrig.FetchError);
-	t.is(Headers, HeadersOrig);
-	t.is(Response, ResponseOrig);
-	t.is(Request, RequestOrig);
-});
-
-test('should support proper toString output for Headers, Response and Request objects', t => {
-	t.is(new Headers().toString(), '[object Headers]');
-	t.is(new Response().toString(), '[object Response]');
-	t.is(new Request(base).toString(), '[object Request]');
-});
 
 test('should reject with error if url is protocol relative', async t => {
 	const url = '//example.com/';
@@ -108,16 +90,6 @@ test('should reject with error on network failure', async t => {
 	t.is(err.type, 'system');
 });
 
-test('error should contain system error if one occurred', t => {
-	const err = new FetchError('a message', 'system', new Error('an error'));
-	t.true(err.hasOwnProperty('erroredSysCall'));
-});
-
-test('error should not contain system error if none occured', t => {
-	const err = new FetchError('a message', 'a type');
-	t.false(err.hasOwnProperty('errroredSysCall'));
-});
-
 test('system error is extracted from failed requests', async t => {
 	t.timeout(5000);
 	const url = 'http://localhost:5000/';
@@ -136,46 +108,27 @@ test('system error is extracted from failed requests', async t => {
 	t.deepEqual(properties, toCheck);
 });
 
-test('should resolve into response', t => {
+test('should resolve into response', async t => {
 	const url = `${base}hello`;
-	return fetch(url).then(res => {
-		t.true(res instanceof Response);
-		t.true(res.headers instanceof Headers);
-		t.true(res.body instanceof stream.Transform);
-		t.false(res.bodyUsed);
-		t.deepEqual(res.url, url);
-		t.true(res.ok);
-		t.is(res.status, 200);
-		t.is(res.statusText, 'OK')
-	});
-});
-
-test('Repsonse.redirect should resolve into response', t => {
-	const res = Response.redirect('http://localhost');
+	const res = await fetch(url);
 	t.true(res instanceof Response);
 	t.true(res.headers instanceof Headers);
-	t.is(res.headers.get('location'), 'http://localhost/');
-	t.is(res.status, 302);
+	t.true(res.body instanceof stream.Transform);
+	t.false(res.bodyUsed);
+	t.deepEqual(res.url, url);
+	t.true(res.ok);
+	t.is(res.status, 200);
+	t.is(res.statusText, 'OK')
 });
 
-test('Response.redirect /w invalid url should fail', t => {
-  t.throws(() => Response.redirect('localhost'), {instanceOf: TypeError, code: 'ERR_INVALID_URL'});
-});
-
-test('Response.redirect /w invalid status should fail', t => {
-	t.throws(() => Response.redirect('http://localhost', 200), {instanceOf: RangeError});
-});
-
-test('should accept plain text response', t => {
+test('should accept plain text response', async t => {
 	const url = `${base}plain`;
-	return fetch(url).then(res => {
-		t.is(res.headers.get('content-type'), 'text/plain')
-		return res.text().then(result => {
-			t.true(res.bodyUsed);
-			t.is(typeof result, 'string');
-			t.is(result, 'text');
-		});
-	});
+	const res = await fetch(url);
+	t.is(res.headers.get('content-type'), 'text/plain');
+	const result = await res.text();
+	t.true(res.bodyUsed);
+	t.is(typeof result, 'string');
+	t.is(result, 'text');
 });
 
 test('should accept html response (like plain text)', t => {
@@ -500,21 +453,6 @@ test('should not set redirected property on response without redirect', t => {
 	return fetch(url).then(res => {
 		t.false(res.redirected);
 	});
-});
-
-test('should ignore invalid headers', t => {
-	const headers = fromRawHeaders([
-		'Invalid-Header ',
-		'abc\r\n',
-		'Invalid-Header-Value',
-		'\u0007k\r\n',
-		'Cookie',
-		'\u0007k\r\n',
-		'Cookie',
-		'\u0007kk\r\n'
-	]);
-	t.true(headers instanceof Headers);
-	t.deepEqual(headers.raw(), {});
 });
 
 test('should handle client-error response', t => {
@@ -1290,37 +1228,6 @@ test('should allow POST request with object body', t => {
 	});
 });
 
-test('constructing a Response with URLSearchParams as body should have a Content-Type', t => {
-	const parameters = new URLSearchParams();
-	const res = new Response(parameters);
-	res.headers.get('Content-Type');
-	t.is(res.headers.get('Content-Type'), 'application/x-www-form-urlencoded;charset=UTF-8');
-});
-
-test('constructing a Request with URLSearchParams as body should have a Content-Type', t => {
-	const parameters = new URLSearchParams();
-	const request = new Request(base, {method: 'POST', body: parameters});
-	t.is(request.headers.get('Content-Type'), 'application/x-www-form-urlencoded;charset=UTF-8');
-});
-
-test('Reading a body with URLSearchParams should echo back the result', t => {
-	const parameters = new URLSearchParams();
-	parameters.append('a', '1');
-	return new Response(parameters).text().then(text => {
-		t.is(text, 'a=1');
-	});
-});
-
-// Body should been cloned...
-test('constructing a Request/Response with URLSearchParams and mutating it should not affected body', t => {
-	const parameters = new URLSearchParams();
-	const request = new Request(`${base}inspect`, {method: 'POST', body: parameters});
-	parameters.append('a', '1');
-	return request.text().then(text => {
-		t.is(text, '');
-	});
-});
-
 test('should allow POST request with URLSearchParams as body', t => {
 	const parameters = new URLSearchParams();
 	parameters.append('a', '1');
@@ -1534,28 +1441,23 @@ test('should support maximum response size, single chunk', async t => {
 	const res = await fetch(url, options);
 	t.is(res.status, 200);
 	t.is(res.headers.get('content-type'), 'text/plain');
-	const err = t.throwsAsync(() => res.text(), {instanceOf:FetchError});
+	const err = await  t.throwsAsync(() => res.text(), {instanceOf:FetchError});
 	t.is(err.type, 'max-size');
-	// return fetch(url, options).then(async res => {
-	// 	t.is(res.status, 200);
-	// 	t.is(res.headers.get('content-type'), 'text/plain');
-	// 	const err = t.throwsAsync(() => res.text(), {instanceOf:FetchError});
-	// 	t.is(err.type, 'max-size');
-	// });
 });
 
 test('should allow piping response body as stream', async t => {
 	const url = `${base}hello`;
-	return fetch(url).then(res => {
-		t.true(res.body instanceof stream.Transform);
-		return streamToPromise(res.body, chunk => {
-			if (chunk === null) {
-				return;
-			}
-
-			t.is(chunk.toString(), 'world');
-		});
-	});
+	const res = await fetch(url);
+	t.true(res.body instanceof stream.Transform);
+	const dataHandler = chunk => {
+		if (chunk === null) {
+			return;
+		}
+		t.is(chunk.toString(), 'world')
+	}
+	await Promise.all([
+		streamToPromise(res.body, dataHandler)
+	]);
 });
 
 test('should allow cloning a response, and use both as stream', async t => {
@@ -1740,25 +1642,23 @@ test('should send request with connection keep-alive if agent is provided', t =>
 	});
 });
 
-test('should support fetch with Request instance', t => {
+test('should support fetch with Request instance', async t => {
 	const url = `${base}hello`;
 	const request = new Request(url);
-	return fetch(request).then(res => {
-		t.is(res.url, url);
-		t.true(res.ok);
-		t.is(res.status, 200);
-	});
+	const res = await fetch(request);
+	t.is(res.url, url);
+	t.true(res.ok);
+	t.is(res.status, 200);
 });
 
-test('should support fetch with Node.js URL object', t => {
+test('should support fetch with Node.js URL object', async t => {
 	const url = `${base}hello`;
 	const urlObject = new URL(url);
 	const request = new Request(urlObject);
-	return fetch(request).then(res => {
-		t.is(res.url, url);
-		t.true(res.ok);
-		t.is(res.status, 200);
-	});
+	const res = await fetch(request);
+	t.is(res.url, url);
+	t.true(res.ok);
+	t.is(res.status, 200);
 });
 
 test('should support fetch with WHATWG URL object', t => {
@@ -1805,34 +1705,6 @@ test('should preserve the hash (#) symbol', t => {
 	});
 });
 
-test('should support reading blob as text', t => {
-	return new Response('hello')
-		.blob()
-		.then(blob => blob.text())
-		.then(body => {
-			t.is(body, 'hello');
-		});
-});
-
-test('should support reading blob as arrayBuffer', t => {
-	return new Response('hello')
-		.blob()
-		.then(blob => blob.arrayBuffer())
-		.then(ab => {
-			const string = String.fromCharCode.apply(null, new Uint8Array(ab));
-			t.is(string, 'hello');
-		});
-});
-
-test('should support reading blob as stream', t => {
-	return new Response('hello')
-		.blob()
-		.then(blob => streamToPromise(blob.stream(), data => {
-			const string = data.toString();
-			t.is(string, 'hello');
-		}));
-});
-
 test('should support blob round-trip', t => {
 	const url = `${base}hello`;
 
@@ -1875,33 +1747,6 @@ test('should support overwrite Request instance', t => {
 	});
 });
 
-test.skip('should support arrayBuffer(), blob(), text(), json() and buffer() method in Body constructor', t => {
-	const body = new Body('a=1');
-	t.log(body.constructor.hasOwnProperty('arrayBuffer'));
-	t.true(body.constructor.hasOwnProperty('arrayBuffer'));
-	t.true(body.hasOwnProperty('blob'));
-	t.true(body.hasOwnProperty('text'));
-	t.true(body.hasOwnProperty('json'));
-	t.true(body.hasOwnProperty('buffer'));
-});
-
-/* eslint-disable-next-line func-names */
-test('should create custom FetchError', function funcName (t) {
-	const systemError = new Error('system');
-	systemError.code = 'ESOMEERROR';
-
-	const err = new FetchError('test message', 'test-error', systemError);
-	t.true(err instanceof Error);
-	t.true(err instanceof FetchError);
-	t.is(err.name, 'FetchError');
-	t.is(err.message, 'test message');
-	t.is(err.type, 'test-error');
-	t.is(err.code, 'ESOMEERROR');
-	t.is(err.errno, 'ESOMEERROR');
-	// Reading the stack is quite slow (~30-50ms)
-	t.true((err.stack.includes('funcName') && err.stack.startsWith(`${err.name}: ${err.message}`)));
-});
-
 test('should support https request', t => {
 	t.timeout(5000);
 	const url = 'https://github.com/';
@@ -1912,18 +1757,6 @@ test('should support https request', t => {
 		t.is(res.status, 200);
 		t.true(res.ok);
 	});
-});
-
-// Issue #414
-test('should reject if attempt to accumulate body stream throws', async t => {
-	const res = new Response(stream.Readable.from((async function * () {
-		yield Buffer.from('tada');
-		await new Promise(resolve => setTimeout(resolve, 200));
-		yield {tada: 'yes'};
-	})()));
-
-	const err = await t.throwsAsync(() => res.text(), {instanceOf: FetchError, message: /Could not create Buffer/});
-	t.is(err.type, 'system');
 });
 
 test('supports supplying a lookup function to the agent', t => {
@@ -1979,66 +1812,6 @@ test('should allow a function supplying the agent', t => {
 		// The agent we returned should have been used
 		t.is(res.headers.connection, 'keep-alive');
 	});
-});
-
-test('should calculate content length and extract content type for each body type', t => {
-	const url = `${base}hello`;
-	const bodyContent = 'a=1';
-
-	const streamBody = stream.Readable.from(bodyContent);
-	const streamRequest = new Request(url, {
-		method: 'POST',
-		body: streamBody,
-		size: 1024
-	});
-
-	const blobBody = new Blob([bodyContent], {type: 'text/plain'});
-	const blobRequest = new Request(url, {
-		method: 'POST',
-		body: blobBody,
-		size: 1024
-	});
-
-	const formBody = new FormData();
-	formBody.append('a', '1');
-	const formRequest = new Request(url, {
-		method: 'POST',
-		body: formBody,
-		size: 1024
-	});
-
-	const bufferBody = Buffer.from(bodyContent);
-	const bufferRequest = new Request(url, {
-		method: 'POST',
-		body: bufferBody,
-		size: 1024
-	});
-
-	const stringRequest = new Request(url, {
-		method: 'POST',
-		body: bodyContent,
-		size: 1024
-	});
-
-	const nullRequest = new Request(url, {
-		method: 'GET',
-		body: null,
-		size: 1024
-	});
-
-	t.is(getTotalBytes(streamRequest), null);
-	t.is(getTotalBytes(blobRequest), blobBody.size);
-	t.is(getTotalBytes(formRequest), null);
-	t.is(getTotalBytes(bufferRequest), bufferBody.length);
-	t.is(getTotalBytes(stringRequest), bodyContent.length);
-	t.is(getTotalBytes(nullRequest), 0);
-
-	t.is(extractContentType(streamBody), null);
-	t.is(extractContentType(blobBody), 'text/plain');
-	t.is(extractContentType(formBody), 'multipart/form-data');
-	t.is(extractContentType(bufferBody), null);
-	t.is(extractContentType(bodyContent), 'text/plain;charset=UTF-8');
-	t.is(extractContentType(null), null);
 });
 
 test('should encode URLs as UTF-8', async t => {
