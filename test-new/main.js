@@ -494,11 +494,10 @@ test('should handle network-error response', async t => {
 
 test('should handle network-error partial response', async t => {
 	const url = `${base}error/premature`;
-	return fetch(url).then(async res => {
-		t.is(res.status, 200);
-		t.true(res.ok);
-		await t.throwsAsync(() => res.text(), {instanceOf: Error, message: /Premature close|The operation was aborted/});
-	})
+	const res = await fetch(url);
+	t.is(res.status, 200);
+	t.true(res.ok);
+	await t.throwsAsync(() => res.text(), {instanceOf: Error, message: /Premature close|The operation was aborted/});
 });
 
 test.skip('should handle DNS-error response', async t => {
@@ -507,12 +506,11 @@ test.skip('should handle DNS-error response', async t => {
 	t.is(err.code, /ENOTFOUND|EAI_AGAIN/);
 });
 
-test.serial('should reject invalid json response', t => {
+test('should reject invalid json response', async t => {
 	const url = `${base}error/json`;
-	return fetch(url).then(async res => {
-		t.is(res.headers.get('content-type'), 'application/json');
-		await t.throwsAsync(() => res.json(), {instanceOf: Error});
-	})
+	const res = await fetch(url);
+	t.is(res.headers.get('content-type'), 'application/json');
+	await t.throwsAsync(() => res.json(), {instanceOf: Error});
 })
 
 test('should handle no content response', t => {
@@ -779,7 +777,7 @@ test('should reject immediately if signal has already been aborted', async t => 
 	t.is(err.type, 'aborted');
 });
 
-test.skip('should remove internal AbortSignal event listener after request is aborted', async t => {
+test('should remove internal AbortSignal event listener after request is aborted', async t => {
 	const controller = new AbortController();
 	const {signal} = controller;
 	const promise = fetch(
@@ -787,11 +785,12 @@ test.skip('should remove internal AbortSignal event listener after request is ab
 		{signal}
 	);
 
-	await t.throwsAsync(() => promise.then(() => {
-		t.is(signal.listeners.abort.length, 0);
-	}), {instanceOf: Error, name: 'AbortError'});
+	const res = t.throwsAsync(() => promise, {instanceOf: Error, name: 'AbortError'})
+		.then(() => {
+			t.is(signal.listeners.abort.length, 0);
+		})
 	controller.abort();
-	return res;
+	await res;
 });
 
 test('should allow redirects to be aborted', async t => {
@@ -1143,7 +1142,7 @@ test('should allow POST request with form-data as body', t => {
 	});
 });
 
-test('should allow POST request with form-data using stream as body', t => {
+test('should allow POST request with form-data using stream as body', async t => {
 	const form = new FormData();
 	form.append('my_field', fs.createReadStream('test-new/utils/dummy.txt'));
 
@@ -1152,15 +1151,12 @@ test('should allow POST request with form-data using stream as body', t => {
 		method: 'POST',
 		body: form
 	};
-
-	return fetch(url, options).then(res => {
-		return res.json();
-	}).then(res => {
-		t.is(res.method, 'POST');
-		t.true(res.headers['content-type'].startsWith('multipart/form-data;boundary='));
-		t.is(res.headers['content-length'], undefined);
-		t.true(res.body.startsWith('my_field='));
-	});
+	const res = await fetch(url, options);
+	const result = await res.json();
+	t.is(result.method, 'POST');
+	t.true(result.headers['content-type'].startsWith('multipart/form-data;boundary='));
+	t.is(result.headers['content-length'], undefined);
+	t.true(result.body.startsWith('my_field='));
 });
 
 test('should allow POST request with form-data as body and custom headers', t => {
@@ -1532,7 +1528,7 @@ test('the default highWaterMark should equal 16384', t => {
 	});
 });
 
-test.skip('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', async t => {
+test('should timeout on cloning response without consuming one of the streams when the second packet size is equal default highWaterMark', async t => {
 	const url = local.mockResponse(res => {
 		// Observed behavior of TCP packets splitting:
 		// - response body size <= 65438 → single packet sent
@@ -1552,6 +1548,7 @@ test.skip('should timeout on cloning response without consuming one of the strea
 });
 
 test.skip('should timeout on cloning response without consuming one of the streams when the second packet size is equal custom highWaterMark', async t => {
+	t.timeout(350);
 	const url = local.mockResponse(res => {
 		const firstPacketMaxSize = 65438;
 		const secondPacketSize = 10;
@@ -1562,7 +1559,7 @@ test.skip('should timeout on cloning response without consuming one of the strea
 	await pTimeout(fetchPromise, 300, () => {
 		timedOut = true;
 	});
-	return t.true(timedOut);
+	t.true(timedOut);
 });
 
 test.skip('should not timeout on cloning response without consuming one of the streams when the second packet size is less than default highWaterMark', async t => {
