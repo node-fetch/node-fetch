@@ -1569,10 +1569,9 @@ test.skip('should not timeout on cloning response without consuming one of the s
 		const secondPacketSize = 16 * 1024; // = defaultHighWaterMark
 		res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 	});
-	const res = await fetch(url)
-	t.log(res)
-	t.is(res, '')
-	// return t.is(fetch(url).then(res => res.clone().buffer()), '');
+	const response = await fetch(url);
+	const result = await response.clone().buffer();
+	t.is(result, '');
 });
 
 test.skip('should not timeout on cloning response without consuming one of the streams when the second packet size is less than custom highWaterMark', async t => {
@@ -1582,9 +1581,9 @@ test.skip('should not timeout on cloning response without consuming one of the s
 		const secondPacketSize = 10;
 		res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 	});
-	// return expect(
-	// 	fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
-	// ).not.to.timeout;
+	const response = await fetch(url, {highWaterMark: 10});
+	const result = await response.clone().buffer();
+	t.is(result, '');
 });
 
 test.skip('should not timeout on cloning response without consuming one of the streams when the response size is double the custom large highWaterMark - 1', async t => {
@@ -1592,9 +1591,9 @@ test.skip('should not timeout on cloning response without consuming one of the s
 	const url = local.mockResponse(res => {
 		res.end(crypto.randomBytes((2 * 512 * 1024) - 1));
 	});
-	// return expect(
-	// 	fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
-	// ).not.to.timeout;
+	const response = await fetch(url, {highWaterMark: 512 * 1024});
+	const result = await response.clone().buffer();
+	t.is(result, '');
 });
 
 test('should allow get all responses of a header', t => {
