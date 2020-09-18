@@ -179,15 +179,13 @@ export default async function fetch(url, options_) {
 			}
 
 			// Prepare response
-			response_.once('end', () => {
-				if (signal) {
+			if (signal) {
+				response_.once('end', () => {
 					signal.removeEventListener('abort', abortAndFinalize);
-				}
-			});
+				});
+			}
 
-			let body = pump(response_, new PassThrough(), error => {
-				reject(error);
-			});
+			let body = pump(response_, new PassThrough(), reject);
 			// see https://github.com/nodejs/node/pull/29376
 			if (process.version < 'v12.10') {
 				response_.on('aborted', abortAndFinalize);
@@ -232,9 +230,7 @@ export default async function fetch(url, options_) {
 
 			// For gzip
 			if (codings === 'gzip' || codings === 'x-gzip') {
-				body = pump(body, zlib.createGunzip(zlibOptions), error => {
-					reject(error);
-				});
+				body = pump(body, zlib.createGunzip(zlibOptions), reject);
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
@@ -244,19 +240,13 @@ export default async function fetch(url, options_) {
 			if (codings === 'deflate' || codings === 'x-deflate') {
 				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = pump(response_, new PassThrough(), error => {
-					reject(error);
-				});
+				const raw = pump(response_, new PassThrough(), reject);
 				raw.once('data', chunk => {
 					// See http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
-						body = pump(body, zlib.createInflate(), error => {
-							reject(error);
-						});
+						body = pump(body, zlib.createInflate(), reject);
 					} else {
-						body = pump(body, zlib.createInflateRaw(), error => {
-							reject(error);
-						});
+						body = pump(body, zlib.createInflateRaw(), reject);
 					}
 
 					response = new Response(body, responseOptions);
@@ -267,9 +257,7 @@ export default async function fetch(url, options_) {
 
 			// For br
 			if (codings === 'br') {
-				body = pump(body, zlib.createBrotliDecompress(), error => {
-					reject(error);
-				});
+				body = pump(body, zlib.createBrotliDecompress(), reject);
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
