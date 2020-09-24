@@ -85,6 +85,7 @@ interface RequestInit {
 	protocol?: string;
 	size?: number;
 	highWaterMark?: number;
+	insecureHTTPParser?: boolean;
 }
 
 interface ResponseInit {
