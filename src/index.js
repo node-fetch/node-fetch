@@ -295,7 +295,11 @@ export default async function fetch(url, options_) {
 			if (codings === 'deflate' || codings === 'x-deflate') {
 				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = pump(response_, new PassThrough(), reject);
+				const raw = pump(response_, new PassThrough(), err => {
+					if (err) {
+						reject(err);
+					}
+				});
 				raw.once('data', chunk => {
 					// See http://stackoverflow.com/questions/37519828
 					body = (chunk[0] & 0x0F) === 0x08 ? pump(body, zlib.createInflate(), reject) : pump(body, zlib.createInflateRaw(), reject);
