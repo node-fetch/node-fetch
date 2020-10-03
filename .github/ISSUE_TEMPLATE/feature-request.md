@@ -1,10 +1,7 @@
 ---
 name: '✨ Feature Request'
 about: Suggest an idea or feature
-title: 'Feature request: '
 labels: feature
-assignees: ''
-
 ---
 
 **Is your feature request related to a problem? Please describe.**
