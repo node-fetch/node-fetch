@@ -83,7 +83,7 @@ export default class Request extends Body {
 		}
 
 		if (signal !== null && !isAbortSignal(signal)) {
-			throw new TypeError('Expected signal to be an instanceof AbortSignal');
+			throw new TypeError('Expected signal to be an instanceof AbortSignal or EventTarget');
 		}
 
 		this[INTERNALS] = {
