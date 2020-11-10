@@ -419,7 +419,7 @@ const timeout = setTimeout(() => {
 		useData(data);
 	} catch (error) {
 		if (error.name === 'AbortError') {
-            console.log('request was aborted');
+			console.log('request was aborted');
 		}
 	} finally {
 		clearTimeout(timeout);
