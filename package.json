@@ -3,6 +3,7 @@
   "version": "3.0.0-beta.9",
   "description": "A light-weight module that brings Fetch API to node.js",
   "main": "./dist/index.cjs",
+  "browser": "./src/browser.js",
   "module": "./src/index.js",
   "sideEffects": false,
   "type": "module",
