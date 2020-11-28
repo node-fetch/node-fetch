@@ -174,7 +174,7 @@ export default async function fetch(url, options_) {
 					}
 
 					default:
-					// Do nothing
+						return reject(new TypeError(`Redirect option '${request.redirect}' is not a valid value of RequestRedirect`));
 				}
 			}
 
