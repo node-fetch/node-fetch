@@ -143,8 +143,8 @@ export default class Headers extends URLSearchParams {
 						return Reflect.get(target, p, receiver);
 				}
 			}
-			/* c8 ignore next */
 		});
+		/* c8 ignore next */
 	}
 
 	get [Symbol.toStringTag]() {
