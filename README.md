@@ -228,11 +228,13 @@ Wrapping the fetch function into a `try/catch` block will catch _all_ exceptions
 ```js
 const fetch = require('node-fetch');
 
-try {
-	fetch('https://domain.invalid/');
-} catch (error) {
-	console.log(error);
-}
+(async () => {
+	try {
+		await fetch('https://domain.invalid/');
+	} catch (error) {
+		console.log(error);
+	}
+})();
 ```
 
 ### Handling client and server errors
@@ -391,9 +393,12 @@ const FormData = require('formdata-node');
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
 
-fetch('https://httpbin.org/post', {method: 'POST', body: form})
-	.then(res => res.json())
-	.then(json => console.log(json));
+(async () => {
+	const res = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
+	const json = await res.json();
+
+	console.log(json);
+})();
 ```
 
 ### Request cancellation with AbortSignal
@@ -415,11 +420,9 @@ const timeout = setTimeout(() => {
 	try {
 		const response = await fetch('https://example.com', {signal: controller.signal});
 		const data = await response.json();
-		
-		useData(data);
 	} catch (error) {
-		if (error.name === 'AbortError') {
-            console.log('request was aborted');
+		if (error instanceof fetch.AbortError) {
+			console.log('request was aborted');
 		}
 	} finally {
 		clearTimeout(timeout);
@@ -530,11 +533,11 @@ const fetch = require('node-fetch');
 (async () => {
 	const response = await fetch('https://example.com');
 	const r1 = await response.clone();
-	
-	return Promise.all([res.json(), r1.text()]).then(results => {
-		console.log(results[0]);
-		console.log(results[1]);
-	});
+
+	const results = await Promise.all([response.json(), r1.text()]);
+
+	console.log(results[0]);
+	console.log(results[1]);
 })();
 ```
 
