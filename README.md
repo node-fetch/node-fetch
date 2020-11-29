@@ -296,8 +296,8 @@ const fileType = require('file-type');
 (async () => {
 	const response = await fetch('https://octodex.github.com/images/Fintechtocat.png');
 	const buffer = await response.buffer();
-	const type = fileType.fromBuffer(buffer)
-	
+	const type = await fileType.fromBuffer(buffer)
+
 	console.log(type);
 })();
 ```
