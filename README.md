@@ -244,20 +244,33 @@ It is common to create a helper function to check that the response contains no 
 ```js
 const fetch = require('node-fetch');
 
+class HTTPResponseError extends Error {
+	constructor(response, ...args) {
+		this.response = response;
+		super(`HTTP Error Response: ${res.status} ${res.statusText}`, ...args);
+	}
+}
+
 const checkStatus = res => {
 	if (res.ok) {
 		// res.status >= 200 && res.status < 300
 		return res;
 	} else {
-		throw MyCustomError(res.statusText);
+		throw new HTTPResponseError(res);
 	}
 }
 
 (async () => {
 	const response = await fetch('https://httpbin.org/status/400');
-	const data = checkStatus(response);
 
-	console.log(data); //=> MyCustomError
+	try {
+		checkStatus(response);
+	} catch (error) {
+		console.error(error);
+
+		const errorBody = await error.response.text();
+		console.error(`Error body: ${errorBody}`);
+	}
 })();
 ```
 
