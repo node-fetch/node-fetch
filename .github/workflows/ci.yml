@@ -62,6 +62,8 @@ jobs:
       - run: npm test
         if: matrix.node-version == '14.x' || matrix.node-version == '12.x'
 
+      - run: npm run test:cjs-build
+
       # upload coverage only once
       - name: Coveralls
         uses: coverallsapp/github-action@master
