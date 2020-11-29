@@ -288,6 +288,11 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/redirect/bad-location') {
+			res.socket.write('HTTP/1.1 301\r\nLocation: ☃\r\nContent-Length: 0\r\n');
+			res.socket.end('\r\n');
+		}
+
 		if (p === '/error/400') {
 			res.statusCode = 400;
 			res.setHeader('Content-Type', 'text/plain');

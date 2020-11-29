@@ -456,6 +456,18 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should support redirect mode, manual flag, broken Location header', () => {
+		const url = `${base}redirect/bad-location`;
+		const options = {
+			redirect: 'manual'
+		};
+		return fetch(url, options).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.equal(`${base}redirect/%C3%A2%C2%98%C2%83`);
+		});
+	});
+
 	it('should support redirect mode, error flag', () => {
 		const url = `${base}redirect/301`;
 		const options = {
