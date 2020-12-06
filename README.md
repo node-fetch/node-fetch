@@ -104,7 +104,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 Current stable release (`3.x`)
 
 ```sh
-$ npm install node-fetch
+npm install node-fetch
 ```
 
 ## Loading and configuring the module
@@ -722,7 +722,7 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 For older versions please use the type definitions from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped):
 
 ```sh
-$ npm install --save-dev @types/node-fetch
+npm install --save-dev @types/node-fetch
 ```
 
 ## Acknowledgement
