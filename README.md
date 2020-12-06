@@ -239,12 +239,12 @@ class HTTPResponseError extends Error {
 	}
 }
 
-const checkStatus = res => {
-	if (res.ok) {
-		// res.status >= 200 && res.status < 300
+const checkStatus = response => {
+	if (response.ok) {
+		// response.status >= 200 && response.status < 300
 		return res;
 	} else {
-		throw new HTTPResponseError(res);
+		throw new HTTPResponseError(response);
 	}
 }
 
@@ -379,8 +379,8 @@ const FormData = require('form-data');
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
 
-const res = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
-const json = await res.json();
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
+const json = await response.json();
 
 console.log(json);
 ```
