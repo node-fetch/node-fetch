@@ -1,7 +1,7 @@
 <div align="center">
-  	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
-  	<br>
-  	<p>A light-weight module that brings <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to Node.js.</p>
+	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
+	<br>
+	<p>A light-weight module that brings <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to Node.js.</p>
 	<a href="https://github.com/node-fetch/node-fetch/actions"><img src="https://github.com/node-fetch/node-fetch/workflows/CI/badge.svg?branch=master" alt="Build status"></a>
 	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch" alt="Coverage status"></a>
 	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
@@ -123,7 +123,7 @@ If you want to patch the global object in node:
 const fetch = require('node-fetch');
 
 if (!globalThis.fetch) {
-    globalThis.fetch = fetch;
+	globalThis.fetch = fetch;
 }
 ```
 
@@ -434,20 +434,20 @@ The default values are shown after each option key.
 
 ```js
 {
-    // These properties are part of the Fetch Standard
-    method: 'GET',
-    headers: {},            // Request headers. format is the identical to that accepted by the Headers constructor (see below)
-    body: null,             // Request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
-    redirect: 'follow',     // Set to `manual` to extract redirect headers, `error` to reject redirect
-    signal: null,           // Pass an instance of AbortSignal to optionally abort requests
+	// These properties are part of the Fetch Standard
+	method: 'GET',
+	headers: {},            // Request headers. format is the identical to that accepted by the Headers constructor (see below)
+	body: null,             // Request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
+	redirect: 'follow',     // Set to `manual` to extract redirect headers, `error` to reject redirect
+	signal: null,           // Pass an instance of AbortSignal to optionally abort requests
 
-    // The following properties are node-fetch extensions
-    follow: 20,             // maximum redirect count. 0 to not follow redirect
-    compress: true,         // support gzip/deflate content encoding. false to disable
-    size: 0,                // maximum response body size in bytes. 0 to disable
-    agent: null,            // http(s).Agent instance or function that returns an instance (see below)
-    highWaterMark: 16384,   // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
-    insecureHTTPParser: false	// Use an insecure HTTP parser that accepts invalid HTTP headers when `true`.
+	// The following properties are node-fetch extensions
+	follow: 20,             // maximum redirect count. 0 to not follow redirect
+	compress: true,         // support gzip/deflate content encoding. false to disable
+	size: 0,                // maximum response body size in bytes. 0 to disable
+	agent: null,            // http(s).Agent instance or function that returns an instance (see below)
+	highWaterMark: 16384,   // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+	insecureHTTPParser: false	// Use an insecure HTTP parser that accepts invalid HTTP headers when `true`.
 }
 ```
 
@@ -631,7 +631,7 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
-const { Headers } = require('node-fetch');
+const {Headers} = require('node-fetch');
 
 const meta = {
 	'Content-Type': 'text/xml',
