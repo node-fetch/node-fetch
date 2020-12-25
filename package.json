@@ -28,7 +28,7 @@
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "test-types": "tsd",
     "lint": "xo",
-    "prepublishOnly": "ava --config ava.config.cjs"
+    "prepublishOnly": "ava --config test-new/commonjs/ava.config.cjs"
   },
   "repository": {
     "type": "git",
@@ -106,7 +106,8 @@
     },
     "ignores": [
       "dist",
-      "@types"
+      "@types",
+      "ava.config.cjs"
     ],
     "overrides": [
       {
