@@ -37,12 +37,12 @@ const local = new TestServer();
 let base;
 
 test.before(async () => {
-	await local.start();
+	local.start();
 	base = `http://${local.hostname}:${local.port}/`;
 });
 
 test.after(async () => {
-	await local.stop();
+	local.stop();
 });
 
 function streamToPromise(stream, dataHandler) {
@@ -502,8 +502,10 @@ test('should handle network-error partial response', async t => {
 
 test.skip('should handle DNS-error response', async t => {
 	const url = 'http://domain.invalid';
-	const err = await t.throwsAsync(() => fetch(url), {instanceOf: FetchError});
-	t.is(err.code, /ENOTFOUND|EAI_AGAIN/);
+	const error = await t.throwsAsync(() => fetch(url), {instanceOf: FetchError});
+
+	t.true(Object.prototype.hasOwnProperty.call(error, 'code'));
+	t.true((err.code).match(/ENOTFOUND|EAI_AGAIN/));
 });
 
 test('should reject invalid json response', async t => {
@@ -634,7 +636,7 @@ test('should decompress deflate raw response from old apache server', t => {
 
 test('should decompress brotli response', t => {
 	if (typeof zlib.createBrotliDecompress !== 'function') {
-		t.pass()
+		t.pass();
 	}
 
 	const url = `${base}brotli`;
