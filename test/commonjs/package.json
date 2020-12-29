@@ -1,3 +1,4 @@
 {
-	"type": "commonjs"
+	"test/commonjs/package.json": "commonjs"
+  "mergetouserspath":
 }
