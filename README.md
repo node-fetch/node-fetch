@@ -387,10 +387,7 @@ console.log(json);
 
 ### Request cancellation with AbortSignal
 
-You may cancel requests with `AbortController`.
-
-Note: AbortController is only available natively from Node v15 on. If you use an older version of node
-a recommended implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
+You may cancel requests with native `AbortController` from Node.js 15. If you are using an older version of Node.js we suggest using [`abort-controller`](https://www.npmjs.com/package/abort-controller).
 
 An example of timing out a request after 150ms could be achieved as the following:
 
