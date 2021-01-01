@@ -1,7 +1,7 @@
 <div align="center">
-  	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
-  	<br>
-  	<p>A light-weight module that brings <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to Node.js.</p>
+	<img src="docs/media/Banner.svg" alt="Node Fetch"/>
+	<br>
+	<p>A light-weight module that brings <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to Node.js.</p>
 	<a href="https://github.com/node-fetch/node-fetch/actions"><img src="https://github.com/node-fetch/node-fetch/workflows/CI/badge.svg?branch=master" alt="Build status"></a>
 	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch" alt="Coverage status"></a>
 	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
@@ -104,7 +104,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 Current stable release (`3.x`)
 
 ```sh
-$ npm install node-fetch
+npm install node-fetch
 ```
 
 ## Loading and configuring the module
@@ -123,7 +123,7 @@ If you want to patch the global object in node:
 const fetch = require('node-fetch');
 
 if (!globalThis.fetch) {
-    globalThis.fetch = fetch;
+	globalThis.fetch = fetch;
 }
 ```
 
@@ -146,12 +146,10 @@ NOTE: The documentation below is up-to-date with `3.x` releases, if you are usin
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://github.com/');
-	const body = await response.text();
+const response = await fetch('https://github.com/');
+const body = await response.text();
 
-	console.log(body);
-})();
+console.log(body);
 ```
 
 ### JSON
@@ -159,12 +157,10 @@ const fetch = require('node-fetch');
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://api.github.com/users/github');
-	const json = await response.json();
+const response = await fetch('https://api.github.com/users/github');
+const json = await response.json();
 
-	console.log(json);
-})();
+console.log(json);
 ```
 
 ### Simple Post
@@ -172,12 +168,10 @@ const fetch = require('node-fetch');
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://httpbin.org/post', {method: 'POST', body: 'a=1'});
-	const json = await response.json();
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: 'a=1'});
+const json = await response.json();
 
-	console.log(json);
-})();
+console.log(json);
 ```
 
 ### Post with JSON
@@ -185,18 +179,16 @@ const fetch = require('node-fetch');
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const body = {a: 1};
+const body = {a: 1};
 
-	const response = await fetch('https://httpbin.org/post', {
-		method: 'post',
-		body: JSON.stringify(body),
-		headers: {'Content-Type': 'application/json'}
-	});
-	const json = await response.json();
+const response = await fetch('https://httpbin.org/post', {
+	method: 'post',
+	body: JSON.stringify(body),
+	headers: {'Content-Type': 'application/json'}
+});
+const json = await response.json();
 
-	console.log(json);
-})();
+console.log(json);
 ```
 
 ### Post with form parameters
@@ -211,12 +203,10 @@ const fetch = require('node-fetch');
 const params = new URLSearchParams();
 params.append('a', 1);
 
-(async () => {
-	const response = await fetch('https://httpbin.org/post', {method: 'POST', body: params});
-	const json = await response.json();
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: params});
+const json = await response.json();
 
-	console.log(json);
-})();
+console.log(json);
 ```
 
 ### Handling exceptions
@@ -229,7 +219,7 @@ Wrapping the fetch function into a `try/catch` block will catch _all_ exceptions
 const fetch = require('node-fetch');
 
 try {
-	fetch('https://domain.invalid/');
+	await fetch('https://domain.invalid/');
 } catch (error) {
 	console.log(error);
 }
@@ -242,21 +232,32 @@ It is common to create a helper function to check that the response contains no 
 ```js
 const fetch = require('node-fetch');
 
-const checkStatus = res => {
-	if (res.ok) {
-		// res.status >= 200 && res.status < 300
-		return res;
-	} else {
-		throw MyCustomError(res.statusText);
+class HTTPResponseError extends Error {
+	constructor(response, ...args) {
+		this.response = response;
+		super(`HTTP Error Response: ${res.status} ${res.statusText}`, ...args);
 	}
 }
 
-(async () => {
-	const response = await fetch('https://httpbin.org/status/400');
-	const data = checkStatus(response);
+const checkStatus = response => {
+	if (response.ok) {
+		// response.status >= 200 && response.status < 300
+		return res;
+	} else {
+		throw new HTTPResponseError(response);
+	}
+}
 
-	console.log(data); //=> MyCustomError
-})();
+const response = await fetch('https://httpbin.org/status/400');
+
+try {
+	checkStatus(response);
+} catch (error) {
+	console.error(error);
+
+	const errorBody = await error.response.text();
+	console.error(`Error body: ${errorBody}`);
+}
 ```
 
 ### Handling cookies
@@ -270,19 +271,18 @@ Cookies are not stored by default. However, cookies can be extracted and passed 
 The "Node.js way" is to use streams when possible. You can pipe `res.body` to another stream. This example uses [stream.pipeline](https://nodejs.org/api/stream.html#stream_stream_pipeline_streams_callback) to attach stream error handlers and wait for the download to complete.
 
 ```js
-const util = require('util');
-const fs = require('fs');
-const streamPipeline = util.promisify(require('stream').pipeline);
+const {createWriteStream} = require('fs');
+const {pipeline} = require('stream');
+const {promisify} = require('util');
+const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
-	
-	if (response.ok) {
-		return streamPipeline(response.body, fs.createWriteStream('./octocat.png'));
-	}
+const streamPipeline = promisify(pipeline);
 
-	throw new Error(`unexpected response ${response.statusText}`);
-})();
+const response = await fetch('https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
+
+if (!response.ok) throw new Error(`unexpected response ${response.statusText}`);
+
+await streamPipeline(response.body, createWriteStream('./octocat.png'));
 ```
 
 ### Buffer
@@ -293,13 +293,11 @@ If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `
 const fetch = require('node-fetch');
 const fileType = require('file-type');
 
-(async () => {
-	const response = await fetch('https://octodex.github.com/images/Fintechtocat.png');
-	const buffer = await response.buffer();
-	const type = fileType.fromBuffer(buffer)
-	
-	console.log(type);
-})();
+const response = await fetch('https://octodex.github.com/images/Fintechtocat.png');
+const buffer = await response.buffer();
+const type = await fileType.fromBuffer(buffer)
+
+console.log(type);
 ```
 
 ### Accessing Headers and other Meta data
@@ -307,15 +305,13 @@ const fileType = require('file-type');
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://github.com/');
-	
-	console.log(response.ok);
-	console.log(response.status);
-	console.log(response.statusText);
-	console.log(response.headers.raw());
-	console.log(response.headers.get('content-type'));
-})();
+const response = await fetch('https://github.com/');
+
+console.log(response.ok);
+console.log(response.status);
+console.log(response.statusText);
+console.log(response.headers.raw());
+console.log(response.headers.get('content-type'));
 ```
 
 ### Extract Set-Cookie Header
@@ -325,12 +321,10 @@ Unlike browsers, you can access raw `Set-Cookie` headers manually using `Headers
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://example.com');
-	
-	// Returns an array of values, instead of a string of comma-separated values
-	console.log(response.headers.raw()['set-cookie']);
-})();
+const response = await fetch('https://example.com');
+
+// Returns an array of values, instead of a string of comma-separated values
+console.log(response.headers.raw()['set-cookie']);
 ```
 
 ### Post data using a file stream
@@ -341,12 +335,10 @@ const fetch = require('node-fetch');
 
 const stream = createReadStream('input.txt');
 
-(async () => {
-	const response = await fetch('https://httpbin.org/post', {method: 'POST', body: stream});
-	const json = await response.json();
-	
-	console.log(json)
-})();
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: stream});
+const json = await response.json();
+
+console.log(json)
 ```
 
 ### Post with form-data (detect multipart)
@@ -358,12 +350,10 @@ const FormData = require('form-data');
 const form = new FormData();
 form.append('a', 1);
 
-(async () => {
-	const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
-	const json = await response.json();
-	
-	console.log(json)
-})();
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
+const json = await response.json();
+
+console.log(json)
 
 // OR, using custom headers
 // NOTE: getHeaders() is non-standard API
@@ -374,26 +364,25 @@ const options = {
 	headers: form.getHeaders()
 };
 
-(async () => {
-	const response = await fetch('https://httpbin.org/post', options);
-	const json = await response.json();
-	
-	console.log(json)
-})();
+const response = await fetch('https://httpbin.org/post', options);
+const json = await response.json();
+
+console.log(json)
 ```
 
 node-fetch also supports spec-compliant FormData implementations such as [formdata-node](https://github.com/octet-stream/form-data):
 
 ```js
 const fetch = require('node-fetch');
-const FormData = require('formdata-node');
+const FormData = require('form-data');
 
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
 
-fetch('https://httpbin.org/post', {method: 'POST', body: form})
-	.then(res => res.json())
-	.then(json => console.log(json));
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
+const json = await response.json();
+
+console.log(json);
 ```
 
 ### Request cancellation with AbortSignal
@@ -411,20 +400,16 @@ const timeout = setTimeout(() => {
 	controller.abort();
 }, 150);
 
-(async () => {
-	try {
-		const response = await fetch('https://example.com', {signal: controller.signal});
-		const data = await response.json();
-		
-		useData(data);
-	} catch (error) {
-		if (error.name === 'AbortError') {
-            console.log('request was aborted');
-		}
-	} finally {
-		clearTimeout(timeout);
+try {
+	const response = await fetch('https://example.com', {signal: controller.signal});
+	const data = await response.json();
+} catch (error) {
+	if (error instanceof fetch.AbortError) {
+		console.log('request was aborted');
 	}
-})();
+} finally {
+	clearTimeout(timeout);
+}
 ```
 
 See [test cases](https://github.com/node-fetch/node-fetch/blob/master/test/) for more examples.
@@ -449,20 +434,20 @@ The default values are shown after each option key.
 
 ```js
 {
-    // These properties are part of the Fetch Standard
-    method: 'GET',
-    headers: {},            // Request headers. format is the identical to that accepted by the Headers constructor (see below)
-    body: null,             // Request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
-    redirect: 'follow',     // Set to `manual` to extract redirect headers, `error` to reject redirect
-    signal: null,           // Pass an instance of AbortSignal to optionally abort requests
+	// These properties are part of the Fetch Standard
+	method: 'GET',
+	headers: {},            // Request headers. format is the identical to that accepted by the Headers constructor (see below)
+	body: null,             // Request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
+	redirect: 'follow',     // Set to `manual` to extract redirect headers, `error` to reject redirect
+	signal: null,           // Pass an instance of AbortSignal to optionally abort requests
 
-    // The following properties are node-fetch extensions
-    follow: 20,             // maximum redirect count. 0 to not follow redirect
-    compress: true,         // support gzip/deflate content encoding. false to disable
-    size: 0,                // maximum response body size in bytes. 0 to disable
-    agent: null,            // http(s).Agent instance or function that returns an instance (see below)
-    highWaterMark: 16384,   // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
-    insecureHTTPParser: false	// Use an insecure HTTP parser that accepts invalid HTTP headers when `true`.
+	// The following properties are node-fetch extensions
+	follow: 20,             // maximum redirect count. 0 to not follow redirect
+	compress: true,         // support gzip/deflate content encoding. false to disable
+	size: 0,                // maximum response body size in bytes. 0 to disable
+	agent: null,            // http(s).Agent instance or function that returns an instance (see below)
+	highWaterMark: 16384,   // the maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+	insecureHTTPParser: false	// Use an insecure HTTP parser that accepts invalid HTTP headers when `true`.
 }
 ```
 
@@ -527,15 +512,13 @@ The recommended way to fix this problem is to resolve cloned response in paralle
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://example.com');
-	const r1 = await response.clone();
-	
-	return Promise.all([res.json(), r1.text()]).then(results => {
-		console.log(results[0]);
-		console.log(results[1]);
-	});
-})();
+const response = await fetch('https://example.com');
+const r1 = await response.clone();
+
+const results = await Promise.all([response.json(), r1.text()]);
+
+console.log(results[0]);
+console.log(results[1]);
 ```
 
 If for some reason you don't like the solution above, since `3.x` you are able to modify the `highWaterMark` option:
@@ -543,14 +526,13 @@ If for some reason you don't like the solution above, since `3.x` you are able t
 ```js
 const fetch = require('node-fetch');
 
-(async () => {
-	const response = await fetch('https://example.com', {
-		// About 1MB
-		highWaterMark: 1024 * 1024
-	});
-	
-	return res.clone().buffer();
-})();
+const response = await fetch('https://example.com', {
+	// About 1MB
+	highWaterMark: 1024 * 1024
+});
+
+const result = await res.clone().buffer();
+console.dir(result);
 ```
 
 #### Insecure HTTP Parser
@@ -649,7 +631,7 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 
 ```js
 // Example adapted from https://fetch.spec.whatwg.org/#example-headers-class
-const { Headers } = require('node-fetch');
+const {Headers} = require('node-fetch');
 
 const meta = {
 	'Content-Type': 'text/xml',
@@ -740,7 +722,7 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 For older versions please use the type definitions from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped):
 
 ```sh
-$ npm install --save-dev @types/node-fetch
+npm install --save-dev @types/node-fetch
 ```
 
 ## Acknowledgement

@@ -82,7 +82,7 @@ export default class Request extends Body {
 			signal = init.signal;
 		}
 
-		if (signal !== null && !isAbortSignal(signal)) {
+		if (signal != null && !isAbortSignal(signal)) {
 			throw new TypeError('Expected signal to be an instanceof AbortSignal or EventTarget');
 		}
 

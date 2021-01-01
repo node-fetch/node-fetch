@@ -1038,6 +1038,17 @@ describe('node-fetch', () => {
 		]);
 	});
 
+	it('should gracefully handle a nullish signal', () => {
+		return Promise.all([
+			fetch(`${base}hello`, {signal: null}).then(res => {
+				return expect(res.ok).to.be.true;
+			}),
+			fetch(`${base}hello`, {signal: undefined}).then(res => {
+				return expect(res.ok).to.be.true;
+			})
+		]);
+	});
+
 	it('should set default User-Agent', () => {
 		const url = `${base}inspect`;
 		return fetch(url).then(res => res.json()).then(res => {

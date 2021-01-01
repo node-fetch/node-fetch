@@ -177,7 +177,7 @@ Fix packaging errors in v2.1.0.
 
 ## v2.0.0
 
-This is a major release. Check [our upgrade guide](https://github.com/node-fetch/node-fetch/blob/master/UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
+This is a major release. Check [our upgrade guide](https://github.com/node-fetch/node-fetch/blob/master/docs/v2-UPGRADE-GUIDE.md) for an overview on some key differences between v1 and v2.
 
 ### General changes
 
