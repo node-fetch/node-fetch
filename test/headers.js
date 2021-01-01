@@ -1,3 +1,4 @@
+import util from 'util';
 import {Headers} from '../src/index.js';
 import chai from 'chai';
 import chaiIterator from 'chai-iterator';
@@ -231,5 +232,18 @@ describe('Headers', () => {
 		expect(() => new Headers(['b2'])).to.throw(TypeError);
 		expect(() => new Headers('b2')).to.throw(TypeError);
 		expect(() => new Headers({[Symbol.iterator]: 42})).to.throw(TypeError);
+	});
+
+	it('should use a custom inspect function', () => {
+		const headers = new Headers([
+			['Host', 'thehost'],
+			['Host', 'notthehost'],
+			['a', '1'],
+			['b', '2'],
+			['a', '3']
+		]);
+
+		// eslint-disable-next-line quotes
+		expect(util.format(headers)).to.equal("{ a: [ '1', '3' ], b: '2', host: 'thehost' }");
 	});
 });
