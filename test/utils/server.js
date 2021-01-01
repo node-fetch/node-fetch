@@ -323,6 +323,23 @@ export default class TestServer {
 			}, 100);
 		}
 
+		if (p === '/error/premature/chunked') {
+			res.writeHead(200, {
+				'content-type': 'application/json',
+				'transfer-encoding': 'chunked'
+			});
+
+			res.write(`${JSON.stringify({ data: 'hi' })}\n`);
+
+			setTimeout(() => {
+				res.write(`${JSON.stringify({ data: 'bye' })}\n`);
+			}, 100);
+
+			setTimeout(() => {
+				res.destroy()
+			}, 200);
+		}
+
 		if (p === '/error/json') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
