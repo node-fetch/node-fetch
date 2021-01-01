@@ -588,6 +588,24 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should handle network-error in chunked response', () => {
+		const url = `${base}error/premature/chunked`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+
+			const read = async (body) => {
+				const chunks = [];
+				for await (const chunk of body) {
+					chunks.push(chunk);
+				}
+				return chunks;
+			};
+
+			return expect(read(res.body)).to.eventually.be.rejectedWith(Error);
+		});
+	});
+
 	it('should handle DNS-error response', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
