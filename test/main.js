@@ -1021,7 +1021,7 @@ describe('node-fetch', () => {
 		return result;
 	});
 
-	it('should throw a TypeError if a signal is not of type AbortSignal', () => {
+	it('should throw a TypeError if a signal is not of type AbortSignal or EventTarget', () => {
 		return Promise.all([
 			expect(fetch(`${base}inspect`, {signal: {}}))
 				.to.be.eventually.rejected
