@@ -524,6 +524,19 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should throw a TypeError on an invalid redirect option', () => {
+		const url = `${base}redirect/301`;
+		const options = {
+			redirect: 'foobar'
+		};
+		return fetch(url, options).then(() => {
+			expect.fail();
+		}, error => {
+			expect(error).to.be.an.instanceOf(TypeError);
+			expect(error.message).to.equal('Redirect option \'foobar\' is not a valid value of RequestRedirect');
+		});
+	});
+
 	it('should set redirected property on response when redirect', () => {
 		const url = `${base}redirect/301`;
 		return fetch(url).then(res => {
