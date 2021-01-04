@@ -619,15 +619,43 @@ describe('node-fetch', () => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 
-			const read = async (body) => {
+			return expect(new Promise((resolve, reject) => {
+				res.body.on('error', reject);
+				res.body.on('close', resolve);
+			})).to.eventually.be.rejectedWith(Error, 'Premature close')
+				.and.have.property('code', 'ERR_STREAM_PREMATURE_CLOSE');
+		});
+	});
+
+	it('should handle network-error in chunked response async iterator', () => {
+		const url = `${base}error/premature/chunked`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+
+			const read = async body => {
 				const chunks = [];
 				for await (const chunk of body) {
 					chunks.push(chunk);
 				}
+
 				return chunks;
 			};
 
-			return expect(read(res.body)).to.eventually.be.rejectedWith(Error);
+			return expect(read(res.body))
+				.to.eventually.be.rejectedWith(Error, 'Premature close')
+				.and.have.property('code', 'ERR_STREAM_PREMATURE_CLOSE');
+		});
+	});
+
+	it('should handle network-error in chunked response in consumeBody', () => {
+		const url = `${base}error/premature/chunked`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+
+			return expect(res.text())
+				.to.eventually.be.rejectedWith(Error, 'Premature close');
 		});
 	});
 
