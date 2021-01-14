@@ -374,7 +374,7 @@ node-fetch also supports spec-compliant FormData implementations such as [formda
 
 ```js
 const fetch = require('node-fetch');
-const FormData = require('form-data');
+const FormData = require('formdata-node');
 
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
