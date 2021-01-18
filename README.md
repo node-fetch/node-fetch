@@ -370,7 +370,7 @@ const json = await response.json();
 console.log(json)
 ```
 
-node-fetch also supports spec-compliant FormData implementations such as [formdata-node](https://github.com/octet-stream/form-data):
+node-fetch also supports spec-compliant FormData implementations such as [form-data](https://github.com/form-data/form-data) and [formdata-node](https://github.com/octet-stream/form-data):
 
 ```js
 const fetch = require('node-fetch');
