@@ -1081,6 +1081,10 @@ describe('node-fetch', () => {
 
 	testAbortController('mysticatea', () => new AbortControllerMysticatea());
 
+	if (process.version > 'v15') {
+		testAbortController('native', () => new AbortController());
+	}
+
 	it('should throw a TypeError if a signal is not of type AbortSignal or EventTarget', () => {
 		return Promise.all([
 			expect(fetch(`${base}inspect`, {signal: {}}))
