@@ -53,6 +53,30 @@ describe('Headers', () => {
 		]);
 	});
 
+	it('should be iterable with forEach', () => {
+		const headers = new Headers();
+		headers.append('Accept', 'application/json');
+		headers.append('Accept', 'text/plain');
+		headers.append('Content-Type', 'text/html');
+
+		const results = [];
+		headers.forEach((value, key, object) => {
+			results.push({value, key, object});
+		});
+
+		expect(results.length).to.equal(2);
+		expect({key: 'accept', value: 'application/json, text/plain', object: headers}).to.deep.equal(results[0]);
+		expect({key: 'content-type', value: 'text/html', object: headers}).to.deep.equal(results[1]);
+	});
+
+	it('should accept second thisArg argument for forEach', () => {
+		const headers = new Headers({Accept: 'application/json'});
+		const thisArg = {};
+		headers.forEach(function () {
+			expect(this).to.equal(thisArg);
+		}, thisArg);
+	});
+
 	it('should allow iterating through all headers with for-of loop', () => {
 		const headers = new Headers([
 			['b', '2'],
