@@ -169,7 +169,7 @@ export default class Headers extends URLSearchParams {
 
 	forEach(callback, thisArg) {
 		for (const name of this.keys()) {
-			callback.call(thisArg, this.get(name), name, this);
+			Reflect.apply(callback, thisArg, [this.get(name), name, this]);
 		}
 	}
 
