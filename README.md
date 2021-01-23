@@ -158,9 +158,9 @@ console.log(body);
 const fetch = require('node-fetch');
 
 const response = await fetch('https://api.github.com/users/github');
-const json = await response.json();
+const data = await response.json();
 
-console.log(json);
+console.log(data);
 ```
 
 ### Simple Post
@@ -169,9 +169,9 @@ console.log(json);
 const fetch = require('node-fetch');
 
 const response = await fetch('https://httpbin.org/post', {method: 'POST', body: 'a=1'});
-const json = await response.json();
+const data = await response.json();
 
-console.log(json);
+console.log(data);
 ```
 
 ### Post with JSON
@@ -186,9 +186,9 @@ const response = await fetch('https://httpbin.org/post', {
 	body: JSON.stringify(body),
 	headers: {'Content-Type': 'application/json'}
 });
-const json = await response.json();
+const data = await response.json();
 
-console.log(json);
+console.log(data);
 ```
 
 ### Post with form parameters
@@ -204,9 +204,9 @@ const params = new URLSearchParams();
 params.append('a', 1);
 
 const response = await fetch('https://httpbin.org/post', {method: 'POST', body: params});
-const json = await response.json();
+const data = await response.json();
 
-console.log(json);
+console.log(data);
 ```
 
 ### Handling exceptions
@@ -336,9 +336,9 @@ const fetch = require('node-fetch');
 const stream = createReadStream('input.txt');
 
 const response = await fetch('https://httpbin.org/post', {method: 'POST', body: stream});
-const json = await response.json();
+const data = await response.json();
 
-console.log(json)
+console.log(data)
 ```
 
 ### Post with form-data (detect multipart)
@@ -351,9 +351,9 @@ const form = new FormData();
 form.append('a', 1);
 
 const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
-const json = await response.json();
+const data = await response.json();
 
-console.log(json)
+console.log(data)
 
 // OR, using custom headers
 // NOTE: getHeaders() is non-standard API
@@ -365,9 +365,9 @@ const options = {
 };
 
 const response = await fetch('https://httpbin.org/post', options);
-const json = await response.json();
+const data = await response.json();
 
-console.log(json)
+console.log(data)
 ```
 
 node-fetch also supports spec-compliant FormData implementations such as [formdata-node](https://github.com/octet-stream/form-data):
@@ -380,9 +380,9 @@ const form = new FormData();
 form.set('greeting', 'Hello, world!');
 
 const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
-const json = await response.json();
+const data = await response.json();
 
-console.log(json);
+console.log(data);
 ```
 
 ### Request cancellation with AbortSignal
