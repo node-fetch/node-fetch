@@ -82,6 +82,7 @@ export default class Request extends Body {
 			signal = init.signal;
 		}
 
+		// eslint-disable-next-line no-eq-null, eqeqeq
 		if (signal != null && !isAbortSignal(signal)) {
 			throw new TypeError('Expected signal to be an instanceof AbortSignal or EventTarget');
 		}
