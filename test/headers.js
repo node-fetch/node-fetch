@@ -69,19 +69,19 @@ describe('Headers', () => {
 		expect({key: 'content-type', value: 'text/html', object: headers}).to.deep.equal(results[1]);
 	});
 
+	it('should set "this" to undefined by default on forEach', () => {
+		const headers = new Headers({Accept: 'application/json'});
+		headers.forEach(function () {
+			expect(this).to.be.undefined;
+		});
+	});
+
 	it('should accept thisArg as a second argument for forEach', () => {
 		const headers = new Headers({Accept: 'application/json'});
 		const thisArg = {};
 		headers.forEach(function () {
 			expect(this).to.equal(thisArg);
 		}, thisArg);
-	});
-
-	it('should allow only one argument for forEach', () => {
-		const headers = new Headers({Accept: 'application/json'});
-		headers.forEach(function () {
-			expect(this).to.be.undefined;
-		});
 	});
 
 	it('should allow iterating through all headers with for-of loop', () => {
