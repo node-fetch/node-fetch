@@ -142,6 +142,8 @@ declare class Request extends Body {
 	clone(): Request;
 }
 
+type ResponseType = "basic" | "cors" | "default" | "error" | "opaque" | "opaqueredirect"
+
 declare class Response extends Body {
 	constructor(body?: BodyInit | null, init?: ResponseInit);
 
@@ -150,8 +152,11 @@ declare class Response extends Body {
 	readonly redirected: boolean;
 	readonly status: number;
 	readonly statusText: string;
+	readonly type: ResponseType;
 	readonly url: string;
 	clone(): Response;
+
+	static error(): Response;
 }
 
 declare class FetchError extends Error {
