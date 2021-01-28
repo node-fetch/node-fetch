@@ -21,7 +21,6 @@ export default class Response extends Body {
 	constructor(body = null, options = {}) {
 		super(body, options);
 
-		// TODO Replace with nullish coalescing operator (??) when support for Node.js < 14 is dropped
 		// eslint-disable-next-line no-eq-null, eqeqeq, no-negated-condition
 		const status = options.status != null ? options.status : 200;
 
