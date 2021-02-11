@@ -38,9 +38,12 @@ export const isBlob = object => {
 		typeof object === 'object' &&
 		typeof object.arrayBuffer === 'function' &&
 		typeof object.type === 'string' &&
-		typeof object.stream === 'function' &&
+		// typeof object.stream === 'function' &&
 		typeof object.constructor === 'function' &&
-		/^(Blob|File)$/.test(object[NAME])
+		(
+			/^(Blob|File)$/.test(object[NAME]) ||
+			/^(Blob|File)$/.test(object.constructor.name)
+		)
 	);
 };
 
