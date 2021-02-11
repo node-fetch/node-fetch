@@ -1,5 +1,6 @@
 import {Readable} from 'stream';
 
+/* c8 ignore start */
 async function * read(blob) {
 	let position = 0;
 	while (position !== blob.size) {
@@ -10,6 +11,7 @@ async function * read(blob) {
 		yield new Uint8Array(buffer);
 	}
 }
+/* c8 ignore end */
 
 export function blobToNodeStream(blob) {
 	return Readable.from(blob.stream ? blob.stream() : read(blob), {

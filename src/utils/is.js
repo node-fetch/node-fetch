@@ -41,6 +41,7 @@ export const isBlob = object => {
 		// typeof object.stream === 'function' &&
 		typeof object.constructor === 'function' &&
 		(
+			/* c8 ignore next 2 */
 			/^(Blob|File)$/.test(object[NAME]) ||
 			/^(Blob|File)$/.test(object.constructor.name)
 		)
