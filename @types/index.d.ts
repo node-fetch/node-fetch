@@ -114,7 +114,7 @@ declare class Body {
 	text(): Promise<string>;
 }
 
-type RequestRedirect = 'error' | 'follow' | 'manual';
+type RequestRedirect = 'error' | 'follow' | 'manual' | 'manual-dont-change';
 type RequestInfo = string | Body;
 declare class Request extends Body {
 	constructor(input: RequestInfo, init?: RequestInit);
