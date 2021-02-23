@@ -613,6 +613,74 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should handle network-error in chunked response', () => {
+		const url = `${base}error/premature/chunked`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+
+			return expect(new Promise((resolve, reject) => {
+				res.body.on('error', reject);
+				res.body.on('close', resolve);
+			})).to.eventually.be.rejectedWith(Error, 'Premature close')
+				.and.have.property('code', 'ERR_STREAM_PREMATURE_CLOSE');
+		});
+	});
+
+	it('should handle network-error in chunked response async iterator', () => {
+		const url = `${base}error/premature/chunked`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+
+			const read = async body => {
+				const chunks = [];
+
+				if (process.version < 'v14') {
+					// In Node.js 12, some errors don't come out in the async iterator; we have to pick
+					// them up from the event-emitter and then throw them after the async iterator
+					let error;
+					body.on('error', err => {
+						error = err;
+					});
+
+					for await (const chunk of body) {
+						chunks.push(chunk);
+					}
+
+					if (error) {
+						throw error;
+					}
+
+					return new Promise(resolve => {
+						body.on('close', () => resolve(chunks));
+					});
+				}
+
+				for await (const chunk of body) {
+					chunks.push(chunk);
+				}
+
+				return chunks;
+			};
+
+			return expect(read(res.body))
+				.to.eventually.be.rejectedWith(Error, 'Premature close')
+				.and.have.property('code', 'ERR_STREAM_PREMATURE_CLOSE');
+		});
+	});
+
+	it('should handle network-error in chunked response in consumeBody', () => {
+		const url = `${base}error/premature/chunked`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+
+			return expect(res.text())
+				.to.eventually.be.rejectedWith(Error, 'Premature close');
+		});
+	});
+
 	it('should handle DNS-error response', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected
