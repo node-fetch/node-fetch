@@ -70,6 +70,10 @@ export default class TestServer {
 			res.end('text');
 		}
 
+		if (p === '/no-status-text') {
+			res.writeHead(200, '', {}).end();
+		}
+
 		if (p === '/options') {
 			res.statusCode = 200;
 			res.setHeader('Allow', 'GET, HEAD, OPTIONS');

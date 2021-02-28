@@ -696,6 +696,13 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should handle response with no status text', () => {
+		const url = `${base}no-status-text`;
+		return fetch(url).then(res => {
+			expect(res.statusText).to.equal('');
+		});
+	});
+
 	it('should handle no content response', () => {
 		const url = `${base}no-content`;
 		return fetch(url).then(res => {
