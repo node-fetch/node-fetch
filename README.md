@@ -235,7 +235,7 @@ const fetch = require('node-fetch');
 class HTTPResponseError extends Error {
 	constructor(response, ...args) {
 		this.response = response;
-		super(`HTTP Error Response: ${res.status} ${res.statusText}`, ...args);
+		super(`HTTP Error Response: ${response.status} ${response.statusText}`, ...args);
 	}
 }
 
