@@ -242,7 +242,7 @@ class HTTPResponseError extends Error {
 const checkStatus = response => {
 	if (response.ok) {
 		// response.status >= 200 && response.status < 300
-		return res;
+		return response;
 	} else {
 		throw new HTTPResponseError(response);
 	}
