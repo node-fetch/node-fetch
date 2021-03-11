@@ -235,14 +235,14 @@ const fetch = require('node-fetch');
 class HTTPResponseError extends Error {
 	constructor(response, ...args) {
 		this.response = response;
-		super(`HTTP Error Response: ${res.status} ${res.statusText}`, ...args);
+		super(`HTTP Error Response: ${response.status} ${response.statusText}`, ...args);
 	}
 }
 
 const checkStatus = response => {
 	if (response.ok) {
 		// response.status >= 200 && response.status < 300
-		return res;
+		return response;
 	} else {
 		throw new HTTPResponseError(response);
 	}
