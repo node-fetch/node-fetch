@@ -285,7 +285,11 @@ export default async function fetch(url, options_) {
 
 			// For gzip
 			if (codings === 'gzip' || codings === 'x-gzip') {
-				body = pump(body, zlib.createGunzip(zlibOptions), reject);
+				body = pump(body, zlib.createGunzip(zlibOptions), err => {
+					if (err) {
+						reject(err);
+					}
+				});
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
@@ -302,13 +306,26 @@ export default async function fetch(url, options_) {
 				});
 				raw.once('data', chunk => {
 					// See http://stackoverflow.com/questions/37519828
-					body = (chunk[0] & 0x0F) === 0x08 ? pump(body, zlib.createInflate(), reject) : pump(body, zlib.createInflateRaw(), reject);
+					if ((chunk[0] & 0x0F) === 0x08) {
+						body = pump(body, zlib.createInflate(), err => {
+							if (err) {
+								reject(err);
+							}
+						});
+					} else {
+						body = pump(body, zlib.createInflateRaw(), err => {
+							if (err) {
+								reject(err);
+							}
+						});
+					}
 
 					response = new Response(body, responseOptions);
 					resolve(response);
 				});
 				raw.once('end', () => {
-					// some old IIS servers return zero-length OK deflate responses, so 'data' is never emitted.
+					// Some old IIS servers return zero-length OK deflate responses, so
+					// 'data' is never emitted. See https://github.com/node-fetch/node-fetch/pull/903
 					if (!response) {
 						response = new Response(body, responseOptions);
 						resolve(response);
@@ -319,7 +336,11 @@ export default async function fetch(url, options_) {
 
 			// For br
 			if (codings === 'br') {
-				body = pump(body, zlib.createBrotliDecompress(), reject);
+				body = pump(body, zlib.createBrotliDecompress(), err => {
+					if (err) {
+						reject(err);
+					}
+				});
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
