@@ -103,7 +103,7 @@ describe('FormData', () => {
 		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(expected);
 	});
 
-	it.only('Response derives content-type from FormData', async () => {
+	it('Response derives content-type from FormData', async () => {
 		const form = new FormData();
 		form.set('blob', new Blob(['Hello, World!'], {type: 'text/plain'}));
 
