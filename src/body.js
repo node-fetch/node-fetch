@@ -61,6 +61,7 @@ export default class Body {
 		}
 
 		this[INTERNALS] = {
+			/** @type {Stream|Buffer|Blob|null} */
 			body,
 			boundary,
 			disturbed: false,
@@ -320,7 +321,7 @@ export const extractContentType = (body, request) => {
  *
  * ref: https://fetch.spec.whatwg.org/#concept-body-total-bytes
  *
- * @param {any} obj.body Body object from the Body instance.
+ * @param {Body} request Body object from the Body instance.
  * @returns {number | null}
  */
 export const getTotalBytes = request => {
