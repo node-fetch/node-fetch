@@ -197,7 +197,7 @@ async function consumeBody(data) {
 
 	try {
 		for await (const chunk of body) {
-			const bytes = typeof chunk === "string" ? Buffer.from(chunk) : chunk
+			const bytes = typeof chunk === 'string' ? Buffer.from(chunk) : chunk;
 			if (data.size > 0 && accumBytes + bytes.byteLength > data.size) {
 				const err = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
 				body.destroy(err);
