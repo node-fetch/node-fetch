@@ -3,7 +3,7 @@ import {randomBytes} from 'crypto';
 import {isBlob} from './is.js';
 
 const carriage = '\r\n';
-const dashes = '-'.repeat(2);
+const dashes = '--';
 const carriageLength = Buffer.byteLength(carriage);
 
 /**
