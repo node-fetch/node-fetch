@@ -12,6 +12,7 @@ import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
+console.log("src");
 
 const INTERNALS = Symbol('Request internals');
 
