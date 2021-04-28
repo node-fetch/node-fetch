@@ -1,0 +1,20 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: formdata-node
+    versions:
+    - 3.0.0
+    - 3.1.0
+  - dependency-name: xo
+    versions:
+    - 0.37.1
+    - 0.38.1
+    - 0.38.2
+  - dependency-name: p-timeout
+    versions:
+    - 4.1.0
