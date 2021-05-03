@@ -56,6 +56,7 @@
 		- [new Response([body[, options]])](#new-responsebody-options)
 		- [response.ok](#responseok)
 		- [response.redirected](#responseredirected)
+		- [response.type](#responsetype)
 	- [Class: Headers](#class-headers)
 		- [new Headers([init])](#new-headersinit)
 	- [Interface: Body](#interface-body)
@@ -636,9 +637,6 @@ An HTTP(S) response. This class implements the [Body](#iface-body) interface.
 
 The following properties are not implemented in node-fetch at this moment:
 
-- `Response.error()`
-- `Response.redirect()`
-- `type`
 - `trailer`
 
 #### new Response([body[, options]])
@@ -663,6 +661,12 @@ Convenience property representing if the request ended normally. Will evaluate t
 <small>_(spec-compliant)_</small>
 
 Convenience property representing if the request has been redirected at least once. Will evaluate to true if the internal redirect counter is greater than 0.
+
+#### response.type
+
+<small>_(deviation from spec)_</small>
+
+Convenience property representing the response's type. node-fetch only supports `'default'` and `'error'` and does not make use of [filtered responses](https://fetch.spec.whatwg.org/#concept-filtered-response).
 
 <a id="class-headers"></a>
 
