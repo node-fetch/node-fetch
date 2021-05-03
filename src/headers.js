@@ -114,7 +114,7 @@ export default class Headers extends URLSearchParams {
 							validateHeaderName(name);
 							validateHeaderValue(name, String(value));
 							return URLSearchParams.prototype[p].call(
-								receiver,
+								target,
 								String(name).toLowerCase(),
 								String(value)
 							);
@@ -126,7 +126,7 @@ export default class Headers extends URLSearchParams {
 						return name => {
 							validateHeaderName(name);
 							return URLSearchParams.prototype[p].call(
-								receiver,
+								target,
 								String(name).toLowerCase()
 							);
 						};
