@@ -7,13 +7,12 @@ import stream from 'stream';
 import path from 'path';
 import {lookup} from 'dns';
 import vm from 'vm';
-import {TextEncoder} from 'util';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
-import FormDataNode from 'formdata-node';
+import {FormData as FormDataNode} from 'formdata-node';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
@@ -2167,6 +2166,8 @@ describe('node-fetch', () => {
 		let called = 0;
 		function lookupSpy(hostname, options, callback) {
 			called++;
+
+			// eslint-disable-next-line node/prefer-promises/dns
 			return lookup(hostname, options, callback);
 		}
 
@@ -2182,6 +2183,8 @@ describe('node-fetch', () => {
 		const family = Symbol('family');
 		function lookupSpy(hostname, options, callback) {
 			families.push(options.family);
+
+			// eslint-disable-next-line node/prefer-promises/dns
 			return lookup(hostname, {}, callback);
 		}
 
