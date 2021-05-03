@@ -1,6 +1,5 @@
 
 import * as stream from 'stream';
-import {TextEncoder} from 'util';
 import chai from 'chai';
 import Blob from 'fetch-blob';
 import {Response} from '../src/index.js';

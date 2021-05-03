@@ -1,7 +1,6 @@
 
 import stream from 'stream';
 import http from 'http';
-import {TextEncoder} from 'util';
 
 import AbortController from 'abort-controller';
 import chai from 'chai';
