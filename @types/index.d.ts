@@ -1,16 +1,14 @@
 /// <reference types="node" />
 
-/* eslint-disable no-var, import/no-mutable-exports */
-
-import { Agent } from 'http';
-import { URL, URLSearchParams } from 'url'
+import {Agent} from 'http';
+import {URL, URLSearchParams} from 'url';
 import Blob = require('fetch-blob');
 
 type AbortSignal = {
 	readonly aborted: boolean;
 
-	addEventListener(type: "abort", listener: (this: AbortSignal) => void): void;
-	removeEventListener(type: "abort", listener: (this: AbortSignal) => void): void;
+	addEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
+	removeEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
 };
 
 type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
@@ -143,7 +141,7 @@ declare class Request extends Body {
 	clone(): Request;
 }
 
-type ResponseType = "basic" | "cors" | "default" | "error" | "opaque" | "opaqueredirect"
+type ResponseType = 'basic' | 'cors' | 'default' | 'error' | 'opaque' | 'opaqueredirect';
 
 declare class Response extends Body {
 	constructor(body?: BodyInit | null, init?: ResponseInit);
@@ -161,7 +159,7 @@ declare class Response extends Body {
 }
 
 declare class FetchError extends Error {
-	constructor(message: string, type: string, systemError?: object);
+	constructor(message: string, type: string, systemError?: Record<string, unknown>);
 
 	name: 'FetchError';
 	[Symbol.toStringTag]: 'FetchError';
@@ -176,14 +174,14 @@ declare class AbortError extends Error {
 	[Symbol.toStringTag]: 'AbortError';
 }
 
-
 declare function fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
 declare class fetch {
-	static default: typeof fetch;
+	default: typeof fetch;
 }
 declare namespace fetch {
 	export function isRedirect(code: number): boolean;
 
+	/* eslint-disable no-undef */
 	export {
 		HeadersInit,
 		Headers,
@@ -201,6 +199,7 @@ declare namespace fetch {
 		FetchError,
 		AbortError
 	};
+	/* eslint-enable no-undef */
 
 	export interface Body extends BodyType { }
 }
