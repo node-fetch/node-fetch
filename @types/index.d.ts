@@ -177,9 +177,6 @@ declare class AbortError extends Error {
 }
 
 declare function fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
-declare class fetch {
-	default: typeof fetch;
-}
 declare namespace fetch {
 	export function isRedirect(code: number): boolean;
 
