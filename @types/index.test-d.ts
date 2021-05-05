@@ -3,6 +3,7 @@ import AbortController from 'abort-controller';
 import Blob = require('fetch-blob');
 
 import fetch, {Request, Response, Headers, Body, FetchError, AbortError} from '.';
+// eslint-disable-next-line @typescript-eslint/no-duplicate-imports
 import * as _fetch from '.';
 
 async function run() {
@@ -50,9 +51,9 @@ async function run() {
 
 		const postResponse = await fetch(request, {method: 'POST', headers});
 		expectType<Blob>(await postResponse.blob());
-	} catch (error) {
+	} catch (error: unknown) {
 		if (error instanceof FetchError) {
-			throw new TypeError(error.errno);
+			throw new TypeError(error.errno as string | undefined);
 		}
 
 		if (error instanceof AbortError) {

@@ -1,4 +1,4 @@
-import util from 'util';
+import {format} from 'util';
 import {Headers} from '../src/index.js';
 import chai from 'chai';
 import chaiIterator from 'chai-iterator';
@@ -42,9 +42,9 @@ describe('Headers', () => {
 		expect(headers).to.have.property('forEach');
 
 		const result = [];
-		headers.forEach((value, key) => {
+		for (const [key, value] of headers.entries()) {
 			result.push([key, value]);
-		});
+		}
 
 		expect(result).to.deep.equal([
 			['a', '1'],
@@ -160,7 +160,7 @@ describe('Headers', () => {
 	});
 
 	it('should ignore unsupported attributes while reading headers', () => {
-		const FakeHeader = function () { };
+		const FakeHeader = function () {};
 		// Prototypes are currently ignored
 		// This might change in the future: #181
 		FakeHeader.prototype.z = 'fake';
@@ -275,6 +275,6 @@ describe('Headers', () => {
 		]);
 
 		// eslint-disable-next-line quotes
-		expect(util.format(headers)).to.equal("{ a: [ '1', '3' ], b: '2', host: 'thehost' }");
+		expect(format(headers)).to.equal("{ a: [ '1', '3' ], b: '2', host: 'thehost' }");
 	});
 });

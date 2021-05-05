@@ -404,7 +404,7 @@ export default class TestServer {
 				body += `${fieldName}=${fileName}`;
 				// consume file data
 				// eslint-disable-next-line no-empty, no-unused-vars
-				for await (const c of file) { }
+				for await (const c of file) {}
 			});
 
 			busboy.on('field', (fieldName, value) => {

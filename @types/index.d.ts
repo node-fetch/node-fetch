@@ -1,5 +1,7 @@
 /// <reference types="node" />
 
+/* eslint-disable node/prefer-global/url, node/prefer-global/url-search-params, no-redeclare */
+
 import {Agent} from 'http';
 import {URL, URLSearchParams} from 'url';
 import Blob = require('fetch-blob');
@@ -98,9 +100,9 @@ type BodyInit =
 	| URLSearchParams
 	| NodeJS.ReadableStream
 	| string;
-type BodyType = { [K in keyof Body]: Body[K] };
+type BodyType = {[K in keyof Body]: Body[K]};
 declare class Body {
-	constructor(body?: BodyInit, opts?: { size?: number });
+	constructor(body?: BodyInit, options?: {size?: number});
 
 	readonly body: NodeJS.ReadableStream | null;
 	readonly bodyUsed: boolean;
@@ -181,7 +183,6 @@ declare class fetch {
 declare namespace fetch {
 	export function isRedirect(code: number): boolean;
 
-	/* eslint-disable no-undef */
 	export {
 		HeadersInit,
 		Headers,
@@ -199,7 +200,6 @@ declare namespace fetch {
 		FetchError,
 		AbortError
 	};
-	/* eslint-enable no-undef */
 
 	export interface Body extends BodyType { }
 }

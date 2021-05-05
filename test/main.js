@@ -880,7 +880,7 @@ describe('node-fetch', () => {
 			.then(res => {
 				expect(res.status).to.equal(200);
 			})
-			.catch(() => { })
+			.catch(() => {})
 			.then(() => {
 				// Wait a few ms to see if a uncaught error occurs
 				setTimeout(() => {
@@ -1082,7 +1082,7 @@ describe('node-fetch', () => {
 
 			it('should cancel request body of type Stream with AbortError when aborted', () => {
 				const body = new stream.Readable({objectMode: true});
-				body._read = () => { };
+				body._read = () => {};
 				const promise = fetch(
 					`${base}slow`,
 					{signal: controller.signal, body, method: 'POST'}
@@ -1576,7 +1576,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should still recognize URLSearchParams when extended', () => {
-		class CustomSearchParameters extends URLSearchParams { }
+		class CustomSearchParameters extends URLSearchParams {}
 		const parameters = new CustomSearchParameters();
 		parameters.append('a', '1');
 
@@ -1598,7 +1598,7 @@ describe('node-fetch', () => {
 	/* For 100% code coverage, checks for duck-typing-only detection
 	 * where both constructor.name and brand tests fail */
 	it('should still recognize URLSearchParams when extended from polyfill', () => {
-		class CustomPolyfilledSearchParameters extends URLSearchParams { }
+		class CustomPolyfilledSearchParameters extends URLSearchParams {}
 		const parameters = new CustomPolyfilledSearchParameters();
 		parameters.append('a', '1');
 
