@@ -68,7 +68,10 @@
     "fetch-blob": "^2.1.2"
   },
   "tsd": {
-    "cwd": "@types"
+    "cwd": "@types",
+    "compilerOptions": {
+      "esModuleInterop": true
+    }
   },
   "xo": {
     "envs": [
