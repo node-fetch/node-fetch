@@ -183,17 +183,13 @@ declare namespace fetch {
 	export {
 		HeadersInit,
 		Headers,
-
 		RequestInit,
 		RequestRedirect,
 		RequestInfo,
 		Request,
-
 		BodyInit,
-
 		ResponseInit,
 		Response,
-
 		FetchError,
 		AbortError
 	};
