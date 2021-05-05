@@ -81,7 +81,7 @@
       "import/no-useless-path-segments": 0,
       "import/no-anonymous-default-export": 0,
       "unicorn/import-index": 0,
-      "unicorn/no-reduce": 0,
+      "unicorn/no-array-reduce": 0,
       "capitalized-comments": 0,
       "@typescript-eslint/member-ordering": 0
     },
@@ -97,6 +97,7 @@
           "no-unused-expressions": 0,
           "new-cap": 0,
           "guard-for-in": 0,
+          "unicorn/no-array-for-each": 0,
           "unicorn/prevent-abbreviations": 0,
           "promise/prefer-await-to-then": 0,
           "ava/no-import-test-files": 0
