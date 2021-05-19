@@ -53,7 +53,7 @@ jobs:
 
       - name: Test without coverage
         if: matrix.node == 'engines'
-        run: npx mocha --colors
+        run: npx mocha --colors --experimental-modules
 
       # upload coverage only once
       - name: Coveralls
