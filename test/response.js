@@ -35,6 +35,7 @@ describe('Response', () => {
 			'blob',
 			'json',
 			'text',
+			'type',
 			'url',
 			'status',
 			'ok',
@@ -49,6 +50,7 @@ describe('Response', () => {
 		for (const toCheck of [
 			'body',
 			'bodyUsed',
+			'type',
 			'url',
 			'status',
 			'ok',
@@ -125,6 +127,7 @@ describe('Response', () => {
 		});
 		const cl = res.clone();
 		expect(cl.headers.get('a')).to.equal('1');
+		expect(cl.type).to.equal('default');
 		expect(cl.url).to.equal(base);
 		expect(cl.status).to.equal(346);
 		expect(cl.statusText).to.equal('production');
@@ -204,5 +207,13 @@ describe('Response', () => {
 	it('should default to empty string as url', () => {
 		const res = new Response();
 		expect(res.url).to.equal('');
+	});
+
+	it('should support error() static method', () => {
+		const res = Response.error();
+		expect(res).to.be.an.instanceof(Response);
+		expect(res.type).to.equal('error');
+		expect(res.status).to.equal(0);
+		expect(res.statusText).to.equal('');
 	});
 });

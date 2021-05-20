@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "abort-controller": "^3.0.0",
-    "abortcontroller-polyfill": "^1.5.0",
+    "abortcontroller-polyfill": "^1.7.1",
     "busboy": "^0.3.1",
     "c8": "^7.3.0",
     "chai": "^4.2.0",

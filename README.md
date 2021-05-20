@@ -56,6 +56,7 @@
 		- [new Response([body[, options]])](#new-responsebody-options)
 		- [response.ok](#responseok)
 		- [response.redirected](#responseredirected)
+		- [response.type](#responsetype)
 	- [Class: Headers](#class-headers)
 		- [new Headers([init])](#new-headersinit)
 	- [Interface: Body](#interface-body)
@@ -235,14 +236,14 @@ const fetch = require('node-fetch');
 class HTTPResponseError extends Error {
 	constructor(response, ...args) {
 		this.response = response;
-		super(`HTTP Error Response: ${res.status} ${res.statusText}`, ...args);
+		super(`HTTP Error Response: ${response.status} ${response.statusText}`, ...args);
 	}
 }
 
 const checkStatus = response => {
 	if (response.ok) {
 		// response.status >= 200 && response.status < 300
-		return res;
+		return response;
 	} else {
 		throw new HTTPResponseError(response);
 	}
@@ -283,6 +284,55 @@ const response = await fetch('https://assets-cdn.github.com/images/modules/logos
 if (!response.ok) throw new Error(`unexpected response ${response.statusText}`);
 
 await streamPipeline(response.body, createWriteStream('./octocat.png'));
+```
+
+In Node.js 14 you can also use async iterators to read `body`; however, be careful to catch
+errors -- the longer a response runs, the more likely it is to encounter an error.
+
+```js
+const fetch = require('node-fetch');
+
+const response = await fetch('https://httpbin.org/stream/3');
+
+try {
+	for await (const chunk of response.body) {
+		console.dir(JSON.parse(chunk.toString()));
+	}
+} catch (err) {
+	console.error(err.stack);
+}
+```
+
+In Node.js 12 you can also use async iterators to read `body`; however, async iterators with streams
+did not mature until Node.js 14, so you need to do some extra work to ensure you handle errors
+directly from the stream and wait on it response to fully close.
+
+```js
+const fetch = require('node-fetch');
+
+const read = async body => {
+	let error;
+	body.on('error', err => {
+		error = err;
+	});
+
+	for await (const chunk of body) {
+		console.dir(JSON.parse(chunk.toString()));
+	}
+
+	return new Promise((resolve, reject) => {
+		body.on('close', () => {
+			error ? reject(error) : resolve();
+		});
+	});
+};
+
+try {
+	const response = await fetch('https://httpbin.org/stream/3');
+	await read(response.body);
+} catch (err) {
+	console.error(err.stack);
+}
 ```
 
 ### Buffer
@@ -587,9 +637,6 @@ An HTTP(S) response. This class implements the [Body](#iface-body) interface.
 
 The following properties are not implemented in node-fetch at this moment:
 
-- `Response.error()`
-- `Response.redirect()`
-- `type`
 - `trailer`
 
 #### new Response([body[, options]])
@@ -614,6 +661,12 @@ Convenience property representing if the request ended normally. Will evaluate t
 <small>_(spec-compliant)_</small>
 
 Convenience property representing if the request has been redirected at least once. Will evaluate to true if the internal redirect counter is greater than 0.
+
+#### response.type
+
+<small>_(deviation from spec)_</small>
+
+Convenience property representing the response's type. node-fetch only supports `'default'` and `'error'` and does not make use of [filtered responses](https://fetch.spec.whatwg.org/#concept-filtered-response).
 
 <a id="class-headers"></a>
 
