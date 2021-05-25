@@ -7,7 +7,6 @@
   "type": "module",
   "files": [
     "src",
-    "dist",
     "@types/index.d.ts"
   ],
   "types": "./@types/index.d.ts",
@@ -15,7 +14,6 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "scripts": {
-    "build": "rollup -c",
     "test": "c8 --reporter=html --reporter=lcov --reporter=text --check-coverage mocha",
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "test-types": "tsd",
