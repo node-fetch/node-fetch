@@ -414,7 +414,7 @@ const data = await response.json();
 console.log(data)
 ```
 
-node-fetch also supports spec-compliant FormData implementations such as [form-data](https://github.com/form-data/form-data) and [formdata-node](https://github.com/octet-stream/form-data):
+node-fetch also supports spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) and [formdata-node](https://github.com/octet-stream/form-data):
 
 ```js
 import fetch from 'node-fetch';
