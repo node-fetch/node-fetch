@@ -634,9 +634,9 @@ describe('node-fetch', () => {
 			const read = async body => {
 				const chunks = [];
 
-				if (process.version < 'v14') {
-					// In Node.js 12, some errors don't come out in the async iterator; we have to pick
-					// them up from the event-emitter and then throw them after the async iterator
+				if (process.version < 'v14.15.2') {
+					// In older Node.js versions, some errors don't come out in the async iterator; we have
+					// to pick them up from the event-emitter and then throw them after the async iterator
 					let error;
 					body.on('error', err => {
 						error = err;
