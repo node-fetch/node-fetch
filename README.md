@@ -385,35 +385,6 @@ const data = await response.json();
 console.log(data)
 ```
 
-### Post with form-data (detect multipart)
-
-```js
-import fetch from 'node-fetch';
-import FormData from 'form-data';
-
-const form = new FormData();
-form.append('a', 1);
-
-const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
-const data = await response.json();
-
-console.log(data)
-
-// OR, using custom headers
-// NOTE: getHeaders() is non-standard API
-
-const options = {
-	method: 'POST',
-	body: form,
-	headers: form.getHeaders()
-};
-
-const response = await fetch('https://httpbin.org/post', options);
-const data = await response.json();
-
-console.log(data)
-```
-
 node-fetch also supports spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) and [formdata-node](https://github.com/octet-stream/form-data):
 
 ```js
@@ -428,6 +399,8 @@ const data = await response.json();
 
 console.log(data);
 ```
+
+node-fetch also support form-data but it's now discouraged due to not being spec-compliant and needs workarounds to function - which we hope to remove one day
 
 ### Request cancellation with AbortSignal
 
