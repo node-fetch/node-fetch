@@ -62,7 +62,7 @@ async function run() {
 	}
 
 	// export *
-	const wildResponse = await _fetch('https://google.com');
+	const wildResponse = await _fetch.default('https://google.com');
 	expectType<boolean>(wildResponse.ok);
 	expectType<number>(wildResponse.size);
 	expectType<number>(wildResponse.status);
@@ -89,8 +89,6 @@ async function run() {
 		new Map([['a', null], ['3', null]]).keys()
 	]);
 	/* eslint-enable no-new */
-
-	fetch.isRedirect = () => true;
 }
 
 run().finally(() => {
