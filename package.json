@@ -78,6 +78,9 @@
       "node",
       "browser"
     ],
+    "ignores": [
+      "example.js"
+    ],
     "rules": {
       "complexity": 0,
       "import/extensions": 0,
