@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-/* eslint-disable node/prefer-global/url, node/prefer-global/url-search-params, no-redeclare */
+/* eslint-disable node/prefer-global/url, node/prefer-global/url-search-params */
 
 import {Agent} from 'http';
 import {URL, URLSearchParams} from 'url';
