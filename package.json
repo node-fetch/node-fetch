@@ -105,12 +105,6 @@
           "promise/prefer-await-to-then": 0,
           "ava/no-import-test-files": 0
         }
-      },
-      {
-        "files": "example.js",
-        "rules": {
-          "import/no-extraneous-dependencies": 0
-        }
       }
     ]
   },
