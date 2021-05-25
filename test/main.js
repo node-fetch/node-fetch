@@ -607,7 +607,7 @@ describe('node-fetch', () => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejectedWith(Error)
-				.and.have.property('message').matches(/Premature close|The operation was aborted/);
+				.and.have.property('message').matches(/Premature close|The operation was aborted|aborted/);
 		});
 	});
 
