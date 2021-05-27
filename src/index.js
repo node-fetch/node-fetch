@@ -113,7 +113,7 @@ export default function fetch(url, opts) {
 			// Before Node.js 14, pipeline() does not fully support async iterators and does not always
 			// properly handle when the socket close/end events are out of order.
 			req.on('socket', s => {
-				s.prependListener('close', hadError => {
+				s.addListener('close', hadError => {
 					// if a data listener is still present we didn't end cleanly
 					const hasDataListener = s.listenerCount('data') > 0
 
@@ -311,7 +311,7 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 				properLastChunkReceived = Buffer.compare(buf.slice(-3), LAST_CHUNK) === 0;
 			});
 
-			socket.prependListener('close', () => {
+			socket.addListener('close', () => {
 				if (!properLastChunkReceived) {
 					const err = new Error('Premature close');
 					err.code = 'ERR_STREAM_PREMATURE_CLOSE';
