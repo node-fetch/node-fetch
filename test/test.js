@@ -569,7 +569,10 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should handle network-error in chunked response async iterator', () => {
+	// Skip test if streams are not async iterators (node < 10)
+	const itAsyncIterator = Boolean(new stream.PassThrough()[Symbol.asyncIterator]) ? it : it.skip;
+
+	itAsyncIterator('should handle network-error in chunked response async iterator', () => {
 		const url = `${base}error/premature/chunked`;
 		return fetch(url).then(res => {
 			expect(res.status).to.equal(200);

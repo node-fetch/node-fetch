@@ -99,21 +99,26 @@ export default function fetch(url, opts) {
 		});
 
 		fixResponseChunkedTransferBadEnding(req, err => {
-			response.body.destroy(err);
+			if (response.body.destroy) {
+				response.body.destroy(err);
+			} else {
+				// node < 8
+				response.body.emit('error', err);
+				response.body.end();
+			}
 		});
 
 		/* c8 ignore next 18 */
-		if (process.version < 'v14') {
+		if (parseInt(process.version.substring(1)) < 14) {
 			// Before Node.js 14, pipeline() does not fully support async iterators and does not always
 			// properly handle when the socket close/end events are out of order.
 			req.on('socket', s => {
-				let endedWithEventsCount = 0;
-				s.prependListener('end', () => {
-					endedWithEventsCount = s._eventsCount;
-				});
 				s.prependListener('close', hadError => {
+					// if a data listener is still present we didn't end cleanly
+					const hasDataListener = s.listenerCount('data') > 0
+
 					// if end happened before close but the socket didn't emit an error, do it now
-					if (response && endedWithEventsCount < s._eventsCount && !hadError) {
+					if (response && hasDataListener && !hadError) {
 						const err = new Error('Premature close');
 						err.code = 'ERR_STREAM_PREMATURE_CLOSE';
 						response.body.emit('error', err);
