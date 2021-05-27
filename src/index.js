@@ -99,6 +99,10 @@ export default function fetch(url, opts) {
 		});
 
 		fixResponseChunkedTransferBadEnding(req, err => {
+			if (signal && signal.aborted) {
+				return
+			}
+
 			if (response.body.destroy) {
 				response.body.destroy(err);
 			} else {
@@ -118,7 +122,7 @@ export default function fetch(url, opts) {
 					const hasDataListener = s.listenerCount('data') > 0
 
 					// if end happened before close but the socket didn't emit an error, do it now
-					if (response && hasDataListener && !hadError) {
+					if (response && hasDataListener && !hadError && !(signal && signal.aborted)) {
 						const err = new Error('Premature close');
 						err.code = 'ERR_STREAM_PREMATURE_CLOSE';
 						response.body.emit('error', err);
