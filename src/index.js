@@ -98,6 +98,30 @@ export default function fetch(url, opts) {
 			finalize();
 		});
 
+		fixResponseChunkedTransferBadEnding(req, err => {
+			response.body.destroy(err);
+		});
+
+		/* c8 ignore next 18 */
+		if (process.version < 'v14') {
+			// Before Node.js 14, pipeline() does not fully support async iterators and does not always
+			// properly handle when the socket close/end events are out of order.
+			req.on('socket', s => {
+				let endedWithEventsCount = 0;
+				s.prependListener('end', () => {
+					endedWithEventsCount = s._eventsCount;
+				});
+				s.prependListener('close', hadError => {
+					// if end happened before close but the socket didn't emit an error, do it now
+					if (response && endedWithEventsCount < s._eventsCount && !hadError) {
+						const err = new Error('Premature close');
+						err.code = 'ERR_STREAM_PREMATURE_CLOSE';
+						response.body.emit('error', err);
+					}
+				});
+			});
+		}
+
 		req.on('response', res => {
 			clearTimeout(reqTimeout);
 
@@ -264,6 +288,34 @@ export default function fetch(url, opts) {
 	});
 
 };
+
+function fixResponseChunkedTransferBadEnding(request, errorCallback) {
+	const LAST_CHUNK = Buffer.from('0\r\n');
+	let socket;
+
+	request.on('socket', s => {
+		socket = s;
+	});
+
+	request.on('response', response => {
+		const {headers} = response;
+		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
+			let properLastChunkReceived = false;
+
+			socket.on('data', buf => {
+				properLastChunkReceived = Buffer.compare(buf.slice(-3), LAST_CHUNK) === 0;
+			});
+
+			socket.prependListener('close', () => {
+				if (!properLastChunkReceived) {
+					const err = new Error('Premature close');
+					err.code = 'ERR_STREAM_PREMATURE_CLOSE';
+					errorCallback(err);
+				}
+			});
+		}
+	});
+}
 
 /**
  * Redirect code matching
