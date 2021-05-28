@@ -299,7 +299,6 @@ export default function fetch(url, opts) {
 };
 
 function fixResponseChunkedTransferBadEnding(request, errorCallback) {
-	const LAST_CHUNK = Buffer.from('0\r\n');
 	let socket;
 
 	request.on('socket', s => {
@@ -309,14 +308,11 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 	request.on('response', response => {
 		const {headers} = response;
 		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
-			let properLastChunkReceived = false;
-
-			socket.on('data', buf => {
-				properLastChunkReceived = Buffer.compare(buf.slice(-3), LAST_CHUNK) === 0;
-			});
-
 			socket.addListener('close', () => {
-				if (!properLastChunkReceived) {
+				// if a data listener is still present we didn't end cleanly
+				const hasDataListener = socket.listenerCount('data') > 0;
+
+				if (hasDataListener) {
 					const err = new Error('Premature close');
 					err.code = 'ERR_STREAM_PREMATURE_CLOSE';
 					errorCallback(err);
