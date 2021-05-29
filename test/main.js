@@ -20,6 +20,7 @@ const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 // Test subjects
 import Blob from 'fetch-blob';
+import {fileFromSync} from 'fetch-blob/from.js';
 
 import fetch, {
 	FetchError,
@@ -1490,9 +1491,7 @@ describe('node-fetch', () => {
 		const filename = path.join('test', 'utils', 'dummy.txt');
 
 		form.set('field', 'some text');
-		form.set('file', fs.createReadStream(filename), {
-			size: fs.statSync(filename).size
-		});
+		form.set('file', fileFromSync(filename));
 
 		const url = `${base}multipart`;
 		const options = {
