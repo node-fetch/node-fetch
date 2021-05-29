@@ -1,5 +1,6 @@
 import {expectType, expectAssignable} from 'tsd';
 import AbortController from 'abort-controller';
+// eslint-disable-next-line import/no-named-as-default
 import Blob from 'fetch-blob';
 
 import fetch, {Request, Response, Headers, Body, FetchError, AbortError} from '.';

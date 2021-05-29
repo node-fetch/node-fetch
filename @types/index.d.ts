@@ -4,6 +4,7 @@
 
 import {Agent} from 'http';
 import {URL, URLSearchParams} from 'url';
+// eslint-disable-next-line import/no-named-as-default
 import Blob from 'fetch-blob';
 
 type AbortSignal = {
