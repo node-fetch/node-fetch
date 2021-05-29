@@ -13,7 +13,7 @@ import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
-import FormDataNode from 'formdata-node';
+import {FormData as FormDataNode} from 'formdata-node';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
@@ -21,7 +21,7 @@ const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 // Test subjects
 import Blob from 'fetch-blob';
-import blobFrom from 'fetch-blob/from.js';
+import {fileFromSync} from 'fetch-blob/from.js';
 
 import fetch, {
 	FetchError,
@@ -1492,7 +1492,7 @@ describe('node-fetch', () => {
 		const filename = path.join('test', 'utils', 'dummy.txt');
 
 		form.set('field', 'some text');
-		form.set('file', blobFrom(filename));
+		form.set('file', fileFromSync(filename));
 
 		const url = `${base}multipart`;
 		const options = {
