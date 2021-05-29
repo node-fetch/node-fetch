@@ -4,7 +4,7 @@
 
 import {Agent} from 'http';
 import {URL, URLSearchParams} from 'url';
-import Blob = require('fetch-blob');
+import Blob from 'fetch-blob';
 
 type AbortSignal = {
 	readonly aborted: boolean;

@@ -1,6 +1,6 @@
 import {expectType, expectAssignable} from 'tsd';
 import AbortController from 'abort-controller';
-import Blob = require('fetch-blob');
+import Blob from 'fetch-blob';
 
 import fetch, {Request, Response, Headers, Body, FetchError, AbortError} from '.';
 // eslint-disable-next-line @typescript-eslint/no-duplicate-imports
