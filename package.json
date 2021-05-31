@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "data-uri-to-buffer": "^3.0.1",
-    "fetch-blob": "^2.1.1"
+    "fetch-blob": "^3.0.0"
   },
   "esm": {
     "sourceMap": true,
