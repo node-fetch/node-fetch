@@ -54,7 +54,7 @@ export default function fetch(url, opts) {
 			let error = new AbortError('The user aborted a request.');
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
-				request.body.destroy(error);
+				destroyStream(request.body, error);
 			}
 			if (!response || !response.body) return;
 			response.body.emit('error', error);
@@ -95,6 +95,11 @@ export default function fetch(url, opts) {
 
 		req.on('error', err => {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
+
+			if (response && response.body) {
+				destroyStream(response.body, err);
+			}
+
 			finalize();
 		});
 
@@ -103,13 +108,7 @@ export default function fetch(url, opts) {
 				return
 			}
 
-			if (response.body.destroy) {
-				response.body.destroy(err);
-			} else {
-				// node < 8
-				response.body.emit('error', err);
-				response.body.end();
-			}
+			destroyStream(response.body, err);
 		});
 
 		/* c8 ignore next 18 */
@@ -308,11 +307,11 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 	request.on('response', response => {
 		const {headers} = response;
 		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
-			socket.addListener('close', () => {
+			socket.addListener('close', hadError => {
 				// if a data listener is still present we didn't end cleanly
 				const hasDataListener = socket.listenerCount('data') > 0;
 
-				if (hasDataListener) {
+				if (hasDataListener && !hadError) {
 					const err = new Error('Premature close');
 					err.code = 'ERR_STREAM_PREMATURE_CLOSE';
 					errorCallback(err);
@@ -320,6 +319,16 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 			});
 		}
 	});
+}
+
+function destroyStream (stream, err) {
+	if (stream.destroy) {
+		stream.destroy(err);
+	} else {
+		// node < 8
+		stream.emit('error', err);
+		stream.end();
+	}
 }
 
 /**
