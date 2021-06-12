@@ -84,6 +84,7 @@
       "import/extensions": 0,
       "import/no-useless-path-segments": 0,
       "import/no-anonymous-default-export": 0,
+      "import/no-named-as-default": 0,
       "unicorn/import-index": 0,
       "unicorn/no-array-reduce": 0,
       "unicorn/prefer-node-protocol": 0,
