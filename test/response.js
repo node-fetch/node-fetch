@@ -168,7 +168,7 @@ describe('Response', () => {
 		});
 	});
 
-	it('should support blob as body', () => {
+	it('should support blob as body', async () => {
 		const res = new Response(new Blob(['a=1']));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');

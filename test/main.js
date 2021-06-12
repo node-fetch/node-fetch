@@ -608,7 +608,7 @@ describe('node-fetch', () => {
 			expect(res.status).to.equal(200);
 			expect(res.ok).to.be.true;
 			return expect(res.text()).to.eventually.be.rejectedWith(Error)
-				.and.have.property('message').matches(/Premature close|The operation was aborted/);
+				.and.have.property('message').matches(/Premature close|The operation was aborted|aborted/);
 		});
 	});
 
@@ -635,9 +635,9 @@ describe('node-fetch', () => {
 			const read = async body => {
 				const chunks = [];
 
-				if (process.version < 'v14') {
-					// In Node.js 12, some errors don't come out in the async iterator; we have to pick
-					// them up from the event-emitter and then throw them after the async iterator
+				if (process.version < 'v14.15.2') {
+					// In older Node.js versions, some errors don't come out in the async iterator; we have
+					// to pick them up from the event-emitter and then throw them after the async iterator
 					let error;
 					body.on('error', err => {
 						error = err;
@@ -1400,7 +1400,7 @@ describe('node-fetch', () => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
-			expect(res.headers['content-type']).to.equal('text/plain;charset=utf-8');
+			expect(res.headers['content-type']).to.equal('text/plain;charset=UTF-8');
 			expect(res.headers['content-length']).to.equal('3');
 		});
 	});
@@ -1902,7 +1902,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url).then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().buffer()).then(console.log)
 		).not.to.timeout;
 	});
 
@@ -2058,8 +2058,8 @@ describe('node-fetch', () => {
 	it('should support reading blob as stream', () => {
 		return new Response('hello')
 			.blob()
-			.then(blob => streamToPromise(blob.stream(), data => {
-				const string = data.toString();
+			.then(blob => streamToPromise(stream.Readable.from(blob.stream()), data => {
+				const string = Buffer.from(data).toString();
 				expect(string).to.equal('hello');
 			}));
 	});
@@ -2070,7 +2070,7 @@ describe('node-fetch', () => {
 		let length;
 		let type;
 
-		return fetch(url).then(res => res.blob()).then(blob => {
+		return fetch(url).then(res => res.blob()).then(async blob => {
 			const url = `${base}inspect`;
 			length = blob.size;
 			type = blob.type;
