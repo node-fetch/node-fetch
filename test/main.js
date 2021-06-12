@@ -16,7 +16,6 @@ import {FormData as FormDataNode} from 'formdata-node';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
-const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 // Test subjects
 import Blob from 'fetch-blob';
@@ -34,12 +33,13 @@ import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
+import chaiTimeout from './utils/chai-timeout.js';
+
+const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
-
-import chaiTimeout from './utils/chai-timeout.js';
 
 chai.use(chaiPromised);
 chai.use(chaiIterator);
