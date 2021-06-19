@@ -323,13 +323,24 @@ export default class TestServer {
 				'Transfer-Encoding': 'chunked'
 			});
 
-			res.write(`${JSON.stringify({data: 'hi'})}\n`);
+			// Transfer-Encoding: 'chunked' sends chunk sizes followed by the
+			// chunks - https://en.wikipedia.org/wiki/Chunked_transfer_encoding
+			const sendChunk = (obj) => {
+				const data = JSON.stringify(obj)
+
+				res.write(`${data.length}\r\n`)
+				res.write(`${data}\r\n`)
+			}
+
+			sendChunk({data: 'hi'})
 
 			setTimeout(() => {
-				res.write(`${JSON.stringify({data: 'bye'})}\n`);
+				sendChunk({data: 'bye'})
 			}, 200);
 
 			setTimeout(() => {
+				// should send '0\r\n\r\n' to end the response properly but instead
+				// just close the connection
 				res.destroy();
 			}, 400);
 		}

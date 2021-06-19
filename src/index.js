@@ -307,7 +307,7 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 	request.on('response', response => {
 		const {headers} = response;
 		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
-			socket.addListener('close', hadError => {
+			response.once('close', hadError => {
 				// if a data listener is still present we didn't end cleanly
 				const hasDataListener = socket.listenerCount('data') > 0;
 
