@@ -53,6 +53,8 @@ declare class Headers {
 	raw(): Record<string, string[]>;
 }
 
+type Methods = "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "PATCH"
+
 interface RequestInit {
 	/**
 	 * A BodyInit object or null to set request's body.
@@ -65,7 +67,7 @@ interface RequestInit {
 	/**
 	 * A string to set request's method.
 	 */
-	method?: string;
+	method?: Methods;
 	/**
 	 * A string indicating whether request follows redirects, results in an error upon encountering a redirect, or returns the redirect (in an opaque fashion). Sets request's redirect.
 	 */
@@ -127,7 +129,7 @@ declare class Request extends Body {
 	/**
 	 * Returns request's HTTP method, which is "GET" by default.
 	 */
-	readonly method: string;
+	readonly method: Methods;
 	/**
 	 * Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default.
 	 */
