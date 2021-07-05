@@ -18,7 +18,7 @@
 
 ---
 
-**You might be looking for the [v2 docs](https://github.com/node-fetch/node-fetch/tree/2.x)**
+**You might be looking for the [v2 docs](https://github.com/node-fetch/node-fetch/tree/2.x#readme)**
 
 <!-- TOC -->
 
