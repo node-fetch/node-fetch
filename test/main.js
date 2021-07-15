@@ -38,11 +38,7 @@ import chaiTimeout from './utils/chai-timeout.js';
 const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 function isNodeLowerThan(version) {
-	return !~process.version.localeCompare(version, undefined, { numeric: true })
-}
-
-function isNodeHigherThan(version) {
-	return !!~process.version.localeCompare(version, undefined, { numeric: true })
+	return !~process.version.localeCompare(version, undefined, {numeric: true});
 }
 
 const {
