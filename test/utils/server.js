@@ -1,7 +1,7 @@
 import http from 'http';
 import zlib from 'zlib';
-import Busboy from 'busboy';
 import {once} from 'events';
+import Busboy from 'busboy';
 
 export default class TestServer {
 	constructor() {

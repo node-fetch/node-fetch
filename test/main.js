@@ -16,10 +16,10 @@ import {FormData as FormDataNode} from 'formdata-node';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
-const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 // Test subjects
 import Blob from 'fetch-blob';
+import {fileFromSync} from 'fetch-blob/from.js';
 
 import fetch, {
 	FetchError,
@@ -33,6 +33,9 @@ import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
+import chaiTimeout from './utils/chai-timeout.js';
+
+const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 function isNodeLowerThan(version) {
 	return !~process.version.localeCompare(version, undefined, { numeric: true })
@@ -45,8 +48,6 @@ function isNodeHigherThan(version) {
 const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
-
-import chaiTimeout from './utils/chai-timeout.js';
 
 chai.use(chaiPromised);
 chai.use(chaiIterator);
@@ -1407,7 +1408,7 @@ describe('node-fetch', () => {
 			expect(res.method).to.equal('POST');
 			expect(res.body).to.equal('a=1');
 			expect(res.headers['transfer-encoding']).to.be.undefined;
-			expect(res.headers['content-type']).to.equal('text/plain;charset=utf-8');
+			expect(res.headers['content-type']).to.equal('text/plain;charset=UTF-8');
 			expect(res.headers['content-length']).to.equal('3');
 		});
 	});
@@ -1498,9 +1499,7 @@ describe('node-fetch', () => {
 		const filename = path.join('test', 'utils', 'dummy.txt');
 
 		form.set('field', 'some text');
-		form.set('file', fs.createReadStream(filename), {
-			size: fs.statSync(filename).size
-		});
+		form.set('file', fileFromSync(filename));
 
 		const url = `${base}multipart`;
 		const options = {
@@ -1916,7 +1915,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url).then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().buffer()).then(console.log)
 		).not.to.timeout;
 	});
 
@@ -2082,8 +2081,8 @@ describe('node-fetch', () => {
 	it('should support reading blob as stream', () => {
 		return new Response('hello')
 			.blob()
-			.then(blob => streamToPromise(blob.stream(), data => {
-				const string = data.toString();
+			.then(blob => streamToPromise(stream.Readable.from(blob.stream()), data => {
+				const string = Buffer.from(data).toString();
 				expect(string).to.equal('hello');
 			}));
 	});
@@ -2094,7 +2093,7 @@ describe('node-fetch', () => {
 		let length;
 		let type;
 
-		return fetch(url).then(res => res.blob()).then(blob => {
+		return fetch(url).then(res => res.blob()).then(async blob => {
 			const url = `${base}inspect`;
 			length = blob.size;
 			type = blob.type;

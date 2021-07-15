@@ -177,7 +177,7 @@ async function consumeBody(data) {
 
 	// Body is blob
 	if (isBlob(body)) {
-		body = body.stream();
+		body = Stream.Readable.from(body.stream());
 	}
 
 	// Body is buffer
@@ -367,7 +367,7 @@ export const writeToStream = (dest, {body}) => {
 		dest.end();
 	} else if (isBlob(body)) {
 		// Body is Blob
-		body.stream().pipe(dest);
+		Stream.Readable.from(body.stream()).pipe(dest);
 	} else if (Buffer.isBuffer(body)) {
 		// Body is buffer
 		dest.write(body);
@@ -377,4 +377,3 @@ export const writeToStream = (dest, {body}) => {
 		body.pipe(dest);
 	}
 };
-
