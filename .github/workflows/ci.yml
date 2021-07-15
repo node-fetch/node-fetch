@@ -14,16 +14,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        node: ["14.13.1", "16.0.0"]
+        node: ["12.21.0", "14.13.1", "16.0.0"]
         exclude:
           # On Windows, run tests with only the LTS environments.
           - os: windows-latest
-            node: "14.13.1"
+            node: "12.21.0"
           - os: windows-latest
             node: "16.0.0"
           # On macOS, run tests with only the LTS environments.
           - os: macOS-latest
-            node: "14.13.1"
+            node: "12.21.0"
           - os: macOS-latest
             node: "16.0.0"
 
