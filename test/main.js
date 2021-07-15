@@ -34,6 +34,14 @@ import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
 
+function isNodeLowerThan(version) {
+	return !~process.version.localeCompare(version, undefined, { numeric: true })
+}
+
+function isNodeHigherThan(version) {
+	return !!~process.version.localeCompare(version, undefined, { numeric: true })
+}
+
 const {
 	Uint8Array: VMUint8Array
 } = vm.runInNewContext('this');
@@ -634,7 +642,7 @@ describe('node-fetch', () => {
 			const read = async body => {
 				const chunks = [];
 
-				if (process.version < 'v14.15.2') {
+				if (isNodeLowerThan('v14.15.2')) {
 					// In older Node.js versions, some errors don't come out in the async iterator; we have
 					// to pick them up from the event-emitter and then throw them after the async iterator
 					let error;
@@ -1895,10 +1903,9 @@ describe('node-fetch', () => {
 		).to.timeout;
 	});
 
-	const nodeVersion = Number(process.version.slice(1, process.version.indexOf('.')));
 	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than default highWaterMark', function () {
 		// TODO: fix test.
-		if (nodeVersion >= 16) {
+		if (!isNodeLowerThan('v16.0.0')) {
 			this.skip();
 		}
 
@@ -1915,7 +1922,7 @@ describe('node-fetch', () => {
 
 	it('should not timeout on cloning response without consuming one of the streams when the second packet size is less than custom highWaterMark', function () {
 		// TODO: fix test.
-		if (nodeVersion >= 16) {
+		if (!isNodeLowerThan('v16.0.0')) {
 			this.skip();
 		}
 
@@ -1932,7 +1939,7 @@ describe('node-fetch', () => {
 
 	it('should not timeout on cloning response without consuming one of the streams when the response size is double the custom large highWaterMark - 1', function () {
 		// TODO: fix test.
-		if (nodeVersion >= 16) {
+		if (!isNodeLowerThan('v16.0.0')) {
 			this.skip();
 		}
 
