@@ -14,18 +14,18 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        node: ["16.4.2"]
+        node: ["14.13.1", "16.0.0"]
         exclude:
           # On Windows, run tests with only the LTS environments.
           - os: windows-latest
-            node: "16.4.2"
+            node: "14.13.1"
           - os: windows-latest
-            node: "16.4.2"
+            node: "16.0.0"
           # On macOS, run tests with only the LTS environments.
           - os: macOS-latest
-            node: "16.4.2"
+            node: "14.13.1"
           - os: macOS-latest
-            node: "16.4.2"
+            node: "16.0.0"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -42,6 +42,6 @@ jobs:
       # upload coverage only once
       - name: Coveralls
         uses: coverallsapp/github-action@master
-        if: matrix.node == '16.4.2' && matrix.os == 'ubuntu-latest'
+        if: matrix.node == '16.0.0' && matrix.os == 'ubuntu-latest'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
