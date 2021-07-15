@@ -99,6 +99,7 @@
         "rules": {
           "max-nested-callbacks": 0,
           "no-unused-expressions": 0,
+          "no-warning-comments": 0,
           "new-cap": 0,
           "guard-for-in": 0,
           "unicorn/no-array-for-each": 0,

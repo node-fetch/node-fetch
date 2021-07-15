@@ -3,7 +3,6 @@ import AbortController from 'abort-controller';
 import Blob = require('fetch-blob');
 
 import fetch, {Request, Response, Headers, Body, FetchError, AbortError} from '.';
-// eslint-disable-next-line @typescript-eslint/no-duplicate-imports
 import * as _fetch from '.';
 
 async function run() {
