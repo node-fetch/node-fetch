@@ -1,8 +1,6 @@
 /// <reference types="node" />
 /// <reference lib="dom" />
 
-/* eslint-disable node/prefer-global/url, node/prefer-global/url-search-params */
-
 import {Agent} from 'http';
 
 type AbortSignal = {
