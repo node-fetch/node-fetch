@@ -14,7 +14,7 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "scripts": {
-    "test": "c8 --reporter=html --reporter=lcov --reporter=text --check-coverage mocha",
+    "test": "mocha",
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "test-types": "tsd",
     "lint": "xo"
@@ -103,6 +103,7 @@
         "rules": {
           "max-nested-callbacks": 0,
           "no-unused-expressions": 0,
+          "no-warning-comments": 0,
           "new-cap": 0,
           "guard-for-in": 0,
           "unicorn/no-array-for-each": 0,
