@@ -389,7 +389,8 @@ node-fetch also supports spec-compliant FormData implementations such as [formda
 
 ```js
 import fetch from 'node-fetch';
-import FormData from 'formdata-node';
+import {FormData} from 'formdata-polyfill/esm-min.js';
+import {FormData} from 'formdata-node';
 
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
