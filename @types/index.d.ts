@@ -1,10 +1,9 @@
 /// <reference types="node" />
+/// <reference lib="dom" />
 
 /* eslint-disable node/prefer-global/url, node/prefer-global/url-search-params */
 
 import {Agent} from 'http';
-import {URL, URLSearchParams} from 'url';
-import Blob from 'fetch-blob';
 
 type AbortSignal = {
 	readonly aborted: boolean;
