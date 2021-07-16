@@ -32,7 +32,7 @@ const timeoutSignal = require('timeout-signal');
 const fetch = require('node-fetch');
 
 const {AbortError} = fetch
- 
+
 fetch('https://www.google.com', { signal: timeoutSignal(5000) })
     .then(response => {
         // Handle response
@@ -108,7 +108,7 @@ We now use the new Node.js [WHATWG-compliant URL API][whatwg-nodejs-url], so UTF
 
 ## Request errors are now piped using `stream.pipeline`
 
-Since the v3.x requires at least Node.js 10, we can utilise the new API.
+Since the v3.x requires at least Node.js 12.20.0, we can utilise the new API.
 
 ## Creating Request/Response objects with relative URLs is no longer supported
 

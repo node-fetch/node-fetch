@@ -102,7 +102,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 
 ## Installation
 
-Current stable release (`3.x`) requires at least Node.js 12.8.0.
+Current stable release (`3.x`) requires at least Node.js 12.20.0.
 
 ```sh
 npm install node-fetch
