@@ -1911,7 +1911,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url).then(res => res.clone().buffer()).then(console.log)
+			fetch(url).then(res => res.clone().buffer())
 		).not.to.timeout;
 	});
 
