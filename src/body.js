@@ -259,6 +259,8 @@ export const clone = (instance, highWaterMark) => {
 	return body;
 };
 
+let warnedUsingOldFormData = false;
+
 /**
  * Performs the operation "extract a `Content-Type` value from |object|" as
  * specified in the specification:
@@ -297,6 +299,15 @@ export const extractContentType = (body, request) => {
 
 	// Detect form data input from form-data module
 	if (body && typeof body.getBoundary === 'function') {
+		if (!warnedUsingOldFormData) {
+			console.warn('\x1b[33m%s\x1b[0m', `[WARN]`, `
+	You are probably using form-data.
+	form-data doesn't follow the spec and requires special treatment.
+	We will eventually remove support for form-data.
+	See alternatives https://github.com/node-fetch/node-fetch/issues/1167
+			`)
+			warnedUsingOldFormData = true;
+		}
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
 	}
 
@@ -345,7 +356,7 @@ export const getTotalBytes = request => {
 		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
 	}
 
-	// Body is a spec-compliant form-data
+	// Body is a spec-compliant FormData
 	if (isFormData(body)) {
 		return getFormDataLength(request[INTERNALS].boundary);
 	}
