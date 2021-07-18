@@ -297,7 +297,6 @@ export const extractContentType = (body, request) => {
 		return null;
 	}
 
-
 	if (isFormData(body)) {
 		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
 	}
@@ -305,14 +304,15 @@ export const extractContentType = (body, request) => {
 	// Detect form data input from form-data module
 	if (body && typeof body.getBoundary === 'function') {
 		if (!warnedUsingOldFormData) {
-			console.warn('\x1b[33m%s\x1b[0m', `[WARN]`, `
+			console.warn('\u001B[33m%s\u001B[0m', '[WARN]', `
 	You are probably using form-data.
 	form-data doesn't follow the spec and requires special treatment.
 	We will eventually remove support for form-data.
 	See alternatives https://github.com/node-fetch/node-fetch/issues/1167
-			`)
+			`);
 			warnedUsingOldFormData = true;
 		}
+
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
 	}
 
