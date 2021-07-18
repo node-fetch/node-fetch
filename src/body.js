@@ -6,7 +6,7 @@
  */
 
 import Stream, {PassThrough} from 'stream';
-import {types} from 'util';
+import {types, deprecate} from 'util';
 
 import Blob from 'fetch-blob';
 
@@ -140,6 +140,8 @@ export default class Body {
 	}
 }
 
+Body.prototype.buffer = deprecate(Body.prototype.buffer, 'Please use \'response.arrayBuffer()\' instead of \'response.buffer()\'', 'node-fetch#buffer');
+
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
 	body: {enumerable: true},
@@ -259,7 +261,11 @@ export const clone = (instance, highWaterMark) => {
 	return body;
 };
 
-let warnedUsingOldFormData = false;
+const getNonSpecFormDataBoundary = deprecate(
+	body => body.getBoundary(),
+	'form-data doesn\'t follow the spec and requires special treatment. Use alternative package',
+	'https://github.com/node-fetch/node-fetch/issues/1167'
+);
 
 /**
  * Performs the operation "extract a `Content-Type` value from |object|" as
@@ -303,17 +309,7 @@ export const extractContentType = (body, request) => {
 
 	// Detect form data input from form-data module
 	if (body && typeof body.getBoundary === 'function') {
-		if (!warnedUsingOldFormData) {
-			console.warn('\u001B[33m%s\u001B[0m', '[WARN]', `
-	You are probably using form-data.
-	form-data doesn't follow the spec and requires special treatment.
-	We will eventually remove support for form-data.
-	See alternatives https://github.com/node-fetch/node-fetch/issues/1167
-			`);
-			warnedUsingOldFormData = true;
-		}
-
-		return `multipart/form-data;boundary=${body.getBoundary()}`;
+		return `multipart/form-data;boundary=${getNonSpecFormDataBoundary(body)}`;
 	}
 
 	// Body is stream - can't really do much about this
