@@ -297,6 +297,11 @@ export const extractContentType = (body, request) => {
 		return null;
 	}
 
+
+	if (isFormData(body)) {
+		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
+	}
+
 	// Detect form data input from form-data module
 	if (body && typeof body.getBoundary === 'function') {
 		if (!warnedUsingOldFormData) {
@@ -309,10 +314,6 @@ export const extractContentType = (body, request) => {
 			warnedUsingOldFormData = true;
 		}
 		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	}
-
-	if (isFormData(body)) {
-		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
 	}
 
 	// Body is stream - can't really do much about this
