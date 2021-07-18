@@ -1,19 +1,16 @@
 /// <reference types="node" />
+/// <reference lib="dom" />
 
-/* eslint-disable no-var, import/no-mutable-exports */
-
-import { Agent } from 'http';
-import { URL, URLSearchParams } from 'url'
-import Blob = require('fetch-blob');
+import {Agent} from 'http';
 
 type AbortSignal = {
 	readonly aborted: boolean;
 
-	addEventListener(type: "abort", listener: (this: AbortSignal) => void): void;
-	removeEventListener(type: "abort", listener: (this: AbortSignal) => void): void;
+	addEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
+	removeEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
 };
 
-type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
+export type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
 
 /**
  * This Fetch API interface allows you to perform various actions on HTTP request and response headers.
@@ -22,7 +19,7 @@ type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string,
  * You can add to this using methods like append() (see Examples.)
  * In all methods of this interface, header names are matched by case-insensitive byte sequence.
  * */
-declare class Headers {
+export class Headers {
 	constructor(init?: HeadersInit);
 
 	append(name: string, value: string): void;
@@ -53,7 +50,7 @@ declare class Headers {
 	raw(): Record<string, string[]>;
 }
 
-interface RequestInit {
+export interface RequestInit {
 	/**
 	 * A BodyInit object or null to set request's body.
 	 */
@@ -88,21 +85,20 @@ interface RequestInit {
 	insecureHTTPParser?: boolean;
 }
 
-interface ResponseInit {
+export interface ResponseInit {
 	headers?: HeadersInit;
 	status?: number;
 	statusText?: string;
 }
 
-type BodyInit =
+export type BodyInit =
 	| Blob
 	| Buffer
 	| URLSearchParams
 	| NodeJS.ReadableStream
 	| string;
-type BodyType = { [K in keyof Body]: Body[K] };
-declare class Body {
-	constructor(body?: BodyInit, opts?: { size?: number });
+declare class BodyMixin {
+	constructor(body?: BodyInit, options?: {size?: number});
 
 	readonly body: NodeJS.ReadableStream | null;
 	readonly bodyUsed: boolean;
@@ -115,9 +111,12 @@ declare class Body {
 	text(): Promise<string>;
 }
 
-type RequestRedirect = 'error' | 'follow' | 'manual';
-type RequestInfo = string | Body;
-declare class Request extends Body {
+// `Body` must not be exported as a class since it's not exported from the JavaScript code.
+export interface Body extends Pick<BodyMixin, keyof BodyMixin> {}
+
+export type RequestRedirect = 'error' | 'follow' | 'manual';
+export type RequestInfo = string | Request;
+export class Request extends BodyMixin {
 	constructor(input: RequestInfo, init?: RequestInit);
 
 	/**
@@ -143,9 +142,9 @@ declare class Request extends Body {
 	clone(): Request;
 }
 
-type ResponseType = "basic" | "cors" | "default" | "error" | "opaque" | "opaqueredirect"
+type ResponseType = 'basic' | 'cors' | 'default' | 'error' | 'opaque' | 'opaqueredirect';
 
-declare class Response extends Body {
+export class Response extends BodyMixin {
 	constructor(body?: BodyInit | null, init?: ResponseInit);
 
 	readonly headers: Headers;
@@ -160,8 +159,8 @@ declare class Response extends Body {
 	static error(): Response;
 }
 
-declare class FetchError extends Error {
-	constructor(message: string, type: string, systemError?: object);
+export class FetchError extends Error {
+	constructor(message: string, type: string, systemError?: Record<string, unknown>);
 
 	name: 'FetchError';
 	[Symbol.toStringTag]: 'FetchError';
@@ -170,39 +169,11 @@ declare class FetchError extends Error {
 	errno?: string;
 }
 
-declare class AbortError extends Error {
+export class AbortError extends Error {
 	type: string;
 	name: 'AbortError';
 	[Symbol.toStringTag]: 'AbortError';
 }
 
-
-declare function fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
-declare class fetch {
-	static default: typeof fetch;
-}
-declare namespace fetch {
-	export function isRedirect(code: number): boolean;
-
-	export {
-		HeadersInit,
-		Headers,
-
-		RequestInit,
-		RequestRedirect,
-		RequestInfo,
-		Request,
-
-		BodyInit,
-
-		ResponseInit,
-		Response,
-
-		FetchError,
-		AbortError
-	};
-
-	export interface Body extends BodyType { }
-}
-
-export = fetch;
+export function isRedirect(code: number): boolean;
+export default function fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
