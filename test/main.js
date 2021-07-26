@@ -684,6 +684,14 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should follow redirect after empty chunked transfer-encoding', () => {
+		const url = `${base}redirect/chunked`;
+		return fetch(url).then(res => {
+			expect(res.status).to.equal(200);
+			expect(res.ok).to.be.true;
+		});
+	});
+
 	it('should handle DNS-error response', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected

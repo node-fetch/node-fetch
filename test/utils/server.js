@@ -297,6 +297,14 @@ export default class TestServer {
 			res.socket.end('\r\n');
 		}
 
+		if (p === '/redirect/chunked') {
+			res.writeHead(301, {
+				Location: '/inspect',
+				'Transfer-Encoding': 'chunked'
+			});
+			setTimeout(() => res.end(), 10);
+		}
+
 		if (p === '/error/400') {
 			res.statusCode = 400;
 			res.setHeader('Content-Type', 'text/plain');

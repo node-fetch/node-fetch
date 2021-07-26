@@ -303,12 +303,18 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 				properLastChunkReceived = Buffer.compare(buf.slice(-3), LAST_CHUNK) === 0;
 			});
 
-			socket.prependListener('close', () => {
+			const onSocketClose = () => {
 				if (!properLastChunkReceived) {
 					const error = new Error('Premature close');
 					error.code = 'ERR_STREAM_PREMATURE_CLOSE';
 					errorCallback(error);
 				}
+			};
+
+			socket.prependListener('close', onSocketClose);
+
+			request.on('abort', () => {
+				socket.removeListener('close', onSocketClose);
 			});
 		}
 	});
