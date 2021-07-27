@@ -1,6 +1,6 @@
 <!-- Thanks for contributing! -->
 
-## The purpose of this pull is:
+## The purpose of this PR is:
 ...
 
 ## This is what had to change:
