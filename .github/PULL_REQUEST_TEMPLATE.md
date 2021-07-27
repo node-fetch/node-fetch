@@ -12,7 +12,7 @@
 
 -------------------------------------------------------------------------------------------------
 
-<!-- Mark what you have done, Remove unnecessary ones. Add new tasks that may fit -->
+<!-- Mark what you have done, Remove unnecessary ones. Add new tasks that may fit (like TODO's) -->
 - [ ] I prefixed the PR-title with `docs: `, `fix(area): `, `feat(area): ` or `breaking(area): `
 - [ ] I updated ./docs/CHANGELOG.md with a link to this PR or Issue
 - [ ] I updated ./docs/v3-UPGRADE-GUIDE
