@@ -1,20 +1,23 @@
-<!--
-Please read and follow these instructions before creating and submitting a pull request:
+<!-- Thanks for contributing! -->
 
-- If you're fixing a bug, ensure you add unit tests to prove that it works.
-- Before adding a feature, it is best to create an issue explaining it first. It would save you some effort in case we don't consider it should be included in node-fetch.
-- If you are reporting a bug, adding failing units tests can be a good idea.
--->
+## The purpose of this pull is:
+...
 
-**What is the purpose of this pull request?**
+## This is what had to change:
+...
 
-- [ ] Documentation update
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Other, please explain:
+## This is what like reviewers to know:
+...
 
-**What changes did you make? (provide an overview)**
 
-**Which issue (if any) does this pull request address?**
 
-**Is there anything you'd like reviewers to know?**
+
+<!-- TASKMASTER: Mark what you have done, Remove unnecessary ones. Add new tasks that may fit -->
+- [ ] I prefixed the PR-title with `docs: `, `fix(area): `, `feat(area): ` or `breaking(area): `
+- [ ] I updated ./docs/CHANGELOG.md with a link to this PR or Issue
+- [ ] I updated ./docs/v3-UPGRADE-GUIDE
+- [ ] I updated the README.md
+- [ ] I Added unit test(s)
+
+<!-- Add a `- fix #_NUMBER_` line for every Issue this PR solves. Do not comma separate them -->
+- fix #0
