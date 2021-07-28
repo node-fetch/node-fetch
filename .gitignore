@@ -37,6 +37,9 @@ node_modules
 # Babel-compiled files
 lib
 
+# esbuild-compiled files
+dist
+
 # Ignore package manager lock files
 package-lock.json
 yarn.lock
