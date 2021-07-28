@@ -692,6 +692,28 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should handle chunked response with more than 1 chunk in the final packet', () => {
+		const url = `${base}chunked/multiple-ending`;
+		return fetch(url).then(res => {
+			expect(res.ok).to.be.true;
+
+			return res.text().then(result => {
+				expect(result).to.equal('foobar');
+			});
+		});
+	});
+
+	it('should handle chunked response with final chunk and EOM in separate packets', () => {
+		const url = `${base}chunked/split-ending`;
+		return fetch(url).then(res => {
+			expect(res.ok).to.be.true;
+
+			return res.text().then(result => {
+				expect(result).to.equal('foobar');
+			});
+		});
+	});
+
 	it('should handle DNS-error response', () => {
 		const url = 'http://domain.invalid';
 		return expect(fetch(url)).to.eventually.be.rejected

@@ -352,6 +352,24 @@ export default class TestServer {
 			}, 400);
 		}
 
+		if (p === '/chunked/split-ending') {
+			res.socket.write('HTTP/1.1 200\r\nTransfer-Encoding: chunked\r\n\r\n');
+			res.socket.write('3\r\nfoo\r\n3\r\nbar\r\n');
+
+			setTimeout(() => {
+				res.socket.write('0\r\n');
+			}, 10);
+
+			setTimeout(() => {
+				res.socket.end('\r\n');
+			}, 20);
+		}
+
+		if (p === '/chunked/multiple-ending') {
+			res.socket.write('HTTP/1.1 200\r\nTransfer-Encoding: chunked\r\n\r\n');
+			res.socket.write('3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n');
+		}
+
 		if (p === '/error/json') {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
