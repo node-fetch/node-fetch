@@ -1,12 +1,12 @@
 <!-- Thanks for contributing! -->
 
-## The purpose of this PR is:
+## Purpose
 ...
 
-## This is what had to change:
+## Changes
 ...
 
-## This is what like reviewers to know:
+## Additional information
 ...
 
 
@@ -17,9 +17,9 @@
 - [ ] I updated ./docs/CHANGELOG.md with a link to this PR or Issue
 - [ ] I updated ./docs/v3-UPGRADE-GUIDE
 - [ ] I updated the README.md
-- [ ] I Added unit test(s)
+- [ ] I added unit test(s)
 
 -------------------------------------------------------------------------------------------------
 
-<!-- Add a `- fix #_NUMBER_` line for every Issue this PR solves. Do not comma separate them -->
+<!-- Add a `- fix #_NUMBER_` line for every PR/Issue this PR solves. Don't comma separate them -->
 - fix #000
