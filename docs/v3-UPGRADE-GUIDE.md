@@ -38,8 +38,8 @@ const fetch = (...args) => import('node-fetch').then(mod => mod.default(...args)
 Since this was never part of the fetch specification, it was removed. AbortSignal offers a more fine grained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/Richienb/timeout-signal) as a workaround:
 
 ```js
-const timeoutSignal = require('timeout-signal');
-const fetch = require('node-fetch');
+import timeoutSignal from 'timeout-signal';
+import fetch from 'node-fetch';
 
 const {AbortError} = fetch
 
@@ -67,8 +67,8 @@ Prior to v3.x, we included a `browser` field in the package.json file. Since nod
 If you want charset encoding detection, please use the [fetch-charset-detection] package ([documentation][fetch-charset-detection-docs]).
 
 ```js
-const fetch = require('node-fetch');
-const convertBody = require('fetch-charset-detection');
+import fetch from 'node-fetch';
+import convertBody from 'fetch-charset-detection';
 
 fetch('https://somewebsite.com').then(res => {
 	const text = convertBody(res.buffer(), res.headers);
@@ -80,7 +80,7 @@ fetch('https://somewebsite.com').then(res => {
 When attempting to parse invalid json via `res.json()`, a `SyntaxError` will now be thrown instead of a `FetchError` to align better with the spec.
 
 ```js
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 fetch('https://somewebsitereturninginvalidjson.com').then(res => res.json())
 // Throws 'Uncaught SyntaxError: Unexpected end of JSON input' or similar.
