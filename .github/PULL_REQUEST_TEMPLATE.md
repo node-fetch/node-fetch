@@ -10,7 +10,7 @@
 ...
 
 
--------------------------------------------------------------------------------------------------
+___
 
 <!-- Mark what you have done, Remove unnecessary ones. Add new tasks that may fit (like TODO's) -->
 - [ ] I prefixed the PR-title with `docs: `, `fix(area): `, `feat(area): ` or `breaking(area): `
@@ -19,7 +19,7 @@
 - [ ] I updated the README.md
 - [ ] I added unit test(s)
 
--------------------------------------------------------------------------------------------------
+___
 
-<!-- Add a `- fix #_NUMBER_` line for every PR/Issue this PR solves. Don't comma separate them -->
+<!-- Add a `- fix #_NUMBER_` line for every PR/Issue this PR solves. Do not comma separate them -->
 - fix #000
