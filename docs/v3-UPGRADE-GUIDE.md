@@ -23,6 +23,16 @@ other comparatively minor modifications.
 
 Since Node.js will deprecate version 8 at the end of 2019, we decided that node-fetch v3.x will not only drop support for Node.js 4 and 6 (which were supported in v2.x), but also for Node.js 8. We strongly encourage you to upgrade, if you still haven't done so. Check out Node.js' official [LTS plan] for more information on Node.js' support lifetime.
 
+## Converted to ES Module
+
+This module was converted to be a ESM only package in version `@3.0.0-beta.10`
+Using require to load an ES module is not supported because ES modules have asynchronous execution. Instead, use import() to load an ES module from a CommonJS module.
+
+```js
+// mod.cjs
+const fetch = (...args) => import('node-fetch').then(mod => mod.default(...args));
+```
+
 ## The `timeout` option was removed.
 
 Since this was never part of the fetch specification, it was removed. AbortSignal offers a more finegrained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/Richienb/timeout-signal) as a workaround:

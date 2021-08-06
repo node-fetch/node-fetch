@@ -124,6 +124,15 @@ if (!globalThis.fetch) {
 }
 ```
 
+Stuck with commonjs and can't use ESM imports?
+This is a ESM-only module. Using require to load an ES module is not supported because ES modules have asynchronous execution. Instead, use `import()` to lazy load an ES module from a CommonJS module only when needed.
+It can improve startup performance
+
+```js
+// mod.cjs
+const fetch = (...args) => import('node-fetch').then(mod => mod.default(...args));
+```
+
 ## Upgrading
 
 Using an old version of node-fetch? Check out the following files:
