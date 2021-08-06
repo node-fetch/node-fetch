@@ -35,7 +35,7 @@ const fetch = (...args) => import('node-fetch').then(mod => mod.default(...args)
 
 ## The `timeout` option was removed.
 
-Since this was never part of the fetch specification, it was removed. AbortSignal offers a more finegrained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/Richienb/timeout-signal) as a workaround:
+Since this was never part of the fetch specification, it was removed. AbortSignal offers a more fine grained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/Richienb/timeout-signal) as a workaround:
 
 ```js
 const timeoutSignal = require('timeout-signal');
