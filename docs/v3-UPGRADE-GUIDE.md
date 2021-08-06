@@ -70,8 +70,9 @@ If you want charset encoding detection, please use the [fetch-charset-detection]
 import fetch from 'node-fetch';
 import convertBody from 'fetch-charset-detection';
 
-fetch('https://somewebsite.com').then(res => {
-	const text = convertBody(res.buffer(), res.headers);
+fetch('https://somewebsite.com').then(async res => {
+    const buf = Buffer.from(await res.arrayBuffer());
+	const text = convertBody(buf, res.headers);
 });
 ```
 
