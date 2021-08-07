@@ -59,7 +59,7 @@
     "mocha": "^8.3.2",
     "p-timeout": "^5.0.0",
     "tsd": "^0.14.0",
-    "xo": "^0.39.1"
+    "xo": "^0.43.0"
   },
   "dependencies": {
     "data-uri-to-buffer": "^3.0.1",
