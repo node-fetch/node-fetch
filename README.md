@@ -128,7 +128,7 @@ if (!globalThis.fetch) {
 
 ```js
 // mod.cjs
-const fetch = (...args) => import('node-fetch').then(mod => mod.default(...args));
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 ```
 
 ## Upgrading
