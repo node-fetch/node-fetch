@@ -71,8 +71,8 @@ import fetch from 'node-fetch';
 import convertBody from 'fetch-charset-detection';
 
 fetch('https://somewebsite.com').then(async res => {
-    const buf = Buffer.from(await res.arrayBuffer());
-	const text = convertBody(buf, res.headers);
+    const buf = await res.arrayBuffer();
+    const text = convertBody(buf, res.headers);
 });
 ```
 
