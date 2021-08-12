@@ -297,6 +297,14 @@ export default class TestServer {
 			res.socket.end('\r\n');
 		}
 
+		if (p === '/redirect/chunked') {
+			res.writeHead(301, {
+				Location: '/inspect',
+				'Transfer-Encoding': 'chunked'
+			});
+			setTimeout(() => res.end(), 10);
+		}
+
 		if (p === '/error/400') {
 			res.statusCode = 400;
 			res.setHeader('Content-Type', 'text/plain');
@@ -342,6 +350,24 @@ export default class TestServer {
 			setTimeout(() => {
 				res.destroy();
 			}, 400);
+		}
+
+		if (p === '/chunked/split-ending') {
+			res.socket.write('HTTP/1.1 200\r\nTransfer-Encoding: chunked\r\n\r\n');
+			res.socket.write('3\r\nfoo\r\n3\r\nbar\r\n');
+
+			setTimeout(() => {
+				res.socket.write('0\r\n');
+			}, 10);
+
+			setTimeout(() => {
+				res.socket.end('\r\n');
+			}, 20);
+		}
+
+		if (p === '/chunked/multiple-ending') {
+			res.socket.write('HTTP/1.1 200\r\nTransfer-Encoding: chunked\r\n\r\n');
+			res.socket.write('3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n');
 		}
 
 		if (p === '/error/json') {

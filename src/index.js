@@ -287,29 +287,44 @@ export default async function fetch(url, options_) {
 }
 
 function fixResponseChunkedTransferBadEnding(request, errorCallback) {
-	const LAST_CHUNK = Buffer.from('0\r\n');
-	let socket;
+	const LAST_CHUNK = Buffer.from('0\r\n\r\n');
 
-	request.on('socket', s => {
-		socket = s;
-	});
+	let isChunkedTransfer = false;
+	let properLastChunkReceived = false;
+	let previousChunk;
 
 	request.on('response', response => {
 		const {headers} = response;
-		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
-			let properLastChunkReceived = false;
+		isChunkedTransfer = headers['transfer-encoding'] === 'chunked' && !headers['content-length'];
+	});
 
-			socket.on('data', buf => {
-				properLastChunkReceived = Buffer.compare(buf.slice(-3), LAST_CHUNK) === 0;
-			});
+	request.on('socket', socket => {
+		const onSocketClose = () => {
+			if (isChunkedTransfer && !properLastChunkReceived) {
+				const error = new Error('Premature close');
+				error.code = 'ERR_STREAM_PREMATURE_CLOSE';
+				errorCallback(error);
+			}
+		};
 
-			socket.prependListener('close', () => {
-				if (!properLastChunkReceived) {
-					const error = new Error('Premature close');
-					error.code = 'ERR_STREAM_PREMATURE_CLOSE';
-					errorCallback(error);
-				}
-			});
-		}
+		socket.prependListener('close', onSocketClose);
+
+		request.on('abort', () => {
+			socket.removeListener('close', onSocketClose);
+		});
+
+		socket.on('data', buf => {
+			properLastChunkReceived = Buffer.compare(buf.slice(-5), LAST_CHUNK) === 0;
+
+			// Sometimes final 0-length chunk and end of message code are in separate packets
+			if (!properLastChunkReceived && previousChunk) {
+				properLastChunkReceived = (
+					Buffer.compare(previousChunk.slice(-3), LAST_CHUNK.slice(0, 3)) === 0 &&
+					Buffer.compare(buf.slice(-2), LAST_CHUNK.slice(3)) === 0
+				);
+			}
+
+			previousChunk = buf;
+		});
 	});
 }
