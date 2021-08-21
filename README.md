@@ -124,15 +124,14 @@ if (!globalThis.fetch) {
 }
 ```
 
-`node-fetch` is an ESM-only module - you are not able to import it with `require`. If you are unable to use ESM in your project you can use the async `import()` from CommonJS to load `node-fetch` asynchronously:
+`node-fetch` is an ESM-only module - you are not able to import it with `require`. If you are unable to use ESM in your project you can use the async `import()` function from CommonJS to load `node-fetch` asynchronously:
 
 ```js
 // mod.cjs
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 ```
 
-The alternative is to stick with the `@2.x` branch that is built with cjs
-`npm install node-fetch@2`
+Alternatively, you can stay on v2 which is built with CommonJS.
 
 ## Upgrading
 
