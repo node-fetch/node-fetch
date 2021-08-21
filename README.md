@@ -131,6 +131,9 @@ if (!globalThis.fetch) {
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 ```
 
+The alternative is to stick with the `@2.x` branch that is built with cjs
+`npm install node-fetch@2`
+
 ## Upgrading
 
 Using an old version of node-fetch? Check out the following files:
