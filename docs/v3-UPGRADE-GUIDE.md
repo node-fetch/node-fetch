@@ -26,7 +26,9 @@ Since Node.js 10 has been deprecated since May 2020, we have decided that node-f
 ## Converted to ES Module
 
 This module was converted to be a ESM only package in version `3.0.0-beta.10`.
-Using require to load an ES module is not supported because ES modules have asynchronous execution. Instead, use import() to load an ES module from a CommonJS module.
+`node-fetch` is an ESM-only module - you are not able to import it with `require`. We recommend you stay on v2 which is built with CommonJS unless you use ESM yourself. We will continue to publish critical bug fixes for it.
+
+Alternatively, you can use the async `import()` function from CommonJS to load `node-fetch` asynchronously:
 
 ```js
 // mod.cjs
