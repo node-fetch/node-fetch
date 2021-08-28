@@ -19,17 +19,29 @@ other comparatively minor modifications.
 
 # Breaking Changes
 
-## Minimum supported Node.js version is now 10.16
+## Minimum supported Node.js version is now 12.20
 
-Since Node.js will deprecate version 8 at the end of 2019, we decided that node-fetch v3.x will not only drop support for Node.js 4 and 6 (which were supported in v2.x), but also for Node.js 8. We strongly encourage you to upgrade, if you still haven't done so. Check out Node.js' official [LTS plan] for more information on Node.js' support lifetime.
+Since Node.js 10 has been deprecated since May 2020, we have decided that node-fetch v3 will drop support for Node.js 4, 6, 8, and 10 (which were previously supported). We strongly encourage you to upgrade if you still haven't done so. Check out the Node.js official [LTS plan] for more information.
+
+## Converted to ES Module
+
+This module was converted to be a ESM only package in version `3.0.0-beta.10`.
+`node-fetch` is an ESM-only module - you are not able to import it with `require`. We recommend you stay on v2 which is built with CommonJS unless you use ESM yourself. We will continue to publish critical bug fixes for it.
+
+Alternatively, you can use the async `import()` function from CommonJS to load `node-fetch` asynchronously:
+
+```js
+// mod.cjs
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+```
 
 ## The `timeout` option was removed.
 
-Since this was never part of the fetch specification, it was removed. AbortSignal offers a more finegrained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/Richienb/timeout-signal) as a workaround:
+Since this was never part of the fetch specification, it was removed. AbortSignal offers more fine grained control of request timeouts, and is standardized in the Fetch spec. For convenience, you can use [timeout-signal](https://github.com/node-fetch/timeout-signal) as a workaround:
 
 ```js
-const timeoutSignal = require('timeout-signal');
-const fetch = require('node-fetch');
+import timeoutSignal from 'timeout-signal';
+import fetch from 'node-fetch';
 
 const {AbortError} = fetch
 
@@ -57,11 +69,12 @@ Prior to v3.x, we included a `browser` field in the package.json file. Since nod
 If you want charset encoding detection, please use the [fetch-charset-detection] package ([documentation][fetch-charset-detection-docs]).
 
 ```js
-const fetch = require('node-fetch');
-const convertBody = require('fetch-charset-detection');
+import fetch from 'node-fetch';
+import convertBody from 'fetch-charset-detection';
 
-fetch('https://somewebsite.com').then(res => {
-	const text = convertBody(res.buffer(), res.headers);
+fetch('https://somewebsite.com').then(async res => {
+    const buf = await res.arrayBuffer();
+    const text = convertBody(buf, res.headers);
 });
 ```
 
@@ -70,7 +83,7 @@ fetch('https://somewebsite.com').then(res => {
 When attempting to parse invalid json via `res.json()`, a `SyntaxError` will now be thrown instead of a `FetchError` to align better with the spec.
 
 ```js
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 fetch('https://somewebsitereturninginvalidjson.com').then(res => res.json())
 // Throws 'Uncaught SyntaxError: Unexpected end of JSON input' or similar.
