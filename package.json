@@ -1,6 +1,6 @@
 {
   "name": "node-fetch",
-  "version": "3.0.0-beta.10",
+  "version": "3.0.0",
   "description": "A light-weight module that brings Fetch API to node.js",
   "main": "./src/index.js",
   "sideEffects": false,
