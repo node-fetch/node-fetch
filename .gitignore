@@ -31,9 +31,6 @@ node_modules
 # OS files
 .DS_Store
 
-# Babel-compiled files
-lib
-
 # Ignore package manager lock files
 package-lock.json
 yarn.lock
