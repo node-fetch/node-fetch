@@ -116,5 +116,16 @@
       }
     ]
   },
-  "runkitExampleFilename": "example.js"
+  "runkitExampleFilename": "example.js",
+  "release": {
+    "branches": [
+      "+([0-9]).x",
+      "main",
+      "next",
+      {
+        "name": "beta",
+        "prerelease": true
+      }
+    ]
+  }
 }
