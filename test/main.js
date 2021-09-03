@@ -2334,3 +2334,33 @@ describe('node-fetch', () => {
 		expect(res.url).to.equal(`${base}m%C3%B6bius`);
 	});
 });
+
+describe('node-fetch using IPv6', () => {
+	const local = new TestServer('[::1]');
+	let base;
+
+	before(async () => {
+		await local.start();
+		base = `http://${local.hostname}:${local.port}/`;
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
+	it('should resolve into response', () => {
+		const url = `${base}hello`;
+		expect(url).to.contain('[::1]');
+		return fetch(url).then(res => {
+			expect(res).to.be.an.instanceof(Response);
+			expect(res.headers).to.be.an.instanceof(Headers);
+			expect(res.body).to.be.an.instanceof(stream.Transform);
+			expect(res.bodyUsed).to.be.false;
+
+			expect(res.url).to.equal(url);
+			expect(res.ok).to.be.true;
+			expect(res.status).to.equal(200);
+			expect(res.statusText).to.equal('OK');
+		});
+	});
+});

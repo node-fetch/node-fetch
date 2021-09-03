@@ -204,24 +204,20 @@ export const getNodeRequestOptions = request => {
 	// HTTP-network fetch step 4.2
 	// chunked encoding is handled by Node.js
 
+	// Overwrite search to force request() to retain trailing ? (issue #776)
 	const search = getSearch(parsedURL);
 
 	// Manually spread the URL object instead of spread syntax
-	const requestOptions = {
+	const options = {
 		path: parsedURL.pathname + search,
-		pathname: parsedURL.pathname,
-		hostname: parsedURL.hostname,
-		protocol: parsedURL.protocol,
-		port: parsedURL.port,
-		hash: parsedURL.hash,
-		search: parsedURL.search,
-		query: parsedURL.query,
-		href: parsedURL.href,
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
 
-	return requestOptions;
+	return {
+		parsedURL,
+		options
+	};
 };
