@@ -6,7 +6,7 @@
  */
 
 import Stream, {PassThrough} from 'stream';
-import {types} from 'util';
+import {types, deprecate} from 'util';
 
 import Blob from 'fetch-blob';
 
@@ -140,6 +140,8 @@ export default class Body {
 	}
 }
 
+Body.prototype.buffer = deprecate(Body.prototype.buffer, 'Please use \'response.arrayBuffer()\' instead of \'response.buffer()\'', 'node-fetch#buffer');
+
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
 	body: {enumerable: true},
@@ -259,6 +261,12 @@ export const clone = (instance, highWaterMark) => {
 	return body;
 };
 
+const getNonSpecFormDataBoundary = deprecate(
+	body => body.getBoundary(),
+	'form-data doesn\'t follow the spec and requires special treatment. Use alternative package',
+	'https://github.com/node-fetch/node-fetch/issues/1167'
+);
+
 /**
  * Performs the operation "extract a `Content-Type` value from |object|" as
  * specified in the specification:
@@ -295,13 +303,13 @@ export const extractContentType = (body, request) => {
 		return null;
 	}
 
-	// Detect form data input from form-data module
-	if (body && typeof body.getBoundary === 'function') {
-		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	}
-
 	if (isFormData(body)) {
 		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
+	}
+
+	// Detect form data input from form-data module
+	if (body && typeof body.getBoundary === 'function') {
+		return `multipart/form-data;boundary=${getNonSpecFormDataBoundary(body)}`;
 	}
 
 	// Body is stream - can't really do much about this
@@ -345,7 +353,7 @@ export const getTotalBytes = request => {
 		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
 	}
 
-	// Body is a spec-compliant form-data
+	// Body is a spec-compliant FormData
 	if (isFormData(body)) {
 		return getFormDataLength(request[INTERNALS].boundary);
 	}
