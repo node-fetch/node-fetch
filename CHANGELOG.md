@@ -8,7 +8,7 @@ Changelog
 ## v2.6.2
 
 - Fix: used full filename for main in package.json
-- Other: pinned all dev dependencies (codecov -> teeny-request had on breaking change)
+- Other: pinned codecov & teeny-request (had one breaking change with spread operators)
 
 ## v2.6.1
 
