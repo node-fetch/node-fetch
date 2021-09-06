@@ -21,6 +21,8 @@ export default class TestServer {
 	async start() {
 		let host = this.hostname;
 		if (host.startsWith('[')) {
+			// If we're trying to listen on an IPv6 literal hostname, strip the
+			// square brackets before binding to the IPv6 address
 			host = host.slice(1, -1);
 		}
 		this.server.listen(0, host);
