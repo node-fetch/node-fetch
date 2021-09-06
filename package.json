@@ -1,8 +1,8 @@
 {
     "name": "node-fetch",
-    "version": "2.6.1",
+    "version": "2.6.2",
     "description": "A light-weight module that brings window.fetch to node.js",
-    "main": "lib/index",
+    "main": "lib/index.js",
     "browser": "./browser.js",
     "module": "lib/index.mjs",
     "files": [
@@ -48,7 +48,7 @@
         "chai-as-promised": "^7.1.1",
         "chai-iterator": "^1.1.1",
         "chai-string": "~1.3.0",
-        "codecov": "^3.3.0",
+        "codecov": "3.3.0",
         "cross-env": "^5.2.0",
         "form-data": "^2.3.3",
         "is-builtin-module": "^1.0.0",
@@ -60,7 +60,7 @@
         "rollup": "^0.63.4",
         "rollup-plugin-babel": "^3.0.7",
         "string-to-arraybuffer": "^1.0.2",
+        "teeny-request": "3.7.0",
         "whatwg-url": "^5.0.0"
-    },
-    "dependencies": {}
+    }
 }

@@ -18,10 +18,6 @@ export default {
     tweakDefault()
   ],
   external: function (id) {
-    if (isBuiltin(id)) {
-      return true;
-    }
-    id = id.split('/').slice(0, id[0] === '@' ? 2 : 1).join('/');
-    return !!require('./package.json').dependencies[id];
+    return isBuiltin(id);
   }
 };
