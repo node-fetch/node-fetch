@@ -35,7 +35,7 @@ export default async function fetch(url, options_) {
 	return new Promise((resolve, reject) => {
 		// Build request object
 		const request = new Request(url, options_);
-		const { parsedURL, options } = getNodeRequestOptions(request);
+		const {parsedURL, options} = getNodeRequestOptions(request);
 		if (!supportedSchemas.has(parsedURL.protocol)) {
 			throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${parsedURL.protocol.replace(/:$/, '')}" is not supported.`);
 		}

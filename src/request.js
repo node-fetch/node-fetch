@@ -206,7 +206,7 @@ export const getNodeRequestOptions = request => {
 
 	const search = getSearch(parsedURL);
 
-	// Pass the full URL directly to request(), but overwrite the following 
+	// Pass the full URL directly to request(), but overwrite the following
 	// options:
 	const options = {
 		// Overwrite search to retain trailing ? (issue #776)

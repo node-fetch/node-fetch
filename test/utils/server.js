@@ -25,6 +25,7 @@ export default class TestServer {
 			// square brackets before binding to the IPv6 address
 			host = host.slice(1, -1);
 		}
+
 		this.server.listen(0, host);
 		return once(this.server, 'listening');
 	}
