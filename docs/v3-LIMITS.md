@@ -7,6 +7,8 @@ Known differences
 
 - On the upside, there are no forbidden headers.
 
+- Passing basic authentication credentials (`https://username:password@hostname`) in the URL is supported.
+
 - `res.url` contains the final url when following redirects.
 
 - For convenience, `res.body` is a Node.js [Readable stream][readable-stream], so decoding can be handled independently.
