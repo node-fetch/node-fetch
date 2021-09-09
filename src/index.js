@@ -35,12 +35,12 @@ export default async function fetch(url, options_) {
 	return new Promise((resolve, reject) => {
 		// Build request object
 		const request = new Request(url, options_);
-		const options = getNodeRequestOptions(request);
-		if (!supportedSchemas.has(options.protocol)) {
-			throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${options.protocol.replace(/:$/, '')}" is not supported.`);
+		const {parsedURL, options} = getNodeRequestOptions(request);
+		if (!supportedSchemas.has(parsedURL.protocol)) {
+			throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${parsedURL.protocol.replace(/:$/, '')}" is not supported.`);
 		}
 
-		if (options.protocol === 'data:') {
+		if (parsedURL.protocol === 'data:') {
 			const data = dataUriToBuffer(request.url);
 			const response = new Response(data, {headers: {'Content-Type': data.typeFull}});
 			resolve(response);
@@ -48,7 +48,7 @@ export default async function fetch(url, options_) {
 		}
 
 		// Wrap http.request into fetch
-		const send = (options.protocol === 'https:' ? https : http).request;
+		const send = (parsedURL.protocol === 'https:' ? https : http).request;
 		const {signal} = request;
 		let response = null;
 
@@ -77,7 +77,7 @@ export default async function fetch(url, options_) {
 		};
 
 		// Send request
-		const request_ = send(options);
+		const request_ = send(parsedURL, options);
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);

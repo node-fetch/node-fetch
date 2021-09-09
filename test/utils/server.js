@@ -4,7 +4,7 @@ import {once} from 'events';
 import Busboy from 'busboy';
 
 export default class TestServer {
-	constructor() {
+	constructor(hostname) {
 		this.server = http.createServer(this.router);
 		// Node 8 default keepalive timeout is 5000ms
 		// make it shorter here as we want to close server quickly at the end of tests
@@ -15,10 +15,18 @@ export default class TestServer {
 		this.server.on('connection', socket => {
 			socket.setTimeout(1500);
 		});
+		this.hostname = hostname || 'localhost';
 	}
 
 	async start() {
-		this.server.listen(0, 'localhost');
+		let host = this.hostname;
+		if (host.startsWith('[')) {
+			// If we're trying to listen on an IPv6 literal hostname, strip the
+			// square brackets before binding to the IPv6 address
+			host = host.slice(1, -1);
+		}
+
+		this.server.listen(0, host);
 		return once(this.server, 'listening');
 	}
 
@@ -29,10 +37,6 @@ export default class TestServer {
 
 	get port() {
 		return this.server.address().port;
-	}
-
-	get hostname() {
-		return 'localhost';
 	}
 
 	mockResponse(responseHandler) {
