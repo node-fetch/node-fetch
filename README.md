@@ -284,7 +284,7 @@ import fetch from 'node-fetch';
 
 const streamPipeline = promisify(pipeline);
 
-const response = await fetch('https://octodex.github.com/images/Fintechtocat.png');
+const response = await fetch('https://github.githubassets.com/images/modules/logos_page/Octocat.png');
 
 if (!response.ok) throw new Error(`unexpected response ${response.statusText}`);
 
