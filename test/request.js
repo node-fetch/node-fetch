@@ -125,6 +125,13 @@ describe('Request', () => {
 			.to.throw(TypeError);
 	});
 
+	it('should throw error when including credentials', () => {
+		expect(() => new Request('https://john:pass@github.com/'))
+			.to.throw(TypeError);
+		expect(() => new Request(new URL('https://john:pass@github.com/')))
+			.to.throw(TypeError);
+	});
+
 	it('should default to null as body', () => {
 		const request = new Request(base);
 		expect(request.body).to.equal(null);

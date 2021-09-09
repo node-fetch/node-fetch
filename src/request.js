@@ -49,6 +49,10 @@ export default class Request extends Body {
 			input = {};
 		}
 
+		if (parsedURL.username !== '' || parsedURL.password !== '') {
+			throw new TypeError(`${parsedURL} is an url with embedded credentails.`);
+		}
+
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
 
