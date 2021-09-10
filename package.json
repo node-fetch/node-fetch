@@ -55,7 +55,7 @@
     "coveralls": "^3.1.0",
     "delay": "^5.0.0",
     "form-data": "^4.0.0",
-    "formdata-node": "^3.5.4",
+    "formdata-node": "^4.2.0",
     "mocha": "^8.3.2",
     "p-timeout": "^5.0.0",
     "tsd": "^0.14.0",
