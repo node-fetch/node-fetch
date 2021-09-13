@@ -1,6 +1,7 @@
-import {Headers} from '../src/index.js';
+import {format} from 'util';
 import chai from 'chai';
 import chaiIterator from 'chai-iterator';
+import {Headers} from '../src/index.js';
 
 chai.use(chaiIterator);
 
@@ -41,15 +42,46 @@ describe('Headers', () => {
 		expect(headers).to.have.property('forEach');
 
 		const result = [];
-		headers.forEach((value, key) => {
+		for (const [key, value] of headers.entries()) {
 			result.push([key, value]);
-		});
+		}
 
 		expect(result).to.deep.equal([
 			['a', '1'],
 			['b', '2, 3'],
 			['c', '4']
 		]);
+	});
+
+	it('should be iterable with forEach', () => {
+		const headers = new Headers();
+		headers.append('Accept', 'application/json');
+		headers.append('Accept', 'text/plain');
+		headers.append('Content-Type', 'text/html');
+
+		const results = [];
+		headers.forEach((value, key, object) => {
+			results.push({value, key, object});
+		});
+
+		expect(results.length).to.equal(2);
+		expect({key: 'accept', value: 'application/json, text/plain', object: headers}).to.deep.equal(results[0]);
+		expect({key: 'content-type', value: 'text/html', object: headers}).to.deep.equal(results[1]);
+	});
+
+	it('should set "this" to undefined by default on forEach', () => {
+		const headers = new Headers({Accept: 'application/json'});
+		headers.forEach(function () {
+			expect(this).to.be.undefined;
+		});
+	});
+
+	it('should accept thisArg as a second argument for forEach', () => {
+		const headers = new Headers({Accept: 'application/json'});
+		const thisArg = {};
+		headers.forEach(function () {
+			expect(this).to.equal(thisArg);
+		}, thisArg);
 	});
 
 	it('should allow iterating through all headers with for-of loop', () => {
@@ -128,7 +160,7 @@ describe('Headers', () => {
 	});
 
 	it('should ignore unsupported attributes while reading headers', () => {
-		const FakeHeader = function () { };
+		const FakeHeader = function () {};
 		// Prototypes are currently ignored
 		// This might change in the future: #181
 		FakeHeader.prototype.z = 'fake';
@@ -231,5 +263,18 @@ describe('Headers', () => {
 		expect(() => new Headers(['b2'])).to.throw(TypeError);
 		expect(() => new Headers('b2')).to.throw(TypeError);
 		expect(() => new Headers({[Symbol.iterator]: 42})).to.throw(TypeError);
+	});
+
+	it('should use a custom inspect function', () => {
+		const headers = new Headers([
+			['Host', 'thehost'],
+			['Host', 'notthehost'],
+			['a', '1'],
+			['b', '2'],
+			['a', '3']
+		]);
+
+		// eslint-disable-next-line quotes
+		expect(format(headers)).to.equal("{ a: [ '1', '3' ], b: '2', host: 'thehost' }");
 	});
 });

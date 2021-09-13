@@ -12,13 +12,13 @@ The basics:
 const fetch = require('node-fetch');
 
 (async () => {
-		try {
-				await fetch(url, {signal});
-		} catch (error) {
-				if (error.name === 'AbortError') {
-    				console.log('request was aborted');
-  			}
+	try {
+		await fetch(url, {signal});
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.log('request was aborted');
 		}
+	}
 })();
 ```
 

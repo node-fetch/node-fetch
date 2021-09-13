@@ -1,7 +1,6 @@
 ---
 name: 🐞 Bug report
 about: Create a report to help us improve node-fetch
-title: "Bug: "
 labels: bug
 ---
 

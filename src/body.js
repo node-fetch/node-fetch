@@ -6,7 +6,7 @@
  */
 
 import Stream, {PassThrough} from 'stream';
-import {types} from 'util';
+import {types, deprecate} from 'util';
 
 import Blob from 'fetch-blob';
 
@@ -78,10 +78,10 @@ export default class Body {
 		this.size = size;
 
 		if (body instanceof Stream) {
-			body.on('error', err => {
-				const error = err instanceof FetchBaseError ?
-					err :
-					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+			body.on('error', error_ => {
+				const error = error_ instanceof FetchBaseError ?
+					error_ :
+					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, 'system', error_);
 				this[INTERNALS].error = error;
 			});
 		}
@@ -149,6 +149,8 @@ export default class Body {
 	}
 }
 
+Body.prototype.buffer = deprecate(Body.prototype.buffer, 'Please use \'response.arrayBuffer()\' instead of \'response.buffer()\'', 'node-fetch#buffer');
+
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
 	body: {enumerable: true},
@@ -197,21 +199,17 @@ async function consumeBody(data) {
 	try {
 		for await (const chunk of body) {
 			if (data.size > 0 && accumBytes + chunk.length > data.size) {
-				const err = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
-				body.destroy(err);
-				throw err;
+				const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
+				body.destroy(error);
+				throw error;
 			}
 
 			accumBytes += chunk.length;
 			accum.push(chunk);
 		}
 	} catch (error) {
-		if (error instanceof FetchBaseError) {
-			throw error;
-		} else {
-			// Other errors, such as incorrect content-encoding
-			throw new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, 'system', error);
-		}
+		const error_ = error instanceof FetchBaseError ? error : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, 'system', error);
+		throw error_;
 	}
 
 	if (body.readableEnded === true || body._readableState.ended === true) {
@@ -262,6 +260,12 @@ export const clone = (instance, highWaterMark) => {
 	return body;
 };
 
+const getNonSpecFormDataBoundary = deprecate(
+	body => body.getBoundary(),
+	'form-data doesn\'t follow the spec and requires special treatment. Use alternative package',
+	'https://github.com/node-fetch/node-fetch/issues/1167'
+);
+
 /**
  * Performs the operation "extract a `Content-Type` value from |object|" as
  * specified in the specification:
@@ -298,13 +302,13 @@ export const extractContentType = (body, request) => {
 		return null;
 	}
 
-	// Detect form data input from form-data module
-	if (body && typeof body.getBoundary === 'function') {
-		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	}
-
 	if (isFormData(body)) {
 		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
+	}
+
+	// Detect form data input from form-data module
+	if (body && typeof body.getBoundary === 'function') {
+		return `multipart/form-data;boundary=${getNonSpecFormDataBoundary(body)}`;
 	}
 
 	// Body is stream - can't really do much about this
@@ -348,7 +352,7 @@ export const getTotalBytes = request => {
 		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
 	}
 
-	// Body is a spec-compliant form-data
+	// Body is a spec-compliant FormData
 	if (isFormData(body)) {
 		return getFormDataLength(request[INTERNALS].boundary);
 	}

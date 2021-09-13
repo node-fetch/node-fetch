@@ -35,12 +35,12 @@ export default async function fetch(url, options_) {
 	return new Promise((resolve, reject) => {
 		// Build request object
 		const request = new Request(url, options_);
-		const options = getNodeRequestOptions(request);
-		if (!supportedSchemas.has(options.protocol)) {
-			throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${options.protocol.replace(/:$/, '')}" is not supported.`);
+		const {parsedURL, options} = getNodeRequestOptions(request);
+		if (!supportedSchemas.has(parsedURL.protocol)) {
+			throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${parsedURL.protocol.replace(/:$/, '')}" is not supported.`);
 		}
 
-		if (options.protocol === 'data:') {
+		if (parsedURL.protocol === 'data:') {
 			const data = dataUriToBuffer(request.url);
 			const response = new Response(data, {headers: {'Content-Type': data.typeFull}});
 			resolve(response);
@@ -48,7 +48,7 @@ export default async function fetch(url, options_) {
 		}
 
 		// Wrap http.request into fetch
-		const send = (options.protocol === 'https:' ? https : http).request;
+		const send = (parsedURL.protocol === 'https:' ? https : http).request;
 		const {signal} = request;
 		let response = null;
 
@@ -77,7 +77,7 @@ export default async function fetch(url, options_) {
 		};
 
 		// Send request
-		const request_ = send(options);
+		const request_ = send(parsedURL, options);
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
@@ -90,10 +90,34 @@ export default async function fetch(url, options_) {
 			}
 		};
 
-		request_.on('error', err => {
-			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
+		request_.on('error', error => {
+			reject(new FetchError(`request to ${request.url} failed, reason: ${error.message}`, 'system', error));
 			finalize();
 		});
+
+		fixResponseChunkedTransferBadEnding(request_, error => {
+			response.body.destroy(error);
+		});
+
+		/* c8 ignore next 18 */
+		if (process.version < 'v14') {
+			// Before Node.js 14, pipeline() does not fully support async iterators and does not always
+			// properly handle when the socket close/end events are out of order.
+			request_.on('socket', s => {
+				let endedWithEventsCount;
+				s.prependListener('end', () => {
+					endedWithEventsCount = s._eventsCount;
+				});
+				s.prependListener('close', hadError => {
+					// if end happened before close but the socket didn't emit an error, do it now
+					if (response && endedWithEventsCount < s._eventsCount && !hadError) {
+						const error = new Error('Premature close');
+						error.code = 'ERR_STREAM_PREMATURE_CLOSE';
+						response.body.emit('error', error);
+					}
+				});
+			});
+		}
 
 		request_.on('response', response_ => {
 			request_.setTimeout(0);
@@ -116,13 +140,7 @@ export default async function fetch(url, options_) {
 					case 'manual':
 						// Node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
 						if (locationURL !== null) {
-							// Handle corrupted header
-							try {
-								headers.set('Location', locationURL);
-								/* c8 ignore next 3 */
-							} catch (error) {
-								reject(error);
-							}
+							headers.set('Location', locationURL);
 						}
 
 						break;
@@ -174,20 +192,18 @@ export default async function fetch(url, options_) {
 					}
 
 					default:
-					// Do nothing
+						return reject(new TypeError(`Redirect option '${request.redirect}' is not a valid value of RequestRedirect`));
 				}
 			}
 
 			// Prepare response
-			response_.once('end', () => {
-				if (signal) {
+			if (signal) {
+				response_.once('end', () => {
 					signal.removeEventListener('abort', abortAndFinalize);
-				}
-			});
+				});
+			}
 
-			let body = pump(response_, new PassThrough(), error => {
-				reject(error);
-			});
+			let body = pump(response_, new PassThrough(), reject);
 			// see https://github.com/nodejs/node/pull/29376
 			if (process.version < 'v12.10') {
 				response_.on('aborted', abortAndFinalize);
@@ -232,9 +248,7 @@ export default async function fetch(url, options_) {
 
 			// For gzip
 			if (codings === 'gzip' || codings === 'x-gzip') {
-				body = pump(body, zlib.createGunzip(zlibOptions), error => {
-					reject(error);
-				});
+				body = pump(body, zlib.createGunzip(zlibOptions), reject);
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
@@ -244,20 +258,10 @@ export default async function fetch(url, options_) {
 			if (codings === 'deflate' || codings === 'x-deflate') {
 				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = pump(response_, new PassThrough(), error => {
-					reject(error);
-				});
+				const raw = pump(response_, new PassThrough(), reject);
 				raw.once('data', chunk => {
 					// See http://stackoverflow.com/questions/37519828
-					if ((chunk[0] & 0x0F) === 0x08) {
-						body = pump(body, zlib.createInflate(), error => {
-							reject(error);
-						});
-					} else {
-						body = pump(body, zlib.createInflateRaw(), error => {
-							reject(error);
-						});
-					}
+					body = (chunk[0] & 0x0F) === 0x08 ? pump(body, zlib.createInflate(), reject) : pump(body, zlib.createInflateRaw(), reject);
 
 					response = new Response(body, responseOptions);
 					resolve(response);
@@ -267,9 +271,7 @@ export default async function fetch(url, options_) {
 
 			// For br
 			if (codings === 'br') {
-				body = pump(body, zlib.createBrotliDecompress(), error => {
-					reject(error);
-				});
+				body = pump(body, zlib.createBrotliDecompress(), reject);
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
@@ -281,5 +283,48 @@ export default async function fetch(url, options_) {
 		});
 
 		writeToStream(request_, request);
+	});
+}
+
+function fixResponseChunkedTransferBadEnding(request, errorCallback) {
+	const LAST_CHUNK = Buffer.from('0\r\n\r\n');
+
+	let isChunkedTransfer = false;
+	let properLastChunkReceived = false;
+	let previousChunk;
+
+	request.on('response', response => {
+		const {headers} = response;
+		isChunkedTransfer = headers['transfer-encoding'] === 'chunked' && !headers['content-length'];
+	});
+
+	request.on('socket', socket => {
+		const onSocketClose = () => {
+			if (isChunkedTransfer && !properLastChunkReceived) {
+				const error = new Error('Premature close');
+				error.code = 'ERR_STREAM_PREMATURE_CLOSE';
+				errorCallback(error);
+			}
+		};
+
+		socket.prependListener('close', onSocketClose);
+
+		request.on('abort', () => {
+			socket.removeListener('close', onSocketClose);
+		});
+
+		socket.on('data', buf => {
+			properLastChunkReceived = Buffer.compare(buf.slice(-5), LAST_CHUNK) === 0;
+
+			// Sometimes final 0-length chunk and end of message code are in separate packets
+			if (!properLastChunkReceived && previousChunk) {
+				properLastChunkReceived = (
+					Buffer.compare(previousChunk.slice(-3), LAST_CHUNK.slice(0, 3)) === 0 &&
+					Buffer.compare(buf.slice(-2), LAST_CHUNK.slice(3)) === 0
+				);
+			}
+
+			previousChunk = buf;
+		});
 	});
 }

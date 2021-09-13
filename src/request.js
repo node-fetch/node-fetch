@@ -31,6 +31,8 @@ const isRequest = object => {
 /**
  * Request class
  *
+ * Ref: https://fetch.spec.whatwg.org/#request-class
+ *
  * @param   Mixed   input  Url or Request instance
  * @param   Object  init   Custom options
  * @return  Void
@@ -45,6 +47,10 @@ export default class Request extends Body {
 		} else {
 			parsedURL = new URL(input);
 			input = {};
+		}
+
+		if (parsedURL.username !== '' || parsedURL.password !== '') {
+			throw new TypeError(`${parsedURL} is an url with embedded credentails.`);
 		}
 
 		let method = init.method || input.method || 'GET';
@@ -82,8 +88,9 @@ export default class Request extends Body {
 			signal = init.signal;
 		}
 
-		if (signal !== null && !isAbortSignal(signal)) {
-			throw new TypeError('Expected signal to be an instanceof AbortSignal');
+		// eslint-disable-next-line no-eq-null, eqeqeq
+		if (signal != null && !isAbortSignal(signal)) {
+			throw new TypeError('Expected signal to be an instanceof AbortSignal or EventTarget');
 		}
 
 		this[INTERNALS] = {
@@ -203,22 +210,20 @@ export const getNodeRequestOptions = request => {
 
 	const search = getSearch(parsedURL);
 
-	// Manually spread the URL object instead of spread syntax
-	const requestOptions = {
+	// Pass the full URL directly to request(), but overwrite the following
+	// options:
+	const options = {
+		// Overwrite search to retain trailing ? (issue #776)
 		path: parsedURL.pathname + search,
-		pathname: parsedURL.pathname,
-		hostname: parsedURL.hostname,
-		protocol: parsedURL.protocol,
-		port: parsedURL.port,
-		hash: parsedURL.hash,
-		search: parsedURL.search,
-		query: parsedURL.query,
-		href: parsedURL.href,
+		// The following options are not expressed in the URL
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
 
-	return requestOptions;
+	return {
+		parsedURL,
+		options
+	};
 };
