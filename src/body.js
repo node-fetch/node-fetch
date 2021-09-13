@@ -65,7 +65,7 @@ export default class Body {
 		if (Buffer.isBuffer(body)) {
 			stream = Stream.Readable.from(body);
 		} else if (isBlob(body)) {
-			stream = body.stream();
+			stream = Stream.Readable.from(body.stream());
 		}
 
 		this[INTERNALS] = {
