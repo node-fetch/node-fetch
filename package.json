@@ -2,11 +2,17 @@
   "name": "node-fetch",
   "version": "3.0.0",
   "description": "A light-weight module that brings Fetch API to node.js",
-  "main": "./src/index.js",
+  "main": "./cjs/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./cjs/index.js"
+  },
   "sideEffects": false,
   "type": "module",
   "files": [
     "src",
+    "cjs",
     "@types/index.d.ts"
   ],
   "types": "./@types/index.d.ts",
@@ -14,6 +20,7 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "scripts": {
+    "prepack": "esbuild src/*.js src/**/*.js --outdir=cjs --sourcemap --format=cjs",
     "test": "mocha",
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "test-types": "tsd",
@@ -54,6 +61,7 @@
     "chai-string": "^1.5.0",
     "coveralls": "^3.1.0",
     "delay": "^5.0.0",
+    "esbuild": "^0.12.27",
     "form-data": "^4.0.0",
     "formdata-node": "^3.5.4",
     "mocha": "^8.3.2",
@@ -77,7 +85,8 @@
       "browser"
     ],
     "ignores": [
-      "example.js"
+      "example.js",
+      "cjs"
     ],
     "rules": {
       "complexity": 0,

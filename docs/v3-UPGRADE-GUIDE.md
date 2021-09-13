@@ -23,17 +23,11 @@ other comparatively minor modifications.
 
 Since Node.js 10 has been deprecated since May 2020, we have decided that node-fetch v3 will drop support for Node.js 4, 6, 8, and 10 (which were previously supported). We strongly encourage you to upgrade if you still haven't done so. Check out the Node.js official [LTS plan] for more information.
 
-## Converted to ES Module
+## Converted to ESM/CJS hybrid package
 
-This module was converted to be a ESM only package in version `3.0.0-beta.10`.
-`node-fetch` is an ESM-only module - you are not able to import it with `require`. We recommend you stay on v2 which is built with CommonJS unless you use ESM yourself. We will continue to publish critical bug fixes for it.
+This module was converted to be an ESM/CJS hybrid package in version `3.1.0` with the source written in ESM and transpiled to CJS using `esbuild`.  Version `3.0.0` was released as ESM only and will not be maintained in the future.
 
-Alternatively, you can use the async `import()` function from CommonJS to load `node-fetch` asynchronously:
-
-```js
-// mod.cjs
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-```
+Maintainers of this library plan to remove CJS support in a future major version so users of `node-fetch` should move to the ESM syntax as soon as possible to avoid future breaking issues.
 
 ## The `timeout` option was removed.
 
