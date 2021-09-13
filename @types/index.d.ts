@@ -1,5 +1,4 @@
 /// <reference types="node" />
-/// <reference lib="dom" />
 
 import {Agent} from 'http';
 
