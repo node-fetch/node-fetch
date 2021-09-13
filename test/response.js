@@ -239,7 +239,7 @@ describe('Response', () => {
 		const res = new Response(body);
 		expect(await res.text()).to.equal('a');
 	});
-	
+
 	it('should support error() static method', () => {
 		const res = Response.error();
 		expect(res).to.be.an.instanceof(Response);
