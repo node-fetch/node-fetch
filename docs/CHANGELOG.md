@@ -4,6 +4,11 @@ All notable changes will be recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## unreleased
+
+- other: Deprecated/Discourage [form-data](https://www.npmjs.com/package/form-data) and body.buffer() (#1212)
+- fix: Normalize `Body.body` into a `node:stream` (#924)
+
 ## v3.0.0
 
 - other: Marking v3 as stable

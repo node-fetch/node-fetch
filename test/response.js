@@ -208,6 +208,38 @@ describe('Response', () => {
 		expect(res.url).to.equal('');
 	});
 
+	it('should cast string to stream using res.body', () => {
+		const res = new Response('hi');
+		expect(res.body).to.be.an.instanceof(stream.Readable);
+	});
+
+	it('should cast typed array to stream using res.body', () => {
+		const res = new Response(Uint8Array.from([97]));
+		expect(res.body).to.be.an.instanceof(stream.Readable);
+	});
+
+	it('should cast blob to stream using res.body', () => {
+		const res = new Response(new Blob(['a']));
+		expect(res.body).to.be.an.instanceof(stream.Readable);
+	});
+
+	it('should not cast null to stream using res.body', () => {
+		const res = new Response(null);
+		expect(res.body).to.be.null;
+	});
+
+	it('should cast typed array to text using res.text()', async () => {
+		const res = new Response(Uint8Array.from([97]));
+		expect(await res.text()).to.equal('a');
+	});
+
+	it('should cast stream to text using res.text() in a roundabout way', async () => {
+		const {body} = new Response('a');
+		expect(body).to.be.an.instanceof(stream.Readable);
+		const res = new Response(body);
+		expect(await res.text()).to.equal('a');
+	});
+
 	it('should support error() static method', () => {
 		const res = Response.error();
 		expect(res).to.be.an.instanceof(Response);
