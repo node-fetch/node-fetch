@@ -1,8 +1,11 @@
 import isBuiltin from 'is-builtin-module';
 import babel from 'rollup-plugin-babel';
+import packageJson from './package.json';
 import tweakDefault from './build/rollup-plugin';
 
 process.env.BABEL_ENV = 'rollup';
+
+const dependencies = Object.keys(packageJson.dependencies);
 
 export default {
   input: 'src/index.js',
@@ -18,6 +21,6 @@ export default {
     tweakDefault()
   ],
   external: function (id) {
-    return isBuiltin(id);
+    return dependencies.includes(id) || isBuiltin(id);
   }
 };

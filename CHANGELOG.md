@@ -5,6 +5,10 @@ Changelog
 
 # 2.x release
 
+## v2.6.3
+
+- Fix: properly encode url with unicode characters
+
 ## v2.6.2
 
 - Fix: used full filename for main in package.json
