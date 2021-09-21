@@ -33,19 +33,7 @@ function parseURL(urlStr) {
 		Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
 	*/
 	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
-		const url = new URL(urlStr);
-
-		return {
-			path: url.pathname,
-			pathname: url.pathname,
-			hostname: url.hostname,
-			protocol: url.protocol,
-			port: url.port,
-			hash: url.hash,
-			search: url.search,
-			query: url.query,
-			href: url.href,
-		}
+		urlStr = new URL(urlStr).toString()
 	}
 
 	// Fallback to old implementation for arbitrary URLs

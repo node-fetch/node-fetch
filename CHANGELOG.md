@@ -5,6 +5,10 @@ Changelog
 
 # 2.x release
 
+## v2.6.4
+
+- Hotfix: fix v2.6.3 that did not sending query params
+
 ## v2.6.3
 
 - Fix: properly encode url with unicode characters
