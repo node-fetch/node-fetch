@@ -5,6 +5,10 @@ Changelog
 
 # 2.x release
 
+## v2.6.5
+
+- Fix: import `whatwg-url` in a way compatible with ESM
+
 ## v2.6.4
 
 - Hotfix: fix v2.6.3 that did not sending query params
