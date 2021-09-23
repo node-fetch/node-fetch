@@ -39,6 +39,14 @@
     "dependencies": {
         "whatwg-url": "^5.0.0"
     },
+    "peerDependencies": { 
+        "encoding": "*"
+    },
+    "peerDependenciesMeta": {
+        "encoding": {
+            "optional": true
+        }
+    },
     "devDependencies": {
         "@ungap/url-search-params": "^0.1.2",
         "abort-controller": "^1.1.0",
