@@ -29,6 +29,14 @@ async function run() {
 
 	// Test JSON, returns unknown
 	expectType<unknown>(await getResponse.json());
+	// Test JSON with generics, returns T
+	interface T {
+		userId: number,
+		id: number,
+		title: string,
+		body: string
+	}
+	expectType<T>(await (await fetch('https://jsonplaceholder.typicode.com/posts/1')).json())
 
 	// Headers iterable
 	expectType<Headers>(getResponse.headers);

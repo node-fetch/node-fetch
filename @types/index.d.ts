@@ -107,7 +107,7 @@ declare class BodyMixin {
 	buffer(): Promise<Buffer>;
 	arrayBuffer(): Promise<ArrayBuffer>;
 	blob(): Promise<Blob>;
-	json(): Promise<unknown>;
+	json<T>(): Promise<T>;
 	text(): Promise<string>;
 }
 
