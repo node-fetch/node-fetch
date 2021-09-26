@@ -409,7 +409,9 @@ export async function toFormData(Body, ct) {
 						entryName = m[2] || m[3] || '';
 					}
 
-					if (filename = _fileName(headerValue)) {
+					filename = _fileName(headerValue);
+
+					if (filename) {
 						parser.onPartData = appendToFile;
 						parser.onPartEnd = appendFileToFormData;
 					}
