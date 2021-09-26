@@ -8,7 +8,7 @@ const {expect} = chai;
 describe('FormData', () => {
 	it('Consume empty URLSearchParams as FormData', async () => {
 		const res = new Response(new URLSearchParams());
-  	const fd = await res.formData();
+		const fd = await res.formData();
 
 		expect(fd).to.be.instanceOf(FormData);
 	});
@@ -18,21 +18,21 @@ describe('FormData', () => {
 			method: 'POST',
 			body: new URLSearchParams()
 		});
-  	const fd = await req.formData();
+		const fd = await req.formData();
 
 		expect(fd).to.be.instanceOf(FormData);
 	});
 
 	it('Consume empty response.formData() as FormData', async () => {
 		const res = new Response(new FormData());
-  	const fd = await res.formData();
+		const fd = await res.formData();
 
 		expect(fd).to.be.instanceOf(FormData);
 	});
 
 	it('Consume empty response.formData() as FormData', async () => {
 		const res = new Response(new FormData());
-  	const fd = await res.formData();
+		const fd = await res.formData();
 
 		expect(fd).to.be.instanceOf(FormData);
 	});
@@ -42,14 +42,14 @@ describe('FormData', () => {
 			method: 'POST',
 			body: new FormData()
 		});
-  	const fd = await req.formData();
+		const fd = await req.formData();
 
 		expect(fd).to.be.instanceOf(FormData);
 	});
 
 	it('Consume URLSearchParams with entries as FormData', async () => {
 		const res = new Response(new URLSearchParams({foo: 'bar'}));
-  	const fd = await res.formData();
+		const fd = await res.formData();
 
 		expect(fd.get('foo')).to.be.equal('bar');
 	});
@@ -68,7 +68,8 @@ describe('FormData', () => {
 		const form = new FormData();
 		const string = 'Hello, world!';
 		form.set('field', string);
-		const text = await new Request('about:blank', {method: 'POST', body: form}).text();
+		const fd = await new Request('about:blank', {method: 'POST', body: form}).formData();
+		expect(fd.get('field')).to.equal(string);
 	});
 
 	it('should return a length for a Blob field', async () => {

@@ -91,6 +91,8 @@
       "unicorn/numeric-separators-style": 0,
       "unicorn/explicit-length-check": 0,
       "capitalized-comments": 0,
+      "node/no-unsupported-features/es-syntax": 0,
+      "no-fallthrough": 0,
       "@typescript-eslint/member-ordering": 0
     },
     "overrides": [

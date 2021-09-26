@@ -56,7 +56,6 @@ class MultipartParser {
 	}
 
 	write(ui8a) {
-		const self = this;
 		let i = 0;
 		const length_ = ui8a.length;
 		let previousIndex = this.index;
@@ -72,32 +71,32 @@ class MultipartParser {
 		};
 
 		const clear = name => {
-			delete self[name + 'Mark'];
+			delete this[name + 'Mark'];
 		};
 
-		const callback = function (name, start, end, ui8a) {
+		const callback = (name, start, end, ui8a) => {
 			if (start !== undefined && start === end) {
 				return;
 			}
 
 			const callbackSymbol = 'on' + name.slice(0, 1).toUpperCase() + name.slice(1);
-			if (callbackSymbol in self) {
-				self[callbackSymbol](ui8a && ui8a.subarray(start, end));
+			if (callbackSymbol in this) {
+				this[callbackSymbol](ui8a && ui8a.subarray(start, end));
 			}
-		}
+		};
 
-		const dataCallback = function (name, clear) {
+		const dataCallback = (name, clear) => {
 			const markSymbol = name + 'Mark';
-			if (!(markSymbol in self)) {
+			if (!(markSymbol in this)) {
 				return;
 			}
 
-			if (!clear) {
-				callback(name, self[markSymbol], ui8a.length, ui8a);
-				self[markSymbol] = 0;
+			if (clear) {
+				callback(name, this[markSymbol], i, ui8a);
+				delete this[markSymbol];
 			} else {
-				callback(name, self[markSymbol], i, ui8a);
-				delete self[markSymbol];
+				callback(name, this[markSymbol], ui8a.length, ui8a);
+				this[markSymbol] = 0;
 			}
 		};
 
@@ -350,29 +349,29 @@ export async function toFormData(Body, ct) {
 
 			let headerField;
 			let headerValue;
-			const entryChunks = [];
 			let entryValue;
 			let entryName;
 			let contentType;
 			let filename;
+			const entryChunks = [];
 			const fd = new FormData();
 
-			function onPartData(ui8a) {
+			const onPartData = ui8a => {
 				entryValue += decoder.decode(ui8a, {stream: true});
-			}
+			};
 
-			function appendToFile(ui8a) {
+			const appendToFile = ui8a => {
 				entryChunks.push(ui8a);
-			}
+			};
 
-			function appendFileToFormData() {
+			const appendFileToFormData = () => {
 				const file = new File(entryChunks, filename, {type: contentType});
 				fd.append(entryName, file);
-			}
+			};
 
-			function appendEntryToFormData() {
+			const appendEntryToFormData = () => {
 				fd.append(entryName, entryValue);
-			}
+			};
 
 			const decoder = new TextDecoder('utf-8');
 			decoder.decode();
@@ -410,9 +409,10 @@ export async function toFormData(Body, ct) {
 						entryName = m[2] || m[3] || '';
 					}
 
-					filename = _fileName(headerValue);
-					parser.onPartData = appendToFile;
-					parser.onPartEnd = appendFileToFormData;
+					if (filename = _fileName(headerValue)) {
+						parser.onPartData = appendToFile;
+						parser.onPartEnd = appendFileToFormData;
+					}
 				} else if (headerField === 'content-type') {
 					contentType = headerValue;
 				}

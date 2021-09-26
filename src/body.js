@@ -109,7 +109,6 @@ export default class Body {
 		const ct = this.headers.get('content-type');
 
 		if (ct.startsWith('application/x-www-form-urlencoded')) {
-			const {FormData} = await import('formdata-polyfill/esm.min.js')
 			const fd = new FormData();
 			const parameters = new URLSearchParams(await this.text());
 
@@ -120,7 +119,7 @@ export default class Body {
 			return fd;
 		}
 
-		const {toFormData} = await import('./utils/multipart-parser.js')
+		const {toFormData} = await import('./utils/multipart-parser.js');
 		return toFormData(this.body, ct);
 	}
 
