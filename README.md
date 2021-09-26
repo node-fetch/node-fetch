@@ -712,6 +712,8 @@ A boolean property for if this body has been consumed. Per the specs, a consumed
 
 #### body.arrayBuffer()
 
+#### body.formData()
+
 #### body.blob()
 
 #### body.json()
