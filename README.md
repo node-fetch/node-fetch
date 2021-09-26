@@ -726,14 +726,6 @@ A boolean property for if this body has been consumed. Per the specs, a consumed
 
 Consume the body and return a promise that will resolve to one of these formats.
 
-#### body.buffer()
-
-<small>_(node-fetch extension)_</small>
-
-- Returns: `Promise<Buffer>`
-
-Consume the body and return a promise that will resolve to a Buffer.
-
 <a id="class-fetcherror"></a>
 
 ### Class: FetchError
