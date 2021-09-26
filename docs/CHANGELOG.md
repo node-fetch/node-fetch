@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - other: Deprecated/Discourage [form-data](https://www.npmjs.com/package/form-data) and body.buffer() (#1212)
 - fix: Normalize `Body.body` into a `node:stream` (#924)
+- feat: Added support for `Body.formData()`
 
 ## v3.0.0
 
