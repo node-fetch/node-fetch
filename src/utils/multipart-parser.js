@@ -109,6 +109,7 @@ class MultipartParser {
 				case S.START:
 					index = 0;
 					state = S.START_BOUNDARY;
+					// fallsthrough
 				case S.START_BOUNDARY:
 					if (index === boundary.length - 2) {
 						if (c === HYPHEN) {
@@ -148,6 +149,7 @@ class MultipartParser {
 					state = S.HEADER_FIELD;
 					mark('headerField');
 					index = 0;
+					// fallsthrough
 				case S.HEADER_FIELD:
 					if (c === CR) {
 						clear('headerField');
@@ -184,6 +186,7 @@ class MultipartParser {
 
 					mark('headerValue');
 					state = S.HEADER_VALUE;
+					// fallsthrough
 				case S.HEADER_VALUE:
 					if (c === CR) {
 						dataCallback('headerValue', true);
@@ -210,6 +213,7 @@ class MultipartParser {
 				case S.PART_DATA_START:
 					state = S.PART_DATA;
 					mark('partData');
+					// fallsthrough
 				case S.PART_DATA:
 					previousIndex = index;
 
