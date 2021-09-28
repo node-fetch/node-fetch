@@ -291,6 +291,7 @@ class MultipartParser {
 				case S.END:
 					break;
 				default:
+					console.info(`Unexpected state entered: ${state}`);
 					return i;
 			}
 		}
@@ -299,6 +300,7 @@ class MultipartParser {
 		dataCallback('headerValue');
 		dataCallback('partData');
 
+		// Update properties for the next call
 		this.index = index;
 		this.state = state;
 		this.flags = flags;
