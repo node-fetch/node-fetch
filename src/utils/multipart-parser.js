@@ -3,7 +3,6 @@ import {FormData} from 'formdata-polyfill/esm.min.js';
 
 let s = 0;
 const S = {
-	PARSER_UNINITIALIZED: s++,
 	START: s++,
 	START_BOUNDARY: s++,
 	HEADER_FIELD_START: s++,
@@ -104,8 +103,6 @@ class MultipartParser {
 			c = ui8a[i];
 
 			switch (state) {
-				case S.PARSER_UNINITIALIZED:
-					return i;
 				case S.START:
 					index = 0;
 					state = S.START_BOUNDARY;
