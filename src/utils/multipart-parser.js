@@ -321,7 +321,7 @@ class MultipartParser {
 			callback(this, 'partEnd');
 			callback(this, 'end');
 		} else if (this.state !== S.END) {
-			return new Error('MultipartParser.end(): stream ended unexpectedly');
+			throw new Error('MultipartParser.end(): stream ended unexpectedly');
 		}
 	}
 }
