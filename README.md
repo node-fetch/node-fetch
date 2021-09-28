@@ -454,7 +454,7 @@ See [test cases](https://github.com/node-fetch/node-fetch/blob/master/test/) for
 
 Perform an HTTP(S) fetch.
 
-`url` should be an absolute url, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected `Promise`.
+`url` should be an absolute URL, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected `Promise`.
 
 <a id="fetch-options"></a>
 
