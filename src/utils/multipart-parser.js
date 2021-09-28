@@ -345,96 +345,96 @@ function _fileName(headerValue) {
 }
 
 export async function toFormData(Body, ct) {
-	let parser;
-	if (/multipart/i.test(ct)) {
-		const m = ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
-		if (m) {
-			parser = new MultipartParser(m[1] || m[2]);
-
-			let headerField;
-			let headerValue;
-			let entryValue;
-			let entryName;
-			let contentType;
-			let filename;
-			const entryChunks = [];
-			const fd = new FormData();
-
-			const onPartData = ui8a => {
-				entryValue += decoder.decode(ui8a, {stream: true});
-			};
-
-			const appendToFile = ui8a => {
-				entryChunks.push(ui8a);
-			};
-
-			const appendFileToFormData = () => {
-				const file = new File(entryChunks, filename, {type: contentType});
-				fd.append(entryName, file);
-			};
-
-			const appendEntryToFormData = () => {
-				fd.append(entryName, entryValue);
-			};
-
-			const decoder = new TextDecoder('utf-8');
-			decoder.decode();
-
-			parser.onPartBegin = function () {
-				parser.onPartData = onPartData;
-				parser.onPartEnd = appendEntryToFormData;
-
-				headerField = '';
-				headerValue = '';
-				entryValue = '';
-				entryName = '';
-				contentType = '';
-				filename = null;
-				entryChunks.length = 0;
-			};
-
-			parser.onHeaderField = function (ui8a) {
-				headerField += decoder.decode(ui8a, {stream: true});
-			};
-
-			parser.onHeaderValue = function (ui8a) {
-				headerValue += decoder.decode(ui8a, {stream: true});
-			};
-
-			parser.onHeaderEnd = function () {
-				headerValue += decoder.decode();
-				headerField = headerField.toLowerCase();
-
-				// matches either a quoted-string or a token (RFC 2616 section 19.5.1)
-				const m = headerValue.match(/\bname=("([^"]*)"|([^()<>@,;:\\"/[\]?={}\s\t]+))/i);
-
-				if (headerField === 'content-disposition') {
-					if (m) {
-						entryName = m[2] || m[3] || '';
-					}
-
-					filename = _fileName(headerValue);
-
-					if (filename) {
-						parser.onPartData = appendToFile;
-						parser.onPartEnd = appendFileToFormData;
-					}
-				} else if (headerField === 'content-type') {
-					contentType = headerValue;
-				}
-			};
-
-			for await (const chunk of Body) {
-				parser.write(chunk);
-			}
-
-			parser.end();
-
-			return fd;
-		}
-
-		throw new TypeError('no or bad content-type header, no multipart boundary');
-	} else {
+	if (!/multipart/i.test(ct)) {
 		throw new TypeError('Failed to fetch');
 	}
+
+	const m = ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+
+	if (!m) {
+		throw new TypeError('no or bad content-type header, no multipart boundary');
+	}
+
+	const parser = new MultipartParser(m[1] || m[2]);
+
+	let headerField;
+	let headerValue;
+	let entryValue;
+	let entryName;
+	let contentType;
+	let filename;
+	const entryChunks = [];
+	const fd = new FormData();
+
+	const onPartData = ui8a => {
+		entryValue += decoder.decode(ui8a, {stream: true});
+	};
+
+	const appendToFile = ui8a => {
+		entryChunks.push(ui8a);
+	};
+
+	const appendFileToFormData = () => {
+		const file = new File(entryChunks, filename, {type: contentType});
+		fd.append(entryName, file);
+	};
+
+	const appendEntryToFormData = () => {
+		fd.append(entryName, entryValue);
+	};
+
+	const decoder = new TextDecoder('utf-8');
+	decoder.decode();
+
+	parser.onPartBegin = function () {
+		parser.onPartData = onPartData;
+		parser.onPartEnd = appendEntryToFormData;
+
+		headerField = '';
+		headerValue = '';
+		entryValue = '';
+		entryName = '';
+		contentType = '';
+		filename = null;
+		entryChunks.length = 0;
+	};
+
+	parser.onHeaderField = function (ui8a) {
+		headerField += decoder.decode(ui8a, {stream: true});
+	};
+
+	parser.onHeaderValue = function (ui8a) {
+		headerValue += decoder.decode(ui8a, {stream: true});
+	};
+
+	parser.onHeaderEnd = function () {
+		headerValue += decoder.decode();
+		headerField = headerField.toLowerCase();
+
+		// matches either a quoted-string or a token (RFC 2616 section 19.5.1)
+		const m = headerValue.match(/\bname=("([^"]*)"|([^()<>@,;:\\"/[\]?={}\s\t]+))/i);
+
+		if (headerField === 'content-disposition') {
+			if (m) {
+				entryName = m[2] || m[3] || '';
+			}
+
+			filename = _fileName(headerValue);
+
+			if (filename) {
+				parser.onPartData = appendToFile;
+				parser.onPartEnd = appendFileToFormData;
+			}
+		} else if (headerField === 'content-type') {
+			contentType = headerValue;
+		}
+	};
+
+	for await (const chunk of Body) {
+		parser.write(chunk);
+	}
+
+	parser.end();
+
+	return fd;
 }
