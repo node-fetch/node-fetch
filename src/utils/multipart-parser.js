@@ -13,7 +13,6 @@ const S = {
 	HEADERS_ALMOST_DONE: s++,
 	PART_DATA_START: s++,
 	PART_DATA: s++,
-	PART_END: s++,
 	END: s++
 };
 
