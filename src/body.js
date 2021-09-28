@@ -51,7 +51,7 @@ export default class Body {
 		} else if (body instanceof Stream) {
 			// Body is stream
 		} else if (isFormData(body)) {
-			// Body is an instance of formdata-node
+			// Body is an spec compatible FormData
 			body = formDataToBlob(body);
 			boundary = body.type.split('=')[1];
 		} else {
