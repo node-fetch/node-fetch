@@ -9,9 +9,6 @@ const NAME = Symbol.toStringTag;
 /**
  * Check if `obj` is a URLSearchParams object
  * ref: https://github.com/node-fetch/node-fetch/issues/296#issuecomment-307598143
- *
- * @param  {*} obj
- * @return {boolean}
  */
 export const isURLSearchParameters = object => {
 	return (
@@ -29,9 +26,6 @@ export const isURLSearchParameters = object => {
 
 /**
  * Check if `object` is a W3C `Blob` object (which `File` inherits from)
- *
- * @param  {*} obj
- * @return {boolean}
  */
 export const isBlob = object => {
 	return (
@@ -47,9 +41,6 @@ export const isBlob = object => {
 
 /**
  * Check if `obj` is an instance of AbortSignal.
- *
- * @param  {*} obj
- * @return {boolean}
  */
 export const isAbortSignal = object => {
 	return (
@@ -59,4 +50,3 @@ export const isAbortSignal = object => {
 		)
 	);
 };
-
