@@ -84,8 +84,8 @@ describe('FormData', () => {
 	});
 
 	it('FormData-node still works thanks to symbol.hasInstance', async () => {
-		const form = new FormData()
-		form.append('file', new Blob(['abc'], {type: 'text/html'}))
+		const form = new FormDataNode();
+		form.append('file', new Blob(['abc'], {type: 'text/html'}));
 		const res = new Response(form);
 		const fd = await res.formData();
 

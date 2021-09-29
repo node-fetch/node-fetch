@@ -430,8 +430,8 @@ export async function toFormData(Body, ct) {
 			contentType = headerValue;
 		}
 
-		headerValue = ''
-		headerField = ''
+		headerValue = '';
+		headerField = '';
 	};
 
 	for await (const chunk of Body) {
