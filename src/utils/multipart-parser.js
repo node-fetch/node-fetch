@@ -34,10 +34,24 @@ const lower = function (c) {
 	return c | 0x20;
 };
 
+const noop = () => {};
+
 class MultipartParser {
+	/**
+	 * @param {string} string
+	 */
 	constructor(string) {
 		this.index = null;
 		this.flags = 0;
+
+		this.onEnd = noop;
+		this.onHeaderEnd = noop;
+		this.onHeaderField = noop;
+		this.onHeadersEnd = noop;
+		this.onHeaderValue = noop;
+		this.onPartBegin = noop;
+		this.onPartData = noop;
+		this.onPartEnd = noop;
 
 		this.boundaryChars = {};
 
@@ -53,6 +67,9 @@ class MultipartParser {
 		this.state = S.START;
 	}
 
+	/**
+	 * @param {Uint8Array} ui8a
+	 */
 	write(ui8a) {
 		let i = 0;
 		const length_ = ui8a.length;
@@ -72,13 +89,8 @@ class MultipartParser {
 			delete this[name + 'Mark'];
 		};
 
-		const callback = (name, start, end, ui8a) => {
-			if (start !== undefined && start === end) {
-				return;
-			}
-
-			const callbackSymbol = 'on' + name.slice(0, 1).toUpperCase() + name.slice(1);
-			if (callbackSymbol in this) {
+		const callback = (callbackSymbol, start, end, ui8a) => {
+			if (start === undefined || start !== end) {
 				this[callbackSymbol](ui8a && ui8a.subarray(start, end));
 			}
 		};
@@ -111,22 +123,22 @@ class MultipartParser {
 						if (c === HYPHEN) {
 							flags |= F.LAST_BOUNDARY;
 						} else if (c !== CR) {
-							return i;
+							return;
 						}
 
 						index++;
 						break;
 					} else if (index - 1 === boundary.length - 2) {
 						if (flags & F.LAST_BOUNDARY && c === HYPHEN) {
-							callback('end');
+							callback('onEnd');
 							state = S.END;
 							flags = 0;
 						} else if (!(flags & F.LAST_BOUNDARY) && c === LF) {
 							index = 0;
-							callback('partBegin');
+							callback('onPartBegin');
 							state = S.HEADER_FIELD_START;
 						} else {
-							return i;
+							return;
 						}
 
 						break;
@@ -143,12 +155,12 @@ class MultipartParser {
 					break;
 				case S.HEADER_FIELD_START:
 					state = S.HEADER_FIELD;
-					mark('headerField');
+					mark('onHeaderField');
 					index = 0;
 					// fallsthrough
 				case S.HEADER_FIELD:
 					if (c === CR) {
-						clear('headerField');
+						clear('onHeaderField');
 						state = S.HEADERS_ALMOST_DONE;
 						break;
 					}
@@ -161,17 +173,17 @@ class MultipartParser {
 					if (c === COLON) {
 						if (index === 1) {
 							// empty header field
-							return i;
+							return;
 						}
 
-						dataCallback('headerField', true);
+						dataCallback('onHeaderField', true);
 						state = S.HEADER_VALUE_START;
 						break;
 					}
 
 					cl = lower(c);
 					if (cl < A || cl > Z) {
-						return i;
+						return;
 					}
 
 					break;
@@ -180,35 +192,35 @@ class MultipartParser {
 						break;
 					}
 
-					mark('headerValue');
+					mark('onHeaderValue');
 					state = S.HEADER_VALUE;
 					// fallsthrough
 				case S.HEADER_VALUE:
 					if (c === CR) {
-						dataCallback('headerValue', true);
-						callback('headerEnd');
+						dataCallback('onHeaderValue', true);
+						callback('onHeaderEnd');
 						state = S.HEADER_VALUE_ALMOST_DONE;
 					}
 
 					break;
 				case S.HEADER_VALUE_ALMOST_DONE:
 					if (c !== LF) {
-						return i;
+						return;
 					}
 
 					state = S.HEADER_FIELD_START;
 					break;
 				case S.HEADERS_ALMOST_DONE:
 					if (c !== LF) {
-						return i;
+						return;
 					}
 
-					callback('headersEnd');
+					callback('onHeadersEnd');
 					state = S.PART_DATA_START;
 					break;
 				case S.PART_DATA_START:
 					state = S.PART_DATA;
-					mark('partData');
+					mark('onPartData');
 					// fallsthrough
 				case S.PART_DATA:
 					previousIndex = index;
@@ -227,7 +239,7 @@ class MultipartParser {
 					if (index < boundary.length) {
 						if (boundary[index] === c) {
 							if (index === 0) {
-								dataCallback('partData', true);
+								dataCallback('onPartData', true);
 							}
 
 							index++;
@@ -251,15 +263,15 @@ class MultipartParser {
 							if (c === LF) {
 								// unset the PART_BOUNDARY flag
 								flags &= ~F.PART_BOUNDARY;
-								callback('partEnd');
-								callback('partBegin');
+								callback('onPartEnd');
+								callback('onPartBegin');
 								state = S.HEADER_FIELD_START;
 								break;
 							}
 						} else if (flags & F.LAST_BOUNDARY) {
 							if (c === HYPHEN) {
-								callback('partEnd');
-								callback('end');
+								callback('onPartEnd');
+								callback('onEnd');
 								state = S.END;
 								flags = 0;
 							} else {
@@ -278,9 +290,9 @@ class MultipartParser {
 						// if our boundary turned out to be rubbish, the captured lookbehind
 						// belongs to partData
 						const _lookbehind = new Uint8Array(lookbehind.buffer, lookbehind.byteOffset, lookbehind.byteLength);
-						callback('partData', 0, previousIndex, _lookbehind);
+						callback('onPartData', 0, previousIndex, _lookbehind);
 						previousIndex = 0;
-						mark('partData');
+						mark('onPartData');
 
 						// reconsider the current character even so it interrupted the sequence
 						// it could be the beginning of a new sequence
@@ -292,34 +304,25 @@ class MultipartParser {
 					break;
 				default:
 					console.info(`Unexpected state entered: ${state}`);
-					return i;
+					return;
 			}
 		}
 
-		dataCallback('headerField');
-		dataCallback('headerValue');
-		dataCallback('partData');
+		dataCallback('onHeaderField');
+		dataCallback('onHeaderValue');
+		dataCallback('onPartData');
 
 		// Update properties for the next call
 		this.index = index;
 		this.state = state;
 		this.flags = flags;
-
-		return length_;
 	}
 
 	end() {
-		function callback(self, name) {
-			const callbackSymbol = 'on' + name.slice(0, 1).toUpperCase() + name.slice(1);
-			if (callbackSymbol in self) {
-				self[callbackSymbol]();
-			}
-		}
-
 		if ((this.state === S.HEADER_FIELD_START && this.index === 0) ||
 			(this.state === S.PART_DATA && this.index === this.boundary.length)) {
-			callback(this, 'partEnd');
-			callback(this, 'end');
+			this.onPartEnd();
+			// this.onEnd();
 		} else if (this.state !== S.END) {
 			throw new Error('MultipartParser.end(): stream ended unexpectedly');
 		}
