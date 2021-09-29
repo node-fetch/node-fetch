@@ -44,7 +44,7 @@ class MultipartParser {
 		this.index = null;
 		this.flags = 0;
 
-		this.onEnd = noop;
+		// this.onEnd = noop;
 		this.onHeaderEnd = noop;
 		this.onHeaderField = noop;
 		this.onHeadersEnd = noop;
@@ -117,7 +117,7 @@ class MultipartParser {
 				case S.START:
 					index = 0;
 					state = S.START_BOUNDARY;
-					// fallsthrough
+					// falls through
 				case S.START_BOUNDARY:
 					if (index === boundary.length - 2) {
 						if (c === HYPHEN) {
@@ -130,7 +130,7 @@ class MultipartParser {
 						break;
 					} else if (index - 1 === boundary.length - 2) {
 						if (flags & F.LAST_BOUNDARY && c === HYPHEN) {
-							callback('onEnd');
+							// callback('onEnd');
 							state = S.END;
 							flags = 0;
 						} else if (!(flags & F.LAST_BOUNDARY) && c === LF) {
@@ -157,7 +157,7 @@ class MultipartParser {
 					state = S.HEADER_FIELD;
 					mark('onHeaderField');
 					index = 0;
-					// fallsthrough
+					// falls through
 				case S.HEADER_FIELD:
 					if (c === CR) {
 						clear('onHeaderField');
@@ -194,7 +194,7 @@ class MultipartParser {
 
 					mark('onHeaderValue');
 					state = S.HEADER_VALUE;
-					// fallsthrough
+					// falls through
 				case S.HEADER_VALUE:
 					if (c === CR) {
 						dataCallback('onHeaderValue', true);
@@ -221,7 +221,7 @@ class MultipartParser {
 				case S.PART_DATA_START:
 					state = S.PART_DATA;
 					mark('onPartData');
-					// fallsthrough
+					// falls through
 				case S.PART_DATA:
 					previousIndex = index;
 
@@ -271,7 +271,7 @@ class MultipartParser {
 						} else if (flags & F.LAST_BOUNDARY) {
 							if (c === HYPHEN) {
 								callback('onPartEnd');
-								callback('onEnd');
+								// callback('onEnd');
 								state = S.END;
 								flags = 0;
 							} else {
@@ -412,10 +412,10 @@ export async function toFormData(Body, ct) {
 		headerValue += decoder.decode();
 		headerField = headerField.toLowerCase();
 
-		// matches either a quoted-string or a token (RFC 2616 section 19.5.1)
-		const m = headerValue.match(/\bname=("([^"]*)"|([^()<>@,;:\\"/[\]?={}\s\t]+))/i);
-
 		if (headerField === 'content-disposition') {
+			// matches either a quoted-string or a token (RFC 2616 section 19.5.1)
+			const m = headerValue.match(/\bname=("([^"]*)"|([^()<>@,;:\\"/[\]?={}\s\t]+))/i);
+
 			if (m) {
 				entryName = m[2] || m[3] || '';
 			}
