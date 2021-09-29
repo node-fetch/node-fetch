@@ -13,7 +13,7 @@ import {FormData, formDataToBlob} from 'formdata-polyfill/esm.min.js';
 
 import {FetchError} from './errors/fetch-error.js';
 import {FetchBaseError} from './errors/base.js';
-import {isBlob, isURLSearchParameters, isFormData} from './utils/is.js';
+import {isBlob, isURLSearchParameters} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -50,7 +50,7 @@ export default class Body {
 			body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 		} else if (body instanceof Stream) {
 			// Body is stream
-		} else if (isFormData(body)) {
+		} else if (body instanceof FormData) {
 			// Body is an spec compatible FormData
 			body = formDataToBlob(body);
 			boundary = body.type.split('=')[1];
@@ -320,7 +320,7 @@ export const extractContentType = (body, request) => {
 		return null;
 	}
 
-	if (isFormData(body)) {
+	if (body instanceof FormData) {
 		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
 	}
 

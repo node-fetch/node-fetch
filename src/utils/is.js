@@ -46,28 +46,6 @@ export const isBlob = object => {
 };
 
 /**
- * Check if `obj` is a spec-compliant `FormData` object
- *
- * @param {*} object
- * @return {boolean}
- */
-export function isFormData(object) {
-	return (
-		typeof object === 'object' &&
-		typeof object.append === 'function' &&
-		typeof object.set === 'function' &&
-		typeof object.get === 'function' &&
-		typeof object.getAll === 'function' &&
-		typeof object.delete === 'function' &&
-		typeof object.keys === 'function' &&
-		typeof object.values === 'function' &&
-		typeof object.entries === 'function' &&
-		typeof object.constructor === 'function' &&
-		object[NAME] === 'FormData'
-	);
-}
-
-/**
  * Check if `obj` is an instance of AbortSignal.
  *
  * @param  {*} obj
