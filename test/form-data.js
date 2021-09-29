@@ -1,3 +1,4 @@
+import {FormData as FormDataNode} from 'formdata-node';
 import {FormData} from 'formdata-polyfill/esm.min.js';
 import {Blob} from 'fetch-blob/from.js';
 import chai from 'chai';
@@ -80,5 +81,15 @@ describe('FormData', () => {
 		const fd = await new Response(form).formData();
 
 		expect(fd.get('blob').size).to.equal(13);
+	});
+
+	it('FormData-node still works thanks to symbol.hasInstance', async () => {
+		const form = new FormData()
+		form.append('file', new Blob(['abc'], {type: 'text/html'}))
+		const res = new Response(form);
+		const fd = await res.formData();
+
+		expect(await fd.get('file').text()).to.equal('abc');
+		expect(fd.get('file').type).to.equal('text/html');
 	});
 });

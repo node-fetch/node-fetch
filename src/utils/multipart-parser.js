@@ -429,6 +429,9 @@ export async function toFormData(Body, ct) {
 		} else if (headerField === 'content-type') {
 			contentType = headerValue;
 		}
+
+		headerValue = ''
+		headerField = ''
 	};
 
 	for await (const chunk of Body) {
