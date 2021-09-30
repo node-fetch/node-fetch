@@ -54,8 +54,8 @@
     "chai-string": "^1.5.0",
     "coveralls": "^3.1.0",
     "delay": "^5.0.0",
-    "formdata-node": "^4.2.4",
     "form-data": "^4.0.0",
+    "formdata-node": "^4.2.4",
     "mocha": "^8.3.2",
     "p-timeout": "^5.0.0",
     "tsd": "^0.14.0",
@@ -64,7 +64,7 @@
   "dependencies": {
     "data-uri-to-buffer": "^3.0.1",
     "fetch-blob": "^3.1.2",
-    "formdata-polyfill": "^4.0.9"
+    "formdata-polyfill": "^4.0.10"
   },
   "tsd": {
     "cwd": "@types",
