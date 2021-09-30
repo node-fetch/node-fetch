@@ -5,7 +5,7 @@ import http from 'http';
 import fs from 'fs';
 import stream from 'stream';
 import path from 'path';
-import {lookup} from 'dns';
+import dns from 'dns';
 import vm from 'vm';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
@@ -16,6 +16,8 @@ import {FormData as FormDataNode} from 'formdata-node';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
+import { callbackify, promisify } from 'util';
+import { createConnection } from 'happy-eyeballs';
 
 // Test subjects
 import Blob from 'fetch-blob';
@@ -2216,7 +2218,7 @@ describe('node-fetch', () => {
 			called++;
 
 			// eslint-disable-next-line node/prefer-promises/dns
-			return lookup(hostname, options, callback);
+			return dns.lookup(hostname, options, callback);
 		}
 
 		const agent = http.Agent({lookup: lookupSpy});
@@ -2225,7 +2227,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('supports supplying a famliy option to the agent', () => {
+	it.only('supports supplying a famliy option to the agent', () => {
 		const url = `${base}redirect/301`;
 		const families = [];
 		const family = Symbol('family');
@@ -2233,7 +2235,7 @@ describe('node-fetch', () => {
 			families.push(options.family);
 
 			// eslint-disable-next-line node/prefer-promises/dns
-			return lookup(hostname, {}, callback);
+			return dns.lookup(hostname, {}, callback);
 		}
 
 		const agent = http.Agent({lookup: lookupSpy, family});
@@ -2362,5 +2364,106 @@ describe('node-fetch using IPv6', () => {
 			expect(res.status).to.equal(200);
 			expect(res.statusText).to.equal('OK');
 		});
+	});
+});
+
+describe.only('node-fetch using happy eyeballs (rfc 8305)', () => {
+	const local = new TestServer();
+	let base, url;
+
+	before(async () => {
+		await local.start();
+		base = `http://localhost:${local.port}/`;
+		url = new URL(base);
+	});
+
+	after(async () => {
+		return local.stop();
+	});
+
+	const getFakeAddresses = num => {
+		const result = [];
+		while (--num) {
+			result.push({
+				family: 6,
+				address: 'dead::' + num.toString(16),
+			}, {
+				family: 4,
+				address: '192.168.1.' + num,
+			})
+		}
+		return result;
+	};
+	const lookupAsync = promisify(dns.lookup);
+	const mock = fn => (_hostname, options, cb) => lookupAsync(_hostname, {
+				all: true,
+				family: 0,
+				verbatim: true,
+				...options,
+			}).then(real => {
+				if (url.hostname !== _hostname) {
+					return cb(null, real);
+				}
+				return cb(null, fn(real));
+			}).catch(err => {
+				cb(err);
+			})
+
+	it.only('should succeed with incorrect addresses prepended to correct', () => {
+		return fetch(url.href, {
+			agent: new http.Agent({
+				delay: 1,
+				// lookup: mock(real => [...getFakeAddresses(1), ...real]),
+				createConnection: 'cc',
+			})
+		}).then(() => {
+			expect(resp.status).to.be(200);
+		});
+	});
+
+	it('fail with all incorrect addresses', async () => {
+		try {
+			await fetch(url.href, {
+				timeout: 1,
+				agent: new http.Agent({
+					delay: 2,
+					lookup: () => getFakeAddresses(20),
+				})
+			}).to.throw()
+				.and.have.property('message').that.include('timeout');
+		} catch (err) {
+			expect(err.message.includes('timeout')).to.be.true;
+		}
+	})
+	it('should connect when spamming all IPs with many incorrect addresses', async () => {
+		const start = Date.now();
+		await fetch(url.href, {
+			agent: new http.Agent({
+				lookup: mock(real => [...getFakeAddresses(20), ...real]),
+				delay: 1,
+			})
+		})
+		if (start - Date.now() > 1000) {
+			throw new Error('Could not connect in time.')
+		}
+	});
+
+	it('can abort requests', async () => {
+		const ac = new AbortController();
+		try {
+			const prom = fetch(url.href, {
+				signal: ac.signal,
+				agent: new http.Agent({
+					delay: 1,
+					lookup: mock(() => getFakeAddresses(1)),
+
+				})
+			});
+			ac.abort();
+			await prom;
+			throw new Error('Request was not aborted.');
+		} catch (err) {
+			expect(err.name).to.be('AbortError');
+		}
 	});
 });

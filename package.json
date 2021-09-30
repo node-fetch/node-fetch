@@ -14,7 +14,7 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --async-stack-traces",
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "test-types": "tsd",
     "lint": "xo"
@@ -56,6 +56,7 @@
     "delay": "^5.0.0",
     "form-data": "^4.0.0",
     "formdata-node": "^3.5.4",
+    "happy-eyeballs": "^0.0.6",
     "mocha": "^8.3.2",
     "p-timeout": "^5.0.0",
     "tsd": "^0.14.0",

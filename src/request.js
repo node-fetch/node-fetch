@@ -12,6 +12,7 @@ import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
+import { httpAgent, httpsAgent } from './agent.js';
 
 const INTERNALS = Symbol('Request internals');
 
@@ -105,7 +106,10 @@ export default class Request extends Body {
 		this.follow = init.follow === undefined ? (input.follow === undefined ? 20 : input.follow) : init.follow;
 		this.compress = init.compress === undefined ? (input.compress === undefined ? true : input.compress) : init.compress;
 		this.counter = init.counter || input.counter || 0;
-		this.agent = init.agent || input.agent;
+		this.agent = init.agent || input.agent || (parsedURL.protocol === 'https:' ? httpsAgent : httpAgent);
+		this.family = 0;
+		this.verbatim = true;
+		this.all = true;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
 		this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
 	}
@@ -219,7 +223,11 @@ export const getNodeRequestOptions = request => {
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		insecureHTTPParser: request.insecureHTTPParser,
-		agent
+		agent,
+		createConnection,
+		verbatim: true,
+		family: 0,
+		all: true,
 	};
 
 	return {
@@ -227,3 +235,4 @@ export const getNodeRequestOptions = request => {
 		options
 	};
 };
+
