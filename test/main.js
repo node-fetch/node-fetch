@@ -6,6 +6,8 @@ import fs from 'fs';
 import stream from 'stream';
 import path from 'path';
 import dns from 'dns';
+import net from 'net';
+import { once } from 'events';
 import vm from 'vm';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
@@ -17,7 +19,7 @@ import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import { callbackify, promisify } from 'util';
-import { createConnection } from 'happy-eyeballs';
+import { DefaultHttpAgent, DefaultHttpsAgent } from '../src/agent.js';
 
 // Test subjects
 import Blob from 'fetch-blob';
@@ -36,6 +38,7 @@ import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
 import chaiTimeout from './utils/chai-timeout.js';
+import { log } from 'console';
 
 const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
@@ -2227,7 +2230,7 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it.only('supports supplying a famliy option to the agent', () => {
+	it('supports supplying a famliy option to the agent', () => {
 		const url = `${base}redirect/301`;
 		const families = [];
 		const family = Symbol('family');
@@ -2367,81 +2370,104 @@ describe('node-fetch using IPv6', () => {
 	});
 });
 
-describe.only('node-fetch using happy eyeballs (rfc 8305)', () => {
+describe('node-fetch using happy eyeballs (rfc 8305)', () => {
 	const local = new TestServer();
-	let base, url;
+	const timeoutServer = new net.Server();
+	let url, timeoutUrl;
+	const timeoutConnections = [];
 
 	before(async () => {
-		await local.start();
-		base = `http://localhost:${local.port}/`;
-		url = new URL(base);
+		timeoutServer.listen(0, 'localhost');
+		timeoutServer.on('connection', timeoutConnections.push)
+		await Promise.all([
+			once(timeoutServer, 'listening'),
+			local.start(),
+		])
+		url = new URL(`http://localhost:${local.port}/`);
+		timeoutUrl = new URL(`https://localhost:${timeoutServer.address().port}/`);
 	});
 
+
 	after(async () => {
-		return local.stop();
+		timeoutServer.close();
+		for (const connection of timeoutConnections) {
+			connection.destroy();
+		}
+		return Promise.all([
+			local.stop(),
+			once(timeoutServer, 'close'),
+		])
 	});
 
 	const getFakeAddresses = num => {
 		const result = [];
-		while (--num) {
-			result.push({
+		while (num--) {
+			result.push(
+			{
 				family: 6,
 				address: 'dead::' + num.toString(16),
 			}, {
 				family: 4,
-				address: '192.168.1.' + num,
+				address: '192.168.54' + num,
 			})
 		}
 		return result;
 	};
 	const lookupAsync = promisify(dns.lookup);
-	const mock = fn => (_hostname, options, cb) => lookupAsync(_hostname, {
-				all: true,
-				family: 0,
-				verbatim: true,
-				...options,
-			}).then(real => {
-				if (url.hostname !== _hostname) {
-					return cb(null, real);
-				}
-				return cb(null, fn(real));
-			}).catch(err => {
-				cb(err);
-			})
+	const mockLookup = fn => callbackify(async (_hostname, options) => {
+		const real = await lookupAsync(_hostname, {
+			all: true,
+			family: 0,
+			verbatim: true,
+			...options,
+		});
+		if (url.hostname !== _hostname) {
+			return real;
+		}
+		return await fn(real);
+	})
 
-	it.only('should succeed with incorrect addresses prepended to correct', () => {
-		return fetch(url.href, {
-			agent: new http.Agent({
-				delay: 1,
-				// lookup: mock(real => [...getFakeAddresses(1), ...real]),
-				createConnection: 'cc',
+	const mockAgent = options => new DefaultHttpAgent({
+		delay: 1,
+		lookup: dns.lookup,
+		...options,
+	})
+
+	const mockTimeoutAgent = options => new DefaultHttpsAgent({
+		delay: 1,
+		lookup: dns.lookup,
+		...options,
+	})
+
+	it('should succeed with incorrect addresses prepended to correct', () => {
+		return fetch(`${url.href}hello`, {
+			agent: mockAgent({
+				lookup: mockLookup(real => [...getFakeAddresses(1), ...real]),
 			})
-		}).then(() => {
-			expect(resp.status).to.be(200);
+		}).then(resp => {
+			expect(resp.status).to.equal(200);
 		});
 	});
 
-	it('fail with all incorrect addresses', async () => {
-		try {
-			await fetch(url.href, {
+	it('fail with all incorrect addresses', () => {
+		return expect(fetch(`${timeoutUrl.href}hello`, {
 				timeout: 1,
-				agent: new http.Agent({
-					delay: 2,
-					lookup: () => getFakeAddresses(20),
-				})
-			}).to.throw()
-				.and.have.property('message').that.include('timeout');
-		} catch (err) {
-			expect(err.message.includes('timeout')).to.be.true;
-		}
-	})
+			agent: mockTimeoutAgent({
+				timeout: 1,
+				delay:2,
+				lookup: mockLookup(() => getFakeAddresses(5)),
+			}),
+		})).to.eventually.be.rejected
+			.and.have.property('message').that.include('timed out');
+	});
+
 	it('should connect when spamming all IPs with many incorrect addresses', async () => {
 		const start = Date.now();
-		await fetch(url.href, {
-			agent: new http.Agent({
-				lookup: mock(real => [...getFakeAddresses(20), ...real]),
-				delay: 1,
-			})
+		await fetch('https://google.com', {
+			timeout: 200,
+			agent: mockTimeoutAgent({
+				lookup: mockLookup(real => [...getFakeAddresses(20), ...real]),
+			}),
 		})
 		if (start - Date.now() > 1000) {
 			throw new Error('Could not connect in time.')
@@ -2453,17 +2479,16 @@ describe.only('node-fetch using happy eyeballs (rfc 8305)', () => {
 		try {
 			const prom = fetch(url.href, {
 				signal: ac.signal,
-				agent: new http.Agent({
-					delay: 1,
-					lookup: mock(() => getFakeAddresses(1)),
-
-				})
+				delay: 1000,
+				agent: mockAgent({
+					lookup: mockLookup(() => getFakeAddresses(1)),
+				}),
 			});
 			ac.abort();
 			await prom;
 			throw new Error('Request was not aborted.');
 		} catch (err) {
-			expect(err.name).to.be('AbortError');
+			expect(err.name).to.equal('AbortError');
 		}
 	});
 });

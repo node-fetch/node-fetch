@@ -2,13 +2,13 @@ import { createConnection } from 'happy-eyeballs';
 import {Agent as HttpAgent} from 'http';
 import {Agent as HttpsAgent} from 'https';
 
-class HappyEyeballsHttpAgent extends HttpAgent {
+export class DefaultHttpAgent extends HttpAgent {
   createConnection = createConnection;
 }
 
-class HappyEyeballsHttpsAgent extends HttpsAgent {
+export class DefaultHttpsAgent extends HttpsAgent {
   createConnection = createConnection;
 }
 
-export const httpAgent = new HappyEyeballsHttpAgent();
-export const httpsAgent = new HappyEyeballsHttpsAgent();
+export const defaultHttpAgent = new DefaultHttpAgent();
+export const defaultHttpsAgent = new DefaultHttpsAgent();
