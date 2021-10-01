@@ -109,14 +109,14 @@ export default class Body {
 		const ct = this.headers.get('content-type');
 
 		if (ct.startsWith('application/x-www-form-urlencoded')) {
-			const fd = new FormData();
+			const formData = new FormData();
 			const parameters = new URLSearchParams(await this.text());
 
 			for (const [name, value] of parameters) {
-				fd.append(name, value);
+				formData.append(name, value);
 			}
 
-			return fd;
+			return formData;
 		}
 
 		const {toFormData} = await import('./utils/multipart-parser.js');

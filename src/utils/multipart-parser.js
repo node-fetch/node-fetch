@@ -365,7 +365,7 @@ export async function toFormData(Body, ct) {
 	let contentType;
 	let filename;
 	const entryChunks = [];
-	const fd = new FormData();
+	const formData = new FormData();
 
 	const onPartData = ui8a => {
 		entryValue += decoder.decode(ui8a, {stream: true});
@@ -377,11 +377,11 @@ export async function toFormData(Body, ct) {
 
 	const appendFileToFormData = () => {
 		const file = new File(entryChunks, filename, {type: contentType});
-		fd.append(entryName, file);
+		formData.append(entryName, file);
 	};
 
 	const appendEntryToFormData = () => {
-		fd.append(entryName, entryValue);
+		formData.append(entryName, entryValue);
 	};
 
 	const decoder = new TextDecoder('utf-8');
@@ -440,5 +440,5 @@ export async function toFormData(Body, ct) {
 
 	parser.end();
 
-	return fd;
+	return formData;
 }
