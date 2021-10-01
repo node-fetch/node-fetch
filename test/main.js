@@ -14,7 +14,7 @@ import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
-import {FormData as FormDataNode} from 'formdata-node';
+import { FormData as FormDataNode } from 'formdata-node';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
@@ -23,7 +23,7 @@ import { DefaultHttpAgent, DefaultHttpsAgent } from '../src/agent.js';
 
 // Test subjects
 import Blob from 'fetch-blob';
-import {fileFromSync} from 'fetch-blob/from.js';
+import { fileFromSync } from 'fetch-blob/from.js';
 
 import fetch, {
 	FetchError,
@@ -31,19 +31,18 @@ import fetch, {
 	Request,
 	Response
 } from '../src/index.js';
-import {FetchError as FetchErrorOrig} from '../src/errors/fetch-error.js';
-import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
+import { FetchError as FetchErrorOrig } from '../src/errors/fetch-error.js';
+import HeadersOrig, { fromRawHeaders } from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body, {getTotalBytes, extractContentType} from '../src/body.js';
+import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import TestServer from './utils/server.js';
 import chaiTimeout from './utils/chai-timeout.js';
-import { log } from 'console';
 
 const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 
 function isNodeLowerThan(version) {
-	return !~process.version.localeCompare(version, undefined, {numeric: true});
+	return !~process.version.localeCompare(version, undefined, { numeric: true });
 }
 
 const {
@@ -54,7 +53,7 @@ chai.use(chaiPromised);
 chai.use(chaiIterator);
 chai.use(chaiString);
 chai.use(chaiTimeout);
-const {expect} = chai;
+const { expect } = chai;
 
 function streamToPromise(stream, dataHandler) {
 	return new Promise((resolve, reject) => {
@@ -121,7 +120,7 @@ describe('node-fetch', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'});
+			.and.include({ type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED' });
 	});
 
 	it('error should contain system error if one occurred', () => {
@@ -208,7 +207,7 @@ describe('node-fetch', () => {
 			return res.json().then(result => {
 				expect(res.bodyUsed).to.be.true;
 				expect(result).to.be.an('object');
-				expect(result).to.deep.equal({name: 'value'});
+				expect(result).to.deep.equal({ name: 'value' });
 			});
 		});
 	});
@@ -216,7 +215,7 @@ describe('node-fetch', () => {
 	it('should send request with custom headers', () => {
 		const url = `${base}inspect`;
 		const options = {
-			headers: {'x-custom-header': 'abc'}
+			headers: { 'x-custom-header': 'abc' }
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -228,7 +227,7 @@ describe('node-fetch', () => {
 	it('should accept headers instance', () => {
 		const url = `${base}inspect`;
 		const options = {
-			headers: new Headers({'x-custom-header': 'abc'})
+			headers: new Headers({ 'x-custom-header': 'abc' })
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -501,7 +500,7 @@ describe('node-fetch', () => {
 	it('should follow redirect code 301 and keep existing headers', () => {
 		const url = `${base}redirect/301`;
 		const options = {
-			headers: new Headers({'x-custom-header': 'abc'})
+			headers: new Headers({ 'x-custom-header': 'abc' })
 		};
 		return fetch(url, options).then(res => {
 			expect(res.url).to.equal(`${base}inspect`);
@@ -920,7 +919,7 @@ describe('node-fetch', () => {
 			.then(res => {
 				expect(res.status).to.equal(200);
 			})
-			.catch(() => {})
+			.catch(() => { })
 			.then(() => {
 				// Wait a few ms to see if a uncaught error occurs
 				setTimeout(() => {
@@ -983,7 +982,7 @@ describe('node-fetch', () => {
 							signal: controller.signal,
 							headers: {
 								'Content-Type': 'application/json',
-								body: JSON.stringify({hello: 'world'})
+								body: JSON.stringify({ hello: 'world' })
 							}
 						}
 					)
@@ -1004,7 +1003,7 @@ describe('node-fetch', () => {
 
 			it('should support multiple request cancellation with signal', () => {
 				const fetches = [
-					fetch(`${base}timeout`, {signal: controller.signal}),
+					fetch(`${base}timeout`, { signal: controller.signal }),
 					fetch(
 						`${base}timeout`,
 						{
@@ -1012,7 +1011,7 @@ describe('node-fetch', () => {
 							signal: controller.signal,
 							headers: {
 								'Content-Type': 'application/json',
-								body: JSON.stringify({hello: 'world'})
+								body: JSON.stringify({ hello: 'world' })
 							}
 						}
 					)
@@ -1075,7 +1074,7 @@ describe('node-fetch', () => {
 			it('should reject response body with AbortError when aborted before stream has been read completely', () => {
 				return expect(fetch(
 					`${base}slow`,
-					{signal: controller.signal}
+					{ signal: controller.signal }
 				))
 					.to.eventually.be.fulfilled
 					.then(res => {
@@ -1091,7 +1090,7 @@ describe('node-fetch', () => {
 			it('should reject response body methods immediately with AbortError when aborted before stream is disturbed', () => {
 				return expect(fetch(
 					`${base}slow`,
-					{signal: controller.signal}
+					{ signal: controller.signal }
 				))
 					.to.eventually.be.fulfilled
 					.then(res => {
@@ -1106,7 +1105,7 @@ describe('node-fetch', () => {
 			it('should emit error event to response body with an AbortError when aborted before underlying stream is closed', done => {
 				expect(fetch(
 					`${base}slow`,
-					{signal: controller.signal}
+					{ signal: controller.signal }
 				))
 					.to.eventually.be.fulfilled
 					.then(res => {
@@ -1121,11 +1120,11 @@ describe('node-fetch', () => {
 			});
 
 			it('should cancel request body of type Stream with AbortError when aborted', () => {
-				const body = new stream.Readable({objectMode: true});
-				body._read = () => {};
+				const body = new stream.Readable({ objectMode: true });
+				body._read = () => { };
 				const promise = fetch(
 					`${base}slow`,
-					{signal: controller.signal, body, method: 'POST'}
+					{ signal: controller.signal, body, method: 'POST' }
 				);
 
 				const result = Promise.all([
@@ -1160,13 +1159,13 @@ describe('node-fetch', () => {
 		() => {
 			it('should remove internal AbortSignal event listener after request is aborted', () => {
 				const controller = new AbortControllerPolyfill();
-				const {signal} = controller;
+				const { signal } = controller;
 
 				setTimeout(() => {
 					controller.abort();
 				}, 20);
 
-				return expect(fetch(`${base}timeout`, {signal}))
+				return expect(fetch(`${base}timeout`, { signal }))
 					.to.eventually.be.rejected
 					.and.be.an.instanceof(Error)
 					.and.have.property('name', 'AbortError')
@@ -1177,11 +1176,11 @@ describe('node-fetch', () => {
 
 			it('should remove internal AbortSignal event listener after request and response complete without aborting', () => {
 				const controller = new AbortControllerPolyfill();
-				const {signal} = controller;
-				const fetchHtml = fetch(`${base}html`, {signal})
+				const { signal } = controller;
+				const fetchHtml = fetch(`${base}html`, { signal })
 					.then(res => res.text());
-				const fetchResponseError = fetch(`${base}error/reset`, {signal});
-				const fetchRedirect = fetch(`${base}redirect/301`, {signal}).then(res => res.json());
+				const fetchResponseError = fetch(`${base}error/reset`, { signal });
+				const fetchRedirect = fetch(`${base}redirect/301`, { signal }).then(res => res.json());
 				return Promise.all([
 					expect(fetchHtml).to.eventually.be.fulfilled.and.equal('<html></html>'),
 					expect(fetchResponseError).to.be.eventually.rejected,
@@ -1201,15 +1200,15 @@ describe('node-fetch', () => {
 
 	it('should throw a TypeError if a signal is not of type AbortSignal or EventTarget', () => {
 		return Promise.all([
-			expect(fetch(`${base}inspect`, {signal: {}}))
+			expect(fetch(`${base}inspect`, { signal: {} }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal'),
-			expect(fetch(`${base}inspect`, {signal: ''}))
+			expect(fetch(`${base}inspect`, { signal: '' }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal'),
-			expect(fetch(`${base}inspect`, {signal: Object.create(null)}))
+			expect(fetch(`${base}inspect`, { signal: Object.create(null) }))
 				.to.be.eventually.rejected
 				.and.be.an.instanceof(TypeError)
 				.and.have.property('message').includes('AbortSignal')
@@ -1218,10 +1217,10 @@ describe('node-fetch', () => {
 
 	it('should gracefully handle a nullish signal', () => {
 		return Promise.all([
-			fetch(`${base}hello`, {signal: null}).then(res => {
+			fetch(`${base}hello`, { signal: null }).then(res => {
 				return expect(res.ok).to.be.true;
 			}),
-			fetch(`${base}hello`, {signal: undefined}).then(res => {
+			fetch(`${base}hello`, { signal: undefined }).then(res => {
 				return expect(res.ok).to.be.true;
 			})
 		]);
@@ -1551,7 +1550,7 @@ describe('node-fetch', () => {
 		// Note that fetch simply calls tostring on an object
 		const options = {
 			method: 'POST',
-			body: {a: 1}
+			body: { a: 1 }
 		};
 		return fetch(url, options).then(res => {
 			return res.json();
@@ -1572,7 +1571,7 @@ describe('node-fetch', () => {
 
 	it('constructing a Request with URLSearchParams as body should have a Content-Type', () => {
 		const parameters = new URLSearchParams();
-		const request = new Request(base, {method: 'POST', body: parameters});
+		const request = new Request(base, { method: 'POST', body: parameters });
 		expect(request.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded;charset=UTF-8');
 	});
 
@@ -1587,7 +1586,7 @@ describe('node-fetch', () => {
 	// Body should been cloned...
 	it('constructing a Request/Response with URLSearchParams and mutating it should not affected body', () => {
 		const parameters = new URLSearchParams();
-		const request = new Request(`${base}inspect`, {method: 'POST', body: parameters});
+		const request = new Request(`${base}inspect`, { method: 'POST', body: parameters });
 		parameters.append('a', '1');
 		return request.text().then(text => {
 			expect(text).to.equal('');
@@ -1614,7 +1613,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should still recognize URLSearchParams when extended', () => {
-		class CustomSearchParameters extends URLSearchParams {}
+		class CustomSearchParameters extends URLSearchParams { }
 		const parameters = new CustomSearchParameters();
 		parameters.append('a', '1');
 
@@ -1636,7 +1635,7 @@ describe('node-fetch', () => {
 	/* For 100% code coverage, checks for duck-typing-only detection
 	 * where both constructor.name and brand tests fail */
 	it('should still recognize URLSearchParams when extended from polyfill', () => {
-		class CustomPolyfilledSearchParameters extends URLSearchParams {}
+		class CustomPolyfilledSearchParameters extends URLSearchParams { }
 		const parameters = new CustomPolyfilledSearchParameters();
 		parameters.append('a', '1');
 
@@ -1854,7 +1853,7 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return Promise.all([res.json(), r1.text()]).then(results => {
-				expect(results[0]).to.deep.equal({name: 'value'});
+				expect(results[0]).to.deep.equal({ name: 'value' });
 				expect(results[1]).to.equal('{"name":"value"}');
 			});
 		});
@@ -1865,7 +1864,7 @@ describe('node-fetch', () => {
 		return fetch(url).then(res => {
 			const r1 = res.clone();
 			return res.json().then(result => {
-				expect(result).to.deep.equal({name: 'value'});
+				expect(result).to.deep.equal({ name: 'value' });
 				return r1.text().then(result => {
 					expect(result).to.equal('{"name":"value"}');
 				});
@@ -1880,7 +1879,7 @@ describe('node-fetch', () => {
 			return r1.text().then(result => {
 				expect(result).to.equal('{"name":"value"}');
 				return res.json().then(result => {
-					expect(result).to.deep.equal({name: 'value'});
+					expect(result).to.deep.equal({ name: 'value' });
 				});
 			});
 		});
@@ -1929,7 +1928,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, { highWaterMark: 10 }).then(res => res.clone().buffer())
 		).to.timeout;
 	});
 
@@ -1963,7 +1962,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, { highWaterMark: 10 }).then(res => res.clone().buffer())
 		).not.to.timeout;
 	});
 
@@ -1978,7 +1977,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes((2 * 512 * 1024) - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
+			fetch(url, { highWaterMark: 512 * 1024 }).then(res => res.clone().buffer())
 		).not.to.timeout;
 	});
 
@@ -2132,7 +2131,7 @@ describe('node-fetch', () => {
 				method: 'POST',
 				body: blob
 			});
-		}).then(res => res.json()).then(({body, headers}) => {
+		}).then(res => res.json()).then(({ body, headers }) => {
 			expect(body).to.equal('world');
 			expect(headers['content-type']).to.equal(type);
 			expect(headers['content-length']).to.equal(String(length));
@@ -2200,17 +2199,17 @@ describe('node-fetch', () => {
 
 	// Issue #414
 	it('should reject if attempt to accumulate body stream throws', () => {
-		const res = new Response(stream.Readable.from((async function * () {
+		const res = new Response(stream.Readable.from((async function* () {
 			yield Buffer.from('tada');
 			await new Promise(resolve => {
 				setTimeout(resolve, 200);
 			});
-			yield {tada: 'yes'};
+			yield { tada: 'yes' };
 		})()));
 
 		return expect(res.text()).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({type: 'system'})
+			.and.include({ type: 'system' })
 			.and.have.property('message').that.include('Could not create Buffer');
 	});
 
@@ -2224,8 +2223,8 @@ describe('node-fetch', () => {
 			return dns.lookup(hostname, options, callback);
 		}
 
-		const agent = http.Agent({lookup: lookupSpy});
-		return fetch(url, {agent}).then(() => {
+		const agent = http.Agent({ lookup: lookupSpy });
+		return fetch(url, { agent }).then(() => {
 			expect(called).to.equal(2);
 		});
 	});
@@ -2241,8 +2240,8 @@ describe('node-fetch', () => {
 			return dns.lookup(hostname, {}, callback);
 		}
 
-		const agent = http.Agent({lookup: lookupSpy, family});
-		return fetch(url, {agent}).then(() => {
+		const agent = http.Agent({ lookup: lookupSpy, family });
+		return fetch(url, { agent }).then(() => {
 			expect(families).to.have.length(2);
 			expect(families[0]).to.equal(family);
 			expect(families[1]).to.equal(family);
@@ -2284,7 +2283,7 @@ describe('node-fetch', () => {
 			size: 1024
 		});
 
-		const blobBody = new Blob([bodyContent], {type: 'text/plain'});
+		const blobBody = new Blob([bodyContent], { type: 'text/plain' });
 		const blobRequest = new Request(url, {
 			method: 'POST',
 			body: blobBody,
@@ -2370,45 +2369,30 @@ describe('node-fetch using IPv6', () => {
 	});
 });
 
-describe('node-fetch using happy eyeballs (rfc 8305)', () => {
+describe.only('node-fetch using happy eyeballs (rfc 8305)', () => {
 	const local = new TestServer();
-	const timeoutServer = new net.Server();
-	let url, timeoutUrl;
-	const timeoutConnections = [];
+	let url;
 
 	before(async () => {
-		timeoutServer.listen(0, 'localhost');
-		timeoutServer.on('connection', timeoutConnections.push)
-		await Promise.all([
-			once(timeoutServer, 'listening'),
-			local.start(),
-		])
+		await local.start();
 		url = new URL(`http://localhost:${local.port}/`);
-		timeoutUrl = new URL(`https://localhost:${timeoutServer.address().port}/`);
 	});
 
 
-	after(async () => {
-		timeoutServer.close();
-		for (const connection of timeoutConnections) {
-			connection.destroy();
-		}
-		return Promise.all([
-			local.stop(),
-			once(timeoutServer, 'close'),
-		])
+	after(() => {
+		return local.stop();
 	});
 
 	const getFakeAddresses = num => {
 		const result = [];
 		while (num--) {
 			result.push(
-			{
-				family: 6,
-				address: 'dead::' + num.toString(16),
-			}, {
+				{
+					family: 6,
+					address: 'dead::' + num.toString(16),
+				}, {
 				family: 4,
-				address: '192.168.54' + num,
+				address: '192.168.54.' + num,
 			})
 		}
 		return result;
@@ -2431,13 +2415,7 @@ describe('node-fetch using happy eyeballs (rfc 8305)', () => {
 		delay: 1,
 		lookup: dns.lookup,
 		...options,
-	})
-
-	const mockTimeoutAgent = options => new DefaultHttpsAgent({
-		delay: 1,
-		lookup: dns.lookup,
-		...options,
-	})
+	});
 
 	it('should succeed with incorrect addresses prepended to correct', () => {
 		return fetch(`${url.href}hello`, {
@@ -2450,12 +2428,11 @@ describe('node-fetch using happy eyeballs (rfc 8305)', () => {
 	});
 
 	it('fail with all incorrect addresses', () => {
-		return expect(fetch(`${timeoutUrl.href}hello`, {
+		return expect(fetch(`${url.href}hello`, {
+			agent: mockAgent({
 				timeout: 1,
-			agent: mockTimeoutAgent({
-				timeout: 1,
-				delay:2,
-				lookup: mockLookup(() => getFakeAddresses(5)),
+				delay: 1,
+				lookup: mockLookup(() => getFakeAddresses(20)),
 			}),
 		})).to.eventually.be.rejected
 			.and.have.property('message').that.include('timed out');
@@ -2463,12 +2440,12 @@ describe('node-fetch using happy eyeballs (rfc 8305)', () => {
 
 	it('should connect when spamming all IPs with many incorrect addresses', async () => {
 		const start = Date.now();
-		await fetch('https://google.com', {
-			timeout: 200,
-			agent: mockTimeoutAgent({
+		const resp = await fetch(`${url.href}hello`, {
+			agent: mockAgent({
 				lookup: mockLookup(real => [...getFakeAddresses(20), ...real]),
 			}),
 		})
+		expect(await resp.text()).to.equal('world');
 		if (start - Date.now() > 1000) {
 			throw new Error('Could not connect in time.')
 		}
@@ -2477,15 +2454,14 @@ describe('node-fetch using happy eyeballs (rfc 8305)', () => {
 	it('can abort requests', async () => {
 		const ac = new AbortController();
 		try {
-			const prom = fetch(url.href, {
+			ac.abort();
+			await fetch(url.href, {
 				signal: ac.signal,
 				delay: 1000,
 				agent: mockAgent({
 					lookup: mockLookup(() => getFakeAddresses(1)),
 				}),
 			});
-			ac.abort();
-			await prom;
 			throw new Error('Request was not aborted.');
 		} catch (err) {
 			expect(err.name).to.equal('AbortError');

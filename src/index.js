@@ -164,7 +164,6 @@ export default async function fetch(url, options_) {
 							follow: request.follow,
 							counter: request.counter + 1,
 							agent: request.agent,
-							createConnection: request.createConnection,
 							compress: request.compress,
 							method: request.method,
 							body: clone(request),
