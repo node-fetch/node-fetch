@@ -2342,11 +2342,11 @@ describe('node-fetch', () => {
 			result.push(
 				{
 					family: 6,
-					address: 'dead::' + num.toString(16),
+					address: '2001:db8:ffff:ffff:ffff:ffff:ffff:'	 + num.toString(16),
 				},
 				{
 					family: 4,
-					address: '123.123.123' + num,
+					address: '192.0.2.' + num,
 				},
 			)
 		}
