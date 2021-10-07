@@ -1,10 +1,10 @@
 import http from 'http';
 import zlib from 'zlib';
-import Busboy from 'busboy';
 import {once} from 'events';
+import Busboy from 'busboy';
 
 export default class TestServer {
-	constructor() {
+	constructor(hostname) {
 		this.server = http.createServer(this.router);
 		// Node 8 default keepalive timeout is 5000ms
 		// make it shorter here as we want to close server quickly at the end of tests
@@ -15,10 +15,18 @@ export default class TestServer {
 		this.server.on('connection', socket => {
 			socket.setTimeout(1500);
 		});
+		this.hostname = hostname || 'localhost';
 	}
 
 	async start() {
-		this.server.listen(0, 'localhost');
+		let host = this.hostname;
+		if (host.startsWith('[')) {
+			// If we're trying to listen on an IPv6 literal hostname, strip the
+			// square brackets before binding to the IPv6 address
+			host = host.slice(1, -1);
+		}
+
+		this.server.listen(0, host);
 		return once(this.server, 'listening');
 	}
 
@@ -29,10 +37,6 @@ export default class TestServer {
 
 	get port() {
 		return this.server.address().port;
-	}
-
-	get hostname() {
-		return 'localhost';
 	}
 
 	mockResponse(responseHandler) {
@@ -68,6 +72,10 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'text/plain');
 			res.end('text');
+		}
+
+		if (p === '/no-status-text') {
+			res.writeHead(200, '', {}).end();
 		}
 
 		if (p === '/options') {
@@ -305,6 +313,13 @@ export default class TestServer {
 			res.setHeader('Location', '/inspect');
 			res.setHeader('Referrer-Policy', 'foo unsafe-url same-origin bar');
 			res.end();
+
+    if (p === '/redirect/chunked') {
+			res.writeHead(301, {
+				Location: '/inspect',
+				'Transfer-Encoding': 'chunked'
+			});
+			setTimeout(() => res.end(), 10);
 		}
 
 		if (p === '/error/400') {
@@ -335,6 +350,41 @@ export default class TestServer {
 			setTimeout(() => {
 				res.destroy();
 			}, 100);
+		}
+
+		if (p === '/error/premature/chunked') {
+			res.writeHead(200, {
+				'Content-Type': 'application/json',
+				'Transfer-Encoding': 'chunked'
+			});
+
+			res.write(`${JSON.stringify({data: 'hi'})}\n`);
+
+			setTimeout(() => {
+				res.write(`${JSON.stringify({data: 'bye'})}\n`);
+			}, 200);
+
+			setTimeout(() => {
+				res.destroy();
+			}, 400);
+		}
+
+		if (p === '/chunked/split-ending') {
+			res.socket.write('HTTP/1.1 200\r\nTransfer-Encoding: chunked\r\n\r\n');
+			res.socket.write('3\r\nfoo\r\n3\r\nbar\r\n');
+
+			setTimeout(() => {
+				res.socket.write('0\r\n');
+			}, 10);
+
+			setTimeout(() => {
+				res.socket.end('\r\n');
+			}, 20);
+		}
+
+		if (p === '/chunked/multiple-ending') {
+			res.socket.write('HTTP/1.1 200\r\nTransfer-Encoding: chunked\r\n\r\n');
+			res.socket.write('3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n');
 		}
 
 		if (p === '/error/json') {
@@ -397,7 +447,7 @@ export default class TestServer {
 				body += `${fieldName}=${fileName}`;
 				// consume file data
 				// eslint-disable-next-line no-empty, no-unused-vars
-				for await (const c of file) { }
+				for await (const c of file) {}
 			});
 
 			busboy.on('field', (fieldName, value) => {

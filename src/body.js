@@ -6,7 +6,7 @@
  */
 
 import Stream, {PassThrough} from 'stream';
-import {types} from 'util';
+import {types, deprecate} from 'util';
 
 import Blob from 'fetch-blob';
 
@@ -36,7 +36,7 @@ export default class Body {
 			// Body is undefined or null
 			body = null;
 		} else if (isURLSearchParameters(body)) {
-		// Body is a URLSearchParams
+			// Body is a URLSearchParams
 			body = Buffer.from(body.toString());
 		} else if (isBlob(body)) {
 			// Body is blob
@@ -52,7 +52,7 @@ export default class Body {
 			// Body is stream
 		} else if (isFormData(body)) {
 			// Body is an instance of formdata-node
-			boundary = `NodeFetchFormDataBoundary${getBoundary()}`;
+			boundary = `nodefetchformdataboundary${getBoundary()}`;
 			body = Stream.Readable.from(formDataIterator(body, boundary));
 		} else {
 			// None of the above
@@ -60,8 +60,17 @@ export default class Body {
 			body = Buffer.from(String(body));
 		}
 
+		let stream = body;
+
+		if (Buffer.isBuffer(body)) {
+			stream = Stream.Readable.from(body);
+		} else if (isBlob(body)) {
+			stream = Stream.Readable.from(body.stream());
+		}
+
 		this[INTERNALS] = {
 			body,
+			stream,
 			boundary,
 			disturbed: false,
 			error: null
@@ -69,17 +78,17 @@ export default class Body {
 		this.size = size;
 
 		if (body instanceof Stream) {
-			body.on('error', err => {
-				const error = err instanceof FetchBaseError ?
-					err :
-					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err);
+			body.on('error', error_ => {
+				const error = error_ instanceof FetchBaseError ?
+					error_ :
+					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, 'system', error_);
 				this[INTERNALS].error = error;
 			});
 		}
 	}
 
 	get body() {
-		return this[INTERNALS].body;
+		return this[INTERNALS].stream;
 	}
 
 	get bodyUsed() {
@@ -140,6 +149,8 @@ export default class Body {
 	}
 }
 
+Body.prototype.buffer = deprecate(Body.prototype.buffer, 'Please use \'response.arrayBuffer()\' instead of \'response.buffer()\'', 'node-fetch#buffer');
+
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
 	body: {enumerable: true},
@@ -168,21 +179,11 @@ async function consumeBody(data) {
 		throw data[INTERNALS].error;
 	}
 
-	let {body} = data;
+	const {body} = data;
 
 	// Body is null
 	if (body === null) {
 		return Buffer.alloc(0);
-	}
-
-	// Body is blob
-	if (isBlob(body)) {
-		body = body.stream();
-	}
-
-	// Body is buffer
-	if (Buffer.isBuffer(body)) {
-		return body;
 	}
 
 	/* c8 ignore next 3 */
@@ -198,21 +199,17 @@ async function consumeBody(data) {
 	try {
 		for await (const chunk of body) {
 			if (data.size > 0 && accumBytes + chunk.length > data.size) {
-				const err = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
-				body.destroy(err);
-				throw err;
+				const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
+				body.destroy(error);
+				throw error;
 			}
 
 			accumBytes += chunk.length;
 			accum.push(chunk);
 		}
 	} catch (error) {
-		if (error instanceof FetchBaseError) {
-			throw error;
-		} else {
-			// Other errors, such as incorrect content-encoding
-			throw new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, 'system', error);
-		}
+		const error_ = error instanceof FetchBaseError ? error : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, 'system', error);
+		throw error_;
 	}
 
 	if (body.readableEnded === true || body._readableState.ended === true) {
@@ -240,7 +237,7 @@ async function consumeBody(data) {
 export const clone = (instance, highWaterMark) => {
 	let p1;
 	let p2;
-	let {body} = instance;
+	let {body} = instance[INTERNALS];
 
 	// Don't allow cloning a used body
 	if (instance.bodyUsed) {
@@ -256,12 +253,18 @@ export const clone = (instance, highWaterMark) => {
 		body.pipe(p1);
 		body.pipe(p2);
 		// Set instance body to teed body and return the other teed body
-		instance[INTERNALS].body = p1;
+		instance[INTERNALS].stream = p1;
 		body = p2;
 	}
 
 	return body;
 };
+
+const getNonSpecFormDataBoundary = deprecate(
+	body => body.getBoundary(),
+	'form-data doesn\'t follow the spec and requires special treatment. Use alternative package',
+	'https://github.com/node-fetch/node-fetch/issues/1167'
+);
 
 /**
  * Performs the operation "extract a `Content-Type` value from |object|" as
@@ -299,13 +302,13 @@ export const extractContentType = (body, request) => {
 		return null;
 	}
 
-	// Detect form data input from form-data module
-	if (body && typeof body.getBoundary === 'function') {
-		return `multipart/form-data;boundary=${body.getBoundary()}`;
-	}
-
 	if (isFormData(body)) {
 		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
+	}
+
+	// Detect form data input from form-data module
+	if (body && typeof body.getBoundary === 'function') {
+		return `multipart/form-data;boundary=${getNonSpecFormDataBoundary(body)}`;
 	}
 
 	// Body is stream - can't really do much about this
@@ -327,7 +330,7 @@ export const extractContentType = (body, request) => {
  * @returns {number | null}
  */
 export const getTotalBytes = request => {
-	const {body} = request;
+	const {body} = request[INTERNALS];
 
 	// Body is null or undefined
 	if (body === null) {
@@ -349,7 +352,7 @@ export const getTotalBytes = request => {
 		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
 	}
 
-	// Body is a spec-compliant form-data
+	// Body is a spec-compliant FormData
 	if (isFormData(body)) {
 		return getFormDataLength(request[INTERNALS].boundary);
 	}
@@ -369,16 +372,8 @@ export const writeToStream = (dest, {body}) => {
 	if (body === null) {
 		// Body is null
 		dest.end();
-	} else if (isBlob(body)) {
-		// Body is Blob
-		body.stream().pipe(dest);
-	} else if (Buffer.isBuffer(body)) {
-		// Body is buffer
-		dest.write(body);
-		dest.end();
 	} else {
 		// Body is stream
 		body.pipe(dest);
 	}
 };
-

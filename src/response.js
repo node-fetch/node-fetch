@@ -13,6 +13,8 @@ const INTERNALS = Symbol('Response internals');
 /**
  * Response class
  *
+ * Ref: https://fetch.spec.whatwg.org/#response-class
+ *
  * @param   Stream  body  Readable stream
  * @param   Object  opts  Response options
  * @return  Void
@@ -21,7 +23,9 @@ export default class Response extends Body {
 	constructor(body = null, options = {}) {
 		super(body, options);
 
-		const status = options.status || 200;
+		// eslint-disable-next-line no-eq-null, eqeqeq, no-negated-condition
+		const status = options.status != null ? options.status : 200;
+
 		const headers = new Headers(options.headers);
 
 		if (body !== null && !headers.has('Content-Type')) {
@@ -32,6 +36,7 @@ export default class Response extends Body {
 		}
 
 		this[INTERNALS] = {
+			type: 'default',
 			url: options.url,
 			status,
 			statusText: options.statusText || '',
@@ -39,6 +44,10 @@ export default class Response extends Body {
 			counter: options.counter,
 			highWaterMark: options.highWaterMark
 		};
+	}
+
+	get type() {
+		return this[INTERNALS].type;
 	}
 
 	get url() {
@@ -79,6 +88,7 @@ export default class Response extends Body {
 	 */
 	clone() {
 		return new Response(clone(this, this.highWaterMark), {
+			type: this.type,
 			url: this.url,
 			status: this.status,
 			statusText: this.statusText,
@@ -107,12 +117,19 @@ export default class Response extends Body {
 		});
 	}
 
+	static error() {
+		const response = new Response(null, {status: 0, statusText: ''});
+		response[INTERNALS].type = 'error';
+		return response;
+	}
+
 	get [Symbol.toStringTag]() {
 		return 'Response';
 	}
 }
 
 Object.defineProperties(Response.prototype, {
+	type: {enumerable: true},
 	url: {enumerable: true},
 	status: {enumerable: true},
 	ok: {enumerable: true},
@@ -121,4 +138,3 @@ Object.defineProperties(Response.prototype, {
 	headers: {enumerable: true},
 	clone: {enumerable: true}
 });
-

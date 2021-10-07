@@ -1,15 +1,13 @@
-
 import stream from 'stream';
 import http from 'http';
-import {TextEncoder} from 'util';
 
 import AbortController from 'abort-controller';
 import chai from 'chai';
 import FormData from 'form-data';
 import Blob from 'fetch-blob';
 
-import TestServer from './utils/server.js';
 import {Request} from '../src/index.js';
+import TestServer from './utils/server.js';
 
 const {expect} = chai;
 
@@ -124,6 +122,13 @@ describe('Request', () => {
 		expect(() => new Request(base, {body: 'a', method: 'get'}))
 			.to.throw(TypeError);
 		expect(() => new Request(base, {body: 'a', method: 'head'}))
+			.to.throw(TypeError);
+	});
+
+	it('should throw error when including credentials', () => {
+		expect(() => new Request('https://john:pass@github.com/'))
+			.to.throw(TypeError);
+		expect(() => new Request(new URL('https://john:pass@github.com/')))
 			.to.throw(TypeError);
 	});
 
