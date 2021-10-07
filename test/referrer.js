@@ -357,46 +357,64 @@ describe('utils/referrer', () => {
 						}
 
 						let requestsLength = requests.length;
-						if (currentURLTrust === null) {
-							for (let i = 0; i < requestsLength; i++) {
-								const req = requests[i];
-								requests.push({...req, url: req.url.replace(/^http:/, 'https:')});
-							}
-						} else if (currentURLTrust === true) {
-							for (let i = 0; i < requestsLength; i++) {
-								const req = requests[i];
-								req.url = req.url.replace(/^http:/, 'https:');
-							}
-						} else if (currentURLTrust === false) {
-							// nothing to do, default is not potentially trustworthy
-						} else {
-							throw new TypeError(`Invalid currentURLTrust condition: ${currentURLTrust}`);
+						switch (currentURLTrust) {
+							case null:
+								for (let i = 0; i < requestsLength; i++) {
+									const req = requests[i];
+									requests.push({...req, url: req.url.replace(/^http:/, 'https:')});
+								}
+
+								break;
+
+							case true:
+								for (let i = 0; i < requestsLength; i++) {
+									const req = requests[i];
+									req.url = req.url.replace(/^http:/, 'https:');
+								}
+
+								break;
+
+							case false:
+								// nothing to do, default is not potentially trustworthy
+								break;
+
+							default:
+								throw new TypeError(`Invalid currentURLTrust condition: ${currentURLTrust}`);
 						}
 
 						requestsLength = requests.length;
-						if (referrerURLTrust === null) {
-							for (let i = 0; i < requestsLength; i++) {
-								const req = requests[i];
+						switch (referrerURLTrust) {
+							case null:
+								for (let i = 0; i < requestsLength; i++) {
+									const req = requests[i];
 
-								if (sameOrigin) {
-									if (req.url.startsWith('https:')) {
-										requests.splice(i, 1);
-									} else {
-										continue;
+									if (sameOrigin) {
+										if (req.url.startsWith('https:')) {
+											requests.splice(i, 1);
+										} else {
+											continue;
+										}
 									}
+
+									requests.push({...req, referrer: req.referrer.replace(/^http:/, 'https:')});
 								}
 
-								requests.push({...req, referrer: req.referrer.replace(/^http:/, 'https:')});
-							}
-						} else if (referrerURLTrust === true) {
-							for (let i = 0; i < requestsLength; i++) {
-								const req = requests[i];
-								req.referrer = req.referrer.replace(/^http:/, 'https:');
-							}
-						} else if (referrerURLTrust === false) {
-							// nothing to do, default is not potentially trustworthy
-						} else {
-							throw new TypeError(`Invalid referrerURLTrust condition: ${referrerURLTrust}`);
+								break;
+
+							case true:
+								for (let i = 0; i < requestsLength; i++) {
+									const req = requests[i];
+									req.referrer = req.referrer.replace(/^http:/, 'https:');
+								}
+
+								break;
+
+							case false:
+								// nothing to do, default is not potentially trustworthy
+								break;
+
+							default:
+								throw new TypeError(`Invalid referrerURLTrust condition: ${referrerURLTrust}`);
 						}
 
 						it('should have tests', () => {

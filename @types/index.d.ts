@@ -123,7 +123,7 @@ declare class BodyMixin {
 export interface Body extends Pick<BodyMixin, keyof BodyMixin> {}
 
 export type RequestRedirect = 'error' | 'follow' | 'manual';
-export type ReferrerPolicy =  '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'same-origin' | 'origin' | 'strict-origin' | 'origin-when-cross-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
+export type ReferrerPolicy = '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'same-origin' | 'origin' | 'strict-origin' | 'origin-when-cross-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
 export type RequestInfo = string | Request;
 export class Request extends BodyMixin {
 	constructor(input: RequestInfo, init?: RequestInit);

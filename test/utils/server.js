@@ -313,8 +313,9 @@ export default class TestServer {
 			res.setHeader('Location', '/inspect');
 			res.setHeader('Referrer-Policy', 'foo unsafe-url same-origin bar');
 			res.end();
+		}
 
-    if (p === '/redirect/chunked') {
+		if (p === '/redirect/chunked') {
 			res.writeHead(301, {
 				Location: '/inspect',
 				'Transfer-Encoding': 'chunked'

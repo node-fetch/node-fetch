@@ -105,13 +105,8 @@ export default class Request extends Body {
 		} else if (referrer) {
 			// §5.4, Request constructor steps, step 15.3.1, 15.3.2
 			const parsedReferrer = new URL(referrer);
-			// §5.4, Request constructor steps, step 15.3.3
-			if (/^about:(\/\/)?client$/.test(parsedReferrer)) {
-				referrer = 'client';
-			} else {
-				// §5.4, Request constructor steps, step 15.3.4
-				referrer = parsedReferrer;
-			}
+			// §5.4, Request constructor steps, step 15.3.3, 15.3.4
+			referrer = /^about:(\/\/)?client$/.test(parsedReferrer) ? 'client' : parsedReferrer;
 		} else {
 			referrer = undefined;
 		}
