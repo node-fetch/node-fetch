@@ -240,8 +240,8 @@ import fetch from 'node-fetch';
 
 class HTTPResponseError extends Error {
 	constructor(response, ...args) {
-		this.response = response;
 		super(`HTTP Error Response: ${response.status} ${response.statusText}`, ...args);
+		this.response = response;
 	}
 }
 
