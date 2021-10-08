@@ -240,8 +240,8 @@ import fetch from 'node-fetch';
 
 class HTTPResponseError extends Error {
 	constructor(response, ...args) {
-		this.response = response;
 		super(`HTTP Error Response: ${response.status} ${response.statusText}`, ...args);
+		this.response = response;
 	}
 }
 
@@ -454,7 +454,7 @@ See [test cases](https://github.com/node-fetch/node-fetch/blob/master/test/) for
 
 Perform an HTTP(S) fetch.
 
-`url` should be an absolute url, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected `Promise`.
+`url` should be an absolute URL, such as `https://example.com/`. A path-relative URL (`/file/under/root`) or protocol-relative URL (`//can-be-http-or-https.com/`) will result in a rejected `Promise`.
 
 <a id="fetch-options"></a>
 
@@ -491,6 +491,7 @@ If no values are set, the following request headers will be sent automatically:
 | `Accept`            | `*/*`                                                  |
 | `Connection`        | `close` _(when no `options.agent` is present)_         |
 | `Content-Length`    | _(automatically calculated, if possible)_              |
+| `Host`              | _(host and port information from the target URI)_      |
 | `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_              |
 | `User-Agent`        | `node-fetch`                                           |
 
