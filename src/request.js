@@ -28,6 +28,8 @@ const isRequest = object => {
 	);
 };
 
+let didReqDataWarn = false;
+
 /**
  * Request class
  *
@@ -55,6 +57,11 @@ export default class Request extends Body {
 
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
+
+		if ('data' in init && !didReqDataWarn) {
+			console.warn('.data is not a valid RequestInit property, use .body instead');
+			didReqDataWarn = true;
+		}
 
 		// eslint-disable-next-line no-eq-null, eqeqeq
 		if (((init.body != null || isRequest(input)) && input.body !== null) &&

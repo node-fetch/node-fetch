@@ -281,4 +281,20 @@ describe('Request', () => {
 			expect(result).to.equal('a=1');
 		});
 	});
+
+	it('should warn once when using .data', () => {
+		const originalWarn = console.warn;
+		const collectedWarns = [];
+		console.warn = arg => collectedWarns.push(arg);
+
+		new Request(base, {
+			data: ''
+		});
+		new Request(base, {
+			data: ''
+		});
+		expect(collectedWarns).to.deep.equal(['.data is not a valid RequestInit property, use .body instead']);
+
+		console.warn = originalWarn;
+	});
 });
