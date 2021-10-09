@@ -10,6 +10,8 @@ import {isRedirect} from './utils/is-redirect.js';
 
 const INTERNALS = Symbol('Response internals');
 
+let didResDataWarn = false;
+
 /**
  * Response class
  *
@@ -126,6 +128,12 @@ export default class Response extends Body {
 
 	get [Symbol.toStringTag]() {
 		return 'Response';
+	}
+	get data() {
+		if (!didResDataWarn) {
+			console.warn('.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead');
+			didResDataWarn = true;
+		}
 	}
 }
 

@@ -249,4 +249,18 @@ describe('Response', () => {
 		expect(res.status).to.equal(0);
 		expect(res.statusText).to.equal('');
 	});
+
+	it('should warn once when using .data', () => {
+		const originalWarn = console.warn;
+		const collectedWarns = [];
+		console.warn = arg => collectedWarns.push(arg);
+
+		const response = new Response('a');
+		response.data
+		response.data
+
+		expect(collectedWarns).to.deep.equal(['.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead']);
+
+		console.warn = originalWarn;
+	});
 });
