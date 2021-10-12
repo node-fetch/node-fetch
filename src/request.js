@@ -108,6 +108,10 @@ export default class Request extends Body {
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
 		this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
+
+    if (this.follow === 0) {
+      this[INTERNALS].redirect = 'manual'
+    }
 	}
 
 	get method() {

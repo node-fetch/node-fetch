@@ -442,9 +442,11 @@ describe('node-fetch', () => {
 		const options = {
 			follow: 0
 		};
-		return expect(fetch(url, options)).to.eventually.be.rejected
-			.and.be.an.instanceOf(FetchError)
-			.and.have.property('type', 'max-redirect');
+		return fetch(url, options).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.equal(`${base}inspect`);
+		});
 	});
 
 	it('should support redirect mode, manual flag', () => {
