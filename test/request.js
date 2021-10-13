@@ -8,6 +8,7 @@ import Blob from 'fetch-blob';
 
 import {Request} from '../src/index.js';
 import TestServer from './utils/server.js';
+import { exit } from 'process';
 
 const {expect} = chai;
 
@@ -282,19 +283,18 @@ describe('Request', () => {
 		});
 	});
 
-	it('should warn once when using .data', () => {
-		const originalWarn = console.warn;
-		const collectedWarns = [];
-		console.warn = arg => collectedWarns.push(arg);
+	it('should warn once when using .data (request)', () => new Promise(resolve => {
+		const listenerFunc = ev => {
+			process.off('warning', listenerFunc);
+			expect(ev.message).to.equal('.data is not a valid RequestInit property, use .body instead');
+			resolve();
+		};
 
+		process.on('warning', listenerFunc);
+
+		// eslint-disable-next-line no-new
 		new Request(base, {
 			data: ''
 		});
-		new Request(base, {
-			data: ''
-		});
-		expect(collectedWarns).to.deep.equal(['.data is not a valid RequestInit property, use .body instead']);
-
-		console.warn = originalWarn;
-	});
+	}));
 });

@@ -7,10 +7,9 @@
 import Headers from './headers.js';
 import Body, {clone, extractContentType} from './body.js';
 import {isRedirect} from './utils/is-redirect.js';
+import {deprecate} from 'util';
 
 const INTERNALS = Symbol('Response internals');
-
-let didResDataWarn = false;
 
 /**
  * Response class
@@ -129,12 +128,6 @@ export default class Response extends Body {
 	get [Symbol.toStringTag]() {
 		return 'Response';
 	}
-	get data() {
-		if (!didResDataWarn) {
-			console.warn('.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead');
-			didResDataWarn = true;
-		}
-	}
 }
 
 Object.defineProperties(Response.prototype, {
@@ -145,5 +138,8 @@ Object.defineProperties(Response.prototype, {
 	redirected: {enumerable: true},
 	statusText: {enumerable: true},
 	headers: {enumerable: true},
-	clone: {enumerable: true}
+	clone: {enumerable: true},
+	data: {get: deprecate(() => {},
+		'.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead',
+		'https://github.com/node-fetch/node-fetch/issues/1000 (response)')}
 });

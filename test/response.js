@@ -250,17 +250,16 @@ describe('Response', () => {
 		expect(res.statusText).to.equal('');
 	});
 
-	it('should warn once when using .data', () => {
-		const originalWarn = console.warn;
-		const collectedWarns = [];
-		console.warn = arg => collectedWarns.push(arg);
+	it('should warn once when using .data (response)', () => new Promise(resolve => {
+		const listenerFunc = ev => {
+			process.off('warning', listenerFunc);
+			expect(ev.message).to.equal('.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead');
+			resolve();
+		};
+
+		process.on('warning', listenerFunc);
 
 		const response = new Response('a');
-		response.data
-		response.data
-
-		expect(collectedWarns).to.deep.equal(['.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead']);
-
-		console.warn = originalWarn;
-	});
+		response.data;
+	}));
 });
