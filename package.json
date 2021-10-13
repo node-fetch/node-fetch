@@ -1,8 +1,8 @@
 {
     "name": "node-fetch",
-    "version": "2.6.1",
+    "version": "2.6.5",
     "description": "A light-weight module that brings window.fetch to node.js",
-    "main": "lib/index",
+    "main": "lib/index.js",
     "browser": "./browser.js",
     "module": "lib/index.mjs",
     "files": [
@@ -36,6 +36,9 @@
         "url": "https://github.com/bitinn/node-fetch/issues"
     },
     "homepage": "https://github.com/bitinn/node-fetch",
+    "dependencies": {
+        "whatwg-url": "^5.0.0"
+    },
     "devDependencies": {
         "@ungap/url-search-params": "^0.1.2",
         "abort-controller": "^1.1.0",
@@ -62,7 +65,6 @@
         "rollup": "^0.63.4",
         "rollup-plugin-babel": "^3.0.7",
         "string-to-arraybuffer": "^1.0.2",
-        "whatwg-url": "^5.0.0"
-    },
-    "dependencies": {}
+        "teeny-request": "3.7.0"
+    }
 }

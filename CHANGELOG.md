@@ -5,6 +5,23 @@ Changelog
 
 # 2.x release
 
+## v2.6.5
+
+- Fix: import `whatwg-url` in a way compatible with ESM
+
+## v2.6.4
+
+- Hotfix: fix v2.6.3 that did not sending query params
+
+## v2.6.3
+
+- Fix: properly encode url with unicode characters
+
+## v2.6.2
+
+- Fix: used full filename for main in package.json
+- Other: pinned codecov & teeny-request (had one breaking change with spread operators)
+
 ## v2.6.1
 
 **This is an important security release. It is strongly recommended to update as soon as possible.**

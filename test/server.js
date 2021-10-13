@@ -32,7 +32,7 @@ export default class TestServer {
 	}
 
 	router(req, res) {
-		let p = parse(req.url).pathname;
+		let p = decodeURIComponent(parse(req.url).pathname);
 
 		if (p === '/hello') {
 			res.statusCode = 200;
@@ -411,6 +411,12 @@ export default class TestServer {
 				}));
 			});
 			req.pipe(parser);
+		}
+
+		if (p === '/issues/1290/ひらがな') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.end('Success');
 		}
 	}
 }

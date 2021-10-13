@@ -2919,3 +2919,34 @@ describe('external encoding', () => {
 		});
 	});
 });
+
+describe('issue #1290', function() {
+
+	it('should keep query params', function() {
+		return fetch(`${base}inspect?month=2021-09`)
+		  .then(res => res.json())
+			.then(json => {
+				expect(json.url).to.equal('/inspect?month=2021-09')
+			})
+	})
+
+	it('should handle escaped unicode in URLs', () => {
+		const url = `${base}issues/1290/%E3%81%B2%E3%82%89%E3%81%8C%E3%81%AA`;
+		return fetch(url).then((res) => {
+			expect(res.status).to.equal(200);
+			return res.text().then(result => {
+				expect(result).to.equal('Success');
+			});
+		});
+	});
+
+	it('should handle unicode in URLs', () => {
+		const url = `${base}issues/1290/ひらがな`;
+		return fetch(url).then((res) => {
+			expect(res.status).to.equal(200);
+			return res.text().then(result => {
+				expect(result).to.equal('Success');
+			});
+		});
+	});
+});

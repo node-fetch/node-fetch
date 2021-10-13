@@ -9,14 +9,37 @@
 
 import Url from 'url';
 import Stream from 'stream';
+import whatwgUrl from 'whatwg-url';
 import Headers, { exportNodeCompatibleHeaders } from './headers.js';
 import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const INTERNALS = Symbol('Request internals');
+const URL = whatwgUrl.URL;
 
 // fix an issue where "format", "parse" aren't a named export for node <10
 const parse_url = Url.parse;
 const format_url = Url.format;
+
+/**
+ * Wrapper around `new URL` to handle arbitrary URLs
+ *
+ * @param  {string} urlStr
+ * @return {void}
+ */
+function parseURL(urlStr) {
+	/*
+		Check whether the URL is absolute or not
+
+		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
+		Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
+	*/
+	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
+		urlStr = new URL(urlStr).toString()
+	}
+
+	// Fallback to old implementation for arbitrary URLs
+	return parse_url(urlStr);
+}
 
 const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
 
@@ -59,14 +82,14 @@ export default class Request {
 				// in order to support Node.js' Url objects; though WHATWG's URL objects
 				// will fall into this branch also (since their `toString()` will return
 				// `href` property anyway)
-				parsedURL = parse_url(input.href);
+				parsedURL = parseURL(input.href);
 			} else {
 				// coerce input to a string before attempting to parse
-				parsedURL = parse_url(`${input}`);
+				parsedURL = parseURL(`${input}`);
 			}
 			input = {};
 		} else {
-			parsedURL = parse_url(input.url);
+			parsedURL = parseURL(input.url);
 		}
 
 		let method = init.method || input.method || 'GET';
