@@ -41,7 +41,7 @@ class MultipartParser {
 	 * @param {string} string
 	 */
 	constructor(string) {
-		this.index = null;
+		this.index = 0;
 		this.flags = 0;
 
 		this.onHeaderEnd = noop;
@@ -63,7 +63,7 @@ class MultipartParser {
 
 		this.boundary = ui8a;
 		this.lookbehind = new Uint8Array(this.boundary.length + 8);
-		this.state = S.START;
+		this.state = S.START_BOUNDARY;
 	}
 
 	/**
