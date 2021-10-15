@@ -38,9 +38,9 @@ const noop = () => {};
 
 class MultipartParser {
 	/**
-	 * @param {string} string
+	 * @param {string} boundary
 	 */
-	constructor(string) {
+	constructor(boundary) {
 		this.index = 0;
 		this.flags = 0;
 
@@ -54,10 +54,10 @@ class MultipartParser {
 
 		this.boundaryChars = {};
 
-		string = '\r\n--' + string;
-		const ui8a = new Uint8Array(string.length);
-		for (let i = 0; i < string.length; i++) {
-			ui8a[i] = string.charCodeAt(i);
+		boundary = '\r\n--' + boundary;
+		const ui8a = new Uint8Array(boundary.length);
+		for (let i = 0; i < boundary.length; i++) {
+			ui8a[i] = boundary.charCodeAt(i);
 			this.boundaryChars[ui8a[i]] = true;
 		}
 
@@ -67,16 +67,16 @@ class MultipartParser {
 	}
 
 	/**
-	 * @param {Uint8Array} ui8a
+	 * @param {Uint8Array} data
 	 */
-	write(ui8a) {
+	write(data) {
 		let i = 0;
-		const length_ = ui8a.length;
+		const length_ = data.length;
 		let previousIndex = this.index;
 		let {lookbehind, boundary, boundaryChars, index, state, flags} = this;
 		const boundaryLength = this.boundary.length;
 		const boundaryEnd = boundaryLength - 1;
-		const bufferLength = ui8a.length;
+		const bufferLength = data.length;
 		let c;
 		let cl;
 
@@ -101,16 +101,16 @@ class MultipartParser {
 			}
 
 			if (clear) {
-				callback(name, this[markSymbol], i, ui8a);
+				callback(name, this[markSymbol], i, data);
 				delete this[markSymbol];
 			} else {
-				callback(name, this[markSymbol], ui8a.length, ui8a);
+				callback(name, this[markSymbol], data.length, data);
 				this[markSymbol] = 0;
 			}
 		};
 
 		for (i = 0; i < length_; i++) {
-			c = ui8a[i];
+			c = data[i];
 
 			switch (state) {
 				case S.START:
@@ -226,12 +226,12 @@ class MultipartParser {
 					if (index === 0) {
 						// boyer-moore derrived algorithm to safely skip non-boundary data
 						i += boundaryEnd;
-						while (i < bufferLength && !(ui8a[i] in boundaryChars)) {
+						while (i < bufferLength && !(data[i] in boundaryChars)) {
 							i += boundaryLength;
 						}
 
 						i -= boundaryEnd;
-						c = ui8a[i];
+						c = data[i];
 					}
 
 					if (index < boundary.length) {
