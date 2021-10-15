@@ -303,8 +303,7 @@ class MultipartParser {
 				case S.END:
 					break;
 				default:
-					console.info(`Unexpected state entered: ${state}`);
-					return;
+					throw new Error(`Unexpected state entered: ${state}`);
 			}
 		}
 
