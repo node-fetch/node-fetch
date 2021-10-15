@@ -3,7 +3,6 @@ import {FormData} from 'formdata-polyfill/esm.min.js';
 
 let s = 0;
 const S = {
-	START: s++,
 	START_BOUNDARY: s++,
 	HEADER_FIELD_START: s++,
 	HEADER_FIELD: s++,
@@ -30,9 +29,7 @@ const COLON = 58;
 const A = 97;
 const Z = 122;
 
-const lower = function (c) {
-	return c | 0x20;
-};
+const lower = c => c | 0x20;
 
 const noop = () => {};
 
@@ -113,10 +110,6 @@ class MultipartParser {
 			c = data[i];
 
 			switch (state) {
-				case S.START:
-					index = 0;
-					state = S.START_BOUNDARY;
-					// falls through
 				case S.START_BOUNDARY:
 					if (index === boundary.length - 2) {
 						if (c === HYPHEN) {
