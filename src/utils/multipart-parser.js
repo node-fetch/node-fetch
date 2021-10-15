@@ -44,7 +44,6 @@ class MultipartParser {
 		this.index = null;
 		this.flags = 0;
 
-		// this.onEnd = noop;
 		this.onHeaderEnd = noop;
 		this.onHeaderField = noop;
 		this.onHeadersEnd = noop;
@@ -130,7 +129,6 @@ class MultipartParser {
 						break;
 					} else if (index - 1 === boundary.length - 2) {
 						if (flags & F.LAST_BOUNDARY && c === HYPHEN) {
-							// callback('onEnd');
 							state = S.END;
 							flags = 0;
 						} else if (!(flags & F.LAST_BOUNDARY) && c === LF) {
@@ -271,7 +269,6 @@ class MultipartParser {
 						} else if (flags & F.LAST_BOUNDARY) {
 							if (c === HYPHEN) {
 								callback('onPartEnd');
-								// callback('onEnd');
 								state = S.END;
 								flags = 0;
 							} else {
@@ -321,7 +318,6 @@ class MultipartParser {
 		if ((this.state === S.HEADER_FIELD_START && this.index === 0) ||
 			(this.state === S.PART_DATA && this.index === this.boundary.length)) {
 			this.onPartEnd();
-			// this.onEnd();
 		} else if (this.state !== S.END) {
 			throw new Error('MultipartParser.end(): stream ended unexpectedly');
 		}
