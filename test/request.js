@@ -8,7 +8,6 @@ import Blob from 'fetch-blob';
 
 import {Request} from '../src/index.js';
 import TestServer from './utils/server.js';
-import { exit } from 'process';
 
 const {expect} = chai;
 
