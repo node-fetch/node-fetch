@@ -1,4 +1,4 @@
-import {format} from 'util';
+import {format} from 'node:util';
 import chai from 'chai';
 import chaiIterator from 'chai-iterator';
 import {Headers} from '../src/index.js';
