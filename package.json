@@ -3,6 +3,7 @@
   "version": "3.0.0",
   "description": "A light-weight module that brings Fetch API to node.js",
   "main": "./src/index.js",
+  "exports": "./src/index.js",
   "sideEffects": false,
   "type": "module",
   "files": [
