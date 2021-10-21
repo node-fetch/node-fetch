@@ -104,6 +104,9 @@ declare class BodyMixin {
 	readonly bodyUsed: boolean;
 	readonly size: number;
 
+	/**
+ 	* @deprecated Please use 'response.arrayBuffer()' instead of 'response.buffer()
+ 	*/
 	buffer(): Promise<Buffer>;
 	arrayBuffer(): Promise<ArrayBuffer>;
 	blob(): Promise<Blob>;
