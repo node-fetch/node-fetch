@@ -131,7 +131,7 @@ describe('Response', () => {
 		expect(cl.url).to.equal(base);
 		expect(cl.status).to.equal(346);
 		expect(cl.statusText).to.equal('production');
-		expect(cl.highWaterMark).to.equal(789)
+		expect(cl.highWaterMark).to.equal(789);
 		expect(cl.ok).to.be.false;
 		// Clone body shouldn't be the same body
 		expect(cl.body).to.not.equal(body);
