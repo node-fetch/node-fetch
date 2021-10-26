@@ -6,10 +6,10 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import http from 'http';
-import https from 'https';
-import zlib from 'zlib';
-import Stream, {PassThrough, pipeline as pump} from 'stream';
+import http from 'node:http';
+import https from 'node:https';
+import zlib from 'node:zlib';
+import Stream, {PassThrough, pipeline as pump} from 'node:stream';
 import dataUriToBuffer from 'data-uri-to-buffer';
 
 import {writeToStream, clone} from './body.js';

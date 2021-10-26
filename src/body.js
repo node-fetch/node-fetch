@@ -5,8 +5,8 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream, {PassThrough} from 'stream';
-import {types, deprecate} from 'util';
+import Stream, {PassThrough} from 'node:stream';
+import {types, deprecate} from 'node:util';
 
 import Blob from 'fetch-blob';
 
