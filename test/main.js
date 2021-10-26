@@ -2215,7 +2215,6 @@ describe('node-fetch', () => {
 		function lookupSpy(hostname, options, callback) {
 			called++;
 
-			// eslint-disable-next-line node/prefer-promises/dns
 			return lookup(hostname, options, callback);
 		}
 
@@ -2232,7 +2231,6 @@ describe('node-fetch', () => {
 		function lookupSpy(hostname, options, callback) {
 			families.push(options.family);
 
-			// eslint-disable-next-line node/prefer-promises/dns
 			return lookup(hostname, {}, callback);
 		}
 
