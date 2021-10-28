@@ -7,7 +7,7 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import {format as formatUrl} from 'url';
+import {format as formatUrl} from 'node:url';
 import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
