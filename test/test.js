@@ -2875,4 +2875,11 @@ describe('issue #1290', function() {
 			});
 		});
 	});
+
+	// #1342
+	it('should not throw with a valid URL', () => {
+		const url = 'https://r2---sn-n4v7sney.example.com';
+		new Request(url);
+	});
+
 });
