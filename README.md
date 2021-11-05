@@ -40,10 +40,9 @@
 - [Advanced Usage](#advanced-usage)
 	- [Streams](#streams)
 	- [Buffer](#buffer)
-	- [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
+	- [Accessing Headers and other Metadata](#accessing-headers-and-other-metadata)
 	- [Extract Set-Cookie Header](#extract-set-cookie-header)
 	- [Post data using a file stream](#post-data-using-a-file-stream)
-	- [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
 	- [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
 - [API](#api)
 	- [fetch(url[, options])](#fetchurl-options)
@@ -112,27 +111,48 @@ npm install node-fetch
 
 ## Loading and configuring the module
 
+### ES Modules (ESM)
+
 ```js
 import fetch from 'node-fetch';
 ```
 
-If you want to patch the global object in node:
+### CommonJS
 
-```js
-import fetch from 'node-fetch';
+`node-fetch` from v3 is an ESM-only module - you are not able to import it with `require()`. 
 
-if (!globalThis.fetch) {
-	globalThis.fetch = fetch;
-}
+If you cannot switch to ESM, please use v2 which remains compatible with CommonJS. Critical bug fixes will continue to be published for v2.
+
+```sh
+npm install node-fetch@2
 ```
-
-`node-fetch` is an ESM-only module - you are not able to import it with `require`. We recommend you stay on v2 which is built with CommonJS unless you use ESM yourself. We will continue to publish critical bug fixes for it.
 
 Alternatively, you can use the async `import()` function from CommonJS to load `node-fetch` asynchronously:
 
 ```js
 // mod.cjs
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+```
+
+### Providing global access
+
+To use `fetch()` without importing it, you can patch the `global` object in node:
+
+```js
+// fetch-polyfill.js
+import fetch from 'node-fetch';
+
+if (!globalThis.fetch) {
+    globalThis.fetch = fetch;
+    globalThis.Headers = Headers;
+    globalThis.Request = Request;
+    globalThis.Response = Response;
+}
+
+// index.js
+import './fetch-polyfill'
+
+// ...
 ```
 
 ## Upgrading
@@ -355,7 +375,7 @@ const type = await fileType.fromBuffer(buffer)
 console.log(type);
 ```
 
-### Accessing Headers and other Meta data
+### Accessing Headers and other Metadata
 
 ```js
 import fetch from 'node-fetch';
@@ -581,8 +601,6 @@ Due to the nature of Node.js, the following properties are not implemented at th
 
 - `type`
 - `destination`
-- `referrer`
-- `referrerPolicy`
 - `mode`
 - `credentials`
 - `cache`
