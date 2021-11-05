@@ -581,8 +581,6 @@ Due to the nature of Node.js, the following properties are not implemented at th
 
 - `type`
 - `destination`
-- `referrer`
-- `referrerPolicy`
 - `mode`
 - `credentials`
 - `cache`

@@ -71,6 +71,14 @@ export interface RequestInit {
 	 * An AbortSignal to set request's signal.
 	 */
 	signal?: AbortSignal | null;
+	/**
+	 * A string whose value is a same-origin URL, "about:client", or the empty string, to set request’s referrer.
+	 */
+	referrer?: string;
+	/**
+	 * A referrer policy to set request’s referrerPolicy.
+	 */
+	referrerPolicy?: ReferrerPolicy;
 
 	// Node-fetch extensions to the whatwg/fetch spec
 	agent?: Agent | ((parsedUrl: URL) => Agent);
@@ -118,6 +126,7 @@ declare class BodyMixin {
 export interface Body extends Pick<BodyMixin, keyof BodyMixin> {}
 
 export type RequestRedirect = 'error' | 'follow' | 'manual';
+export type ReferrerPolicy = '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'same-origin' | 'origin' | 'strict-origin' | 'origin-when-cross-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
 export type RequestInfo = string | Request;
 export class Request extends BodyMixin {
 	constructor(input: RequestInfo, init?: RequestInit);
@@ -142,6 +151,14 @@ export class Request extends BodyMixin {
 	 * Returns the URL of request as a string.
 	 */
 	readonly url: string;
+	/**
+	 * A string whose value is a same-origin URL, "about:client", or the empty string, to set request’s referrer.
+	 */
+	readonly referrer: string;
+	/**
+	 * A referrer policy to set request’s referrerPolicy.
+	 */
+	readonly referrerPolicy: ReferrerPolicy;
 	clone(): Request;
 }
 
