@@ -177,6 +177,7 @@ export class Response extends BodyMixin {
 	clone(): Response;
 
 	static error(): Response;
+	static redirect(url: string, status?: number): Response;
 }
 
 export class FetchError extends Error {
