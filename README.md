@@ -125,7 +125,6 @@ import fetch from 'node-fetch';
 If you cannot switch to ESM, please use v2 which remains compatible with CommonJS. Critical bug fixes will continue to be published for v2.
 
 ```sh
-npm uninstall node-fetch
 npm install node-fetch@2
 ```
 
