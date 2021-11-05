@@ -40,10 +40,9 @@
 - [Advanced Usage](#advanced-usage)
 	- [Streams](#streams)
 	- [Buffer](#buffer)
-	- [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
+	- [Accessing Headers and other Metadata](#accessing-headers-and-other-metadata)
 	- [Extract Set-Cookie Header](#extract-set-cookie-header)
 	- [Post data using a file stream](#post-data-using-a-file-stream)
-	- [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
 	- [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
 - [API](#api)
 	- [fetch(url[, options])](#fetchurl-options)
@@ -355,7 +354,7 @@ const type = await fileType.fromBuffer(buffer)
 console.log(type);
 ```
 
-### Accessing Headers and other Meta data
+### Accessing Headers and other Metadata
 
 ```js
 import fetch from 'node-fetch';
