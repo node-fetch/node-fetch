@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## unreleased
 
 - other: Deprecated/Discourage [form-data](https://www.npmjs.com/package/form-data) and `body.buffer()` (#1212)
+- feat: Add `Body#formData()` (#1314)
 - fix: Normalize `Body.body` into a `node:stream` (#924)
 - fix: Pass url string to `http.request` for parsing IPv6 urls (#1268)
 - fix: Throw error when constructing Request with urls including basic auth (#1268)

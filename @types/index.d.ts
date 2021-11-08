@@ -103,6 +103,7 @@ export type BodyInit =
 	| Blob
 	| Buffer
 	| URLSearchParams
+	| FormData
 	| NodeJS.ReadableStream
 	| string;
 declare class BodyMixin {
@@ -117,6 +118,7 @@ declare class BodyMixin {
  	*/
 	buffer(): Promise<Buffer>;
 	arrayBuffer(): Promise<ArrayBuffer>;
+	formData(): Promise<FormData>;
 	blob(): Promise<Blob>;
 	json(): Promise<unknown>;
 	text(): Promise<string>;

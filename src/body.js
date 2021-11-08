@@ -9,11 +9,11 @@ import Stream, {PassThrough} from 'node:stream';
 import {types, deprecate} from 'node:util';
 
 import Blob from 'fetch-blob';
+import {FormData, formDataToBlob} from 'formdata-polyfill/esm.min.js';
 
 import {FetchError} from './errors/fetch-error.js';
 import {FetchBaseError} from './errors/base.js';
-import {formDataIterator, getBoundary, getFormDataLength} from './utils/form-data.js';
-import {isBlob, isURLSearchParameters, isFormData} from './utils/is.js';
+import {isBlob, isURLSearchParameters} from './utils/is.js';
 
 const INTERNALS = Symbol('Body internals');
 
@@ -50,10 +50,10 @@ export default class Body {
 			body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
 		} else if (body instanceof Stream) {
 			// Body is stream
-		} else if (isFormData(body)) {
-			// Body is an instance of formdata-node
-			boundary = `nodefetchformdataboundary${getBoundary()}`;
-			body = Stream.Readable.from(formDataIterator(body, boundary));
+		} else if (body instanceof FormData) {
+			// Body is FormData
+			body = formDataToBlob(body);
+			boundary = body.type.split('=')[1];
 		} else {
 			// None of the above
 			// coerce to string then buffer
@@ -103,6 +103,24 @@ export default class Body {
 	async arrayBuffer() {
 		const {buffer, byteOffset, byteLength} = await consumeBody(this);
 		return buffer.slice(byteOffset, byteOffset + byteLength);
+	}
+
+	async formData() {
+		const ct = this.headers.get('content-type');
+
+		if (ct.startsWith('application/x-www-form-urlencoded')) {
+			const formData = new FormData();
+			const parameters = new URLSearchParams(await this.text());
+
+			for (const [name, value] of parameters) {
+				formData.append(name, value);
+			}
+
+			return formData;
+		}
+
+		const {toFormData} = await import('./utils/multipart-parser.js');
+		return toFormData(this.body, ct);
 	}
 
 	/**
@@ -302,7 +320,7 @@ export const extractContentType = (body, request) => {
 		return null;
 	}
 
-	if (isFormData(body)) {
+	if (body instanceof FormData) {
 		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
 	}
 
@@ -350,11 +368,6 @@ export const getTotalBytes = request => {
 	// Detect form data input from form-data module
 	if (body && typeof body.getLengthSync === 'function') {
 		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
-	}
-
-	// Body is a spec-compliant FormData
-	if (isFormData(body)) {
-		return getFormDataLength(request[INTERNALS].boundary);
 	}
 
 	// Body is stream

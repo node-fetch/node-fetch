@@ -12,7 +12,7 @@ import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
-import {FormData as FormDataNode} from 'formdata-node';
+import {FormData as FormDataNode} from 'formdata-polyfill/esm.min.js';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
