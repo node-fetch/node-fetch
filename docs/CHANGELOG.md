@@ -4,13 +4,41 @@ All notable changes will be recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## unreleased
+## 3.1.0
 
-- other: Deprecated/Discourage [form-data](https://www.npmjs.com/package/form-data) and `body.buffer()` (#1212)
-- feat: Add `Body#formData()` (#1314)
-- fix: Normalize `Body.body` into a `node:stream` (#924)
-- fix: Pass url string to `http.request` for parsing IPv6 urls (#1268)
-- fix: Throw error when constructing Request with urls including basic auth (#1268)
+## What's Changed
+* fix(Body): Discourage form-data and buffer() by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1212
+* fix: Pass url string to http.request by @serverwentdown in https://github.com/node-fetch/node-fetch/pull/1268
+* Fix octocat image link by @lakuapik in https://github.com/node-fetch/node-fetch/pull/1281
+* fix(Body.body): Normalize `Body.body` into a `node:stream` by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/924
+* docs(Headers): Add default Host request header to README.md file by @robertoaceves in https://github.com/node-fetch/node-fetch/pull/1316
+* Update CHANGELOG.md by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1292
+* Add highWaterMark to cloned properties by @davesidious in https://github.com/node-fetch/node-fetch/pull/1162
+* Update README.md to fix HTTPResponseError by @thedanfernandez in https://github.com/node-fetch/node-fetch/pull/1135
+* docs: switch `url` to `URL` by @dhritzkiv in https://github.com/node-fetch/node-fetch/pull/1318
+* fix(types): declare buffer() deprecated by @dnalborczyk in https://github.com/node-fetch/node-fetch/pull/1345
+* chore: fix lint by @dnalborczyk in https://github.com/node-fetch/node-fetch/pull/1348
+* refactor: use node: prefix for imports by @dnalborczyk in https://github.com/node-fetch/node-fetch/pull/1346
+* Bump data-uri-to-buffer from 3.0.1 to 4.0.0 by @dependabot in https://github.com/node-fetch/node-fetch/pull/1319
+* Bump mocha from 8.4.0 to 9.1.3 by @dependabot in https://github.com/node-fetch/node-fetch/pull/1339
+* Referrer and Referrer Policy by @tekwiz in https://github.com/node-fetch/node-fetch/pull/1057
+* Add typing for Response.redirect(url, status) by @c-w in https://github.com/node-fetch/node-fetch/pull/1169
+* chore: Correct stuff in README.md by @Jiralite in https://github.com/node-fetch/node-fetch/pull/1361
+* docs: Improve clarity of "Loading and configuring" by @serverwentdown in https://github.com/node-fetch/node-fetch/pull/1323
+* feat(Body): Added support for `BodyMixin.formData()` and constructing bodies with FormData by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1314
+
+## New Contributors
+* @serverwentdown made their first contribution in https://github.com/node-fetch/node-fetch/pull/1268
+* @lakuapik made their first contribution in https://github.com/node-fetch/node-fetch/pull/1281
+* @robertoaceves made their first contribution in https://github.com/node-fetch/node-fetch/pull/1316
+* @davesidious made their first contribution in https://github.com/node-fetch/node-fetch/pull/1162
+* @thedanfernandez made their first contribution in https://github.com/node-fetch/node-fetch/pull/1135
+* @dhritzkiv made their first contribution in https://github.com/node-fetch/node-fetch/pull/1318
+* @dnalborczyk made their first contribution in https://github.com/node-fetch/node-fetch/pull/1345
+* @dependabot made their first contribution in https://github.com/node-fetch/node-fetch/pull/1319
+* @c-w made their first contribution in https://github.com/node-fetch/node-fetch/pull/1169
+
+**Full Changelog**: https://github.com/node-fetch/node-fetch/compare/v3.0.0...v3.1.0
 
 ## v3.0.0
 
