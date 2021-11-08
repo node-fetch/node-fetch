@@ -39,7 +39,6 @@
 	- [Handling cookies](#handling-cookies)
 - [Advanced Usage](#advanced-usage)
 	- [Streams](#streams)
-	- [Buffer](#buffer)
 	- [Accessing Headers and other Metadata](#accessing-headers-and-other-metadata)
 	- [Extract Set-Cookie Header](#extract-set-cookie-header)
 	- [Post data using a file stream](#post-data-using-a-file-stream)
@@ -67,7 +66,6 @@
 		- [body.blob()](#bodyblob)
 		- [body.json()](#bodyjson)
 		- [body.text()](#bodytext)
-		- [body.buffer()](#bodybuffer)
 	- [Class: FetchError](#class-fetcherror)
 	- [Class: AbortError](#class-aborterror)
 - [TypeScript](#typescript)
@@ -119,7 +117,7 @@ import fetch from 'node-fetch';
 
 ### CommonJS
 
-`node-fetch` from v3 is an ESM-only module - you are not able to import it with `require()`. 
+`node-fetch` from v3 is an ESM-only module - you are not able to import it with `require()`.
 
 If you cannot switch to ESM, please use v2 which remains compatible with CommonJS. Critical bug fixes will continue to be published for v2.
 
@@ -360,21 +358,6 @@ try {
 }
 ```
 
-### Buffer
-
-If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
-
-```js
-import fetch from 'node-fetch';
-import fileType from 'file-type';
-
-const response = await fetch('https://octodex.github.com/images/Fintechtocat.png');
-const buffer = await response.buffer();
-const type = await fileType.fromBuffer(buffer)
-
-console.log(type);
-```
-
 ### Accessing Headers and other Metadata
 
 ```js
@@ -402,27 +385,28 @@ const response = await fetch('https://example.com');
 console.log(response.headers.raw()['set-cookie']);
 ```
 
-### Post data using a file stream
+### Post data using a file
 
 ```js
-import {createReadStream} from 'fs';
+import {fileFromSync} from 'fetch-blob/from.js';
 import fetch from 'node-fetch';
 
-const stream = createReadStream('input.txt');
+const blob = fileFromSync('./input.txt', 'text/plain');
 
-const response = await fetch('https://httpbin.org/post', {method: 'POST', body: stream});
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: blob});
 const data = await response.json();
 
 console.log(data)
 ```
 
-node-fetch also supports spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) and [formdata-node](https://github.com/octet-stream/form-data):
+node-fetch also supports any spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill). But any other spec-compliant such as [formdata-node](https://github.com/octet-stream/form-data) works too, but we recommend formdata-polyfill because we use this one internally for decoding entries back to FormData.
 
 ```js
 import fetch from 'node-fetch';
 import {FormData} from 'formdata-polyfill/esm-min.js';
-// Alternative package:
-import {FormData} from 'formdata-node';
+
+// Alternative hack to get the same FormData instance as node-fetch
+// const FormData = (await new Response(new URLSearchParams()).formData()).constructor
 
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
@@ -443,7 +427,9 @@ An example of timing out a request after 150ms could be achieved as the followin
 
 ```js
 import fetch from 'node-fetch';
-import AbortController from 'abort-controller';
+
+// AbortController was added in node v14.17.0 globally
+const AbortController = globalThis.AbortController || await import('abort-controller')
 
 const controller = new AbortController();
 const timeout = setTimeout(() => {
@@ -487,7 +473,7 @@ The default values are shown after each option key.
 	// These properties are part of the Fetch Standard
 	method: 'GET',
 	headers: {},            // Request headers. format is the identical to that accepted by the Headers constructor (see below)
-	body: null,             // Request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
+	body: null,             // Request body. can be null, or a Node.js Readable stream
 	redirect: 'follow',     // Set to `manual` to extract redirect headers, `error` to reject redirect
 	signal: null,           // Pass an instance of AbortSignal to optionally abort requests
 
@@ -582,7 +568,7 @@ const response = await fetch('https://example.com', {
 	highWaterMark: 1024 * 1024
 });
 
-const result = await res.clone().buffer();
+const result = await res.clone().arrayBuffer();
 console.dir(result);
 ```
 
@@ -708,10 +694,6 @@ const copyOfHeaders = new Headers(headers);
 ### Interface: Body
 
 `Body` is an abstract interface with methods that are applicable to both `Request` and `Response` classes.
-
-The following methods are not yet implemented in node-fetch at this moment:
-
-- `formData()`
 
 #### body.body
 
