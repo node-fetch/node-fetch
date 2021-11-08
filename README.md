@@ -695,10 +695,6 @@ const copyOfHeaders = new Headers(headers);
 
 `Body` is an abstract interface with methods that are applicable to both `Request` and `Response` classes.
 
-The following methods are not yet implemented in node-fetch at this moment:
-
-- `formData()`
-
 #### body.body
 
 <small>_(deviation from spec)_</small>
