@@ -117,7 +117,7 @@ import fetch from 'node-fetch';
 
 ### CommonJS
 
-`node-fetch` from v3 is an ESM-only module - you are not able to import it with `require()`. 
+`node-fetch` from v3 is an ESM-only module - you are not able to import it with `require()`.
 
 If you cannot switch to ESM, please use v2 which remains compatible with CommonJS. Critical bug fixes will continue to be published for v2.
 
@@ -385,15 +385,15 @@ const response = await fetch('https://example.com');
 console.log(response.headers.raw()['set-cookie']);
 ```
 
-### Post data using a file stream
+### Post data using a file
 
 ```js
-import {createReadStream} from 'fs';
+import {fileFromSync} from 'fetch-blob/from.js';
 import fetch from 'node-fetch';
 
-const stream = createReadStream('input.txt');
+const blob = fileFromSync('./input.txt', 'text/plain');
 
-const response = await fetch('https://httpbin.org/post', {method: 'POST', body: stream});
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: blob});
 const data = await response.json();
 
 console.log(data)
