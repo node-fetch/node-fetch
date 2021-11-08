@@ -399,13 +399,14 @@ const data = await response.json();
 console.log(data)
 ```
 
-node-fetch also supports spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) and [formdata-node](https://github.com/octet-stream/form-data):
+node-fetch also supports any spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill). But any other spec-compliant such as [formdata-node](https://github.com/octet-stream/form-data) works too, but we recommend formdata-polyfill because we use this one internally for decoding entries back to FormData.
 
 ```js
 import fetch from 'node-fetch';
 import {FormData} from 'formdata-polyfill/esm-min.js';
-// Alternative package:
-import {FormData} from 'formdata-node';
+
+// Alternative hack to get the same FormData instance as node-fetch
+// const FormData = (await new Response(new URLSearchParams()).formData()).constructor
 
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
