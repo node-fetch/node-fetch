@@ -39,7 +39,6 @@
 	- [Handling cookies](#handling-cookies)
 - [Advanced Usage](#advanced-usage)
 	- [Streams](#streams)
-	- [Buffer](#buffer)
 	- [Accessing Headers and other Metadata](#accessing-headers-and-other-metadata)
 	- [Extract Set-Cookie Header](#extract-set-cookie-header)
 	- [Post data using a file stream](#post-data-using-a-file-stream)
@@ -67,7 +66,6 @@
 		- [body.blob()](#bodyblob)
 		- [body.json()](#bodyjson)
 		- [body.text()](#bodytext)
-		- [body.buffer()](#bodybuffer)
 	- [Class: FetchError](#class-fetcherror)
 	- [Class: AbortError](#class-aborterror)
 - [TypeScript](#typescript)
@@ -360,21 +358,6 @@ try {
 }
 ```
 
-### Buffer
-
-If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
-
-```js
-import fetch from 'node-fetch';
-import fileType from 'file-type';
-
-const response = await fetch('https://octodex.github.com/images/Fintechtocat.png');
-const buffer = await response.buffer();
-const type = await fileType.fromBuffer(buffer)
-
-console.log(type);
-```
-
 ### Accessing Headers and other Metadata
 
 ```js
@@ -487,7 +470,7 @@ The default values are shown after each option key.
 	// These properties are part of the Fetch Standard
 	method: 'GET',
 	headers: {},            // Request headers. format is the identical to that accepted by the Headers constructor (see below)
-	body: null,             // Request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
+	body: null,             // Request body. can be null, or a Node.js Readable stream
 	redirect: 'follow',     // Set to `manual` to extract redirect headers, `error` to reject redirect
 	signal: null,           // Pass an instance of AbortSignal to optionally abort requests
 
@@ -582,7 +565,7 @@ const response = await fetch('https://example.com', {
 	highWaterMark: 1024 * 1024
 });
 
-const result = await res.clone().buffer();
+const result = await res.clone().arrayBuffer();
 console.dir(result);
 ```
 
