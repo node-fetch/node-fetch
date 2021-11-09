@@ -1,4 +1,4 @@
-import * as stream from 'node:stream';
+import * as stream from 'stream';
 import chai from 'chai';
 import Blob from 'fetch-blob';
 import {Response} from '../src/index.js';
