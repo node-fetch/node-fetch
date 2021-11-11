@@ -78,7 +78,7 @@ export default async function fetch(url, options_) {
 		};
 
 		// Send request
-		const request_ = send(parsedURL, options);
+		const request_ = send(parsedURL.toString(), options);
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
