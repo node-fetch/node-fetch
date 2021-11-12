@@ -1,4 +1,3 @@
-
 /**
  * Request.js
  *
@@ -21,7 +20,7 @@ const INTERNALS = Symbol('Request internals');
 /**
  * Check if `obj` is an instance of Request.
  *
- * @param  {*} obj
+ * @param  {*} object
  * @return {boolean}
  */
 const isRequest = object => {
@@ -133,14 +132,17 @@ export default class Request extends Body {
 		this.referrerPolicy = init.referrerPolicy || input.referrerPolicy || '';
 	}
 
+	/** @returns {string} */
 	get method() {
 		return this[INTERNALS].method;
 	}
 
+	/** @returns {string} */
 	get url() {
 		return formatUrl(this[INTERNALS].parsedURL);
 	}
 
+	/** @returns {Headers} */
 	get headers() {
 		return this[INTERNALS].headers;
 	}
@@ -149,6 +151,7 @@ export default class Request extends Body {
 		return this[INTERNALS].redirect;
 	}
 
+	/** @returns {AbortSignal} */
 	get signal() {
 		return this[INTERNALS].signal;
 	}
@@ -206,8 +209,8 @@ Object.defineProperties(Request.prototype, {
 /**
  * Convert a Request to Node.js http request options.
  *
- * @param   Request  A Request instance
- * @return  Object   The options object to be passed to http.request
+ * @param {Request} request - A Request instance
+ * @return The options object to be passed to http.request
  */
 export const getNodeRequestOptions = request => {
 	const {parsedURL} = request[INTERNALS];
@@ -296,6 +299,7 @@ export const getNodeRequestOptions = request => {
 	};
 
 	return {
+		/** @type {URL} */
 		parsedURL,
 		options
 	};
