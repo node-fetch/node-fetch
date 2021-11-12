@@ -41,7 +41,7 @@
 	- [Streams](#streams)
 	- [Accessing Headers and other Metadata](#accessing-headers-and-other-metadata)
 	- [Extract Set-Cookie Header](#extract-set-cookie-header)
-	- [Post data using a file stream](#post-data-using-a-file-stream)
+	- [Post data using a file](#post-data-using-a-file)
 	- [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
 - [API](#api)
 	- [fetch(url[, options])](#fetchurl-options)
@@ -403,7 +403,7 @@ node-fetch also supports any spec-compliant FormData implementations such as [fo
 
 ```js
 import fetch from 'node-fetch';
-import {FormData} from 'formdata-polyfill/esm-min.js';
+import {FormData} from 'formdata-polyfill/esm.min.js';
 
 // Alternative hack to get the same FormData instance as node-fetch
 // const FormData = (await new Response(new URLSearchParams()).formData()).constructor
