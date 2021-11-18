@@ -6,7 +6,7 @@
  */
 
 import Stream, {PassThrough} from 'node:stream';
-import {types, deprecate} from 'node:util';
+import {types, deprecate, promisify} from 'node:util';
 
 import Blob from 'fetch-blob';
 import {FormData, formDataToBlob} from 'formdata-polyfill/esm.min.js';
@@ -15,6 +15,7 @@ import {FetchError} from './errors/fetch-error.js';
 import {FetchBaseError} from './errors/base.js';
 import {isBlob, isURLSearchParameters} from './utils/is.js';
 
+const pipeline = promisify(Stream.pipeline);
 const INTERNALS = Symbol('Body internals');
 
 /**
@@ -379,14 +380,14 @@ export const getTotalBytes = request => {
  *
  * @param {Stream.Writable} dest The stream to write to.
  * @param obj.body Body object from the Body instance.
- * @returns {void}
+ * @returns {Promise<void>}
  */
-export const writeToStream = (dest, {body}) => {
+export const writeToStream = async (dest, {body}) => {
 	if (body === null) {
 		// Body is null
 		dest.end();
 	} else {
 		// Body is stream
-		body.pipe(dest);
+		await pipeline(body, dest);
 	}
 };

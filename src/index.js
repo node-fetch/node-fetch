@@ -291,7 +291,7 @@ export default async function fetch(url, options_) {
 			resolve(response);
 		});
 
-		writeToStream(request_, request);
+		writeToStream(request_, request).catch(reject);
 	});
 }
 

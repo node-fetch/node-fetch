@@ -4,6 +4,9 @@ All notable changes will be recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+* fix: handle errors from the request body stream by @mdmitry01 in https://github.com/node-fetch/node-fetch/pull/1392
+
 ## 3.1.0
 
 ## What's Changed
