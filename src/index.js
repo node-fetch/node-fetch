@@ -130,7 +130,14 @@ export default async function fetch(url, options_) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : new URL(location, request.url);
+				let locationURL;
+				try {
+					locationURL = location === null ? null : new URL(location, request.url);
+				} catch (e) {
+					reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, 'invalid-redirect'));
+					finalize();
+					return;
+				}
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {

@@ -527,6 +527,16 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should throw an error an invalid redirect url', () => {
+		const url = `${base}redirect/301/invalid`;
+		return fetch(url).then(() => {
+			expect.fail();
+		}, error => {
+			expect(error).to.be.an.instanceof(FetchError);
+			expect(error.message).to.equal('uri requested responds with an invalid redirect URL: //super:invalid:url%/');
+		});
+	});
+
 	it('should throw a TypeError on an invalid redirect option', () => {
 		const url = `${base}redirect/301`;
 		const options = {

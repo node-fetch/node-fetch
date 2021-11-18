@@ -239,6 +239,12 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/redirect/301/invalid') {
+			res.statusCode = 301;
+			res.setHeader('Location', '//super:invalid:url%/');
+			res.end();
+		}
+
 		if (p === '/redirect/302') {
 			res.statusCode = 302;
 			res.setHeader('Location', '/inspect');
