@@ -4,7 +4,7 @@ All notable changes will be recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-* fix(request): fix crash when an invalid redirection URL is encountered
+* fix(request): fix crash when an invalid redirection URL is encountered https://github.com/node-fetch/node-fetch/pull/1387
 
 ## 3.1.0
 
