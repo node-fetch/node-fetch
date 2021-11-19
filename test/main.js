@@ -1463,7 +1463,7 @@ describe('node-fetch', () => {
 			method: 'POST',
 			body: requestBody
 		};
-		const errorMessage = 'request body stream error'
+		const errorMessage = 'request body stream error';
 		setImmediate(() => {
 			requestBody.emit('error', new Error(errorMessage));
 		});

@@ -291,6 +291,7 @@ export default async function fetch(url, options_) {
 			resolve(response);
 		});
 
+		// eslint-disable-next-line prefer-await-to-then
 		writeToStream(request_, request).catch(reject);
 	});
 }
