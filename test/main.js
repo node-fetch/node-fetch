@@ -1456,6 +1456,21 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should reject if the request body stream emits an error', () => {
+		const url = `${base}inspect`;
+		const requestBody = new stream.PassThrough();
+		const options = {
+			method: 'POST',
+			body: requestBody
+		};
+		const errorMessage = 'request body stream error';
+		setImmediate(() => {
+			requestBody.emit('error', new Error(errorMessage));
+		});
+		return expect(fetch(url, options))
+			.to.be.rejectedWith(Error, errorMessage);
+	});
+
 	it('should allow POST request with form-data as body', () => {
 		const form = new FormData();
 		form.append('a', '1');
