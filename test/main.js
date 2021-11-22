@@ -527,7 +527,19 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should throw an error an invalid redirect url', () => {
+	it('should process an invalid redirect (manual)', () => {
+		const url = `${base}redirect/301/invalid`;
+		const options = {
+			redirect: 'manual'
+		};
+		return fetch(url, options).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.equal('//super:invalid:url%/');
+		});
+	});
+
+	it('should throw an error on invalid redirect url', () => {
 		const url = `${base}redirect/301/invalid`;
 		return fetch(url).then(() => {
 			expect.fail();
