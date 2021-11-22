@@ -303,7 +303,8 @@ export default async function fetch(url, options_) {
 			resolve(response);
 		});
 
-		writeToStream(request_, request);
+		// eslint-disable-next-line promise/prefer-await-to-then
+		writeToStream(request_, request).catch(reject);
 	});
 }
 
