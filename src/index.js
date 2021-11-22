@@ -133,7 +133,7 @@ export default async function fetch(url, options_) {
 				let locationURL;
 				try {
 					locationURL = location === null ? null : new URL(location, request.url);
-				} catch (_error) {
+				} catch {
 					// error can only be invalid URL
 					reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, 'invalid-redirect'));
 					finalize();
