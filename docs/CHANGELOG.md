@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+* fix(request): fix crash when an invalid redirection URL is encountered https://github.com/node-fetch/node-fetch/pull/1387
 * fix: handle errors from the request body stream by @mdmitry01 in https://github.com/node-fetch/node-fetch/pull/1392
 
 ## 3.1.0
