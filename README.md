@@ -347,7 +347,7 @@ Header              | Value
 `Connection`        | `close` _(when no `options.agent` is present)_
 `Content-Length`    | _(automatically calculated, if possible)_
 `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_
-`User-Agent`        | `node-fetch/1.0 (+https://github.com/bitinn/node-fetch)`
+`User-Agent`        | `node-fetch/1.0`
 
 Note: when `body` is a `Stream`, `Content-Length` is not set automatically.
 
