@@ -750,7 +750,7 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 For older versions please use the type definitions from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped):
 
 ```sh
-npm install --save-dev @types/node-fetch
+npm install --save-dev @types/node-fetch@2.x
 ```
 
 ## Acknowledgement
