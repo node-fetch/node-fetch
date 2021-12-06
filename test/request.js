@@ -123,6 +123,8 @@ describe('Request', () => {
 			.to.throw(TypeError);
 		expect(() => new Request(base, {body: 'a', method: 'head'}))
 			.to.throw(TypeError);
+		expect(() => new Request(new Request(base), {body: 'a'}))
+			.to.throw(TypeError);
 	});
 
 	it('should throw error when including credentials', () => {
