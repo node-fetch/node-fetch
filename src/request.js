@@ -15,6 +15,7 @@ import Body, { clone, extractContentType, getTotalBytes } from './body';
 
 const INTERNALS = Symbol('Request internals');
 const URL = Url.URL || whatwgUrl.URL;
+const NAME = Symbol.toStringTag;
 
 // fix an issue where "format", "parse" aren't a named export for node <10
 const parse_url = Url.parse;
@@ -56,13 +57,23 @@ function isRequest(input) {
 	);
 }
 
-function isAbortSignal(signal) {
+/**
+ * Check if `obj` is an instance of AbortSignal.
+ * @param {*} object - Object to check for
+ * @return {boolean}
+ */
+function isAbortSignal(object) {
 	const proto = (
-		signal
-		&& typeof signal === 'object'
-		&& Object.getPrototypeOf(signal)
+		object
+		&& typeof object === 'object'
+		&& Object.getPrototypeOf(object)
 	);
-	return !!(proto && proto.constructor.name === 'AbortSignal');
+	return !!(proto && proto.constructor.name === 'AbortSignal') || (
+		typeof object === 'object' && (
+			object[NAME] === 'AbortSignal' ||
+			object[NAME] === 'EventTarget'
+		)
+	);
 }
 
 /**
