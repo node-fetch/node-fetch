@@ -36,6 +36,7 @@ import TestServer from './utils/server.js';
 import chaiTimeout from './utils/chai-timeout.js';
 
 const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
+const encoder = new TextEncoder();
 
 function isNodeLowerThan(version) {
 	return !~process.version.localeCompare(version, undefined, {numeric: true});
@@ -1315,7 +1316,6 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBuffer body', () => {
-		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
@@ -1334,7 +1334,7 @@ describe('node-fetch', () => {
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new VMUint8Array(Buffer.from('Hello, world!\n')).buffer
+			body: new VMUint8Array(encoder.encode('Hello, world!\n')).buffer
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1346,7 +1346,6 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (Uint8Array) body', () => {
-		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
@@ -1362,7 +1361,6 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (DataView) body', () => {
-		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
@@ -1381,7 +1379,7 @@ describe('node-fetch', () => {
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
-			body: new VMUint8Array(Buffer.from('Hello, world!\n'))
+			body: new VMUint8Array(encoder.encode('Hello, world!\n'))
 		};
 		return fetch(url, options).then(res => res.json()).then(res => {
 			expect(res.method).to.equal('POST');
@@ -1393,7 +1391,6 @@ describe('node-fetch', () => {
 	});
 
 	it('should allow POST request with ArrayBufferView (Uint8Array, offset, length) body', () => {
-		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
 		const options = {
 			method: 'POST',
@@ -2216,7 +2213,7 @@ describe('node-fetch', () => {
 	// Issue #414
 	it('should reject if attempt to accumulate body stream throws', () => {
 		const res = new Response(stream.Readable.from((async function * () {
-			yield Buffer.from('tada');
+			yield encoder.encode('tada');
 			await new Promise(resolve => {
 				setTimeout(resolve, 200);
 			});
@@ -2312,7 +2309,7 @@ describe('node-fetch', () => {
 			size: 1024
 		});
 
-		const bufferBody = Buffer.from(bodyContent);
+		const bufferBody = encoder.encode(bodyContent);
 		const bufferRequest = new Request(url, {
 			method: 'POST',
 			body: bufferBody,
