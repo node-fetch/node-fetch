@@ -154,13 +154,6 @@ describe('Response', () => {
 		});
 	});
 
-	it('should support buffer as body', () => {
-		const res = new Response(Buffer.from('a=1'));
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
 	it('should support ArrayBuffer as body', () => {
 		const encoder = new TextEncoder();
 		const res = new Response(encoder.encode('a=1'));

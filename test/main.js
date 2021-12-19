@@ -1314,23 +1314,6 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow POST request with buffer body', () => {
-		const url = `${base}inspect`;
-		const options = {
-			method: 'POST',
-			body: Buffer.from('a=1', 'utf-8')
-		};
-		return fetch(url, options).then(res => {
-			return res.json();
-		}).then(res => {
-			expect(res.method).to.equal('POST');
-			expect(res.body).to.equal('a=1');
-			expect(res.headers['transfer-encoding']).to.be.undefined;
-			expect(res.headers['content-type']).to.be.undefined;
-			expect(res.headers['content-length']).to.equal('3');
-		});
-	});
-
 	it('should allow POST request with ArrayBuffer body', () => {
 		const encoder = new TextEncoder();
 		const url = `${base}inspect`;
