@@ -178,7 +178,6 @@ describe('Headers', () => {
 		res.j = Number.NaN;
 		res.k = true;
 		res.l = false;
-		res.m = Buffer.from('test');
 
 		const h1 = new Headers(res);
 		h1.set('n', [1, 2]);
@@ -198,7 +197,6 @@ describe('Headers', () => {
 		expect(h1Raw.j).to.include('NaN');
 		expect(h1Raw.k).to.include('true');
 		expect(h1Raw.l).to.include('false');
-		expect(h1Raw.m).to.include('test');
 		expect(h1Raw.n).to.include('1,2');
 		expect(h1Raw.n).to.include('3,4');
 
