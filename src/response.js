@@ -7,7 +7,6 @@
 import Headers from './headers.js';
 import Body, {clone, extractContentType} from './body.js';
 import {isRedirect} from './utils/is-redirect.js';
-import {deprecate} from 'util';
 
 const INTERNALS = Symbol('Response internals');
 
@@ -138,8 +137,5 @@ Object.defineProperties(Response.prototype, {
 	redirected: {enumerable: true},
 	statusText: {enumerable: true},
 	headers: {enumerable: true},
-	clone: {enumerable: true},
-	data: {get: deprecate(() => {},
-		'.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead',
-		'https://github.com/node-fetch/node-fetch/issues/1000 (response)')}
+	clone: {enumerable: true}
 });

@@ -250,15 +250,11 @@ describe('Response', () => {
 	});
 
 	it('should warn once when using .data (response)', () => new Promise(resolve => {
-		const listenerFunc = ev => {
-			process.off('warning', listenerFunc);
-			expect(ev.message).to.equal('.data is not a valid Response property, use .json(), .text(), .arrayBuffer(), or .body instead');
+		process.once('warning', (evt) => {
+			expect(evt.message).to.equal(`data doesn\'t exist, use json(), text(), arrayBuffer(), or body instead`);
 			resolve();
-		};
+		});
 
-		process.on('warning', listenerFunc);
-
-		const response = new Response('a');
-		response.data;
+		new Response('a').data;
 	}));
 });

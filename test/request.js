@@ -285,13 +285,10 @@ describe('Request', () => {
 	});
 
 	it('should warn once when using .data (request)', () => new Promise(resolve => {
-		const listenerFunc = ev => {
-			process.off('warning', listenerFunc);
-			expect(ev.message).to.equal('.data is not a valid RequestInit property, use .body instead');
+		process.once('warning', (evt) => {
+			expect(evt.message).to.equal('.data is not a valid RequestInit property, use .body instead');
 			resolve();
-		};
-
-		process.on('warning', listenerFunc);
+		});
 
 		// eslint-disable-next-line no-new
 		new Request(base, {
