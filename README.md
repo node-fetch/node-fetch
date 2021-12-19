@@ -39,11 +39,9 @@
 	- [Handling cookies](#handling-cookies)
 - [Advanced Usage](#advanced-usage)
 	- [Streams](#streams)
-	- [Buffer](#buffer)
-	- [Accessing Headers and other Meta data](#accessing-headers-and-other-meta-data)
+	- [Accessing Headers and other Metadata](#accessing-headers-and-other-metadata)
 	- [Extract Set-Cookie Header](#extract-set-cookie-header)
-	- [Post data using a file stream](#post-data-using-a-file-stream)
-	- [Post with form-data (detect multipart)](#post-with-form-data-detect-multipart)
+	- [Post data using a file](#post-data-using-a-file)
 	- [Request cancellation with AbortSignal](#request-cancellation-with-abortsignal)
 - [API](#api)
 	- [fetch(url[, options])](#fetchurl-options)
@@ -68,7 +66,6 @@
 		- [body.blob()](#bodyblob)
 		- [body.json()](#bodyjson)
 		- [body.text()](#bodytext)
-		- [body.buffer()](#bodybuffer)
 	- [Class: FetchError](#class-fetcherror)
 	- [Class: AbortError](#class-aborterror)
 - [TypeScript](#typescript)
@@ -112,27 +109,48 @@ npm install node-fetch
 
 ## Loading and configuring the module
 
+### ES Modules (ESM)
+
 ```js
 import fetch from 'node-fetch';
 ```
 
-If you want to patch the global object in node:
+### CommonJS
 
-```js
-import fetch from 'node-fetch';
+`node-fetch` from v3 is an ESM-only module - you are not able to import it with `require()`.
 
-if (!globalThis.fetch) {
-	globalThis.fetch = fetch;
-}
+If you cannot switch to ESM, please use v2 which remains compatible with CommonJS. Critical bug fixes will continue to be published for v2.
+
+```sh
+npm install node-fetch@2
 ```
-
-`node-fetch` is an ESM-only module - you are not able to import it with `require`. We recommend you stay on v2 which is built with CommonJS unless you use ESM yourself. We will continue to publish critical bug fixes for it.
 
 Alternatively, you can use the async `import()` function from CommonJS to load `node-fetch` asynchronously:
 
 ```js
 // mod.cjs
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+```
+
+### Providing global access
+
+To use `fetch()` without importing it, you can patch the `global` object in node:
+
+```js
+// fetch-polyfill.js
+import fetch from 'node-fetch';
+
+if (!globalThis.fetch) {
+    globalThis.fetch = fetch;
+    globalThis.Headers = Headers;
+    globalThis.Request = Request;
+    globalThis.Response = Response;
+}
+
+// index.js
+import './fetch-polyfill'
+
+// ...
 ```
 
 ## Upgrading
@@ -340,22 +358,7 @@ try {
 }
 ```
 
-### Buffer
-
-If you prefer to cache binary data in full, use buffer(). (NOTE: buffer() is a `node-fetch` only API)
-
-```js
-import fetch from 'node-fetch';
-import fileType from 'file-type';
-
-const response = await fetch('https://octodex.github.com/images/Fintechtocat.png');
-const buffer = await response.buffer();
-const type = await fileType.fromBuffer(buffer)
-
-console.log(type);
-```
-
-### Accessing Headers and other Meta data
+### Accessing Headers and other Metadata
 
 ```js
 import fetch from 'node-fetch';
@@ -382,27 +385,28 @@ const response = await fetch('https://example.com');
 console.log(response.headers.raw()['set-cookie']);
 ```
 
-### Post data using a file stream
+### Post data using a file
 
 ```js
-import {createReadStream} from 'fs';
+import {fileFromSync} from 'fetch-blob/from.js';
 import fetch from 'node-fetch';
 
-const stream = createReadStream('input.txt');
+const blob = fileFromSync('./input.txt', 'text/plain');
 
-const response = await fetch('https://httpbin.org/post', {method: 'POST', body: stream});
+const response = await fetch('https://httpbin.org/post', {method: 'POST', body: blob});
 const data = await response.json();
 
 console.log(data)
 ```
 
-node-fetch also supports spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) and [formdata-node](https://github.com/octet-stream/form-data):
+node-fetch also supports any spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill). But any other spec-compliant such as [formdata-node](https://github.com/octet-stream/form-data) works too, but we recommend formdata-polyfill because we use this one internally for decoding entries back to FormData.
 
 ```js
 import fetch from 'node-fetch';
-import {FormData} from 'formdata-polyfill/esm-min.js';
-// Alternative package:
-import {FormData} from 'formdata-node';
+import {FormData} from 'formdata-polyfill/esm.min.js';
+
+// Alternative hack to get the same FormData instance as node-fetch
+// const FormData = (await new Response(new URLSearchParams()).formData()).constructor
 
 const form = new FormData();
 form.set('greeting', 'Hello, world!');
@@ -423,7 +427,9 @@ An example of timing out a request after 150ms could be achieved as the followin
 
 ```js
 import fetch from 'node-fetch';
-import AbortController from 'abort-controller';
+
+// AbortController was added in node v14.17.0 globally
+const AbortController = globalThis.AbortController || await import('abort-controller')
 
 const controller = new AbortController();
 const timeout = setTimeout(() => {
@@ -467,7 +473,7 @@ The default values are shown after each option key.
 	// These properties are part of the Fetch Standard
 	method: 'GET',
 	headers: {},            // Request headers. format is the identical to that accepted by the Headers constructor (see below)
-	body: null,             // Request body. can be null, a string, a Buffer, a Blob, or a Node.js Readable stream
+	body: null,             // Request body. can be null, or a Node.js Readable stream
 	redirect: 'follow',     // Set to `manual` to extract redirect headers, `error` to reject redirect
 	signal: null,           // Pass an instance of AbortSignal to optionally abort requests
 
@@ -562,7 +568,7 @@ const response = await fetch('https://example.com', {
 	highWaterMark: 1024 * 1024
 });
 
-const result = await res.clone().buffer();
+const result = await res.clone().arrayBuffer();
 console.dir(result);
 ```
 
@@ -581,8 +587,6 @@ Due to the nature of Node.js, the following properties are not implemented at th
 
 - `type`
 - `destination`
-- `referrer`
-- `referrerPolicy`
 - `mode`
 - `credentials`
 - `cache`
@@ -691,10 +695,6 @@ const copyOfHeaders = new Headers(headers);
 
 `Body` is an abstract interface with methods that are applicable to both `Request` and `Response` classes.
 
-The following methods are not yet implemented in node-fetch at this moment:
-
-- `formData()`
-
 #### body.body
 
 <small>_(deviation from spec)_</small>
@@ -713,6 +713,8 @@ A boolean property for if this body has been consumed. Per the specs, a consumed
 
 #### body.arrayBuffer()
 
+#### body.formData()
+
 #### body.blob()
 
 #### body.json()
@@ -724,14 +726,6 @@ A boolean property for if this body has been consumed. Per the specs, a consumed
 - Returns: `Promise`
 
 Consume the body and return a promise that will resolve to one of these formats.
-
-#### body.buffer()
-
-<small>_(node-fetch extension)_</small>
-
-- Returns: `Promise<Buffer>`
-
-Consume the body and return a promise that will resolve to a Buffer.
 
 <a id="class-fetcherror"></a>
 
@@ -756,7 +750,7 @@ An Error thrown when the request is aborted in response to an `AbortSignal`'s `a
 For older versions please use the type definitions from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped):
 
 ```sh
-npm install --save-dev @types/node-fetch
+npm install --save-dev @types/node-fetch@2.x
 ```
 
 ## Acknowledgement

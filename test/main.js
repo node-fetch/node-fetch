@@ -1,18 +1,18 @@
 // Test tools
-import zlib from 'zlib';
-import crypto from 'crypto';
-import http from 'http';
-import fs from 'fs';
-import stream from 'stream';
-import path from 'path';
-import {lookup} from 'dns';
-import vm from 'vm';
+import zlib from 'node:zlib';
+import crypto from 'node:crypto';
+import http from 'node:http';
+import fs from 'node:fs';
+import stream from 'node:stream';
+import path from 'node:path';
+import {lookup} from 'node:dns';
+import vm from 'node:vm';
 import chai from 'chai';
 import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
-import {FormData as FormDataNode} from 'formdata-node';
+import {FormData as FormDataNode} from 'formdata-polyfill/esm.min.js';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
@@ -524,6 +524,28 @@ describe('node-fetch', () => {
 			expect(res.url).to.equal(url);
 			expect(res.status).to.equal(301);
 			expect(res.headers.get('location')).to.be.null;
+		});
+	});
+
+	it('should process an invalid redirect (manual)', () => {
+		const url = `${base}redirect/301/invalid`;
+		const options = {
+			redirect: 'manual'
+		};
+		return fetch(url, options).then(res => {
+			expect(res.url).to.equal(url);
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.equal('//super:invalid:url%/');
+		});
+	});
+
+	it('should throw an error on invalid redirect url', () => {
+		const url = `${base}redirect/301/invalid`;
+		return fetch(url).then(() => {
+			expect.fail();
+		}, error => {
+			expect(error).to.be.an.instanceof(FetchError);
+			expect(error.message).to.equal('uri requested responds with an invalid redirect URL: //super:invalid:url%/');
 		});
 	});
 
@@ -1456,6 +1478,21 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should reject if the request body stream emits an error', () => {
+		const url = `${base}inspect`;
+		const requestBody = new stream.PassThrough();
+		const options = {
+			method: 'POST',
+			body: requestBody
+		};
+		const errorMessage = 'request body stream error';
+		setImmediate(() => {
+			requestBody.emit('error', new Error(errorMessage));
+		});
+		return expect(fetch(url, options))
+			.to.be.rejectedWith(Error, errorMessage);
+	});
+
 	it('should allow POST request with form-data as body', () => {
 		const form = new FormData();
 		form.append('a', '1');
@@ -2215,7 +2252,6 @@ describe('node-fetch', () => {
 		function lookupSpy(hostname, options, callback) {
 			called++;
 
-			// eslint-disable-next-line node/prefer-promises/dns
 			return lookup(hostname, options, callback);
 		}
 
@@ -2232,7 +2268,6 @@ describe('node-fetch', () => {
 		function lookupSpy(hostname, options, callback) {
 			families.push(options.family);
 
-			// eslint-disable-next-line node/prefer-promises/dns
 			return lookup(hostname, {}, callback);
 		}
 

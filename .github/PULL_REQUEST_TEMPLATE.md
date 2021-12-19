@@ -1,20 +1,23 @@
-<!--
-Please read and follow these instructions before creating and submitting a pull request:
+<!-- Thanks for contributing! -->
 
-- If you're fixing a bug, ensure you add unit tests to prove that it works.
-- Before adding a feature, it is best to create an issue explaining it first. It would save you some effort in case we don't consider it should be included in node-fetch.
-- If you are reporting a bug, adding failing units tests can be a good idea.
--->
+## Purpose
 
-**What is the purpose of this pull request?**
 
-- [ ] Documentation update
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Other, please explain:
+## Changes
 
-**What changes did you make? (provide an overview)**
 
-**Which issue (if any) does this pull request address?**
+## Additional information
 
-**Is there anything you'd like reviewers to know?**
+
+___
+
+<!-- Mark the ones you have done and remove unnecessary ones. Add new tasks that fit (like TODOs). -->
+- [ ] I updated ./docs/CHANGELOG.md with a link to this PR or Issue
+- [ ] I updated ./docs/v3-UPGRADE-GUIDE
+- [ ] I updated readme
+- [ ] I added unit test(s)
+
+___
+
+<!-- Add `- Fixes #_NUMBER_` line for every PR/Issue this PR solves. Do not comma separate them. -->
+- Fixes #000

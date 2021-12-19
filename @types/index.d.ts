@@ -71,6 +71,14 @@ export interface RequestInit {
 	 * An AbortSignal to set request's signal.
 	 */
 	signal?: AbortSignal | null;
+	/**
+	 * A string whose value is a same-origin URL, "about:client", or the empty string, to set request’s referrer.
+	 */
+	referrer?: string;
+	/**
+	 * A referrer policy to set request’s referrerPolicy.
+	 */
+	referrerPolicy?: ReferrerPolicy;
 
 	// Node-fetch extensions to the whatwg/fetch spec
 	agent?: Agent | ((parsedUrl: URL) => Agent);
@@ -95,6 +103,7 @@ export type BodyInit =
 	| Blob
 	| Buffer
 	| URLSearchParams
+	| FormData
 	| NodeJS.ReadableStream
 	| string;
 declare class BodyMixin {
@@ -104,8 +113,12 @@ declare class BodyMixin {
 	readonly bodyUsed: boolean;
 	readonly size: number;
 
+	/**
+ 	* @deprecated Please use 'response.arrayBuffer()' instead of 'response.buffer()
+ 	*/
 	buffer(): Promise<Buffer>;
 	arrayBuffer(): Promise<ArrayBuffer>;
+	formData(): Promise<FormData>;
 	blob(): Promise<Blob>;
 	json(): Promise<unknown>;
 	text(): Promise<string>;
@@ -115,6 +128,7 @@ declare class BodyMixin {
 export interface Body extends Pick<BodyMixin, keyof BodyMixin> {}
 
 export type RequestRedirect = 'error' | 'follow' | 'manual';
+export type ReferrerPolicy = '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'same-origin' | 'origin' | 'strict-origin' | 'origin-when-cross-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
 export type RequestInfo = string | Request;
 export class Request extends BodyMixin {
 	constructor(input: RequestInfo, init?: RequestInit);
@@ -139,6 +153,14 @@ export class Request extends BodyMixin {
 	 * Returns the URL of request as a string.
 	 */
 	readonly url: string;
+	/**
+	 * A string whose value is a same-origin URL, "about:client", or the empty string, to set request’s referrer.
+	 */
+	readonly referrer: string;
+	/**
+	 * A referrer policy to set request’s referrerPolicy.
+	 */
+	readonly referrerPolicy: ReferrerPolicy;
 	clone(): Request;
 }
 
@@ -157,6 +179,7 @@ export class Response extends BodyMixin {
 	clone(): Response;
 
 	static error(): Response;
+	static redirect(url: string, status?: number): Response;
 }
 
 export class FetchError extends Error {

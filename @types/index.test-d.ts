@@ -88,6 +88,9 @@ async function run() {
 		new Map([['a', null], ['3', null]]).keys()
 	]);
 	/* eslint-enable no-new */
+
+	expectType<Response>(Response.redirect('https://google.com'));
+	expectType<Response>(Response.redirect('https://google.com', 301));
 }
 
 run().finally(() => {

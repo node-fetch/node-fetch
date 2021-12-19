@@ -1,5 +1,5 @@
-import stream from 'stream';
-import http from 'http';
+import stream from 'node:stream';
+import http from 'node:http';
 
 import AbortController from 'abort-controller';
 import chai from 'chai';
@@ -122,6 +122,8 @@ describe('Request', () => {
 		expect(() => new Request(base, {body: 'a', method: 'get'}))
 			.to.throw(TypeError);
 		expect(() => new Request(base, {body: 'a', method: 'head'}))
+			.to.throw(TypeError);
+		expect(() => new Request(new Request(base), {body: 'a'}))
 			.to.throw(TypeError);
 	});
 

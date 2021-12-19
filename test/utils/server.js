@@ -239,6 +239,12 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/redirect/301/invalid') {
+			res.statusCode = 301;
+			res.setHeader('Location', '//super:invalid:url%/');
+			res.end();
+		}
+
 		if (p === '/redirect/302') {
 			res.statusCode = 302;
 			res.setHeader('Location', '/inspect');
@@ -299,6 +305,20 @@ export default class TestServer {
 		if (p === '/redirect/bad-location') {
 			res.socket.write('HTTP/1.1 301\r\nLocation: ☃\r\nContent-Length: 0\r\n');
 			res.socket.end('\r\n');
+		}
+
+		if (p === '/redirect/referrer-policy') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/inspect');
+			res.setHeader('Referrer-Policy', 'foo unsafe-url bar');
+			res.end();
+		}
+
+		if (p === '/redirect/referrer-policy/same-origin') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/inspect');
+			res.setHeader('Referrer-Policy', 'foo unsafe-url same-origin bar');
+			res.end();
 		}
 
 		if (p === '/redirect/chunked') {

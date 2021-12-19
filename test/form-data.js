@@ -1,103 +1,95 @@
-import {FormData} from 'formdata-node';
-import Blob from 'fetch-blob';
-
+import {FormData as FormDataNode} from 'formdata-node';
+import {FormData} from 'formdata-polyfill/esm.min.js';
+import {Blob} from 'fetch-blob/from.js';
 import chai from 'chai';
-
-import {getFormDataLength, getBoundary, formDataIterator} from '../src/utils/form-data.js';
-import read from './utils/read-stream.js';
+import {Request, Response} from '../src/index.js';
 
 const {expect} = chai;
 
-const carriage = '\r\n';
-
-const getFooter = boundary => `--${boundary}--${carriage.repeat(2)}`;
-
 describe('FormData', () => {
-	it('should return a length for empty form-data', () => {
-		const form = new FormData();
-		const boundary = getBoundary();
+	it('Consume empty URLSearchParams as FormData', async () => {
+		const res = new Response(new URLSearchParams());
+		const fd = await res.formData();
 
-		expect(getFormDataLength(form, boundary)).to.be.equal(Buffer.byteLength(getFooter(boundary)));
+		expect(fd).to.be.instanceOf(FormData);
 	});
 
-	it('should add a Blob field\'s size to the FormData length', () => {
-		const form = new FormData();
-		const boundary = getBoundary();
+	it('Consume empty URLSearchParams as FormData', async () => {
+		const req = new Request('about:blank', {
+			method: 'POST',
+			body: new URLSearchParams()
+		});
+		const fd = await req.formData();
 
+		expect(fd).to.be.instanceOf(FormData);
+	});
+
+	it('Consume empty response.formData() as FormData', async () => {
+		const res = new Response(new FormData());
+		const fd = await res.formData();
+
+		expect(fd).to.be.instanceOf(FormData);
+	});
+
+	it('Consume empty response.formData() as FormData', async () => {
+		const res = new Response(new FormData());
+		const fd = await res.formData();
+
+		expect(fd).to.be.instanceOf(FormData);
+	});
+
+	it('Consume empty request.formData() as FormData', async () => {
+		const req = new Request('about:blank', {
+			method: 'POST',
+			body: new FormData()
+		});
+		const fd = await req.formData();
+
+		expect(fd).to.be.instanceOf(FormData);
+	});
+
+	it('Consume URLSearchParams with entries as FormData', async () => {
+		const res = new Response(new URLSearchParams({foo: 'bar'}));
+		const fd = await res.formData();
+
+		expect(fd.get('foo')).to.be.equal('bar');
+	});
+
+	it('should return a length for empty form-data', async () => {
+		const form = new FormData();
+		const ab = await new Request('http://a', {
+			method: 'post',
+			body: form
+		}).arrayBuffer();
+
+		expect(ab.byteLength).to.be.greaterThan(30);
+	});
+
+	it('should add a Blob field\'s size to the FormData length', async () => {
+		const form = new FormData();
 		const string = 'Hello, world!';
-		const expected = Buffer.byteLength(
-			`--${boundary}${carriage}` +
-			`Content-Disposition: form-data; name="field"${carriage.repeat(2)}` +
-			string +
-			`${carriage}${getFooter(boundary)}`
-		);
-
 		form.set('field', string);
-
-		expect(getFormDataLength(form, boundary)).to.be.equal(expected);
+		const fd = await new Request('about:blank', {method: 'POST', body: form}).formData();
+		expect(fd.get('field')).to.equal(string);
 	});
 
-	it('should return a length for a Blob field', () => {
+	it('should return a length for a Blob field', async () => {
 		const form = new FormData();
-		const boundary = getBoundary();
-
 		const blob = new Blob(['Hello, world!'], {type: 'text/plain'});
-
 		form.set('blob', blob);
 
-		const expected = blob.size + Buffer.byteLength(
-			`--${boundary}${carriage}` +
-			'Content-Disposition: form-data; name="blob"; ' +
-			`filename="blob"${carriage}Content-Type: text/plain` +
-			`${carriage.repeat(3)}${getFooter(boundary)}`
-		);
+		const fd = await new Response(form).formData();
 
-		expect(getFormDataLength(form, boundary)).to.be.equal(expected);
+		expect(fd.get('blob').size).to.equal(13);
 	});
 
-	it('should create a body from empty form-data', async () => {
-		const form = new FormData();
-		const boundary = getBoundary();
+	it('FormData-node still works thanks to symbol.hasInstance', async () => {
+		const form = new FormDataNode();
+		form.append('file', new Blob(['abc'], {type: 'text/html'}));
+		const res = new Response(form);
+		const fd = await res.formData();
 
-		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(getFooter(boundary));
-	});
-
-	it('should set default content-type', async () => {
-		const form = new FormData();
-		const boundary = getBoundary();
-
-		form.set('blob', new Blob([]));
-
-		expect(String(await read(formDataIterator(form, boundary)))).to.contain('Content-Type: application/octet-stream');
-	});
-
-	it('should create a body with a FormData field', async () => {
-		const form = new FormData();
-		const boundary = getBoundary();
-		const string = 'Hello, World!';
-
-		form.set('field', string);
-
-		const expected = `--${boundary}${carriage}` +
-		`Content-Disposition: form-data; name="field"${carriage.repeat(2)}` +
-		string +
-		`${carriage}${getFooter(boundary)}`;
-
-		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(expected);
-	});
-
-	it('should create a body with a FormData Blob field', async () => {
-		const form = new FormData();
-		const boundary = getBoundary();
-
-		const expected = `--${boundary}${carriage}` +
-		'Content-Disposition: form-data; name="blob"; ' +
-		`filename="blob"${carriage}Content-Type: text/plain${carriage.repeat(2)}` +
-		'Hello, World!' +
-		`${carriage}${getFooter(boundary)}`;
-
-		form.set('blob', new Blob(['Hello, World!'], {type: 'text/plain'}));
-
-		expect(String(await read(formDataIterator(form, boundary)))).to.be.equal(expected);
+		expect(await fd.get('file').text()).to.equal('abc');
+		expect(fd.get('file').type).to.equal('text/html');
 	});
 });
