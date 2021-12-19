@@ -208,7 +208,7 @@ describe('Request', () => {
 			body: new TextEncoder().encode('a=1')
 		});
 		expect(request.url).to.equal(url);
-		const blob = await request.blob()
+		const blob = await request.blob();
 		expect(blob).to.be.an.instanceOf(Blob);
 		expect(blob.size).to.equal(3);
 		expect(blob.type).to.equal('');

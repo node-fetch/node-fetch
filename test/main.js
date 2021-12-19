@@ -1817,7 +1817,7 @@ describe('node-fetch', () => {
 
 	it('should allow piping response body as stream', async () => {
 		const url = `${base}hello`;
-		const res = await fetch(url)
+		const res = await fetch(url);
 		expect(res.body).to.be.an.instanceof(stream.Transform);
 		const body = await text(res.body);
 		expect(body).to.equal('world');
@@ -1825,7 +1825,7 @@ describe('node-fetch', () => {
 
 	it('should allow cloning a response, and use both as stream', async () => {
 		const url = `${base}hello`;
-		const res = await fetch(url)
+		const res = await fetch(url);
 		const r1 = res.clone();
 		expect(res.body).to.be.an.instanceof(stream.Transform);
 		expect(r1.body).to.be.an.instanceof(stream.Transform);

@@ -6,7 +6,7 @@ const {expect} = chai;
 describe('external encoding', () => {
 	describe('data uri', () => {
 		it('should accept base64-encoded gif data uri', async () => {
-			const b64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
+			const b64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
 			const res = await fetch(b64);
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('Content-Type')).to.equal('image/gif');
