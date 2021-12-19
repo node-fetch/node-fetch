@@ -16,6 +16,7 @@ import {FormData as FormDataNode} from 'formdata-polyfill/esm.min.js';
 import delay from 'delay';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
+import {text} from 'stream-consumers';
 
 // Test subjects
 import Blob from 'fetch-blob';
@@ -51,18 +52,6 @@ chai.use(chaiIterator);
 chai.use(chaiString);
 chai.use(chaiTimeout);
 const {expect} = chai;
-
-function streamToPromise(stream, dataHandler) {
-	return new Promise((resolve, reject) => {
-		stream.on('data', (...args) => {
-			Promise.resolve()
-				.then(() => dataHandler(...args))
-				.catch(reject);
-		});
-		stream.on('end', resolve);
-		stream.on('error', reject);
-	});
-}
 
 describe('node-fetch', () => {
 	const local = new TestServer();
@@ -1826,39 +1815,28 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should allow piping response body as stream', () => {
+	it('should allow piping response body as stream', async () => {
 		const url = `${base}hello`;
-		return fetch(url).then(res => {
-			expect(res.body).to.be.an.instanceof(stream.Transform);
-			return streamToPromise(res.body, chunk => {
-				if (chunk === null) {
-					return;
-				}
-
-				expect(chunk.toString()).to.equal('world');
-			});
-		});
+		const res = await fetch(url)
+		expect(res.body).to.be.an.instanceof(stream.Transform);
+		const body = await text(res.body);
+		expect(body).to.equal('world');
 	});
 
-	it('should allow cloning a response, and use both as stream', () => {
+	it('should allow cloning a response, and use both as stream', async () => {
 		const url = `${base}hello`;
-		return fetch(url).then(res => {
-			const r1 = res.clone();
-			expect(res.body).to.be.an.instanceof(stream.Transform);
-			expect(r1.body).to.be.an.instanceof(stream.Transform);
-			const dataHandler = chunk => {
-				if (chunk === null) {
-					return;
-				}
+		const res = await fetch(url)
+		const r1 = res.clone();
+		expect(res.body).to.be.an.instanceof(stream.Transform);
+		expect(r1.body).to.be.an.instanceof(stream.Transform);
 
-				expect(chunk.toString()).to.equal('world');
-			};
+		const [t1, t2] = await Promise.all([
+			text(res.body),
+			text(r1.body)
+		]);
 
-			return Promise.all([
-				streamToPromise(res.body, dataHandler),
-				streamToPromise(r1.body, dataHandler)
-			]);
-		});
+		expect(t1).to.equal('world');
+		expect(t2).to.equal('world');
 	});
 
 	it('should allow cloning a json response and log it as text response', () => {
@@ -2121,13 +2099,10 @@ describe('node-fetch', () => {
 			});
 	});
 
-	it('should support reading blob as stream', () => {
-		return new Response('hello')
-			.blob()
-			.then(blob => streamToPromise(stream.Readable.from(blob.stream()), data => {
-				const string = Buffer.from(data).toString();
-				expect(string).to.equal('hello');
-			}));
+	it('should support reading blob as stream', async () => {
+		const blob = await new Response('hello').blob();
+		const str = await text(blob.stream());
+		expect(str).to.equal('hello');
 	});
 
 	it('should support blob round-trip', () => {
