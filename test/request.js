@@ -205,7 +205,7 @@ describe('Request', () => {
 		const url = base;
 		const request = new Request(url, {
 			method: 'POST',
-			body: 'a=1'
+			body: new TextEncoder().encode('a=1')
 		});
 		expect(request.url).to.equal(url);
 		const blob = await request.blob()
