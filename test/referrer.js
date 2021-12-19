@@ -127,7 +127,7 @@ describe('Request constructor', () => {
 			expect(() => {
 				const req = new Request('http://example.com', {referrer: 'foobar'});
 				expect.fail(req);
-			}).to.throw(TypeError, 'Invalid URL: foobar');
+			}).to.throw(TypeError, /Invalid URL/);
 		});
 	});
 
