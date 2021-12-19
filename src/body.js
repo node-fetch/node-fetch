@@ -7,6 +7,7 @@
 
 import Stream, {PassThrough} from 'node:stream';
 import {types, deprecate, promisify} from 'node:util';
+import {Buffer} from 'node:buffer';
 
 import Blob from 'fetch-blob';
 import {FormData, formDataToBlob} from 'formdata-polyfill/esm.min.js';

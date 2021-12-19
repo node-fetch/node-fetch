@@ -10,6 +10,8 @@ import http from 'node:http';
 import https from 'node:https';
 import zlib from 'node:zlib';
 import Stream, {PassThrough, pipeline as pump} from 'node:stream';
+import {Buffer} from 'node:buffer';
+
 import dataUriToBuffer from 'data-uri-to-buffer';
 
 import {writeToStream, clone} from './body.js';
