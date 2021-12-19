@@ -250,8 +250,8 @@ describe('Response', () => {
 	});
 
 	it('should warn once when using .data (response)', () => new Promise(resolve => {
-		process.once('warning', (evt) => {
-			expect(evt.message).to.equal(`data doesn\'t exist, use json(), text(), arrayBuffer(), or body instead`);
+		process.once('warning', evt => {
+			expect(evt.message).to.equal('data doesn\'t exist, use json(), text(), arrayBuffer(), or body instead');
 			resolve();
 		});
 

@@ -285,7 +285,7 @@ describe('Request', () => {
 	});
 
 	it('should warn once when using .data (request)', () => new Promise(resolve => {
-		process.once('warning', (evt) => {
+		process.once('warning', evt => {
 			expect(evt.message).to.equal('.data is not a valid RequestInit property, use .body instead');
 			resolve();
 		});
