@@ -201,18 +201,17 @@ describe('Request', () => {
 		});
 	});
 
-	it('should support blob() method', () => {
+	it('should support blob() method', async () => {
 		const url = base;
 		const request = new Request(url, {
 			method: 'POST',
-			body: Buffer.from('a=1')
+			body: new TextEncoder().encode('a=1')
 		});
 		expect(request.url).to.equal(url);
-		return request.blob().then(result => {
-			expect(result).to.be.an.instanceOf(Blob);
-			expect(result.size).to.equal(3);
-			expect(result.type).to.equal('');
-		});
+		const blob = await request.blob();
+		expect(blob).to.be.an.instanceOf(Blob);
+		expect(blob.size).to.equal(3);
+		expect(blob.type).to.equal('');
 	});
 
 	it('should support clone() method', () => {
