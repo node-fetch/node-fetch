@@ -1,6 +1,6 @@
-import http from 'http';
-import zlib from 'zlib';
-import {once} from 'events';
+import http from 'node:http';
+import zlib from 'node:zlib';
+import {once} from 'node:events';
 import Busboy from 'busboy';
 
 export default class TestServer {
