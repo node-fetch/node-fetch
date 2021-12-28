@@ -295,9 +295,9 @@ Cookies are not stored by default. However, cookies can be extracted and passed 
 The "Node.js way" is to use streams when possible. You can pipe `res.body` to another stream. This example uses [stream.pipeline](https://nodejs.org/api/stream.html#stream_stream_pipeline_streams_callback) to attach stream error handlers and wait for the download to complete.
 
 ```js
-import {createWriteStream} from 'fs';
-import {pipeline} from 'stream';
-import {promisify} from 'util'
+import {createWriteStream} from 'node:fs';
+import {pipeline} from 'node:stream';
+import {promisify} from 'node:util'
 import fetch from 'node-fetch';
 
 const streamPipeline = promisify(pipeline);
@@ -517,8 +517,8 @@ See [`http.Agent`](https://nodejs.org/api/http.html#http_new_agent_options) for 
 In addition, the `agent` option accepts a function that returns `http`(s)`.Agent` instance given current [URL](https://nodejs.org/api/url.html), this is useful during a redirection chain across HTTP and HTTPS protocol.
 
 ```js
-import http from 'http';
-import https from 'https';
+import http from 'node:http';
+import https from 'node:https';
 
 const httpAgent = new http.Agent({
 	keepAlive: true
