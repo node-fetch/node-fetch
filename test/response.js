@@ -241,4 +241,13 @@ describe('Response', () => {
 		expect(res.status).to.equal(0);
 		expect(res.statusText).to.equal('');
 	});
+
+	it('should warn once when using .data (response)', () => new Promise(resolve => {
+		process.once('warning', evt => {
+			expect(evt.message).to.equal('data doesn\'t exist, use json(), text(), arrayBuffer(), or body instead');
+			resolve();
+		});
+
+		new Response('a').data;
+	}));
 });

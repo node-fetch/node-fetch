@@ -178,7 +178,10 @@ Object.defineProperties(Body.prototype, {
 	arrayBuffer: {enumerable: true},
 	blob: {enumerable: true},
 	json: {enumerable: true},
-	text: {enumerable: true}
+	text: {enumerable: true},
+	data: {get: deprecate(() => {},
+		'data doesn\'t exist, use json(), text(), arrayBuffer(), or body instead',
+		'https://github.com/node-fetch/node-fetch/issues/1000 (response)')}
 });
 
 /**

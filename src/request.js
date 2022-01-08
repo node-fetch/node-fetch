@@ -7,6 +7,7 @@
  */
 
 import {format as formatUrl} from 'node:url';
+import {deprecate} from 'node:util';
 import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
@@ -29,6 +30,10 @@ const isRequest = object => {
 		typeof object[INTERNALS] === 'object'
 	);
 };
+
+const doBadDataWarn = deprecate(() => {},
+	'.data is not a valid RequestInit property, use .body instead',
+	'https://github.com/node-fetch/node-fetch/issues/1000 (request)');
 
 /**
  * Request class
@@ -57,6 +62,10 @@ export default class Request extends Body {
 
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
+
+		if ('data' in init) {
+			doBadDataWarn();
+		}
 
 		// eslint-disable-next-line no-eq-null, eqeqeq
 		if ((init.body != null || (isRequest(input) && input.body !== null)) &&

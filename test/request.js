@@ -282,4 +282,16 @@ describe('Request', () => {
 			expect(result).to.equal('a=1');
 		});
 	});
+
+	it('should warn once when using .data (request)', () => new Promise(resolve => {
+		process.once('warning', evt => {
+			expect(evt.message).to.equal('.data is not a valid RequestInit property, use .body instead');
+			resolve();
+		});
+
+		// eslint-disable-next-line no-new
+		new Request(base, {
+			data: ''
+		});
+	}));
 });
