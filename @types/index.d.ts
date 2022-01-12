@@ -104,12 +104,12 @@ export type BodyInit =
 	| Buffer
 	| URLSearchParams
 	| FormData
-	| NodeJS.ReadableStream
+	| ReadableStream<Uint8Array>
 	| string;
 declare class BodyMixin {
 	constructor(body?: BodyInit, options?: {size?: number});
 
-	readonly body: NodeJS.ReadableStream | null;
+	readonly body: ReadableStream<Uint8Array> | null;
 	readonly bodyUsed: boolean;
 	readonly size: number;
 
