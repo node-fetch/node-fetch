@@ -245,6 +245,12 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p.startsWith('/redirect-to/3')) {
+			res.statusCode = p.slice(13, 16);
+			res.setHeader('Location', p.slice(17));
+			res.end();
+		}
+
 		if (p === '/redirect/302') {
 			res.statusCode = 302;
 			res.setHeader('Location', '/inspect');

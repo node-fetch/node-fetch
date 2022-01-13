@@ -56,3 +56,29 @@ export const isAbortSignal = object => {
 		)
 	);
 };
+
+/**
+ * isDomainOrSubdomain reports whether sub is a subdomain (or exact match) of
+ * the parent domain.
+ *
+ * Both domains must already be in canonical form.
+ * @param {string|URL} sub
+ * @param {string|URL} parent
+ */
+export const isDomainOrSubdomain = (sub, parent) => {
+	const a = new URL(sub).hostname;
+	const b = new URL(parent).hostname;
+
+	if (a === b) {
+		return true;
+	}
+
+	// If sub is "foo.example.com" and parent is "example.com",
+	// that means sub must end in "."+parent.
+	// Do it without allocating.
+	if (!a.endsWith(b)) {
+		return false;
+	}
+
+	return a[a.length - b.length - 1] === '.';
+};
