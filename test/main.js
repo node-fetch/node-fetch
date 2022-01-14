@@ -35,6 +35,7 @@ import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
 import chaiTimeout from './utils/chai-timeout.js';
+import {isDomainOrSubdomain} from '../src/utils/is.js';
 
 const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 const encoder = new TextEncoder();
@@ -494,6 +495,66 @@ describe('node-fetch', () => {
 		}).then(res => {
 			expect(res.headers['x-custom-header']).to.equal('abc');
 		});
+	});
+
+	it('should not forward secure headers to 3th party', async () => {
+		const res = await fetch(`${base}redirect-to/302/https://httpbin.org/get`, {
+			headers: new Headers({
+				cookie: 'gets=removed',
+				cookie2: 'gets=removed',
+				authorization: 'gets=removed',
+				'www-authenticate': 'gets=removed',
+				'other-safe-headers': 'stays',
+				'x-foo': 'bar'
+			})
+		});
+
+		const headers = new Headers((await res.json()).headers);
+		// Safe headers are not removed
+		expect(headers.get('other-safe-headers')).to.equal('stays');
+		expect(headers.get('x-foo')).to.equal('bar');
+		// Unsafe headers should not have been sent to httpbin
+		expect(headers.get('cookie')).to.equal(null);
+		expect(headers.get('cookie2')).to.equal(null);
+		expect(headers.get('www-authenticate')).to.equal(null);
+		expect(headers.get('authorization')).to.equal(null);
+	});
+
+	it('should forward secure headers to same host', async () => {
+		const res = await fetch(`${base}redirect-to/302/${base}inspect`, {
+			headers: new Headers({
+				cookie: 'is=cookie',
+				cookie2: 'is=cookie2',
+				authorization: 'is=authorization',
+				'other-safe-headers': 'stays',
+				'www-authenticate': 'is=www-authenticate',
+				'x-foo': 'bar'
+			})
+		});
+
+		const headers = new Headers((await res.json()).headers);
+		// Safe headers are not removed
+		expect(res.url).to.equal(`${base}inspect`);
+		expect(headers.get('other-safe-headers')).to.equal('stays');
+		expect(headers.get('x-foo')).to.equal('bar');
+		// Unsafe headers should not have been sent to httpbin
+		expect(headers.get('cookie')).to.equal('is=cookie');
+		expect(headers.get('cookie2')).to.equal('is=cookie2');
+		expect(headers.get('www-authenticate')).to.equal('is=www-authenticate');
+		expect(headers.get('authorization')).to.equal('is=authorization');
+	});
+
+	it('isDomainOrSubdomain', () => {
+		// Forwarding headers to same (sub)domain are OK
+		expect(isDomainOrSubdomain('http://a.com', 'http://a.com')).to.be.true;
+		expect(isDomainOrSubdomain('http://a.com', 'http://www.a.com')).to.be.true;
+		expect(isDomainOrSubdomain('http://a.com', 'http://foo.bar.a.com')).to.be.true;
+
+		// Forwarding headers to parent domain, another sibling or a totally other domain is not ok
+		expect(isDomainOrSubdomain('http://b.com', 'http://a.com')).to.be.false;
+		expect(isDomainOrSubdomain('http://www.a.com', 'http://a.com')).to.be.false;
+		expect(isDomainOrSubdomain('http://bob.uk.com', 'http://uk.com')).to.be.false;
+		expect(isDomainOrSubdomain('http://bob.uk.com', 'http://xyz.uk.com')).to.be.false;
 	});
 
 	it('should treat broken redirect as ordinary response (follow)', () => {

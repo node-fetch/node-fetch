@@ -56,3 +56,20 @@ export const isAbortSignal = object => {
 		)
 	);
 };
+
+/**
+ * isDomainOrSubdomain reports whether sub is a subdomain (or exact match) of
+ * the parent domain.
+ *
+ * Both domains must already be in canonical form.
+ * @param {string|URL} original
+ * @param {string|URL} destination
+ */
+export const isDomainOrSubdomain = (destination, original) => {
+	const orig = new URL(original).hostname;
+	const dest = new URL(destination).hostname;
+
+	return orig === dest || (
+		orig[orig.length - dest.length - 1] === '.' && orig.endsWith(dest)
+	);
+};

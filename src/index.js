@@ -21,6 +21,7 @@ import Request, {getNodeRequestOptions} from './request.js';
 import {FetchError} from './errors/fetch-error.js';
 import {AbortError} from './errors/abort-error.js';
 import {isRedirect} from './utils/is-redirect.js';
+import {isDomainOrSubdomain} from './utils/is.js';
 import {parseReferrerPolicyFromHeader} from './utils/referrer.js';
 
 export {Headers, Request, Response, FetchError, AbortError, isRedirect};
@@ -187,6 +188,18 @@ export default async function fetch(url, options_) {
 							referrer: request.referrer,
 							referrerPolicy: request.referrerPolicy
 						};
+
+						// when forwarding sensitive headers like "Authorization",
+						// "WWW-Authenticate", and "Cookie" to untrusted targets,
+						// headers will be ignored when following a redirect to a domain
+						// that is not a subdomain match or exact match of the initial domain.
+						// For example, a redirect from "foo.com" to either "foo.com" or "sub.foo.com"
+						// will forward the sensitive headers, but a redirect to "bar.com" will not.
+						if (!isDomainOrSubdomain(request.url, locationURL)) {
+							for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
+								requestOptions.headers.delete(name);
+							}
+						}
 
 						// HTTP-redirect fetch step 9
 						if (response_.statusCode !== 303 && request.body && options_.body instanceof Stream.Readable) {
