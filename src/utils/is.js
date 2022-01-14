@@ -62,23 +62,14 @@ export const isAbortSignal = object => {
  * the parent domain.
  *
  * Both domains must already be in canonical form.
- * @param {string|URL} sub
- * @param {string|URL} parent
+ * @param {string|URL} original
+ * @param {string|URL} destination
  */
-export const isDomainOrSubdomain = (sub, parent) => {
-	const a = new URL(sub).hostname;
-	const b = new URL(parent).hostname;
+export const isDomainOrSubdomain = (destination, original) => {
+	const orig = new URL(original).hostname;
+	const dest = new URL(destination).hostname;
 
-	if (a === b) {
-		return true;
-	}
-
-	// If sub is "foo.example.com" and parent is "example.com",
-	// that means sub must end in "."+parent.
-	// Do it without allocating.
-	if (!a.endsWith(b)) {
-		return false;
-	}
-
-	return a[a.length - b.length - 1] === '.';
+	return orig === dest || (
+		orig[orig.length - dest.length - 1] === '.' && orig.endsWith(dest)
+	);
 };

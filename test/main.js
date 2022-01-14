@@ -35,6 +35,7 @@ import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';
 import TestServer from './utils/server.js';
 import chaiTimeout from './utils/chai-timeout.js';
+import {isDomainOrSubdomain} from '../src/utils/is.js';
 
 const AbortControllerPolyfill = abortControllerPolyfill.AbortController;
 const encoder = new TextEncoder();
@@ -541,6 +542,19 @@ describe('node-fetch', () => {
 		expect(headers.get('cookie2')).to.equal('is=cookie2');
 		expect(headers.get('www-authenticate')).to.equal('is=www-authenticate');
 		expect(headers.get('authorization')).to.equal('is=authorization');
+	});
+
+	it('isDomainOrSubdomain', () => {
+		// Forwarding headers to same (sub)domain are OK
+		expect(isDomainOrSubdomain('http://a.com', 'http://a.com')).to.be.true;
+		expect(isDomainOrSubdomain('http://a.com', 'http://www.a.com')).to.be.true;
+		expect(isDomainOrSubdomain('http://a.com', 'http://foo.bar.a.com')).to.be.true;
+
+		// Forwarding headers to parent domain, another sibling or a totally other domain is not ok
+		expect(isDomainOrSubdomain('http://b.com', 'http://a.com')).to.be.false;
+		expect(isDomainOrSubdomain('http://www.a.com', 'http://a.com')).to.be.false;
+		expect(isDomainOrSubdomain('http://bob.uk.com', 'http://uk.com')).to.be.false;
+		expect(isDomainOrSubdomain('http://bob.uk.com', 'http://xyz.uk.com')).to.be.false;
 	});
 
 	it('should treat broken redirect as ordinary response (follow)', () => {

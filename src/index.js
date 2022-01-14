@@ -190,8 +190,8 @@ export default async function fetch(url, options_) {
 						};
 
 						// when forwarding sensitive headers like "Authorization",
-						// "WWW-Authenticate", and "Cookie" to untrusted targets.
-						// These headers will be ignored when following a redirect to a domain
+						// "WWW-Authenticate", and "Cookie" to untrusted targets,
+						// headers will be ignored when following a redirect to a domain
 						// that is not a subdomain match or exact match of the initial domain.
 						// For example, a redirect from "foo.com" to either "foo.com" or "sub.foo.com"
 						// will forward the sensitive headers, but a redirect to "bar.com" will not.
