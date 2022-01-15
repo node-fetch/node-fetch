@@ -1569,6 +1569,53 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should not forward secure headers to 3th party', () => {
+		return fetch(`${base}redirect-to/302/https://httpbin.org/get`, {
+			headers: new Headers({
+				cookie: 'gets=removed',
+				cookie2: 'gets=removed',
+				authorization: 'gets=removed',
+				'www-authenticate': 'gets=removed',
+				'other-safe-headers': 'stays',
+				'x-foo': 'bar'
+			})
+		}).then(res => res.json()).then(json => {
+			const headers = new Headers(json.headers);
+			// Safe headers are not removed
+			expect(headers.get('other-safe-headers')).to.equal('stays');
+			expect(headers.get('x-foo')).to.equal('bar');
+			// Unsafe headers should not have been sent to httpbin
+			expect(headers.get('cookie')).to.equal(null);
+			expect(headers.get('cookie2')).to.equal(null);
+			expect(headers.get('www-authenticate')).to.equal(null);
+			expect(headers.get('authorization')).to.equal(null);
+		});
+	});
+
+	it('should forward secure headers to same host', () => {
+		return fetch(`${base}redirect-to/302/${base}inspect`, {
+			headers: new Headers({
+				cookie: 'is=cookie',
+				cookie2: 'is=cookie2',
+				authorization: 'is=authorization',
+				'other-safe-headers': 'stays',
+				'www-authenticate': 'is=www-authenticate',
+				'x-foo': 'bar'
+			})
+		}).then(res => res.json().then(json => {
+			const headers = new Headers(json.headers);
+			// Safe headers are not removed
+			expect(res.url).to.equal(`${base}inspect`);
+			expect(headers.get('other-safe-headers')).to.equal('stays');
+			expect(headers.get('x-foo')).to.equal('bar');
+			// Unsafe headers should not have been sent to httpbin
+			expect(headers.get('cookie')).to.equal('is=cookie');
+			expect(headers.get('cookie2')).to.equal('is=cookie2');
+			expect(headers.get('www-authenticate')).to.equal('is=www-authenticate');
+			expect(headers.get('authorization')).to.equal('is=authorization');
+		}));
+	});
+
 	it('should allow PATCH request', function() {
 		const url = `${base}inspect`;
 		const opts = {
