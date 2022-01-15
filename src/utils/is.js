@@ -9,8 +9,7 @@ const NAME = Symbol.toStringTag;
 /**
  * Check if `obj` is a URLSearchParams object
  * ref: https://github.com/node-fetch/node-fetch/issues/296#issuecomment-307598143
- *
- * @param  {*} obj
+ * @param {*} object - Object to check for
  * @return {boolean}
  */
 export const isURLSearchParameters = object => {
@@ -29,8 +28,7 @@ export const isURLSearchParameters = object => {
 
 /**
  * Check if `object` is a W3C `Blob` object (which `File` inherits from)
- *
- * @param  {*} obj
+ * @param {*} object - Object to check for
  * @return {boolean}
  */
 export const isBlob = object => {
@@ -46,31 +44,8 @@ export const isBlob = object => {
 };
 
 /**
- * Check if `obj` is a spec-compliant `FormData` object
- *
- * @param {*} object
- * @return {boolean}
- */
-export function isFormData(object) {
-	return (
-		typeof object === 'object' &&
-		typeof object.append === 'function' &&
-		typeof object.set === 'function' &&
-		typeof object.get === 'function' &&
-		typeof object.getAll === 'function' &&
-		typeof object.delete === 'function' &&
-		typeof object.keys === 'function' &&
-		typeof object.values === 'function' &&
-		typeof object.entries === 'function' &&
-		typeof object.constructor === 'function' &&
-		object[NAME] === 'FormData'
-	);
-}
-
-/**
  * Check if `obj` is an instance of AbortSignal.
- *
- * @param  {*} obj
+ * @param {*} object - Object to check for
  * @return {boolean}
  */
 export const isAbortSignal = object => {
@@ -82,3 +57,19 @@ export const isAbortSignal = object => {
 	);
 };
 
+/**
+ * isDomainOrSubdomain reports whether sub is a subdomain (or exact match) of
+ * the parent domain.
+ *
+ * Both domains must already be in canonical form.
+ * @param {string|URL} original
+ * @param {string|URL} destination
+ */
+export const isDomainOrSubdomain = (destination, original) => {
+	const orig = new URL(original).hostname;
+	const dest = new URL(destination).hostname;
+
+	return orig === dest || (
+		orig[orig.length - dest.length - 1] === '.' && orig.endsWith(dest)
+	);
+};

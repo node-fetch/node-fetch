@@ -1,6 +1,6 @@
-import http from 'http';
-import zlib from 'zlib';
-import {once} from 'events';
+import http from 'node:http';
+import zlib from 'node:zlib';
+import {once} from 'node:events';
 import Busboy from 'busboy';
 
 export default class TestServer {
@@ -239,6 +239,18 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/redirect/301/invalid') {
+			res.statusCode = 301;
+			res.setHeader('Location', '//super:invalid:url%/');
+			res.end();
+		}
+
+		if (p.startsWith('/redirect-to/3')) {
+			res.statusCode = p.slice(13, 16);
+			res.setHeader('Location', p.slice(17));
+			res.end();
+		}
+
 		if (p === '/redirect/302') {
 			res.statusCode = 302;
 			res.setHeader('Location', '/inspect');
@@ -299,6 +311,20 @@ export default class TestServer {
 		if (p === '/redirect/bad-location') {
 			res.socket.write('HTTP/1.1 301\r\nLocation: ☃\r\nContent-Length: 0\r\n');
 			res.socket.end('\r\n');
+		}
+
+		if (p === '/redirect/referrer-policy') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/inspect');
+			res.setHeader('Referrer-Policy', 'foo unsafe-url bar');
+			res.end();
+		}
+
+		if (p === '/redirect/referrer-policy/same-origin') {
+			res.statusCode = 301;
+			res.setHeader('Location', '/inspect');
+			res.setHeader('Referrer-Policy', 'foo unsafe-url same-origin bar');
+			res.end();
 		}
 
 		if (p === '/redirect/chunked') {

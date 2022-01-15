@@ -5,15 +5,14 @@ const {expect} = chai;
 
 describe('external encoding', () => {
 	describe('data uri', () => {
-		it('should accept base64-encoded gif data uri', () => {
-			return fetch('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=').then(r => {
-				expect(r.status).to.equal(200);
-				expect(r.headers.get('Content-Type')).to.equal('image/gif');
-
-				return r.buffer().then(b => {
-					expect(b).to.be.an.instanceOf(Buffer);
-				});
-			});
+		it('should accept base64-encoded gif data uri', async () => {
+			const b64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
+			const res = await fetch(b64);
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('Content-Type')).to.equal('image/gif');
+			const buf = await res.arrayBuffer();
+			expect(buf.byteLength).to.equal(35);
+			expect(buf).to.be.an.instanceOf(ArrayBuffer);
 		});
 
 		it('should accept data uri with specified charset', async () => {

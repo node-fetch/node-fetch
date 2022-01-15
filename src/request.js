@@ -1,4 +1,3 @@
-
 /**
  * Request.js
  *
@@ -7,18 +6,22 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import {format as formatUrl} from 'url';
+import {format as formatUrl} from 'node:url';
+import {deprecate} from 'node:util';
 import Headers from './headers.js';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
+import {
+	validateReferrerPolicy, determineRequestsReferrer, DEFAULT_REFERRER_POLICY
+} from './utils/referrer.js';
 
 const INTERNALS = Symbol('Request internals');
 
 /**
  * Check if `obj` is an instance of Request.
  *
- * @param  {*} obj
+ * @param  {*} object
  * @return {boolean}
  */
 const isRequest = object => {
@@ -27,6 +30,10 @@ const isRequest = object => {
 		typeof object[INTERNALS] === 'object'
 	);
 };
+
+const doBadDataWarn = deprecate(() => {},
+	'.data is not a valid RequestInit property, use .body instead',
+	'https://github.com/node-fetch/node-fetch/issues/1000 (request)');
 
 /**
  * Request class
@@ -56,8 +63,12 @@ export default class Request extends Body {
 		let method = init.method || input.method || 'GET';
 		method = method.toUpperCase();
 
+		if ('data' in init) {
+			doBadDataWarn();
+		}
+
 		// eslint-disable-next-line no-eq-null, eqeqeq
-		if (((init.body != null || isRequest(input)) && input.body !== null) &&
+		if ((init.body != null || (isRequest(input) && input.body !== null)) &&
 			(method === 'GET' || method === 'HEAD')) {
 			throw new TypeError('Request with GET/HEAD method cannot have body');
 		}
@@ -93,12 +104,28 @@ export default class Request extends Body {
 			throw new TypeError('Expected signal to be an instanceof AbortSignal or EventTarget');
 		}
 
+		// §5.4, Request constructor steps, step 15.1
+		// eslint-disable-next-line no-eq-null, eqeqeq
+		let referrer = init.referrer == null ? input.referrer : init.referrer;
+		if (referrer === '') {
+			// §5.4, Request constructor steps, step 15.2
+			referrer = 'no-referrer';
+		} else if (referrer) {
+			// §5.4, Request constructor steps, step 15.3.1, 15.3.2
+			const parsedReferrer = new URL(referrer);
+			// §5.4, Request constructor steps, step 15.3.3, 15.3.4
+			referrer = /^about:(\/\/)?client$/.test(parsedReferrer) ? 'client' : parsedReferrer;
+		} else {
+			referrer = undefined;
+		}
+
 		this[INTERNALS] = {
 			method,
 			redirect: init.redirect || input.redirect || 'follow',
 			headers,
 			parsedURL,
-			signal
+			signal,
+			referrer
 		};
 
 		// Node-fetch-only options
@@ -108,16 +135,23 @@ export default class Request extends Body {
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
 		this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
+
+		// §5.4, Request constructor steps, step 16.
+		// Default is empty string per https://fetch.spec.whatwg.org/#concept-request-referrer-policy
+		this.referrerPolicy = init.referrerPolicy || input.referrerPolicy || '';
 	}
 
+	/** @returns {string} */
 	get method() {
 		return this[INTERNALS].method;
 	}
 
+	/** @returns {string} */
 	get url() {
 		return formatUrl(this[INTERNALS].parsedURL);
 	}
 
+	/** @returns {Headers} */
 	get headers() {
 		return this[INTERNALS].headers;
 	}
@@ -126,8 +160,34 @@ export default class Request extends Body {
 		return this[INTERNALS].redirect;
 	}
 
+	/** @returns {AbortSignal} */
 	get signal() {
 		return this[INTERNALS].signal;
+	}
+
+	// https://fetch.spec.whatwg.org/#dom-request-referrer
+	get referrer() {
+		if (this[INTERNALS].referrer === 'no-referrer') {
+			return '';
+		}
+
+		if (this[INTERNALS].referrer === 'client') {
+			return 'about:client';
+		}
+
+		if (this[INTERNALS].referrer) {
+			return this[INTERNALS].referrer.toString();
+		}
+
+		return undefined;
+	}
+
+	get referrerPolicy() {
+		return this[INTERNALS].referrerPolicy;
+	}
+
+	set referrerPolicy(referrerPolicy) {
+		this[INTERNALS].referrerPolicy = validateReferrerPolicy(referrerPolicy);
 	}
 
 	/**
@@ -150,14 +210,16 @@ Object.defineProperties(Request.prototype, {
 	headers: {enumerable: true},
 	redirect: {enumerable: true},
 	clone: {enumerable: true},
-	signal: {enumerable: true}
+	signal: {enumerable: true},
+	referrer: {enumerable: true},
+	referrerPolicy: {enumerable: true}
 });
 
 /**
  * Convert a Request to Node.js http request options.
  *
- * @param   Request  A Request instance
- * @return  Object   The options object to be passed to http.request
+ * @param {Request} request - A Request instance
+ * @return The options object to be passed to http.request
  */
 export const getNodeRequestOptions = request => {
 	const {parsedURL} = request[INTERNALS];
@@ -184,6 +246,29 @@ export const getNodeRequestOptions = request => {
 
 	if (contentLengthValue) {
 		headers.set('Content-Length', contentLengthValue);
+	}
+
+	// 4.1. Main fetch, step 2.6
+	// > If request's referrer policy is the empty string, then set request's referrer policy to the
+	// > default referrer policy.
+	if (request.referrerPolicy === '') {
+		request.referrerPolicy = DEFAULT_REFERRER_POLICY;
+	}
+
+	// 4.1. Main fetch, step 2.7
+	// > If request's referrer is not "no-referrer", set request's referrer to the result of invoking
+	// > determine request's referrer.
+	if (request.referrer && request.referrer !== 'no-referrer') {
+		request[INTERNALS].referrer = determineRequestsReferrer(request);
+	} else {
+		request[INTERNALS].referrer = 'no-referrer';
+	}
+
+	// 4.5. HTTP-network-or-cache fetch, step 6.9
+	// > If httpRequest's referrer is a URL, then append `Referer`/httpRequest's referrer, serialized
+	// >  and isomorphic encoded, to httpRequest's header list.
+	if (request[INTERNALS].referrer instanceof URL) {
+		headers.set('Referer', request.referrer);
 	}
 
 	// HTTP-network-or-cache fetch step 2.11
@@ -223,6 +308,7 @@ export const getNodeRequestOptions = request => {
 	};
 
 	return {
+		/** @type {URL} */
 		parsedURL,
 		options
 	};

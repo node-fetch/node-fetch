@@ -6,10 +6,12 @@
  * All spec algorithm step numbers are based on https://fetch.spec.whatwg.org/commit-snapshots/ae716822cb3a61843226cd090eefc6589446c1d2/.
  */
 
-import http from 'http';
-import https from 'https';
-import zlib from 'zlib';
-import Stream, {PassThrough, pipeline as pump} from 'stream';
+import http from 'node:http';
+import https from 'node:https';
+import zlib from 'node:zlib';
+import Stream, {PassThrough, pipeline as pump} from 'node:stream';
+import {Buffer} from 'node:buffer';
+
 import dataUriToBuffer from 'data-uri-to-buffer';
 
 import {writeToStream, clone} from './body.js';
@@ -19,6 +21,8 @@ import Request, {getNodeRequestOptions} from './request.js';
 import {FetchError} from './errors/fetch-error.js';
 import {AbortError} from './errors/abort-error.js';
 import {isRedirect} from './utils/is-redirect.js';
+import {isDomainOrSubdomain} from './utils/is.js';
+import {parseReferrerPolicyFromHeader} from './utils/referrer.js';
 
 export {Headers, Request, Response, FetchError, AbortError, isRedirect};
 
@@ -77,7 +81,7 @@ export default async function fetch(url, options_) {
 		};
 
 		// Send request
-		const request_ = send(parsedURL, options);
+		const request_ = send(parsedURL.toString(), options);
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
@@ -132,7 +136,19 @@ export default async function fetch(url, options_) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : new URL(location, request.url);
+				let locationURL = null;
+				try {
+					locationURL = location === null ? null : new URL(location, request.url);
+				} catch {
+					// error here can only be invalid URL in Location: header
+					// do not throw when options.redirect == manual
+					// let the user extract the errorneous redirect URL
+					if (request.redirect !== 'manual') {
+						reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, 'invalid-redirect'));
+						finalize();
+						return;
+					}
+				}
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -171,8 +187,22 @@ export default async function fetch(url, options_) {
 							method: request.method,
 							body: clone(request),
 							signal: request.signal,
-							size: request.size
+							size: request.size,
+							referrer: request.referrer,
+							referrerPolicy: request.referrerPolicy
 						};
+
+						// when forwarding sensitive headers like "Authorization",
+						// "WWW-Authenticate", and "Cookie" to untrusted targets,
+						// headers will be ignored when following a redirect to a domain
+						// that is not a subdomain match or exact match of the initial domain.
+						// For example, a redirect from "foo.com" to either "foo.com" or "sub.foo.com"
+						// will forward the sensitive headers, but a redirect to "bar.com" will not.
+						if (!isDomainOrSubdomain(request.url, locationURL)) {
+							for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
+								requestOptions.headers.delete(name);
+							}
+						}
 
 						// HTTP-redirect fetch step 9
 						if (response_.statusCode !== 303 && request.body && options_.body instanceof Stream.Readable) {
@@ -186,6 +216,12 @@ export default async function fetch(url, options_) {
 							requestOptions.method = 'GET';
 							requestOptions.body = undefined;
 							requestOptions.headers.delete('content-length');
+						}
+
+						// HTTP-redirect fetch step 14
+						const responseReferrerPolicy = parseReferrerPolicyFromHeader(headers);
+						if (responseReferrerPolicy) {
+							requestOptions.referrerPolicy = responseReferrerPolicy;
 						}
 
 						// HTTP-redirect fetch step 15
@@ -285,7 +321,8 @@ export default async function fetch(url, options_) {
 			resolve(response);
 		});
 
-		writeToStream(request_, request);
+		// eslint-disable-next-line promise/prefer-await-to-then
+		writeToStream(request_, request).catch(reject);
 	});
 }
 

@@ -1,5 +1,4 @@
-
-import * as stream from 'stream';
+import * as stream from 'node:stream';
 import chai from 'chai';
 import Blob from 'fetch-blob';
 import {Response} from '../src/index.js';
@@ -122,7 +121,8 @@ describe('Response', () => {
 			},
 			url: base,
 			status: 346,
-			statusText: 'production'
+			statusText: 'production',
+			highWaterMark: 789
 		});
 		const cl = res.clone();
 		expect(cl.headers.get('a')).to.equal('1');
@@ -130,6 +130,7 @@ describe('Response', () => {
 		expect(cl.url).to.equal(base);
 		expect(cl.status).to.equal(346);
 		expect(cl.statusText).to.equal('production');
+		expect(cl.highWaterMark).to.equal(789);
 		expect(cl.ok).to.be.false;
 		// Clone body shouldn't be the same body
 		expect(cl.body).to.not.equal(body);
@@ -148,13 +149,6 @@ describe('Response', () => {
 
 	it('should support string as body', () => {
 		const res = new Response('a=1');
-		return res.text().then(result => {
-			expect(result).to.equal('a=1');
-		});
-	});
-
-	it('should support buffer as body', () => {
-		const res = new Response(Buffer.from('a=1'));
 		return res.text().then(result => {
 			expect(result).to.equal('a=1');
 		});
@@ -247,4 +241,13 @@ describe('Response', () => {
 		expect(res.status).to.equal(0);
 		expect(res.statusText).to.equal('');
 	});
+
+	it('should warn once when using .data (response)', () => new Promise(resolve => {
+		process.once('warning', evt => {
+			expect(evt.message).to.equal('data doesn\'t exist, use json(), text(), arrayBuffer(), or body instead');
+			resolve();
+		});
+
+		new Response('a').data;
+	}));
 });
