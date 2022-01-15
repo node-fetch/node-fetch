@@ -154,11 +154,7 @@ export default async function fetch(url, options_) {
 						finalize();
 						return;
 					case 'manual':
-						// Node-fetch-specific step: make manual redirect a bit easier to use by setting the Location header value to the resolved URL.
-						if (locationURL !== null) {
-							headers.set('Location', locationURL);
-						}
-
+						// Nothing to do
 						break;
 					case 'follow': {
 						// HTTP-redirect fetch step 2
@@ -241,6 +237,7 @@ export default async function fetch(url, options_) {
 
 			let body = pump(response_, new PassThrough(), reject);
 			// see https://github.com/nodejs/node/pull/29376
+			/* c8 ignore next 3 */
 			if (process.version < 'v12.10') {
 				response_.on('aborted', abortAndFinalize);
 			}
