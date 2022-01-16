@@ -4,9 +4,30 @@ All notable changes will be recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-* fix(request): fix crash when an invalid redirection URL is encountered https://github.com/node-fetch/node-fetch/pull/1387
-* fix: handle errors from the request body stream by @mdmitry01 in https://github.com/node-fetch/node-fetch/pull/1392
+## What's Changed
+* core: update fetch-blob by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1371
+* docs: Fix typo around sending a file by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1381
+* core: (http.request): Cast URL to string before sending it to NodeJS core by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1378
+* core: handle errors from the request body stream by @mdmitry01 in https://github.com/node-fetch/node-fetch/pull/1392
+* core: Better handle wrong redirect header in a response by @tasinet in https://github.com/node-fetch/node-fetch/pull/1387
+* core: Don't use buffer to make a blob by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1402
+* docs: update readme for TS @types/node-fetch by @adamellsworth in https://github.com/node-fetch/node-fetch/pull/1405
+* core: Fix logical operator priority to disallow GET/HEAD with non-empty body by @maxshirshin in https://github.com/node-fetch/node-fetch/pull/1369
+* core: Don't use global buffer by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1422
+* ci: fix main branch by @dnalborczyk in https://github.com/node-fetch/node-fetch/pull/1429
+* core: use more node: protocol imports by @dnalborczyk in https://github.com/node-fetch/node-fetch/pull/1428
+* core: Warn when using data by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1421
+* docs: Create SECURITY.md by @JamieSlome in https://github.com/node-fetch/node-fetch/pull/1445
+* core: don't forward secure headers to 3th party by @jimmywarting in https://github.com/node-fetch/node-fetch/pull/1449
+
+## New Contributors
+* @mdmitry01 made their first contribution in https://github.com/node-fetch/node-fetch/pull/1392
+* @tasinet made their first contribution in https://github.com/node-fetch/node-fetch/pull/1387
+* @adamellsworth made their first contribution in https://github.com/node-fetch/node-fetch/pull/1405
+* @maxshirshin made their first contribution in https://github.com/node-fetch/node-fetch/pull/1369
+* @JamieSlome made their first contribution in https://github.com/node-fetch/node-fetch/pull/1445
+
+**Full Changelog**: https://github.com/node-fetch/node-fetch/compare/v3.1.0...v3.1.2
 
 ## 3.1.0
 
