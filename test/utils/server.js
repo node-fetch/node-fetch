@@ -461,14 +461,14 @@ export default class TestServer {
 			let body = '';
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
-			const bb = busboy({ headers: request.headers });
-    	bb.on('file', async (fieldName, file, info) => {
+			const bb = busboy({headers: request.headers});
+			bb.on('file', async (fieldName, file, info) => {
 				body += `${fieldName}=${info.filename}`;
 				// consume file data
 				// eslint-disable-next-line no-empty, no-unused-vars
 				for await (const c of file) {}
 			});
-			bb.on('field', (fieldName, value, info) => {
+			bb.on('field', (fieldName, value) => {
 				body += `${fieldName}=${value}`;
 			});
 			bb.on('close', () => {
