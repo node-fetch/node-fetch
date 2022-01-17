@@ -235,7 +235,11 @@ export default async function fetch(url, options_) {
 				});
 			}
 
-			let body = pump(response_, new PassThrough(), reject);
+			let body = pump(response_, new PassThrough(), error => {
+				if (error) {
+					reject(error);
+				}
+			});
 			// see https://github.com/nodejs/node/pull/29376
 			/* c8 ignore next 3 */
 			if (process.version < 'v12.10') {
@@ -281,7 +285,11 @@ export default async function fetch(url, options_) {
 
 			// For gzip
 			if (codings === 'gzip' || codings === 'x-gzip') {
-				body = pump(body, zlib.createGunzip(zlibOptions), reject);
+				body = pump(body, zlib.createGunzip(zlibOptions), error => {
+					if (error) {
+						reject(error);
+					}
+				});
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;
@@ -291,20 +299,48 @@ export default async function fetch(url, options_) {
 			if (codings === 'deflate' || codings === 'x-deflate') {
 				// Handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = pump(response_, new PassThrough(), reject);
+				const raw = pump(response_, new PassThrough(), error => {
+					if (error) {
+						reject(error);
+					}
+				});
 				raw.once('data', chunk => {
 					// See http://stackoverflow.com/questions/37519828
-					body = (chunk[0] & 0x0F) === 0x08 ? pump(body, zlib.createInflate(), reject) : pump(body, zlib.createInflateRaw(), reject);
+					if ((chunk[0] & 0x0F) === 0x08) {
+						body = pump(body, zlib.createInflate(), error => {
+							if (error) {
+								reject(error);
+							}
+						});
+					} else {
+						body = pump(body, zlib.createInflateRaw(), error => {
+							if (error) {
+								reject(error);
+							}
+						});
+					}
 
 					response = new Response(body, responseOptions);
 					resolve(response);
+				});
+				raw.once('end', () => {
+					// Some old IIS servers return zero-length OK deflate responses, so
+					// 'data' is never emitted. See https://github.com/node-fetch/node-fetch/pull/903
+					if (!response) {
+						response = new Response(body, responseOptions);
+						resolve(response);
+					}
 				});
 				return;
 			}
 
 			// For br
 			if (codings === 'br') {
-				body = pump(body, zlib.createBrotliDecompress(), reject);
+				body = pump(body, zlib.createBrotliDecompress(), error => {
+					if (error) {
+						reject(error);
+					}
+				});
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;

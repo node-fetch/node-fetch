@@ -866,6 +866,15 @@ describe('node-fetch', () => {
 		expect(result).to.equal('hello world');
 	});
 
+	it('should handle empty deflate response', async () => {
+		const url = `${base}empty/deflate`;
+		const res = await fetch(url);
+		expect(res.headers.get('content-type')).to.equal('text/plain');
+		const text = await res.text();
+		expect(result).to.be.a('string');
+		expect(result).to.be.empty;
+	});
+
 	it('should decompress brotli response', async function () {
 		if (typeof zlib.createBrotliDecompress !== 'function') {
 			this.skip();
