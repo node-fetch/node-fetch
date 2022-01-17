@@ -53,7 +53,6 @@
     "chai-iterator": "^3.0.2",
     "chai-string": "^1.5.0",
     "coveralls": "^3.1.0",
-    "delay": "^5.0.0",
     "form-data": "^4.0.0",
     "formdata-node": "^4.2.4",
     "mocha": "^9.1.3",
