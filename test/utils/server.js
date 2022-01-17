@@ -1,7 +1,7 @@
 import http from 'node:http';
 import zlib from 'node:zlib';
 import {once} from 'node:events';
-import Busboy from 'busboy';
+import busboy from 'busboy';
 
 export default class TestServer {
 	constructor(hostname) {
@@ -465,21 +465,20 @@ export default class TestServer {
 		}
 
 		if (p === '/multipart') {
+			let body = '';
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
-			const busboy = new Busboy({headers: request.headers});
-			let body = '';
-			busboy.on('file', async (fieldName, file, fileName) => {
-				body += `${fieldName}=${fileName}`;
+			const bb = busboy({headers: request.headers});
+			bb.on('file', async (fieldName, file, info) => {
+				body += `${fieldName}=${info.filename}`;
 				// consume file data
 				// eslint-disable-next-line no-empty, no-unused-vars
 				for await (const c of file) {}
 			});
-
-			busboy.on('field', (fieldName, value) => {
+			bb.on('field', (fieldName, value) => {
 				body += `${fieldName}=${value}`;
 			});
-			busboy.on('finish', () => {
+			bb.on('close', () => {
 				res.end(JSON.stringify({
 					method: request.method,
 					url: request.url,
@@ -487,7 +486,7 @@ export default class TestServer {
 					body
 				}));
 			});
-			request.pipe(busboy);
+			request.pipe(bb);
 		}
 
 		if (p === '/m%C3%B6bius') {
