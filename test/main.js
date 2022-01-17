@@ -871,8 +871,8 @@ describe('node-fetch', () => {
 		const res = await fetch(url);
 		expect(res.headers.get('content-type')).to.equal('text/plain');
 		const text = await res.text();
-		expect(result).to.be.a('string');
-		expect(result).to.be.empty;
+		expect(text).to.be.a('string');
+		expect(text).to.be.empty;
 	});
 
 	it('should decompress brotli response', async function () {
