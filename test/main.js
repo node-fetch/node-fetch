@@ -222,6 +222,18 @@ describe('node-fetch', () => {
 		const json = await res.json();
 		expect(json.headers.host).to.equal('example.com');
 	});
+	
+	it('should accept custom HoSt header', async () => {
+		const url = `${base}inspect`;
+		const options = {
+			headers: {
+				HoSt: 'example.com'
+			}
+		};
+		const res = await fetch(url, options);
+		const json = await res.json();
+		expect(json.headers.host).to.equal('example.com');
+	});
 
 	it('should follow redirect code 301', async () => {
 		const url = `${base}redirect/301`;
