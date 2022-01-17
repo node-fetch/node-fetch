@@ -652,7 +652,7 @@ describe('node-fetch', () => {
 		const res = await fetch(url);
 		expect(res.status).to.equal(200);
 		expect(res.ok).to.be.true;
-		return expect(res.text()).to.eventually.be.rejectedWith(Error)
+		await expect(res.text()).to.eventually.be.rejectedWith(Error)
 			.and.have.property('message').matches(/Premature close|The operation was aborted|aborted/);
 	});
 
