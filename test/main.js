@@ -222,7 +222,7 @@ describe('node-fetch', () => {
 		const json = await res.json();
 		expect(json.headers.host).to.equal('example.com');
 	});
-	
+
 	it('should accept custom HoSt header', async () => {
 		const url = `${base}inspect`;
 		const options = {
