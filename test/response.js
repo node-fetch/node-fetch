@@ -1,7 +1,6 @@
 import * as stream from 'node:stream';
 import chai from 'chai';
-import Blob from 'fetch-blob';
-import {Response} from '../src/index.js';
+import {Response, Blob} from '../src/index.js';
 import TestServer from './utils/server.js';
 
 const {expect} = chai;
