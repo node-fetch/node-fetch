@@ -12,17 +12,15 @@ import chaiPromised from 'chai-as-promised';
 import chaiIterator from 'chai-iterator';
 import chaiString from 'chai-string';
 import FormData from 'form-data';
-import {FormData as FormDataNode} from 'formdata-polyfill/esm.min.js';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
 import {text} from 'stream-consumers';
 
-// Test subjects
-import Blob from 'fetch-blob';
-import {fileFromSync} from 'fetch-blob/from.js';
-
 import fetch, {
+	Blob,
+	fileFromSync,
 	FetchError,
+	FormData as FormDataNode,
 	Headers,
 	Request,
 	Response
