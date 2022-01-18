@@ -53,7 +53,7 @@ If the pull request looks good but does not follow the commit conventions, updat
 
 `semantic-release` supports pre-releases and maintenance releases.
 
-In order to release a maintenance version, open a pull request against a `[VERSION].x` branch, e.g. `2.x`. As long as the commit conventions docoumented above are followed, a maintenance version will be released. Breaking changes are not permitted.
+In order to release a maintenance version, open a pull request against a `[VERSION].x` branch, e.g. `2.x`. As long as the commit conventions documented above are followed, a maintenance version will be released. Breaking changes are not permitted.
 
 In order to release a beta version, create or re-create the `beta` branch based on the latest `main` branch. Then create a pull request against the `beta` branch. When merged into the `beta` branch, a new `...-beta.X` release will be created. Once ready, create a pull request against `main` (or `next` if you prefer). This pull request be merged using `squash & merge`.
 
