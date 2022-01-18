@@ -61,6 +61,6 @@ In order to release a beta version, create or re-create the `beta` branch based 
 
 To release a `next` version, create or re-create the `next` branch based on the latest `main` branch. Then create a pull request against the `next` branch. When merged into the `next` branch, a new version is created based on the commit conventions, but published using the `next` dist-tag to npm and marked as pre-release on GitHub.
 
-**Important**: do not rebase & force push to the `next` branch while working on pre-releases. Do only use force push to reset the `next` branch in order to sync it with the latest `main`. Also, when merging `next` into `main`, **do not use squash & merge**! In this particular case, the traditional merge feature has to be used, otherwise semantic-release will not be able to match the commit history and won't be able to promote the existing releases in npm or GitHub
+**Important**: do not rebase & force push to the `next` branch while working on pre-releases. Do only use force push to reset the `next` branch in order to sync it with the latest `main`. Also, when merging `next` into `main`, **do not use squash & merge**! In this particular case, the traditional "Create a merge commit" merge button has to be used, otherwise semantic-release will not be able to match the commit history and won't be able to promote the existing releases in npm or GitHub. If the button is disabled, temporarily enable it in the repository settings. 
 
 For any semantic-release questions, ping [@gr2m](https://github.com/gr2m).
