@@ -1,25 +1,26 @@
 // Test tools
-import zlib from 'node:zlib';
-import crypto from 'node:crypto';
-import http from 'node:http';
-import fs from 'node:fs';
-import stream from 'node:stream';
-import path from 'node:path';
 import {lookup} from 'node:dns';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import http from 'node:http';
+import path from 'node:path';
+import stream from 'node:stream';
 import vm from 'node:vm';
-import chai from 'chai';
-import chaiPromised from 'chai-as-promised';
-import chaiIterator from 'chai-iterator';
-import chaiString from 'chai-string';
-import FormData from 'form-data';
+import zlib from 'node:zlib';
+
+import {text} from 'stream-consumers';
 import AbortControllerMysticatea from 'abort-controller';
 import abortControllerPolyfill from 'abortcontroller-polyfill/dist/abortcontroller.js';
-import {text} from 'stream-consumers';
+import chai from 'chai';
+import chaiIterator from 'chai-iterator';
+import chaiPromised from 'chai-as-promised';
+import chaiString from 'chai-string';
+import FormData from 'form-data';
 
 import fetch, {
 	Blob,
-	fileFromSync,
 	FetchError,
+	fileFromSync,
 	FormData as FormDataNode,
 	Headers,
 	Request,
