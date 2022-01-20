@@ -794,23 +794,23 @@ import http from 'node:http'
 import { Response } from 'node-fetch'
 
 http.createServer(async function (req, res) {
-	const formData = await new Response(req, {
-		headers: req.headers // Pass along the boundary value
-	}).formData()
-	const allFields = [...formData]
+  const formData = await new Response(req, {
+    headers: req.headers // Pass along the boundary value
+  }).formData()
+  const allFields = [...formData]
 
   const file = formData.get('uploaded-files')
   const arrayBuffer = await file.arrayBuffer()
   const text = await file.text()
   const whatwgReadableStream = file.stream()
 
-	// other was to consume the request could be to do:
-	const json = await new Response(req).json()
-	const text = await new Response(req).text()
-	const arrayBuffer = await new Response(req).arrayBuffer()
-	const blob = await new Response(req, {
-		headers: req.headers // So that `type` inherits `Content-Type`
-	}.blob()
+  // other was to consume the request could be to do:
+  const json = await new Response(req).json()
+  const text = await new Response(req).text()
+  const arrayBuffer = await new Response(req).arrayBuffer()
+  const blob = await new Response(req, {
+    headers: req.headers // So that `type` inherits `Content-Type`
+  }.blob()
 })
 ```
 
