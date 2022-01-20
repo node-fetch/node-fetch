@@ -1,8 +1,6 @@
 import {FormData as FormDataNode} from 'formdata-node';
-import {FormData} from 'formdata-polyfill/esm.min.js';
-import {Blob} from 'fetch-blob/from.js';
 import chai from 'chai';
-import {Request, Response} from '../src/index.js';
+import {Request, Response, FormData, Blob} from '../src/index.js';
 
 const {expect} = chai;
 

@@ -21,10 +21,20 @@ import Request, {getNodeRequestOptions} from './request.js';
 import {FetchError} from './errors/fetch-error.js';
 import {AbortError} from './errors/abort-error.js';
 import {isRedirect} from './utils/is-redirect.js';
+import {FormData} from 'formdata-polyfill/esm.min.js';
 import {isDomainOrSubdomain} from './utils/is.js';
 import {parseReferrerPolicyFromHeader} from './utils/referrer.js';
+import {
+	Blob,
+	File,
+	fileFromSync,
+	fileFrom,
+	blobFromSync,
+	blobFrom
+} from 'fetch-blob/from.js';
 
-export {Headers, Request, Response, FetchError, AbortError, isRedirect};
+export {FormData, Headers, Request, Response, FetchError, AbortError, isRedirect};
+export {Blob, File, fileFromSync, fileFrom, blobFromSync, blobFrom};
 
 const supportedSchemas = new Set(['data:', 'http:', 'https:']);
 
