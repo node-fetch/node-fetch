@@ -26,8 +26,8 @@ export {
 	blobFromSync,
 	File,
 	fileFrom,
-	fileFromSync,
-}
+	fileFromSync
+};
 
 /**
  * This Fetch API interface allows you to perform various actions on HTTP request and response headers.
