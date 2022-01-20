@@ -401,12 +401,12 @@ console.log(response.headers.raw()['set-cookie']);
 
 ```js
 import fetch {
-	Blob,
-	blobFrom,
-	blobFromSync,
-	File,
-	fileFrom,
-	fileFromSync,
+  Blob,
+  blobFrom,
+  blobFromSync,
+  File,
+  fileFrom,
+  fileFromSync,
 } from 'node-fetch'
 
 const mimetype = 'text/plain'
