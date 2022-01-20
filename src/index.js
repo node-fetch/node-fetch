@@ -34,7 +34,7 @@ import {
 } from 'fetch-blob/from.js';
 
 export {FormData, Headers, Request, Response, FetchError, AbortError, isRedirect};
-export {Blob, File, fileFromSync, fileFrom, blobFromSync, blobFrom}
+export {Blob, File, fileFromSync, fileFrom, blobFromSync, blobFrom};
 
 const supportedSchemas = new Set(['data:', 'http:', 'https:']);
 
