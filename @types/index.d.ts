@@ -2,6 +2,14 @@
 /// <reference lib="dom" />
 
 import {Agent} from 'http';
+import {
+	Blob,
+	blobFrom,
+	blobFromSync,
+	File,
+	fileFrom,
+	fileFromSync
+} from 'fetch-blob/from.js';
 
 type AbortSignal = {
 	readonly aborted: boolean;
@@ -11,6 +19,15 @@ type AbortSignal = {
 };
 
 export type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
+
+export {
+	Blob,
+	blobFrom,
+	blobFromSync,
+	File,
+	fileFrom,
+	fileFromSync
+};
 
 /**
  * This Fetch API interface allows you to perform various actions on HTTP request and response headers.
@@ -113,9 +130,7 @@ declare class BodyMixin {
 	readonly bodyUsed: boolean;
 	readonly size: number;
 
-	/**
- 	* @deprecated Please use 'response.arrayBuffer()' instead of 'response.buffer()
- 	*/
+	/** @deprecated Use `body.arrayBuffer()` instead. */
 	buffer(): Promise<Buffer>;
 	arrayBuffer(): Promise<ArrayBuffer>;
 	formData(): Promise<FormData>;

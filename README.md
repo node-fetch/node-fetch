@@ -64,6 +64,7 @@
 		- [body.bodyUsed](#bodybodyused)
 		- [body.arrayBuffer()](#bodyarraybuffer)
 		- [body.blob()](#bodyblob)
+		- [body.formData()](#formdata)
 		- [body.json()](#bodyjson)
 		- [body.text()](#bodytext)
 	- [Class: FetchError](#class-fetcherror)
@@ -138,13 +139,24 @@ To use `fetch()` without importing it, you can patch the `global` object in node
 
 ```js
 // fetch-polyfill.js
-import fetch from 'node-fetch';
+import fetch, {
+  Blob,
+  blobFrom,
+  blobFromSync,
+  File,
+  fileFrom,
+  fileFromSync,
+  FormData,
+  Headers,
+  Request,
+  Response,
+} from 'node-fetch'
 
 if (!globalThis.fetch) {
-    globalThis.fetch = fetch;
-    globalThis.Headers = Headers;
-    globalThis.Request = Request;
-    globalThis.Response = Response;
+  globalThis.fetch = fetch
+  globalThis.Headers = Headers
+  globalThis.Request = Request
+  globalThis.Response = Response
 }
 
 // index.js
@@ -388,36 +400,68 @@ console.log(response.headers.raw()['set-cookie']);
 ### Post data using a file
 
 ```js
-import {fileFromSync} from 'fetch-blob/from.js';
-import fetch from 'node-fetch';
+import fetch {
+  Blob,
+  blobFrom,
+  blobFromSync,
+  File,
+  fileFrom,
+  fileFromSync,
+} from 'node-fetch'
 
-const blob = fileFromSync('./input.txt', 'text/plain');
+const mimetype = 'text/plain'
+const blob = fileFromSync('./input.txt', mimetype)
+const url = 'https://httpbin.org/post'
 
-const response = await fetch('https://httpbin.org/post', {method: 'POST', body: blob});
-const data = await response.json();
+const response = await fetch(url, { method: 'POST', body: blob })
+const data = await response.json()
 
 console.log(data)
 ```
 
-node-fetch also supports any spec-compliant FormData implementations such as [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill). But any other spec-compliant such as [formdata-node](https://github.com/octet-stream/form-data) works too, but we recommend formdata-polyfill because we use this one internally for decoding entries back to FormData.
+node-fetch comes with a spec-compliant [FormData] implementations for posting
+multipart/form-data payloads
 
 ```js
-import fetch from 'node-fetch';
-import {FormData} from 'formdata-polyfill/esm.min.js';
+import fetch {FormData, File, fileFrom} from 'node-fetch'
 
-// Alternative hack to get the same FormData instance as node-fetch
-// const FormData = (await new Response(new URLSearchParams()).formData()).constructor
+const httpbin = 'https://httpbin.org/post'
+const formData = new FormData()
+const binary = new Uint8Array([ 97, 98, 99 ])
+const abc = new File([binary], 'abc.txt'), { type: 'text/plain' })
 
-const form = new FormData();
-form.set('greeting', 'Hello, world!');
+formData.set('greeting', 'Hello, world!')
+formData.set('file-upload', abc, 'new name.txt')
 
-const response = await fetch('https://httpbin.org/post', {method: 'POST', body: form});
-const data = await response.json();
+const response = await fetch(httpbin, { method: 'POST', body: formData })
+const data = await response.json()
 
-console.log(data);
+console.log(data)
 ```
 
-node-fetch also support form-data but it's now discouraged due to not being spec-compliant and needs workarounds to function - which we hope to remove one day
+If you for some reason need to post a stream coming from any arbitrary place,
+then you can append a [Blob] or a [File] look-a-like item.
+
+The minium requirement is that it has:
+1. A `Symbol.toStringTag` getter or property that is either `Blob` or `File`
+2. A known size.
+3. And either a `stream()` method or a `arrayBuffer()` method that returns a ArrayBuffer.
+
+The `stream()` must return any async iterable object as long as it yields Uint8Array (or Buffer)
+so Node.Readable streams and whatwg streams works just fine.
+
+```js
+formData.append('upload', {
+	[Symbol.toStringTag]: 'Blob',
+	size: 3,
+  *stream() {
+    yield new Uint8Array([97, 98, 99])
+	},
+	arrayBuffer() {
+		return new Uint8Array([97, 98, 99]).buffer
+	}
+}, 'abc.txt')
+```
 
 ### Request cancellation with AbortSignal
 
@@ -689,19 +733,17 @@ Construct a new `Headers` object. `init` can be either `null`, a `Headers` objec
 import {Headers} from 'node-fetch';
 
 const meta = {
-	'Content-Type': 'text/xml',
-	'Breaking-Bad': '<3'
+	'Content-Type': 'text/xml'
 };
 const headers = new Headers(meta);
 
 // The above is equivalent to
-const meta = [['Content-Type', 'text/xml'], ['Breaking-Bad', '<3']];
+const meta = [['Content-Type', 'text/xml']];
 const headers = new Headers(meta);
 
 // You can in fact use any iterable objects, like a Map or even another Headers
 const meta = new Map();
 meta.set('Content-Type', 'text/xml');
-meta.set('Breaking-Bad', '<3');
 const headers = new Headers(meta);
 const copyOfHeaders = new Headers(headers);
 ```
@@ -738,11 +780,41 @@ A boolean property for if this body has been consumed. Per the specs, a consumed
 
 #### body.text()
 
-<small>_(spec-compliant)_</small>
+`fetch` comes with methods to parse `multipart/form-data` payloads as well as
+`x-www-form-urlencoded` bodies using `.formData()` this comes from the idea that
+Service Worker can intercept such messages before it's sent to the server to
+alter them. This is useful for anybody building a server so you can use it to
+parse & consume payloads.
 
-- Returns: `Promise`
+<details>
+<summary>Code example</summary>
 
-Consume the body and return a promise that will resolve to one of these formats.
+```js
+import http from 'node:http'
+import { Response } from 'node-fetch'
+
+http.createServer(async function (req, res) {
+  const formData = await new Response(req, {
+    headers: req.headers // Pass along the boundary value
+  }).formData()
+  const allFields = [...formData]
+
+  const file = formData.get('uploaded-files')
+  const arrayBuffer = await file.arrayBuffer()
+  const text = await file.text()
+  const whatwgReadableStream = file.stream()
+
+  // other was to consume the request could be to do:
+  const json = await new Response(req).json()
+  const text = await new Response(req).text()
+  const arrayBuffer = await new Response(req).arrayBuffer()
+  const blob = await new Response(req, {
+    headers: req.headers // So that `type` inherits `Content-Type`
+  }.blob()
+})
+```
+
+</details>
 
 <a id="class-fetcherror"></a>
 
@@ -794,3 +866,6 @@ Thanks to [github/fetch](https://github.com/github/fetch) for providing a solid 
 [node-readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [mdn-headers]: https://developer.mozilla.org/en-US/docs/Web/API/Headers
 [error-handling.md]: https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md
+[FormData]: https://developer.mozilla.org/en-US/docs/Web/API/FormData
+[Blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob
+[File]: https://developer.mozilla.org/en-US/docs/Web/API/File
