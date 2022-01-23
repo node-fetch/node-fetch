@@ -539,7 +539,7 @@ If no values are set, the following request headers will be sent automatically:
 | ------------------- | ------------------------------------------------------ |
 | `Accept-Encoding`   | `gzip,deflate,br` _(when `options.compress === true`)_ |
 | `Accept`            | `*/*`                                                  |
-| `Connection`        | `close` _(when no `options.agent` is present)_         |
+| `Connection`        | `keep-alive` _(when no `options.agent` is present)_         |
 | `Content-Length`    | _(automatically calculated, if possible)_              |
 | `Host`              | _(host and port information from the target URI)_      |
 | `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_              |
