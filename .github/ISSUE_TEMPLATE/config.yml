@@ -1,5 +1,11 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Discord Server 
+  - name: ✨ Feature Request
+    url: https://github.com/node-fetch/node-fetch/discussions/new?category=ideas
+    about: Suggest an idea or feature
+  - name: 🤔 Support or Usage Question
+    url: https://github.com/node-fetch/node-fetch/discussions/new?category=q-a
+    about: Get help using node-fetch
+  - name: Discord Server
     url: https://discord.gg/Zxbndcm
     about: You can alternatively ask any questions here.
