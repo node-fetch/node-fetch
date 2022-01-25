@@ -1,7 +1,7 @@
 Known differences
 =================
 
-*As of 3.x release*
+*As of 4.x release*
 
 - Topics such as Cross-Origin, Content Security Policy, Mixed Content, Service Workers are ignored, given our server-side context.
 
