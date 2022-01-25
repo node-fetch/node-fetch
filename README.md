@@ -102,7 +102,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 
 ## Installation
 
-Current stable release (`3.x`) requires at least Node.js 12.20.0.
+Current beta release (`4.x`) requires at least Node.js 14.17.0.
 
 ```sh
 npm install node-fetch
@@ -169,6 +169,7 @@ import './fetch-polyfill'
 
 Using an old version of node-fetch? Check out the following files:
 
+- [2.x to 3.x upgrade guide](docs/v4-UPGRADE-GUIDE.md)
 - [2.x to 3.x upgrade guide](docs/v3-UPGRADE-GUIDE.md)
 - [1.x to 2.x upgrade guide](docs/v2-UPGRADE-GUIDE.md)
 - [Changelog](docs/CHANGELOG.md)
