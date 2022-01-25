@@ -77,6 +77,11 @@ describe('Response', () => {
 		expect(res.headers.get('a')).to.equal('1');
 	});
 
+	it('should decode responses containing BOM', async () => {
+		const json = await new Response('\uFEFF{"a":1}').json();
+		expect(json.a).to.equal(1);
+	});
+
 	it('should support text() method', () => {
 		const res = new Response('a=1');
 		return res.text().then(result => {
