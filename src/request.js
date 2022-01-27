@@ -302,7 +302,10 @@ export const getNodeRequestOptions = request => {
 		path: parsedURL.pathname + search,
 		// The following options are not expressed in the URL
 		method: request.method,
-		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
+		headers: {
+			...Object.fromEntries(headers),
+			'set-cookie': headers.getSetCookie()
+		},
 		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
