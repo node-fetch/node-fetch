@@ -1886,7 +1886,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url).then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().arrayBuffer())
 		).not.to.timeout;
 	});
 
@@ -1903,7 +1903,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, {highWaterMark: 10}).then(res => res.clone().arrayBuffer())
 		).not.to.timeout;
 	});
 
@@ -1918,7 +1918,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes((2 * 512 * 1024) - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
+			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().arrayBuffer())
 		).not.to.timeout;
 	});
 
