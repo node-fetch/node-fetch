@@ -71,7 +71,7 @@ describe('Headers', () => {
 	it('should set "this" to globalThis by default on forEach', () => {
 		const headers = new Headers({Accept: 'application/json'});
 		headers.forEach(function () {
-			expect(this).to.equal(globalThis)
+			expect(this).to.equal(globalThis);
 		});
 	});
 
