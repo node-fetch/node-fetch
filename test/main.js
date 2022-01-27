@@ -1916,16 +1916,6 @@ describe('node-fetch', () => {
 		});
 	});
 
-	it('should return all headers using raw()', async () => {
-		const url = `${base}cookie`;
-		const res = await fetch(url);
-		const expected = [
-			'a=1',
-			'b=1'
-		];
-		expect(res.headers.raw()['set-cookie']).to.deep.equal(expected);
-	});
-
 	it('should allow deleting header', () => {
 		const url = `${base}cookie`;
 		return fetch(url).then(res => {
