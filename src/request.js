@@ -8,7 +8,7 @@
 
 import {format as formatUrl} from 'node:url';
 import {deprecate} from 'node:util';
-import Headers from './headers.js';
+import {Headers} from 'fetch-headers';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';

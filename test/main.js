@@ -27,7 +27,7 @@ import fetch, {
 	Response
 } from '../src/index.js';
 import {FetchError as FetchErrorOrig} from '../src/errors/fetch-error.js';
-import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
+import {Headers as HeadersOrig} from 'fetch-headers';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
 import Body, {getTotalBytes, extractContentType} from '../src/body.js';

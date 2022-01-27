@@ -16,7 +16,7 @@ import dataUriToBuffer from 'data-uri-to-buffer';
 
 import {writeToStream, clone} from './body.js';
 import Response from './response.js';
-import Headers, {fromRawHeaders} from './headers.js';
+import {Headers} from 'fetch-headers';
 import Request, {getNodeRequestOptions} from './request.js';
 import {FetchError} from './errors/fetch-error.js';
 import {AbortError} from './errors/abort-error.js';
