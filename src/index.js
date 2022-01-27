@@ -135,7 +135,14 @@ export default async function fetch(url, options_) {
 
 		request_.on('response', response_ => {
 			request_.setTimeout(0);
-			const headers = fromRawHeaders(response_.rawHeaders);
+			const headers = new Headers();
+			for (let i = 0; i < response_.rawHeaders.length; i += 2) {
+				const name = response_.rawHeaders[i];
+				const value = response_.rawHeaders[i + 1];
+				try {
+					headers.append(name, value);
+				} catch {}
+			}
 
 			// HTTP fetch step 5
 			if (isRedirect(response_.statusCode)) {
