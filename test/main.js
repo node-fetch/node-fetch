@@ -610,21 +610,6 @@ describe('node-fetch', () => {
 		expect(res.redirected).to.be.false;
 	});
 
-	it('should ignore invalid headers', () => {
-		const headers = fromRawHeaders([
-			'Invalid-Header ',
-			'abc\r\n',
-			'Invalid-Header-Value',
-			'\u0007k\r\n',
-			'Cookie',
-			'\u0007k\r\n',
-			'Cookie',
-			'\u0007kk\r\n'
-		]);
-		expect(headers).to.be.instanceOf(Headers);
-		expect(headers.raw()).to.deep.equal({});
-	});
-
 	it('should handle client-error response', async () => {
 		const url = `${base}error/400`;
 		const res = await fetch(url);
