@@ -189,18 +189,6 @@ describe('Request', () => {
 		});
 	});
 
-	it('should support buffer() method', () => {
-		const url = base;
-		const request = new Request(url, {
-			method: 'POST',
-			body: 'a=1'
-		});
-		expect(request.url).to.equal(url);
-		return request.buffer().then(result => {
-			expect(result.toString()).to.equal('a=1');
-		});
-	});
-
 	it('should support blob() method', async () => {
 		const url = base;
 		const request = new Request(url, {

@@ -21,9 +21,6 @@ async function run() {
 		}
 	}
 
-	// Test Buffer
-	expectType<Buffer>(await getResponse.buffer());
-
 	// Test arrayBuffer
 	expectType<ArrayBuffer>(await getResponse.arrayBuffer());
 
