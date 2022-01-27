@@ -16,7 +16,7 @@ import dataUriToBuffer from 'data-uri-to-buffer';
 
 import {writeToStream, clone} from './body.js';
 import Response from './response.js';
-import Headers, {fromRawHeaders} from './headers.js';
+import {Headers} from 'fetch-headers';
 import Request, {getNodeRequestOptions} from './request.js';
 import {FetchError} from './errors/fetch-error.js';
 import {AbortError} from './errors/abort-error.js';
@@ -135,7 +135,14 @@ export default async function fetch(url, options_) {
 
 		request_.on('response', response_ => {
 			request_.setTimeout(0);
-			const headers = fromRawHeaders(response_.rawHeaders);
+			const headers = new Headers();
+			for (let i = 0; i < response_.rawHeaders.length; i += 2) {
+				const name = response_.rawHeaders[i];
+				const value = response_.rawHeaders[i + 1];
+				try {
+					headers.append(name, value);
+				} catch {}
+			}
 
 			// HTTP fetch step 5
 			if (isRedirect(response_.statusCode)) {
@@ -267,7 +274,7 @@ export default async function fetch(url, options_) {
 			};
 
 			// HTTP-network fetch step 12.1.1.3
-			const codings = headers.get('Content-Encoding');
+			const codings = headers.get('Content-Encoding')?.toLowerCase();
 
 			// HTTP-network fetch step 12.1.1.4: handle content codings
 

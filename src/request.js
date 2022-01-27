@@ -8,7 +8,7 @@
 
 import {format as formatUrl} from 'node:url';
 import {deprecate} from 'node:util';
-import Headers from './headers.js';
+import {Headers} from 'fetch-headers';
 import Body, {clone, extractContentType, getTotalBytes} from './body.js';
 import {isAbortSignal} from './utils/is.js';
 import {getSearch} from './utils/get-search.js';
@@ -302,7 +302,10 @@ export const getNodeRequestOptions = request => {
 		path: parsedURL.pathname + search,
 		// The following options are not expressed in the URL
 		method: request.method,
-		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
+		headers: {
+			...Object.fromEntries(headers),
+			'set-cookie': headers.getSetCookie()
+		},
 		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};

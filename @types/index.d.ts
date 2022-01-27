@@ -62,9 +62,6 @@ export class Headers {
 	 * Returns an iterator allowing to go through all values of the key/value pairs contained in this object.
 	 */
 	values(): IterableIterator<string>;
-
-	/** Node-fetch extension */
-	raw(): Record<string, string[]>;
 }
 
 export interface RequestInit {

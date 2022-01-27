@@ -4,7 +4,7 @@
  * Response class provides content decoding
  */
 
-import Headers from './headers.js';
+import {Headers} from 'fetch-headers';
 import Body, {clone, extractContentType} from './body.js';
 import {isRedirect} from './utils/is-redirect.js';
 
