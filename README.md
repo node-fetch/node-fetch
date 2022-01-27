@@ -423,7 +423,7 @@ node-fetch comes with a spec-compliant [FormData] implementations for posting
 multipart/form-data payloads
 
 ```js
-import fetch {FormData, File, fileFrom} from 'node-fetch'
+import fetch, { FormData, File, fileFrom } from 'node-fetch'
 
 const httpbin = 'https://httpbin.org/post'
 const formData = new FormData()
