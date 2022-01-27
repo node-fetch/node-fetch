@@ -158,18 +158,7 @@ export default class Body {
 		const buffer = await consumeBody(this);
 		return buffer.toString();
 	}
-
-	/**
-	 * Decode response as buffer (non-spec api)
-	 *
-	 * @return  Promise
-	 */
-	buffer() {
-		return consumeBody(this);
-	}
 }
-
-Body.prototype.buffer = deprecate(Body.prototype.buffer, 'Please use \'response.arrayBuffer()\' instead of \'response.buffer()\'', 'node-fetch#buffer');
 
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {

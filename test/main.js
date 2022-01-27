@@ -1857,7 +1857,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		});
 		return expect(
-			fetch(url).then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().arrayBuffer())
 		).to.timeout;
 	});
 
@@ -1869,7 +1869,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, {highWaterMark: 10}).then(res => res.clone().arrayBuffer())
 		).to.timeout;
 	});
 
@@ -2079,13 +2079,13 @@ describe('node-fetch', () => {
 		expect(headers.a).to.equal('2');
 	});
 
-	it('should support arrayBuffer(), blob(), text(), json() and buffer() method in Body constructor', () => {
+	it('should support arrayBuffer(), blob(), text(), and json() method in Body constructor', () => {
 		const body = new Body('a=1');
 		expect(body).to.have.property('arrayBuffer');
 		expect(body).to.have.property('blob');
 		expect(body).to.have.property('text');
 		expect(body).to.have.property('json');
-		expect(body).to.have.property('buffer');
+		expect(body).to.not.have.property('buffer');
 	});
 
 	/* eslint-disable-next-line func-names */
