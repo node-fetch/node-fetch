@@ -1,7 +1,6 @@
 // Test tools
 import {lookup} from 'node:dns';
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import stream from 'node:stream';
@@ -29,7 +28,7 @@ import {FetchError as FetchErrorOrig} from '../src/errors/fetch-error.js';
 import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body, {getTotalBytes, extractContentType} from '../src/body.js';
+import Body from '../src/body.js';
 import TestServer from './utils/server.js';
 import chaiTimeout from './utils/chai-timeout.js';
 import {isDomainOrSubdomain} from '../src/utils/is.js';
