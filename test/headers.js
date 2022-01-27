@@ -7,7 +7,7 @@ chai.use(chaiIterator);
 
 const {expect} = chai;
 
-describe('Headers', () => {
+describe.only('Headers', () => {
 	it('should have attributes conforming to Web IDL', () => {
 		const headers = new Headers();
 		expect(Object.getOwnPropertyNames(headers)).to.be.empty;
