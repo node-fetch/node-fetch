@@ -1206,7 +1206,9 @@ describe('node-fetch', () => {
 
 	testAbortController('mysticatea', () => new AbortControllerMysticatea());
 
-	testAbortController('native', () => new AbortController());
+	if (globalThis.AbortController) {
+		testAbortController('native', () => new globalThis.AbortController());
+	}
 
 	it('should throw a TypeError if a signal is not of type AbortSignal', () => {
 		return Promise.all([
