@@ -88,13 +88,13 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 - Stay consistent with `window.fetch` API.
 - Make conscious trade-off when following [WHATWG fetch spec][whatwg-fetch] and [stream spec](https://streams.spec.whatwg.org/) implementation details, document known differences.
 - Use native promise and async functions.
-- Use native Node streams for body, on both request and response.
+- Use web streams for body, on both request and response.
 - Decode content encoding (gzip/deflate/brotli) properly, and convert string output (such as `res.text()` and `res.json()`) to UTF-8 automatically.
-- Useful extensions such as redirect limit, response size limit, [explicit errors][error-handling.md] for troubleshooting.
 
 ## Difference from client-side fetch
 
 - See known differences:
+	- [As of v4.x](docs/v4-LIMITS.md)
 	- [As of v3.x](docs/v3-LIMITS.md)
 	- [As of v2.x](docs/v2-LIMITS.md)
 - If you happen to use a missing feature that `window.fetch` offers, feel free to open an issue.
@@ -102,7 +102,7 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 
 ## Installation
 
-Current stable release (`3.x`) requires at least Node.js 12.20.0.
+Current beta release (`4.x`) requires at least Node.js 14.17.0.
 
 ```sh
 npm install node-fetch
@@ -169,6 +169,7 @@ import './fetch-polyfill'
 
 Using an old version of node-fetch? Check out the following files:
 
+- [3.x to 4.x upgrade guide](docs/v4-UPGRADE-GUIDE.md)
 - [2.x to 3.x upgrade guide](docs/v3-UPGRADE-GUIDE.md)
 - [1.x to 2.x upgrade guide](docs/v2-UPGRADE-GUIDE.md)
 - [Changelog](docs/CHANGELOG.md)
