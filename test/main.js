@@ -15,7 +15,6 @@ import chai from 'chai';
 import chaiIterator from 'chai-iterator';
 import chaiPromised from 'chai-as-promised';
 import chaiString from 'chai-string';
-import FormData from 'form-data';
 
 import fetch, {
 	Blob,
@@ -1456,63 +1455,6 @@ describe('node-fetch', () => {
 			.to.be.rejectedWith(Error, errorMessage);
 	});
 
-	it('should allow POST request with form-data as body', async () => {
-		const form = new FormData();
-		form.append('a', '1');
-
-		const url = `${base}multipart`;
-		const options = {
-			method: 'POST',
-			body: form
-		};
-		const res = await fetch(url, options);
-		const json = await res.json();
-		expect(json.method).to.equal('POST');
-		expect(json.headers['content-type']).to.startWith('multipart/form-data;boundary=');
-		expect(json.headers['content-length']).to.be.a('string');
-		expect(json.body).to.equal('a=1');
-	});
-
-	it('should allow POST request with form-data using stream as body', async () => {
-		const form = new FormData();
-		form.append('my_field', fs.createReadStream('test/utils/dummy.txt'));
-
-		const url = `${base}multipart`;
-		const options = {
-			method: 'POST',
-			body: form
-		};
-
-		const res = await fetch(url, options);
-		const json = await res.json();
-		expect(json.method).to.equal('POST');
-		expect(json.headers['content-type']).to.startWith('multipart/form-data;boundary=');
-		expect(json.headers['content-length']).to.be.undefined;
-		expect(json.body).to.contain('my_field=');
-	});
-
-	it('should allow POST request with form-data as body and custom headers', async () => {
-		const form = new FormData();
-		form.append('a', '1');
-
-		const headers = form.getHeaders();
-		headers.b = '2';
-
-		const url = `${base}multipart`;
-		const options = {
-			method: 'POST',
-			body: form,
-			headers
-		};
-		const res = await fetch(url, options);
-		const json = await res.json();
-		expect(json.method).to.equal('POST');
-		expect(json.headers['content-type']).to.startWith('multipart/form-data; boundary=');
-		expect(json.headers['content-length']).to.be.a('string');
-		expect(json.headers.b).to.equal('2');
-		expect(json.body).to.equal('a=1');
-	});
-
 	it('should support spec-compliant form-data as POST body', async () => {
 		const form = new FormDataNode();
 
@@ -2185,66 +2127,6 @@ describe('node-fetch', () => {
 		expect(parsedURL.protocol).to.equal('http:');
 		// The agent we returned should have been used
 		expect(json.headers.connection).to.equal('keep-alive');
-	});
-
-	it('should calculate content length and extract content type for each body type', () => {
-		const url = `${base}hello`;
-		const bodyContent = 'a=1';
-
-		const streamBody = stream.Readable.from(bodyContent);
-		const streamRequest = new Request(url, {
-			method: 'POST',
-			body: streamBody,
-			size: 1024
-		});
-
-		const blobBody = new Blob([bodyContent], {type: 'text/plain'});
-		const blobRequest = new Request(url, {
-			method: 'POST',
-			body: blobBody,
-			size: 1024
-		});
-
-		const formBody = new FormData();
-		formBody.append('a', '1');
-		const formRequest = new Request(url, {
-			method: 'POST',
-			body: formBody,
-			size: 1024
-		});
-
-		const bufferBody = encoder.encode(bodyContent);
-		const bufferRequest = new Request(url, {
-			method: 'POST',
-			body: bufferBody,
-			size: 1024
-		});
-
-		const stringRequest = new Request(url, {
-			method: 'POST',
-			body: bodyContent,
-			size: 1024
-		});
-
-		const nullRequest = new Request(url, {
-			method: 'GET',
-			body: null,
-			size: 1024
-		});
-
-		expect(getTotalBytes(streamRequest)).to.be.null;
-		expect(getTotalBytes(blobRequest)).to.equal(blobBody.size);
-		expect(getTotalBytes(formRequest)).to.not.be.null;
-		expect(getTotalBytes(bufferRequest)).to.equal(bufferBody.length);
-		expect(getTotalBytes(stringRequest)).to.equal(bodyContent.length);
-		expect(getTotalBytes(nullRequest)).to.equal(0);
-
-		expect(extractContentType(streamBody)).to.be.null;
-		expect(extractContentType(blobBody)).to.equal('text/plain');
-		expect(extractContentType(formBody)).to.startWith('multipart/form-data');
-		expect(extractContentType(bufferBody)).to.be.null;
-		expect(extractContentType(bodyContent)).to.equal('text/plain;charset=UTF-8');
-		expect(extractContentType(null)).to.be.null;
 	});
 
 	it('should encode URLs as UTF-8', async () => {
