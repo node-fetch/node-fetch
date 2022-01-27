@@ -274,7 +274,7 @@ export default async function fetch(url, options_) {
 			};
 
 			// HTTP-network fetch step 12.1.1.3
-			const codings = headers.get('Content-Encoding');
+			const codings = headers.get('Content-Encoding')?.toLowerCase();
 
 			// HTTP-network fetch step 12.1.1.4: handle content codings
 

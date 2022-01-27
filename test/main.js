@@ -838,7 +838,7 @@ describe('node-fetch', () => {
 	it('should make capitalised Content-Encoding lowercase', async () => {
 		const url = `${base}gzip-capital`;
 		const res = await fetch(url);
-		expect(res.headers.get('content-encoding')).to.equal('gzip');
+		expect(res.headers.get('content-encoding')).to.equal('GZip');
 		const result = await res.text();
 		expect(result).to.be.a('string');
 		expect(result).to.equal('hello world');
