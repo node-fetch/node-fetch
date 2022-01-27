@@ -183,7 +183,7 @@ describe.only('Headers', () => {
 		h1.set('n', [1, 2]);
 		h1.append('n', ['3', 4]);
 
-		const h1Raw = h1.raw();
+		const h1Raw = Object.fromEntries(h1);
 
 		expect(h1Raw.a).to.include('string');
 		expect(h1Raw.b).to.include('1,2');
@@ -207,15 +207,15 @@ describe.only('Headers', () => {
 		const h1 = new Headers({
 			a: '1'
 		});
-		const h1Raw = h1.raw();
+		const h1Raw = Object.fromEntries(h1);
 
 		const h2 = new Headers(h1);
 		h2.set('b', '1');
-		const h2Raw = h2.raw();
+		const h2Raw = Object.fromEntries(h2);
 
 		const h3 = new Headers(h2);
 		h3.append('a', '2');
-		const h3Raw = h3.raw();
+		const h3Raw = Object.fromEntries(h3);
 
 		expect(h1Raw.a).to.include('1');
 		expect(h1Raw.a).to.not.include('2');
