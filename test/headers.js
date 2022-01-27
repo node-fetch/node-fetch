@@ -69,10 +69,10 @@ describe.only('Headers', () => {
 		expect({key: 'content-type', value: 'text/html', object: headers}).to.deep.equal(results[1]);
 	});
 
-	it('should set "this" to undefined by default on forEach', () => {
+	it('should set "this" to globalThis by default on forEach', () => {
 		const headers = new Headers({Accept: 'application/json'});
 		headers.forEach(function () {
-			expect(this).to.be.undefined;
+			expect(this).to.equal(globalThis)
 		});
 	});
 
