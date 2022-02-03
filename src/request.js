@@ -57,7 +57,7 @@ export default class Request extends Body {
 		}
 
 		if (parsedURL.username !== '' || parsedURL.password !== '') {
-			throw new TypeError(`${parsedURL} is an url with embedded credentails.`);
+			throw new TypeError(`${parsedURL} is an url with embedded credentials.`);
 		}
 
 		let method = init.method || input.method || 'GET';
