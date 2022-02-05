@@ -13,29 +13,16 @@ import https from 'https';
 import zlib from 'zlib';
 import Stream from 'stream';
 
-import Body, { writeToStream, getTotalBytes } from './body.js';
-import Response from './response.js';
-import Headers, { createHeadersLenient } from './headers.js';
-import Request, { getNodeRequestOptions } from './request.js';
-import FetchError from './fetch-error.js';
-import AbortError from './abort-error.js';
-
-import whatwgUrl from 'whatwg-url';
-
-const URL = Url.URL || whatwgUrl.URL;
+import Body, { writeToStream, getTotalBytes } from './body';
+import Response from './response';
+import Headers, { createHeadersLenient } from './headers';
+import Request, { getNodeRequestOptions } from './request';
+import FetchError from './fetch-error';
+import AbortError from './abort-error';
 
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough = Stream.PassThrough;
-
-const isDomainOrSubdomain = (destination, original) => {
-	const orig = new URL(original).hostname;
-	const dest = new URL(destination).hostname;
-
-	return orig === dest || (
-		orig[orig.length - dest.length - 1] === '.' && orig.endsWith(dest)
-	);
-};
-
+const resolve_url = Url.resolve;
 
 /**
  * Fetch function
@@ -122,19 +109,7 @@ export default function fetch(url, opts) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				let locationURL = null;
-				try {
-					locationURL = location === null ? null : new URL(location, request.url).toString();
-				} catch (err) {
-					// error here can only be invalid URL in Location: header
-					// do not throw when options.redirect == manual
-					// let the user extract the errorneous redirect URL
-					if (request.redirect !== 'manual') {
-						reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, 'invalid-redirect'));
-						finalize();
-						return;
-					}
-				}
+				const locationURL = location === null ? null : resolve_url(request.url, location);
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -179,14 +154,8 @@ export default function fetch(url, opts) {
 							body: request.body,
 							signal: request.signal,
 							timeout: request.timeout,
-              size: request.size
+                            size: request.size
 						};
-
-						if (!isDomainOrSubdomain(request.url, locationURL)) {
-							for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
-								requestOpts.headers.delete(name);
-							}
-						}
 
 						// HTTP-redirect fetch step 9
 						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {

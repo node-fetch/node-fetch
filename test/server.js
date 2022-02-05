@@ -1,6 +1,7 @@
 import * as http from 'http';
 import { parse } from 'url';
 import * as zlib from 'zlib';
+import * as stream from 'stream';
 import { multipart as Multipart } from 'parted';
 
 let convert;
@@ -63,12 +64,6 @@ export default class TestServer {
 			res.end(JSON.stringify({
 				name: 'value'
 			}));
-		}
-
-		if (p.startsWith('/redirect-to/3')) {
-			res.statusCode = p.slice(13, 16);
-			res.setHeader('Location', p.slice(17));
-			res.end();
 		}
 
 		if (p === '/gzip') {
