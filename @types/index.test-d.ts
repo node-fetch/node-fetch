@@ -78,6 +78,8 @@ async function run() {
 	expectAssignable<Body>(request);
 
 	/* eslint-disable no-new */
+	new Request('url', {agent: false});
+
 	new Headers({Header: 'value'});
 	// new Headers(['header', 'value']); // should not work
 	new Headers([['header', 'value']]);
