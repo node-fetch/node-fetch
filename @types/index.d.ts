@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /// <reference lib="dom" />
 
-import {Agent} from 'http';
+import {RequestOptions} from 'http';
 import {
 	Blob,
 	blobFrom,
@@ -98,7 +98,7 @@ export interface RequestInit {
 	referrerPolicy?: ReferrerPolicy;
 
 	// Node-fetch extensions to the whatwg/fetch spec
-	agent?: Agent | ((parsedUrl: URL) => Agent);
+	agent?: RequestOptions['agent'] | ((parsedUrl: URL) => RequestOptions['agent']);
 	compress?: boolean;
 	counter?: number;
 	follow?: number;
