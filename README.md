@@ -171,7 +171,7 @@ Using an old version of node-fetch? Check out the following files:
 
 - [2.x to 3.x upgrade guide](docs/v3-UPGRADE-GUIDE.md)
 - [1.x to 2.x upgrade guide](docs/v2-UPGRADE-GUIDE.md)
-- [Changelog](docs/CHANGELOG.md)
+- [Changelog](https://github.com/node-fetch/node-fetch/releases)
 
 ## Common Usage
 
