@@ -110,7 +110,7 @@ export default class Body {
 	async formData() {
 		const ct = this.headers.get('content-type');
 
-		if (ct.startsWith('application/x-www-form-urlencoded')) {
+		if (ct?.startsWith('application/x-www-form-urlencoded')) {
 			const formData = new FormData();
 			const parameters = new URLSearchParams(await this.text());
 
