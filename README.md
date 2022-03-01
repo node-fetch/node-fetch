@@ -470,7 +470,7 @@ You may cancel requests with `AbortController`. A suggested implementation is [`
 An example of timing out a request after 150ms could be achieved as the following:
 
 ```js
-import fetch from 'node-fetch';
+import fetch, { AbortError } from 'node-fetch';
 
 // AbortController was added in node v14.17.0 globally
 const AbortController = globalThis.AbortController || await import('abort-controller')
@@ -484,7 +484,7 @@ try {
 	const response = await fetch('https://example.com', {signal: controller.signal});
 	const data = await response.json();
 } catch (error) {
-	if (error instanceof fetch.AbortError) {
+	if (error instanceof AbortError) {
 		console.log('request was aborted');
 	}
 } finally {
