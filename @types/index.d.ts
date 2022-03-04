@@ -21,7 +21,7 @@ type AbortSignal = {
 export type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
 
 export {
-	FormData
+	FormData,
 	Blob,
 	blobFrom,
 	blobFromSync,
