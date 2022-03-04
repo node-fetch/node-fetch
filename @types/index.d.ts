@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 
 import {RequestOptions} from 'http';
+import {FormData} from 'formdata-polyfill/esm.min.js';
 import {
 	Blob,
 	blobFrom,
