@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 
 import {RequestOptions} from 'http';
+import {FormData} from 'formdata-polyfill/esm.min.js';
 import {
 	Blob,
 	blobFrom,
@@ -21,6 +22,7 @@ type AbortSignal = {
 export type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
 
 export {
+	FormData,
 	Blob,
 	blobFrom,
 	blobFromSync,
