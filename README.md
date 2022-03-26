@@ -669,7 +669,7 @@ See [options](#fetch-options) for exact meaning of these extensions.
 <small>_(spec-compliant)_</small>
 
 - `input` A string representing a URL, or another `Request` (which will be cloned)
-- `options` [Options][#fetch-options] for the HTTP(S) request
+- `options` [Options](#fetch-options) for the HTTP(S) request
 
 Constructs a new `Request` object. The constructor is identical to that in the [browser](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request).
 
