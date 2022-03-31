@@ -1,6 +1,6 @@
 {
     "name": "@all41-dev/node-fetch",
-    "version": "2.6.10",
+    "version": "2.6.11",
     "description": "A light-weight module that brings window.fetch to node.js",
     "main": "lib/index.js",
     "browser": "./browser.js",
