@@ -1,10 +1,11 @@
 {
-    "name": "node-fetch",
+    "name": "@all41-dev/node-fetch",
     "version": "2.6.7",
     "description": "A light-weight module that brings window.fetch to node.js",
     "main": "lib/index.js",
     "browser": "./browser.js",
     "module": "lib/index.mjs",
+    "types": "lib/index.d.ts",
     "files": [
         "lib/index.js",
         "lib/index.mjs",
@@ -23,7 +24,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/bitinn/node-fetch.git"
+        "url": "https://github.com/all41-dev/node-fetch.git"
     },
     "keywords": [
         "fetch",
@@ -33,13 +34,16 @@
     "author": "David Frank",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/bitinn/node-fetch/issues"
+        "url": "https://github.com/all41-dev/node-fetch/issues"
     },
-    "homepage": "https://github.com/bitinn/node-fetch",
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com/"
+    },
+    "homepage": "https://github.com/all41-dev/node-fetch",
     "dependencies": {
         "whatwg-url": "^5.0.0"
     },
-    "peerDependencies": { 
+    "peerDependencies": {
         "encoding": "^0.1.0"
     },
     "peerDependenciesMeta": {
