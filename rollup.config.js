@@ -11,7 +11,6 @@ export default {
   input: 'src/index.js',
   output: [
     { file: 'lib/index.js', format: 'cjs', exports: 'named' },
-    { file: 'lib/index.d.ts', format: 'cjs', exports: 'named' },
     { file: 'lib/index.es.js', format: 'es', exports: 'named', intro: 'process.emitWarning("The .es.js file is deprecated. Use .mjs instead.");' },
     { file: 'lib/index.mjs', format: 'es', exports: 'named' },
   ],
