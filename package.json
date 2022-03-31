@@ -8,6 +8,7 @@
     "types": "lib/index.d.ts",
     "files": [
         "lib/index.js",
+        "lib/index.d.ts",
         "lib/index.mjs",
         "lib/index.es.js",
         "browser.js"
