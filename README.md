@@ -472,7 +472,7 @@ An example of timing out a request after 150ms could be achieved as the followin
 ```js
 import fetch, { AbortError } from 'node-fetch';
 
-// AbortController was added in node v14.17.0 globally
+// AbortController was added in node v15.0.0 globally
 const AbortController = globalThis.AbortController || await import('abort-controller')
 
 const controller = new AbortController();
