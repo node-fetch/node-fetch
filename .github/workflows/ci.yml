@@ -9,6 +9,9 @@ on:
       - "package.json"
       - ".github/workflows/ci.yml"
 
+permissions:
+  contents: read
+
 jobs:
   test:
     strategy:
