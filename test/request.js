@@ -155,7 +155,7 @@ describe('Request', () => {
 		const url = base;
 		for (const method of ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']) {
 			const request = new Request(url, {
-				method: method.toLowerCase(),
+				method: method.toLowerCase()
 			});
 			expect(request.method).to.equal(method);
 		}
@@ -163,8 +163,8 @@ describe('Request', () => {
 
 	it('should not uppercase unknown methods and patch', () => {
 		const url = base;
-		for (const method of ['patch', 'chicken',]) {
-			const request = new Request(url, { method });
+		for (const method of ['patch', 'chicken']) {
+			const request = new Request(url, {method});
 			expect(request.method).to.equal(method);
 		}
 	});
