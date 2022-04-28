@@ -61,7 +61,9 @@ export default class Request extends Body {
 		}
 
 		let method = init.method || input.method || 'GET';
-		method = method.toUpperCase();
+		if (/^(delete|get|head|options|post|put)$/i.test(method)) {
+			method = method.toUpperCase();
+		}
 
 		if ('data' in init) {
 			doBadDataWarn();

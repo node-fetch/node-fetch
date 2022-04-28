@@ -151,6 +151,24 @@ describe('Request', () => {
 		expect(request.headers.get('a')).to.equal('1');
 	});
 
+	it('should uppercase DELETE, GET, HEAD, OPTIONS, POST and PUT methods', () => {
+		const url = base;
+		for (const method of ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']) {
+			const request = new Request(url, {
+				method: method.toLowerCase()
+			});
+			expect(request.method).to.equal(method);
+		}
+	});
+
+	it('should not uppercase unknown methods and patch', () => {
+		const url = base;
+		for (const method of ['patch', 'chicken']) {
+			const request = new Request(url, {method});
+			expect(request.method).to.equal(method);
+		}
+	});
+
 	it('should support arrayBuffer() method', () => {
 		const url = base;
 		const request = new Request(url, {
