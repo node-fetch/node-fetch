@@ -65,7 +65,7 @@ export default class Request extends Body {
 			method = method.toUpperCase();
 		}
 
-		if ('data' in init) {
+		if (!isRequest(init) && 'data' in init) {
 			doBadDataWarn();
 		}
 
