@@ -594,7 +594,7 @@ The recommended way to fix this problem is to resolve cloned response in paralle
 import fetch from 'node-fetch';
 
 const response = await fetch('https://example.com');
-const r1 = await response.clone();
+const r1 = response.clone();
 
 const results = await Promise.all([response.json(), r1.text()]);
 
