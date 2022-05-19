@@ -43,3 +43,4 @@ yarn.lock
 
 # Ignore IDE
 .idea
+.vscode

@@ -195,7 +195,6 @@ async function consumeBody(data) {
 	if (data[INTERNALS].disturbed) {
 		throw new TypeError(`body used already for: ${data.url}`);
 	}
-
 	data[INTERNALS].disturbed = true;
 
 	if (data[INTERNALS].error) {
@@ -214,40 +213,47 @@ async function consumeBody(data) {
 		return Buffer.alloc(0);
 	}
 
-	// Body is stream
-	// get ready to actually consume the body
-	const accum = [];
-	let accumBytes = 0;
+	async function _consumeBodyForDestroy() {
+		// Body is stream
+		// get ready to actually consume the body
+		const accum = [];
+		let accumBytes = 0;
 
-	try {
-		for await (const chunk of body) {
-			if (data.size > 0 && accumBytes + chunk.length > data.size) {
-				const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
-				body.destroy(error);
-				throw error;
-			}
-
-			accumBytes += chunk.length;
-			accum.push(chunk);
-		}
-	} catch (error) {
-		const error_ = error instanceof FetchBaseError ? error : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, 'system', error);
-		throw error_;
-	}
-
-	if (body.readableEnded === true || body._readableState.ended === true) {
 		try {
-			if (accum.every(c => typeof c === 'string')) {
-				return Buffer.from(accum.join(''));
-			}
+			for await (const chunk of body) {
+				if (data.size > 0 && accumBytes + chunk.length > data.size) {
+					const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
+					throw error;
+				}
 
-			return Buffer.concat(accum, accumBytes);
+				accumBytes += chunk.length;
+				accum.push(chunk);
+			}
 		} catch (error) {
-			throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error);
+			const error_ = error instanceof FetchBaseError ? error : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, 'system', error);
+			throw error_;
 		}
-	} else {
-		throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
+
+		if (body.readableEnded === true || body._readableState.ended === true) {
+			try {
+				if (accum.every(c => typeof c === 'string')) {
+					return Buffer.from(accum.join(''));
+				}
+
+				return Buffer.concat(accum, accumBytes);
+			} catch (error) {
+				throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, 'system', error);
+			}
+		} else {
+			throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
+		}
 	}
+
+	const consumeBodyPromise = _consumeBodyForDestroy();
+	return consumeBodyPromise.catch(err => {
+		body.destroy(err);
+		throw err;
+	});
 }
 
 /**
