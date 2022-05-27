@@ -428,7 +428,7 @@ import fetch, { FormData, File, fileFrom } from 'node-fetch'
 const httpbin = 'https://httpbin.org/post'
 const formData = new FormData()
 const binary = new Uint8Array([ 97, 98, 99 ])
-const abc = new File([binary], 'abc.txt'), { type: 'text/plain' })
+const abc = new File([binary], 'abc.txt', { type: 'text/plain' })
 
 formData.set('greeting', 'Hello, world!')
 formData.set('file-upload', abc, 'new name.txt')
