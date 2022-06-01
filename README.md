@@ -537,7 +537,7 @@ If no values are set, the following request headers will be sent automatically:
 
 | Header              | Value                                                  |
 | ------------------- | ------------------------------------------------------ |
-| `Accept-Encoding`   | `gzip,deflate,br` _(when `options.compress === true`)_ |
+| `Accept-Encoding`   | `gzip, deflate, br` (when `options.compress === true`) |
 | `Accept`            | `*/*`                                                  |
 | `Connection`        | `close` _(when no `options.agent` is present)_         |
 | `Content-Length`    | _(automatically calculated, if possible)_              |
