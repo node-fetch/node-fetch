@@ -109,9 +109,12 @@ export default async function fetch(url, options_) {
 			finalize();
 		});
 
-		fixResponseChunkedTransferBadEnding(request_, error => {
-			response.body.destroy(error);
-		});
+		if (!request_.shouldKeepAlive) {
+			// fixResponseChunkedTransferBadEnding is not compatible with pipelined/keep-alive requests
+			fixResponseChunkedTransferBadEnding(request_, error => {
+				response.body.destroy(error);
+			});
+		}
 
 		/* c8 ignore next 18 */
 		if (process.version < 'v14') {

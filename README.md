@@ -463,6 +463,8 @@ formData.append('upload', {
 }, 'abc.txt')
 ```
 
+<a id="request-cancellation-with-abort-signal"></a>
+
 ### Request cancellation with AbortSignal
 
 You may cancel requests with `AbortController`. A suggested implementation is [`abort-controller`](https://www.npmjs.com/package/abort-controller).
@@ -581,6 +583,8 @@ const options = {
 	}
 };
 ```
+
+*Note on `keepAlive`: be sure to implement request timeouts when using `keepAlive`. Certain fixes for handling premature request closures are not compatible with `keepAlive`, which can result in requests never completing if requests do not have timeouts. See [Request cancellation with AbortSignal](#request-cancellation-with-abort-signal).*
 
 <a id="custom-highWaterMark"></a>
 
