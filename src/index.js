@@ -110,7 +110,9 @@ export default async function fetch(url, options_) {
 		});
 
 		fixResponseChunkedTransferBadEnding(request_, error => {
-			response.body.destroy(error);
+			if (response && response.body) {
+				response.body.destroy(error);
+			}
 		});
 
 		/* c8 ignore next 18 */
