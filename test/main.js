@@ -7,7 +7,6 @@ import path from 'node:path';
 import stream from 'node:stream';
 import vm from 'node:vm';
 import zlib from 'node:zlib';
-import https from 'node:https';
 
 import {text} from 'stream-consumers';
 import AbortControllerMysticatea from 'abort-controller';
@@ -544,7 +543,7 @@ describe('node-fetch', () => {
 	});
 
 	it('should not forward secure headers to changed protocol', async () => {
-		const res = await fetch(`https://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fget&status_code=302`, {
+		const res = await fetch('https://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fget&status_code=302', {
 			headers: new Headers({
 				cookie: 'gets=removed',
 				cookie2: 'gets=removed',
