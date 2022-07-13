@@ -442,7 +442,7 @@ console.log(data)
 If you for some reason need to post a stream coming from any arbitrary place,
 then you can append a [Blob] or a [File] look-a-like item.
 
-The minium requirement is that it has:
+The minimum requirement is that it has:
 1. A `Symbol.toStringTag` getter or property that is either `Blob` or `File`
 2. A known size.
 3. And either a `stream()` method or a `arrayBuffer()` method that returns a ArrayBuffer.
