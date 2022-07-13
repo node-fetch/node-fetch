@@ -1,5 +1,4 @@
 /// <reference types="node" />
-/// <reference lib="dom" />
 
 import {RequestOptions} from 'http';
 import {FormData} from 'formdata-polyfill/esm.min.js';
