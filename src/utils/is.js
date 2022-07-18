@@ -71,3 +71,17 @@ export const isDomainOrSubdomain = (destination, original) => {
 
 	return orig === dest || orig.endsWith(`.${dest}`);
 };
+
+/**
+ * isSameProtocol reports whether the two provided URLs use the same protocol.
+ *
+ * Both domains must already be in canonical form.
+ * @param {string|URL} original
+ * @param {string|URL} destination
+ */
+export const isSameProtocol = (destination, original) => {
+	const orig = new URL(original).protocol;
+	const dest = new URL(destination).protocol;
+
+	return orig === dest;
+};
