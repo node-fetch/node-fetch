@@ -1677,6 +1677,29 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should not forward secure headers to changed protocol', async () => {
+		const res = await fetch('https://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fget&status_code=302', {
+			headers: new Headers({
+				cookie: 'gets=removed',
+				cookie2: 'gets=removed',
+				authorization: 'gets=removed',
+				'www-authenticate': 'gets=removed',
+				'other-safe-headers': 'stays',
+				'x-foo': 'bar'
+			})
+		});
+
+		const headers = new Headers((await res.json()).headers);
+		// Safe headers are not removed
+		expect(headers.get('other-safe-headers')).to.equal('stays');
+		expect(headers.get('x-foo')).to.equal('bar');
+		// Unsafe headers should not have been sent to downgraded http
+		expect(headers.get('cookie')).to.equal(null);
+		expect(headers.get('cookie2')).to.equal(null);
+		expect(headers.get('www-authenticate')).to.equal(null);
+		expect(headers.get('authorization')).to.equal(null);
+	});
+
 	it('should forward secure headers to same host', () => {
 		return fetch(`${base}redirect-to/302/${base}inspect`, {
 			headers: new Headers({

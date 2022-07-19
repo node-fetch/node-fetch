@@ -36,6 +36,20 @@ const isDomainOrSubdomain = (destination, original) => {
 	);
 };
 
+/**
+ * isSameProtocol reports whether the two provided URLs use the same protocol.
+ *
+ * Both domains must already be in canonical form.
+ * @param {string|URL} original
+ * @param {string|URL} destination
+ */
+const isSameProtocol = (destination, original) => {
+       const orig = new URL(original).protocol;
+       const dest = new URL(destination).protocol;
+
+       return orig === dest;
+};
+
 
 /**
  * Fetch function
@@ -214,7 +228,7 @@ export default function fetch(url, opts) {
               size: request.size
 						};
 
-						if (!isDomainOrSubdomain(request.url, locationURL)) {
+						if (!isDomainOrSubdomain(request.url, locationURL) || !isSameProtocol(request.url, locationURL)) {
 							for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
 								requestOpts.headers.delete(name);
 							}
