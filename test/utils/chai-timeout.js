@@ -1,9 +1,11 @@
 export default ({Assertion}, utils) => {
 	utils.addProperty(Assertion.prototype, 'timeout', async function () {
-		const timeout = Symbol();
+		const timeout = Symbol('timeout');
 		const result = await Promise.race([
 			this._obj,
-			new Promise(resolve => setTimeout(resolve, 150, timeout))
+			new Promise(resolve => {
+				setTimeout(resolve, 150, timeout);
+			})
 		]);
 
 		return this.assert(
