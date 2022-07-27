@@ -5,6 +5,14 @@ Changelog
 
 # 2.x release
 
+## v2.6.7
+
+- Fix: don't forward secure headers to 3th party
+
+## v2.6.6
+
+- Fix: prefer built in URL version when available and fallback to whatwg
+
 ## v2.6.5
 
 - Fix: import `whatwg-url` in a way compatible with ESM
