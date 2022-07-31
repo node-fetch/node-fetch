@@ -119,7 +119,7 @@ export function isOriginPotentiallyTrustworthy(url) {
 	// 5. If origin's host component is "localhost" or falls within ".localhost", and the user agent conforms to the name resolution rules in [let-localhost-be-localhost], return "Potentially Trustworthy".
 	// We are returning FALSE here because we cannot ensure conformance to
 	// let-localhost-be-loalhost (https://tools.ietf.org/html/draft-west-let-localhost-be-localhost)
-	if (/^(.+\.)*localhost$/.test(url.host)) {
+	if (url.host === 'localhost' || url.host.endsWith('.localhost')) {
 		return false;
 	}
 
