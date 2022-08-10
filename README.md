@@ -400,7 +400,7 @@ console.log(response.headers.raw()['set-cookie']);
 ### Post data using a file
 
 ```js
-import fetch {
+import fetch, {
   Blob,
   blobFrom,
   blobFromSync,
