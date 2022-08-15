@@ -15,6 +15,7 @@ import {FormData, formDataToBlob} from 'formdata-polyfill/esm.min.js';
 import {FetchError} from './errors/fetch-error.js';
 import {FetchBaseError} from './errors/base.js';
 import {isBlob, isURLSearchParameters} from './utils/is.js';
+import {toFormData} from "./utils/multipart-parser.js";
 
 const pipeline = promisify(Stream.pipeline);
 const INTERNALS = Symbol('Body internals');
@@ -121,7 +122,6 @@ export default class Body {
 			return formData;
 		}
 
-		const {toFormData} = await import('./utils/multipart-parser.js');
 		return toFormData(this.body, ct);
 	}
 
