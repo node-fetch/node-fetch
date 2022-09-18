@@ -194,7 +194,8 @@ export default async function fetch(url, options_) {
 							signal: request.signal,
 							size: request.size,
 							referrer: request.referrer,
-							referrerPolicy: request.referrerPolicy
+							referrerPolicy: request.referrerPolicy,
+				      highWaterMark: request.highWaterMark
 						};
 
 						// when forwarding sensitive headers like "Authorization",
