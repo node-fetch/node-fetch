@@ -135,7 +135,7 @@ export default class Headers extends URLSearchParams {
 
 					case 'keys':
 						return () => {
-							target.sort();
+							// target.sort();
 							return new Set(URLSearchParams.prototype.keys.call(target)).keys();
 						};
 
