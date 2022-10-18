@@ -56,7 +56,6 @@ import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import Blob from '../src/blob.js';
 import zlib from "zlib";
 import { Readable } from 'stream';
-import { assert } from 'console';
 
 const supportToString = ({
 	[Symbol.toStringTag]: 'z'
