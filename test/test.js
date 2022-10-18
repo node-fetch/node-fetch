@@ -1400,7 +1400,7 @@ describe('node-fetch', () => {
 			expect(res.headers['content-length']).to.equal('3');
 		}, error => {
 			if('fromWeb' in Readable) {
-				expect.fail("There was an issue");
+				expect.fail(`Unexpected error: ${error.message}`);
 			} else {
 				expect(error.message).to.contain('socket hang up');
 			}
