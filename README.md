@@ -4,8 +4,8 @@
 	<p>A light-weight module that brings <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to Node.js.</p>
 	<a href="https://github.com/node-fetch/node-fetch/actions"><img src="https://github.com/node-fetch/node-fetch/workflows/CI/badge.svg?branch=master" alt="Build status"></a>
 	<a href="https://coveralls.io/github/node-fetch/node-fetch"><img src="https://img.shields.io/coveralls/github/node-fetch/node-fetch" alt="Coverage status"></a>
-	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Current version"></a>
-	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch" alt="Install size"></a>
+	<a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://badgen.net/packagephobia/install/node-fetch" alt="Install size"></a>
+	<a href="https://www.npmjs.com/package/node-fetch"><img src="https://img.shields.io/npm/v/node-fetch" alt="Current version"></a>
 	<a href="https://github.com/sindresorhus/awesome-nodejs"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Node.js"></a>
 	<a href="https://discord.gg/Zxbndcm"><img src="https://img.shields.io/discord/619915844268326952?color=%237289DA&label=Discord" alt="Discord"></a>
 	<br>
