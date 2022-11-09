@@ -131,15 +131,15 @@ export default class Response extends Body {
 			throw new TypeError('data is not JSON serializable');
 		}
 
+		const headers = new Headers(init && init.headers);
+
+		if (!headers.has('content-type')) {
+			headers.set('content-type', 'application/json');
+		}
+
 		return new Response(body, {
 			...init,
-			headers: {
-				// If body’s type is non-null and response’s header list does not contain
-				// `Content-Type`, then append (`Content-Type`, body’s type) to response’s
-				// header list.
-				'Content-Type': 'application/json',
-				...init.headers
-			}
+			headers
 		});
 	}
 

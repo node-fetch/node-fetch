@@ -2299,6 +2299,14 @@ describe('node-fetch', () => {
 		expect(response1.headers.get('content-type')).to.equal('text/plain');
 		expect(response1.status).to.equal(301);
 		expect(response1.statusText).to.equal('node-fetch');
+
+		const response2 = Response.json(null, {
+			headers: {
+				'CoNtEnT-TypE': 'text/plain'
+			}
+		});
+
+		expect(response2.headers.get('content-type')).to.equal('text/plain');
 	});
 });
 
