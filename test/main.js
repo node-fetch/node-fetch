@@ -2281,6 +2281,33 @@ describe('node-fetch', () => {
 		const res = await fetch(url);
 		expect(res.url).to.equal(`${base}m%C3%B6bius`);
 	});
+
+	it('static Response.json should work', async () => {
+		const response = Response.json({foo: 'bar'});
+		expect(response.status).to.equal(200);
+		expect(response.headers.get('content-type')).to.equal('application/json');
+		expect(await response.text()).to.equal(JSON.stringify({foo: 'bar'}));
+
+		const response1 = Response.json(null, {
+			status: 301,
+			statusText: 'node-fetch',
+			headers: {
+				'Content-Type': 'text/plain'
+			}
+		});
+
+		expect(response1.headers.get('content-type')).to.equal('text/plain');
+		expect(response1.status).to.equal(301);
+		expect(response1.statusText).to.equal('node-fetch');
+
+		const response2 = Response.json(null, {
+			headers: {
+				'CoNtEnT-TypE': 'text/plain'
+			}
+		});
+
+		expect(response2.headers.get('content-type')).to.equal('text/plain');
+	});
 });
 
 describe('node-fetch using IPv6', () => {

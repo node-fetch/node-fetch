@@ -196,6 +196,7 @@ export class Response extends BodyMixin {
 
 	static error(): Response;
 	static redirect(url: string, status?: number): Response;
+	static json(data: any, init?: ResponseInit): Response;
 }
 
 export class FetchError extends Error {

@@ -93,6 +93,11 @@ async function run() {
 
 	expectType<Response>(Response.redirect('https://google.com'));
 	expectType<Response>(Response.redirect('https://google.com', 301));
+
+	expectType<Response>(Response.json({foo: 'bar'}));
+	expectType<Response>(Response.json({foo: 'bar'}, {
+		status: 301
+	}));
 }
 
 run().finally(() => {

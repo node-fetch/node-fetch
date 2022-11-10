@@ -124,6 +124,25 @@ export default class Response extends Body {
 		return response;
 	}
 
+	static json(data = undefined, init = {}) {
+		const body = JSON.stringify(data);
+
+		if (body === undefined) {
+			throw new TypeError('data is not JSON serializable');
+		}
+
+		const headers = new Headers(init && init.headers);
+
+		if (!headers.has('content-type')) {
+			headers.set('content-type', 'application/json');
+		}
+
+		return new Response(body, {
+			...init,
+			headers
+		});
+	}
+
 	get [Symbol.toStringTag]() {
 		return 'Response';
 	}
