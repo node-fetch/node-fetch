@@ -1,0 +1,3 @@
+id,Amount,Created (UTC),Currency,Arrival Date (UTC),Source Type,Status,Type,Method,Balance Transaction,Destination Name,Destination Country,Destination Last 4
+po_1L9fDBGfAoPsfBu4rEsQMgLy,47.75,2022-06-12 01:03,usd,2022-06-13 00:00,card,paid,bank_account,standard,txn_1L9fDBGfAoPsfBu4CfxsyWif,"LENDINGCLUB BANK, NA",US,7996
+po_1L9ZLoGfAoPsfBu47b74kget,95.50,2022-06-11 18:48,usd,2022-06-13 00:00,card,paid,bank_account,standard,txn_1L9ZLpGfAoPsfBu4TzW1hCTv,"LENDINGCLUB BANK, NA",US,7996
