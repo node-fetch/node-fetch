@@ -49,12 +49,7 @@ export const isBlob = object => {
  * @return {boolean}
  */
 export const isAbortSignal = object => {
-	return (
-		typeof object === 'object' && (
-			object[NAME] === 'AbortSignal' ||
-			object[NAME] === 'EventTarget'
-		)
-	);
+	return object?.[NAME] === 'AbortSignal';
 };
 
 /**

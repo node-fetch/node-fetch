@@ -1,7 +1,6 @@
 // Test tools
 import {lookup} from 'node:dns';
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import stream from 'node:stream';
@@ -15,7 +14,6 @@ import chai from 'chai';
 import chaiIterator from 'chai-iterator';
 import chaiPromised from 'chai-as-promised';
 import chaiString from 'chai-string';
-import FormData from 'form-data';
 
 import fetch, {
 	Blob,
@@ -30,7 +28,7 @@ import {FetchError as FetchErrorOrig} from '../src/errors/fetch-error.js';
 import HeadersOrig, {fromRawHeaders} from '../src/headers.js';
 import RequestOrig from '../src/request.js';
 import ResponseOrig from '../src/response.js';
-import Body, {getTotalBytes, extractContentType} from '../src/body.js';
+import Body from '../src/body.js';
 import TestServer from './utils/server.js';
 import chaiTimeout from './utils/chai-timeout.js';
 import {isDomainOrSubdomain, isSameProtocol} from '../src/utils/is.js';
@@ -1235,11 +1233,11 @@ describe('node-fetch', () => {
 
 	testAbortController('mysticatea', () => new AbortControllerMysticatea());
 
-	if (process.version > 'v15') {
-		testAbortController('native', () => new AbortController());
+	if (globalThis.AbortController) {
+		testAbortController('native', () => new globalThis.AbortController());
 	}
 
-	it('should throw a TypeError if a signal is not of type AbortSignal or EventTarget', () => {
+	it('should throw a TypeError if a signal is not of type AbortSignal', () => {
 		return Promise.all([
 			expect(fetch(`${base}inspect`, {signal: {}}))
 				.to.be.eventually.rejected
@@ -1483,63 +1481,6 @@ describe('node-fetch', () => {
 		});
 		return expect(fetch(url, options))
 			.to.be.rejectedWith(Error, errorMessage);
-	});
-
-	it('should allow POST request with form-data as body', async () => {
-		const form = new FormData();
-		form.append('a', '1');
-
-		const url = `${base}multipart`;
-		const options = {
-			method: 'POST',
-			body: form
-		};
-		const res = await fetch(url, options);
-		const json = await res.json();
-		expect(json.method).to.equal('POST');
-		expect(json.headers['content-type']).to.startWith('multipart/form-data;boundary=');
-		expect(json.headers['content-length']).to.be.a('string');
-		expect(json.body).to.equal('a=1');
-	});
-
-	it('should allow POST request with form-data using stream as body', async () => {
-		const form = new FormData();
-		form.append('my_field', fs.createReadStream('test/utils/dummy.txt'));
-
-		const url = `${base}multipart`;
-		const options = {
-			method: 'POST',
-			body: form
-		};
-
-		const res = await fetch(url, options);
-		const json = await res.json();
-		expect(json.method).to.equal('POST');
-		expect(json.headers['content-type']).to.startWith('multipart/form-data;boundary=');
-		expect(json.headers['content-length']).to.be.undefined;
-		expect(json.body).to.contain('my_field=');
-	});
-
-	it('should allow POST request with form-data as body and custom headers', async () => {
-		const form = new FormData();
-		form.append('a', '1');
-
-		const headers = form.getHeaders();
-		headers.b = '2';
-
-		const url = `${base}multipart`;
-		const options = {
-			method: 'POST',
-			body: form,
-			headers
-		};
-		const res = await fetch(url, options);
-		const json = await res.json();
-		expect(json.method).to.equal('POST');
-		expect(json.headers['content-type']).to.startWith('multipart/form-data; boundary=');
-		expect(json.headers['content-length']).to.be.a('string');
-		expect(json.headers.b).to.equal('2');
-		expect(json.body).to.equal('a=1');
 	});
 
 	it('should support spec-compliant form-data as POST body', async () => {
@@ -1886,7 +1827,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		});
 		return expect(
-			fetch(url).then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().arrayBuffer())
 		).to.timeout;
 	});
 
@@ -1898,7 +1839,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, {highWaterMark: 10}).then(res => res.clone().arrayBuffer())
 		).to.timeout;
 	});
 
@@ -1915,7 +1856,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url).then(res => res.clone().buffer())
+			fetch(url).then(res => res.clone().arrayBuffer())
 		).not.to.timeout;
 	});
 
@@ -1932,7 +1873,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes(firstPacketMaxSize + secondPacketSize - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 10}).then(res => res.clone().buffer())
+			fetch(url, {highWaterMark: 10}).then(res => res.clone().arrayBuffer())
 		).not.to.timeout;
 	});
 
@@ -1947,7 +1888,7 @@ describe('node-fetch', () => {
 			res.end(crypto.randomBytes((2 * 512 * 1024) - 1));
 		});
 		return expect(
-			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().buffer())
+			fetch(url, {highWaterMark: 512 * 1024}).then(res => res.clone().arrayBuffer())
 		).not.to.timeout;
 	});
 
@@ -2108,13 +2049,13 @@ describe('node-fetch', () => {
 		expect(headers.a).to.equal('2');
 	});
 
-	it('should support arrayBuffer(), blob(), text(), json() and buffer() method in Body constructor', () => {
+	it('should support arrayBuffer(), blob(), text(), and json() method in Body constructor', () => {
 		const body = new Body('a=1');
 		expect(body).to.have.property('arrayBuffer');
 		expect(body).to.have.property('blob');
 		expect(body).to.have.property('text');
 		expect(body).to.have.property('json');
-		expect(body).to.have.property('buffer');
+		expect(body).to.not.have.property('buffer');
 	});
 
 	/* eslint-disable-next-line func-names */
@@ -2214,66 +2155,6 @@ describe('node-fetch', () => {
 		expect(parsedURL.protocol).to.equal('http:');
 		// The agent we returned should have been used
 		expect(json.headers.connection).to.equal('keep-alive');
-	});
-
-	it('should calculate content length and extract content type for each body type', () => {
-		const url = `${base}hello`;
-		const bodyContent = 'a=1';
-
-		const streamBody = stream.Readable.from(bodyContent);
-		const streamRequest = new Request(url, {
-			method: 'POST',
-			body: streamBody,
-			size: 1024
-		});
-
-		const blobBody = new Blob([bodyContent], {type: 'text/plain'});
-		const blobRequest = new Request(url, {
-			method: 'POST',
-			body: blobBody,
-			size: 1024
-		});
-
-		const formBody = new FormData();
-		formBody.append('a', '1');
-		const formRequest = new Request(url, {
-			method: 'POST',
-			body: formBody,
-			size: 1024
-		});
-
-		const bufferBody = encoder.encode(bodyContent);
-		const bufferRequest = new Request(url, {
-			method: 'POST',
-			body: bufferBody,
-			size: 1024
-		});
-
-		const stringRequest = new Request(url, {
-			method: 'POST',
-			body: bodyContent,
-			size: 1024
-		});
-
-		const nullRequest = new Request(url, {
-			method: 'GET',
-			body: null,
-			size: 1024
-		});
-
-		expect(getTotalBytes(streamRequest)).to.be.null;
-		expect(getTotalBytes(blobRequest)).to.equal(blobBody.size);
-		expect(getTotalBytes(formRequest)).to.not.be.null;
-		expect(getTotalBytes(bufferRequest)).to.equal(bufferBody.length);
-		expect(getTotalBytes(stringRequest)).to.equal(bodyContent.length);
-		expect(getTotalBytes(nullRequest)).to.equal(0);
-
-		expect(extractContentType(streamBody)).to.be.null;
-		expect(extractContentType(blobBody)).to.equal('text/plain');
-		expect(extractContentType(formBody)).to.startWith('multipart/form-data');
-		expect(extractContentType(bufferBody)).to.be.null;
-		expect(extractContentType(bodyContent)).to.equal('text/plain;charset=UTF-8');
-		expect(extractContentType(null)).to.be.null;
 	});
 
 	it('should encode URLs as UTF-8', async () => {

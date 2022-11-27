@@ -158,18 +158,7 @@ export default class Body {
 		const buffer = await consumeBody(this);
 		return new TextDecoder().decode(buffer);
 	}
-
-	/**
-	 * Decode response as buffer (non-spec api)
-	 *
-	 * @return  Promise
-	 */
-	buffer() {
-		return consumeBody(this);
-	}
 }
-
-Body.prototype.buffer = deprecate(Body.prototype.buffer, 'Please use \'response.arrayBuffer()\' instead of \'response.buffer()\'', 'node-fetch#buffer');
 
 // In browsers, all properties are enumerable.
 Object.defineProperties(Body.prototype, {
@@ -267,9 +256,7 @@ export const clone = (instance, highWaterMark) => {
 		throw new Error('cannot clone body after it is used');
 	}
 
-	// Check that body is a stream and not form-data object
-	// note: we can't clone the form-data object without having it as a dependency
-	if ((body instanceof Stream) && (typeof body.getBoundary !== 'function')) {
+	if (body instanceof Stream) {
 		// Tee instance body
 		p1 = new PassThrough({highWaterMark});
 		p2 = new PassThrough({highWaterMark});
@@ -282,12 +269,6 @@ export const clone = (instance, highWaterMark) => {
 
 	return body;
 };
-
-const getNonSpecFormDataBoundary = deprecate(
-	body => body.getBoundary(),
-	'form-data doesn\'t follow the spec and requires special treatment. Use alternative package',
-	'https://github.com/node-fetch/node-fetch/issues/1167'
-);
 
 /**
  * Performs the operation "extract a `Content-Type` value from |object|" as
@@ -329,11 +310,6 @@ export const extractContentType = (body, request) => {
 		return `multipart/form-data; boundary=${request[INTERNALS].boundary}`;
 	}
 
-	// Detect form data input from form-data module
-	if (body && typeof body.getBoundary === 'function') {
-		return `multipart/form-data;boundary=${getNonSpecFormDataBoundary(body)}`;
-	}
-
 	// Body is stream - can't really do much about this
 	if (body instanceof Stream) {
 		return null;
@@ -368,11 +344,6 @@ export const getTotalBytes = request => {
 	// Body is Buffer
 	if (Buffer.isBuffer(body)) {
 		return body.length;
-	}
-
-	// Detect form data input from form-data module
-	if (body && typeof body.getLengthSync === 'function') {
-		return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
 	}
 
 	// Body is stream

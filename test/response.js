@@ -106,13 +106,6 @@ describe('Response', () => {
 		});
 	});
 
-	it('should support buffer() method', () => {
-		const res = new Response('a=1');
-		return res.buffer().then(result => {
-			expect(result.toString()).to.equal('a=1');
-		});
-	});
-
 	it('should support blob() method', () => {
 		const res = new Response('a=1', {
 			method: 'POST',
