@@ -397,10 +397,10 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 
 			// Sometimes final 0-length chunk and end of message code are in separate packets
 			if (!properLastChunkReceived && previousChunk) {
-				properLastChunkReceived = (
-					Buffer.compare(previousChunk.slice(-3), LAST_CHUNK.slice(0, 3)) === 0 &&
-					Buffer.compare(buf.slice(-2), LAST_CHUNK.slice(3)) === 0
-				);
+				if (buf.length < 5) {
+					properLastChunkReceived = Buffer.compare(
+						Buffer.from([...previousChunk.slice(-5), ...buf]).slice(-5), LAST_CHUNK) === 0;
+				}
 			}
 
 			previousChunk = buf;
