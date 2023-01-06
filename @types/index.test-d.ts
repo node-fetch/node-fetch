@@ -37,6 +37,7 @@ async function run() {
 	// Post
 	try {
 		const request = new Request('http://byjka.com/buka');
+		new Request(new URL('http://byjka.com/buka'));
 		expectType<string>(request.url);
 		expectType<Headers>(request.headers);
 
