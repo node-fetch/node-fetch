@@ -7,6 +7,7 @@ import * as _fetch from '.';
 
 async function run() {
 	const getResponse = await fetch('https://bigfile.com/test.zip');
+	await fetch(new URL('https://bigfile.com/test.zip'));
 	expectType<boolean>(getResponse.ok);
 	expectType<number>(getResponse.size);
 	expectType<number>(getResponse.status);
@@ -36,6 +37,7 @@ async function run() {
 	// Post
 	try {
 		const request = new Request('http://byjka.com/buka');
+		new Request(new URL('http://byjka.com/buka'));
 		expectType<string>(request.url);
 		expectType<Headers>(request.headers);
 

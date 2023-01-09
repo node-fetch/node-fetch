@@ -147,7 +147,7 @@ export type RequestRedirect = 'error' | 'follow' | 'manual';
 export type ReferrerPolicy = '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'same-origin' | 'origin' | 'strict-origin' | 'origin-when-cross-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
 export type RequestInfo = string | Request;
 export class Request extends BodyMixin {
-	constructor(input: RequestInfo, init?: RequestInit);
+	constructor(input: RequestInfo | URL, init?: RequestInit);
 
 	/**
 	 * Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header.
@@ -216,4 +216,4 @@ export class AbortError extends Error {
 }
 
 export function isRedirect(code: number): boolean;
-export default function fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+export default function fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response>;
