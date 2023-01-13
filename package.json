@@ -74,5 +74,16 @@
         "rollup-plugin-babel": "^3.0.7",
         "string-to-arraybuffer": "^1.0.2",
         "teeny-request": "3.7.0"
+    },
+    "release": {
+        "branches": [
+            "+([0-9]).x",
+            "main",
+            "next",
+            {
+                "name": "beta",
+                "prerelease": true
+            }
+        ]
     }
 }
