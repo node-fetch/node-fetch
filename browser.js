@@ -17,7 +17,7 @@ module.exports = exports = globalObject.fetch;
 
 // Needed for TypeScript and Webpack.
 if (globalObject.fetch) {
-	exports.default = globalObject.fetch.bind(global);
+	exports.default = globalObject.fetch.bind(globalObject);
 }
 
 exports.Headers = globalObject.Headers;
