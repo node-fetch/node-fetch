@@ -627,7 +627,7 @@ results in an [opaque-redirect filtered response](https://fetch.spec.whatwg.org/
 node-fetch gives you the typical [basic filtered response](https://fetch.spec.whatwg.org/#concept-filtered-response-basic) instead.
 
 ```js
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 const response = await fetch('https://httpbin.org/status/301', { redirect: 'manual' });
 
