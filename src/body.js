@@ -507,7 +507,7 @@ export function writeToStream(dest, instance) {
 		const bodyStream = body.stream();
 		if(bodyStream.constructor.name === 'ReadableStream') {
 			if('fromWeb' in Readable) {
-				Readable.fromWeb(body.stream()).pipe(dest);
+				Readable.fromWeb(bodyStream).pipe(dest);
 			} else {
 				dest.end();
 			}
