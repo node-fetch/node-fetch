@@ -512,7 +512,7 @@ export function writeToStream(dest, instance) {
 				dest.end();
 			}
 		} else {
-			body.stream().pipe(dest);
+			bodyStream.pipe(dest);
 		}
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
