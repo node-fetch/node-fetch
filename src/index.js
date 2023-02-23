@@ -403,7 +403,7 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 				);
 			}
 
-			previousChunk = buf;
+			previousChunk = Buffer.from(buf);
 		};
 
 		socket.prependListener('close', onSocketClose);
