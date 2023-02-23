@@ -497,5 +497,11 @@ export default class TestServer {
 			res.setHeader('Content-Type', 'text/plain');
 			res.end('ok');
 		}
+
+		if (p === '/64kb_file') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.end(Buffer.alloc(64 * 1024, '_'));
+		}
 	}
 }
