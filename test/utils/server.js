@@ -469,11 +469,13 @@ export default class TestServer {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
 			const bb = busboy({headers: request.headers});
+			let fileLength = 0;
 			bb.on('file', async (fieldName, file, info) => {
 				body += `${fieldName}=${info.filename}`;
 				// consume file data
-				// eslint-disable-next-line no-empty, no-unused-vars
-				for await (const c of file) {}
+				for await (const chunk of file) {
+					fileLength += chunk.length;
+				}
 			});
 			bb.on('field', (fieldName, value) => {
 				body += `${fieldName}=${value}`;
@@ -483,7 +485,8 @@ export default class TestServer {
 					method: request.method,
 					url: request.url,
 					headers: request.headers,
-					body
+					body,
+					file: {size: fileLength}
 				}));
 			});
 			request.pipe(bb);
