@@ -362,6 +362,12 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 		const {headers} = response;
 		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
 			response.once('close', hadError => {
+				// if for some reason the 'socket' event was not triggered
+				// for the request (happens in deno) avoids `TypeError`
+				if (socket === undefined) {
+					return;
+				}
+
 				// if a data listener is still present we didn't end cleanly
 				const hasDataListener = socket.listenerCount('data') > 0;
 
