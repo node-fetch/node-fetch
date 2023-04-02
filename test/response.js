@@ -258,7 +258,7 @@ describe('Response', () => {
 		}
 	})
 
-	it('should throw a TypeError when when a non-null body is provided with a null body status', async () => {
+	it('should throw a TypeError when a non-null body is provided with a null body status', async () => {
 		const inputStatus = 204
 		try {
 			new Response('a', { status: inputStatus })
