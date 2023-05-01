@@ -39,7 +39,7 @@
     "dependencies": {
         "whatwg-url": "^5.0.0"
     },
-    "peerDependencies": { 
+    "peerDependencies": {
         "encoding": "^0.1.0"
     },
     "peerDependenciesMeta": {
