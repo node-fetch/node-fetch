@@ -399,5 +399,6 @@ export {
 	Headers,
 	Request,
 	Response,
-	FetchError
+	FetchError,
+	AbortError
 };
