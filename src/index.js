@@ -365,9 +365,10 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 				// tests for socket presence, as in some situations the
 				// the 'socket' event is not triggered for the request
 				// (happens in deno), avoids `TypeError`
+                                let hasDataListener
 				if (socket !== undefined) {
 					// if a data listener is still present we didn't end cleanly
-					const hasDataListener = socket.listenerCount('data') > 0;
+					hasDataListener = socket.listenerCount('data') > 0;
 				}
 
 				if (hasDataListener && !hadError) {
