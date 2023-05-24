@@ -141,6 +141,9 @@ export default class Request extends Body {
 		// §5.4, Request constructor steps, step 16.
 		// Default is empty string per https://fetch.spec.whatwg.org/#concept-request-referrer-policy
 		this.referrerPolicy = init.referrerPolicy || input.referrerPolicy || '';
+
+		// Pass through to the node request api
+		this.rejectUnauthorized = init.rejectUnauthorized === undefined ? ( input.rejectUnauthorized === undefined ? true : input.rejectUnauthorized ) : init.rejectUnauthorized;
 	}
 
 	/** @returns {string} */
@@ -306,6 +309,7 @@ export const getNodeRequestOptions = request => {
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		insecureHTTPParser: request.insecureHTTPParser,
+		rejectUnauthorized: request.rejectUnauthorized,
 		agent
 	};
 
