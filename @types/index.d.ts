@@ -109,6 +109,7 @@ export interface RequestInit {
 	size?: number;
 	highWaterMark?: number;
 	insecureHTTPParser?: boolean;
+	rejectUnauthorized?: boolean;
 }
 
 export interface ResponseInit {
