@@ -229,6 +229,16 @@ describe('Headers', () => {
 		expect(h3Raw.b).to.include('1');
 	});
 
+	it('should return headers as string if set to true', () => {
+		const headers = new Headers([
+			['a', '1'],
+			['b', '2'],
+			['a', '3']
+		]);
+
+		chai.assert.deepEqual(headers.raw(true), {a: '1, 3',  b: '2'})
+	})
+
 	it('should accept headers as an iterable of tuples', () => {
 		let headers;
 

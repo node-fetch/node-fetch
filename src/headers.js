@@ -197,11 +197,18 @@ export default class Headers extends URLSearchParams {
 	/**
 	 * Node-fetch non-spec method
 	 * returning all headers and their values as array
-	 * @returns {Record<string, string[]>}
+	 * @returns {Record<string, string[] | string>}
 	 */
-	raw() {
+	raw(asString = false) {
+		if (asString)  {
+
+		}
 		return [...this.keys()].reduce((result, key) => {
 			result[key] = this.getAll(key);
+
+			if (asString) {
+				result[key] = result[key].join(', ');
+			}
 			return result;
 		}, {});
 	}

@@ -65,7 +65,7 @@ export class Headers {
 	values(): IterableIterator<string>;
 
 	/** Node-fetch extension */
-	raw(): Record<string, string[]>;
+	raw(): Record<string, string[] | string>;
 }
 
 export interface RequestInit {
