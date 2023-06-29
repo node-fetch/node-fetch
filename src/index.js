@@ -362,8 +362,11 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 		const {headers} = response;
 		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
 			response.once('close', hadError => {
-				// if a data listener is still present we didn't end cleanly
-				const hasDataListener = socket.listenerCount('data') > 0;
+				// tests for socket presence, as in some situations the
+				// the 'socket' event is not triggered for the request
+				// (happens in deno), avoids `TypeError`
+        // if a data listener is still present we didn't end cleanly
+				const hasDataListener = socket && socket.listenerCount('data') > 0;
 
 				if (hasDataListener && !hadError) {
 					const err = new Error('Premature close');
