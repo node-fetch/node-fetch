@@ -145,7 +145,7 @@ export default class Body {
 	 * @return  Promise
 	 */
 	async json() {
-		const text = await this.text();
+		const text = this.text();
 		return JSON.parse(text);
 	}
 
@@ -155,7 +155,7 @@ export default class Body {
 	 * @return  Promise
 	 */
 	async text() {
-		const buffer = await consumeBody(this);
+		const buffer = consumeBody(this);
 		return new TextDecoder().decode(buffer);
 	}
 
@@ -220,7 +220,7 @@ async function consumeBody(data) {
 	let accumBytes = 0;
 
 	try {
-		for await (const chunk of body) {
+		for (const chunk of body) {
 			if (data.size > 0 && accumBytes + chunk.length > data.size) {
 				const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, 'max-size');
 				body.destroy(error);
