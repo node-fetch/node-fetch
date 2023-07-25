@@ -137,6 +137,7 @@ export default class Request extends Body {
 		this.agent = init.agent || input.agent;
 		this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
 		this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
+		this.rejectUnauthorized = init.rejectUnauthorized === undefined ? (input.rejectUnauthorized === undefined ? true : input.rejectUnauthorized) : init.rejectUnauthorized;
 
 		// §5.4, Request constructor steps, step 16.
 		// Default is empty string per https://fetch.spec.whatwg.org/#concept-request-referrer-policy
@@ -302,6 +303,7 @@ export const getNodeRequestOptions = request => {
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		insecureHTTPParser: request.insecureHTTPParser,
+		rejectUnauthorized: request.rejectUnauthorized,
 		agent
 	};
 

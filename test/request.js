@@ -7,6 +7,7 @@ import FormData from 'form-data';
 import Blob from 'fetch-blob';
 
 import {Request} from '../src/index.js';
+import {getNodeRequestOptions} from '../src/request.js';
 import TestServer from './utils/server.js';
 
 const {expect} = chai;
@@ -83,6 +84,16 @@ describe('Request', () => {
 		expect(r2.follow).to.equal(2);
 		expect(r1.counter).to.equal(0);
 		expect(r2.counter).to.equal(0);
+	});
+
+	it('should pass through rejectUnauthorized from init', () => {
+		const request = new Request(`${base}hello`, {
+			rejectUnauthorized: false
+		});
+		expect(request.rejectUnauthorized).to.equal(false);
+
+		const requestOpts = getNodeRequestOptions(request);
+		expect(requestOpts.options.rejectUnauthorized).to.equal(false);
 	});
 
 	it('should override signal on derived Request instances', () => {
@@ -247,7 +258,8 @@ describe('Request', () => {
 			follow: 3,
 			compress: false,
 			agent,
-			signal
+			signal,
+			rejectUnauthorized: false
 		});
 		const cl = request.clone();
 		expect(cl.url).to.equal(url);
@@ -260,6 +272,7 @@ describe('Request', () => {
 		expect(cl.counter).to.equal(0);
 		expect(cl.agent).to.equal(agent);
 		expect(cl.signal).to.equal(signal);
+		expect(cl.rejectUnauthorized).to.equal(false);
 		// Clone body shouldn't be the same body
 		expect(cl.body).to.not.equal(body);
 		return Promise.all([cl.text(), request.text()]).then(results => {
