@@ -539,7 +539,6 @@ If no values are set, the following request headers will be sent automatically:
 | ------------------- | ------------------------------------------------------ |
 | `Accept-Encoding`   | `gzip, deflate, br` (when `options.compress === true`) |
 | `Accept`            | `*/*`                                                  |
-| `Connection`        | `close` _(when no `options.agent` is present)_         |
 | `Content-Length`    | _(automatically calculated, if possible)_              |
 | `Host`              | _(host and port information from the target URI)_      |
 | `Transfer-Encoding` | `chunked` _(when `req.body` is a stream)_              |
@@ -557,6 +556,8 @@ The `agent` option allows you to specify networking related options which are ou
 - Custom DNS Lookup
 
 See [`http.Agent`](https://nodejs.org/api/http.html#http_new_agent_options) for more information.
+
+If no agent is specified, the default agent provided by Node.js is used. Note that [this changed in Node.js 19](https://github.com/nodejs/node/blob/4267b92604ad78584244488e7f7508a690cb80d0/lib/_http_agent.js#L564) to have `keepalive` true by default. If you wish to enable `keepalive` in an earlier version of Node.js, you can override the agent as per the following code sample. 
 
 In addition, the `agent` option accepts a function that returns `http`(s)`.Agent` instance given current [URL](https://nodejs.org/api/url.html), this is useful during a redirection chain across HTTP and HTTPS protocol.
 
