@@ -1520,6 +1520,74 @@ describe('node-fetch', () => {
 		expect(json.body).to.contain('my_field=');
 	});
 
+	it('should allow POST request with formdata-node using response.body stream as body', async () => {
+		// Define a class that wraps a stream and its size
+		class BlobFromStream {
+			#stream;
+
+			constructor(stream, size) {
+				this.#stream = stream;
+				this.size = size;
+			}
+
+			// A method to retrieve the stream
+			stream() {
+				return this.#stream;
+			}
+
+			// A getter to return the string "Blob"
+			get [Symbol.toStringTag]() {
+				return 'Blob';
+			}
+		}
+
+		// Define the URL where the file to be uploaded can be downloaded from
+		const downloadUrl = `${base}64kb_file`;
+
+		// Use fetch() to get the file from the URL
+		const response = await fetch(downloadUrl);
+
+		// Extract the file size from the Content-Length header in the response
+		const contentLength = Number(response.headers.get('Content-Length'));
+
+		// Create a new FormDataNode object to construct the HTTP form data
+		const form = new FormDataNode();
+
+		// Append the file to the form data using the BlobFromStream class to create a Blob object
+		form.append(
+			'file', // field name for the file
+			new BlobFromStream(response.body, contentLength), // the file Blob object
+			`64kb_file.bin` // the filename to use for the file
+		);
+
+		// Define the URL where the file will be uploaded
+		const uploadUrl = `${base}multipart`;
+
+		// Define the options for the POST request
+		const options = {
+			method: 'POST',
+			body: form
+		};
+
+		// Use fetch() to upload the file to the server using the URL and options
+		const res = await fetch(uploadUrl, options);
+
+		// Extract the JSON response from the server
+		const json = await res.json();
+
+		// Check if the method used in the response is POST
+		expect(json.method).to.equal('POST');
+
+		// Check if the content-type header in the response starts with 'multipart/form-data; boundary='
+		expect(json.headers['content-type']).to.startWith('multipart/form-data; boundary=');
+
+		// Check if the length of the uploaded file matches the size of the downloaded file
+		expect(json.file.length).to.equal(contentLength);
+
+		// Check if the response body contains the filename of the uploaded file
+		expect(json.body).to.contain('file=64kb_file.bin');
+	});
+
 	it('should allow POST request with form-data as body and custom headers', async () => {
 		const form = new FormData();
 		form.append('a', '1');
