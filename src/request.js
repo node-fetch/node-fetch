@@ -293,17 +293,30 @@ export const getNodeRequestOptions = request => {
 
 	const search = getSearch(parsedURL);
 
-	// Pass the full URL directly to request(), but overwrite the following
-	// options:
+	// Provide full options from URL (issue #1620)
 	const options = {
+		protocol: parsedURL.protocol,
+		hostname: parsedURL.hostname.startsWith("[") && parsedURL.hostname.endsWith("]") ? parsedURL.hostname.slice(1, -1) : parsedURL.hostname,
+		pathname: parsedURL.pathname,
 		// Overwrite search to retain trailing ? (issue #776)
 		path: parsedURL.pathname + search,
+		search: parsedURL.search,
+		hash: parsedURL.hash,
+		href: parsedURL.href,
 		// The following options are not expressed in the URL
 		method: request.method,
 		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
 		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
+
+	if (parsedURL.username || parsedURL.password) {
+		options.auth = `${decodeURIComponent(parsedURL.username)}:${decodeURIComponent(parsedURL.password)}`;
+	}
+
+	if (parsedURL.port !== '') {
+		options.port = Number(parsedURL.port);
+	}
 
 	return {
 		/** @type {URL} */
