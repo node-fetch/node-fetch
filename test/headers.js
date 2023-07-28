@@ -47,9 +47,9 @@ describe('Headers', () => {
 		}
 
 		expect(result).to.deep.equal([
-			['a', '1'],
 			['b', '2, 3'],
-			['c', '4']
+			['c', '4'],
+			['a', '1'],
 		]);
 	});
 
@@ -99,9 +99,9 @@ describe('Headers', () => {
 		}
 
 		expect(result).to.deep.equal([
-			['a', '1'],
 			['b', '2, 3'],
-			['c', '4']
+			['c', '4'],
+			['a', '1'],
 		]);
 	});
 
@@ -115,9 +115,9 @@ describe('Headers', () => {
 
 		expect(headers.entries()).to.be.iterable
 			.and.to.deep.iterate.over([
-				['a', '1'],
 				['b', '2, 3'],
-				['c', '4']
+				['c', '4'],
+				['a', '1'],
 			]);
 	});
 
@@ -130,7 +130,7 @@ describe('Headers', () => {
 		headers.append('b', '3');
 
 		expect(headers.keys()).to.be.iterable
-			.and.to.iterate.over(['a', 'b', 'c']);
+			.and.to.iterate.over(['b', 'c', 'a']);
 	});
 
 	it('should allow iterating through all headers with values()', () => {
@@ -142,7 +142,7 @@ describe('Headers', () => {
 		headers.append('b', '3');
 
 		expect(headers.values()).to.be.iterable
-			.and.to.iterate.over(['1', '2, 3', '4']);
+			.and.to.iterate.over(['2, 3', '4', '1']);
 	});
 
 	it('should reject illegal header', () => {
@@ -273,6 +273,5 @@ describe('Headers', () => {
 		]);
 
 		// eslint-disable-next-line quotes
-		expect(format(headers)).to.equal("{ a: [ '1', '3' ], b: '2', host: 'thehost' }");
-	});
+		expect(format(headers)).to.equal("{ host: 'thehost', a: [ '1', '3' ], b: '2' }"); });
 });

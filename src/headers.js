@@ -105,7 +105,7 @@ export default class Headers extends URLSearchParams {
 
 		super(result);
 
-		// Returning a Proxy that will lowercase key names, validate parameters and sort keys
+		// Returning a Proxy that will lowercase key names, validate parameters
 		// eslint-disable-next-line no-constructor-return
 		return new Proxy(this, {
 			get(target, p, receiver) {
@@ -135,7 +135,6 @@ export default class Headers extends URLSearchParams {
 
 					case 'keys':
 						return () => {
-							target.sort();
 							return new Set(URLSearchParams.prototype.keys.call(target)).keys();
 						};
 
