@@ -13,9 +13,6 @@ import {
 
 type AbortSignal = {
 	readonly aborted: boolean;
-
-	addEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
-	removeEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
 };
 
 export type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
