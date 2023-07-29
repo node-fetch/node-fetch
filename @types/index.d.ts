@@ -120,6 +120,8 @@ export interface ResponseInit {
 export type BodyInit =
 	| Blob
 	| Buffer
+	| ArrayBufferLike
+	| ArrayBufferView
 	| URLSearchParams
 	| FormData
 	| NodeJS.ReadableStream
