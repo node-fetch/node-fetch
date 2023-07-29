@@ -11,6 +11,22 @@ import {isRedirect} from './utils/is-redirect.js';
 const INTERNALS = Symbol('Response internals');
 
 /**
+ * Checks the provided 'status' property to the Response constructor
+ * @param {*} status
+ * @throws RangeError if the status variable is not in the acceptable range of [200, 599]
+ * @returns The provided status value if it is valid
+ */
+function validateStatusValue(status) {
+	const statusValue = Number.parseInt(status, 10);
+
+	if (Number.isNaN(statusValue) || statusValue < 200 || statusValue > 599) {
+		throw new RangeError(`Failed to construct 'Response': The status provided (${status}) is outside the range [200, 599].`);
+	}
+
+	return statusValue;
+};
+
+/**
  * Response class
  *
  * Ref: https://fetch.spec.whatwg.org/#response-class
@@ -23,12 +39,18 @@ export default class Response extends Body {
 	constructor(body = null, options = {}) {
 		super(body, options);
 
-		// eslint-disable-next-line no-eq-null, eqeqeq, no-negated-condition
-		const status = options.status != null ? options.status : 200;
+		// if status is not provided or is null, let's use default 200 value
+		// otherwise, lets check if the value is in correct range
+		const status =	(typeof options.status === 'undefined' || options.status === null) ? 200 :
+			validateStatusValue(options.status);
 
 		const headers = new Headers(options.headers);
 
-		if (body !== null && !headers.has('Content-Type')) {
+		if (status === 204 && typeof body !== 'undefined' && body !== null) {
+				throw new TypeError("Failed to construct 'Response': Response with null body status cannot have body")
+		}
+
+		if (body !== null && !headers.has('Content-Type')) {			
 			const contentType = extractContentType(body, this);
 			if (contentType) {
 				headers.append('Content-Type', contentType);
@@ -119,7 +141,8 @@ export default class Response extends Body {
 	}
 
 	static error() {
-		const response = new Response(null, {status: 0, statusText: ''});
+		// default error status code = 400
+		const response = new Response(null, {status: 400, statusText: ''});
 		response[INTERNALS].type = 'error';
 		return response;
 	}

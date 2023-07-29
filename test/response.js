@@ -248,11 +248,31 @@ describe('Response', () => {
 		expect(await res.text()).to.equal('a');
 	});
 
+	it('should throw a RangeError when options.status in the constructor is value outside of the range [200, 599]', async () => {
+		const inputStatus = 0
+		try {
+			new Response('a', { status: inputStatus })
+		} catch (err) {
+			expect(err).to.be.instanceOf(RangeError)
+			expect(err.message).to.equal(`Failed to construct 'Response': The status provided (${inputStatus}) is outside the range [200, 599].`)
+		}
+	})
+
+	it('should throw a TypeError when a non-null body is provided with a null body status', async () => {
+		const inputStatus = 204
+		try {
+			new Response('a', { status: inputStatus })
+		} catch (err) {
+			expect(err).to.be.instanceOf(TypeError)
+			expect(err.message).to.equal("Failed to construct 'Response': Response with null body status cannot have body")
+		}
+	})
+
 	it('should support error() static method', () => {
 		const res = Response.error();
 		expect(res).to.be.an.instanceof(Response);
 		expect(res.type).to.equal('error');
-		expect(res.status).to.equal(0);
+		expect(res.status).to.equal(400);
 		expect(res.statusText).to.equal('');
 	});
 

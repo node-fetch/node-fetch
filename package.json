@@ -17,7 +17,8 @@
     "test": "mocha",
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "test-types": "tsd",
-    "lint": "xo"
+    "lint": "xo",
+    "fix:lint": "xo --fix"
   },
   "repository": {
     "type": "git",
