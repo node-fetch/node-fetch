@@ -196,8 +196,6 @@ async function consumeBody(data) {
 		throw new TypeError(`body used already for: ${data.url}`);
 	}
 
-	data[INTERNALS].disturbed = true;
-
 	if (data[INTERNALS].error) {
 		throw data[INTERNALS].error;
 	}
@@ -208,6 +206,8 @@ async function consumeBody(data) {
 	if (body === null) {
 		return Buffer.alloc(0);
 	}
+
+	data[INTERNALS].disturbed = true;
 
 	/* c8 ignore next 3 */
 	if (!(body instanceof Stream)) {

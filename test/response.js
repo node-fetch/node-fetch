@@ -264,4 +264,26 @@ describe('Response', () => {
 
 		new Response('a').data;
 	}));
+
+	it('should set bodyUsed to true if body has been read', async () => {
+		for (const toCheck of ['a', '']) {
+			const res = new Response(toCheck);
+			expect(res.bodyUsed).to.equal(false);
+
+			/* eslint-disable-next-line no-await-in-loop */
+			expect(await res.text()).to.equal(toCheck);
+			expect(res.bodyUsed).to.equal(true);
+		}
+	});
+
+	it('should not change bodyUsed if nothing to read', async () => {
+		for (const toCheck of [undefined, null]) {
+			const res = new Response(toCheck);
+			expect(res.bodyUsed).to.equal(false);
+
+			/* eslint-disable-next-line no-await-in-loop */
+			expect(await res.text()).to.equal('');
+			expect(res.bodyUsed).to.equal(false);
+		}
+	});
 });
