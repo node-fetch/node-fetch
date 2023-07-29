@@ -98,6 +98,8 @@ export interface RequestInit {
 	 */
 	referrerPolicy?: ReferrerPolicy;
 
+	credentials?: 'omit' | 'same-origin' | 'include';
+
 	// Node-fetch extensions to the whatwg/fetch spec
 	agent?: RequestOptions['agent'] | ((parsedUrl: URL) => RequestOptions['agent']);
 	compress?: boolean;
