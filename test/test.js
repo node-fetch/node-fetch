@@ -15,6 +15,7 @@ import URLSearchParams_Polyfill from '@ungap/url-search-params';
 import { URL } from 'whatwg-url';
 import { AbortController } from 'abortcontroller-polyfill/dist/abortcontroller';
 import AbortController2 from 'abort-controller';
+import { Blob as NodeBlob} from 'buffer';
 
 const { spawn } = require('child_process');
 const http = require('http');
@@ -54,6 +55,7 @@ import ResponseOrig from '../src/response.js';
 import Body, { getTotalBytes, extractContentType } from '../src/body.js';
 import Blob from '../src/blob.js';
 import zlib from "zlib";
+import { Readable } from 'stream';
 
 const supportToString = ({
 	[Symbol.toStringTag]: 'z'
@@ -1375,6 +1377,32 @@ describe('node-fetch', () => {
 			expect(res.headers['transfer-encoding']).to.be.undefined;
 			expect(res.headers['content-type']).to.be.undefined;
 			expect(res.headers['content-length']).to.equal('3');
+		});
+	});
+
+	it('should allow POST request with node blob body with type', function() {
+		const url = `${base}inspect`;
+		const buffer = Buffer.from('a=1', 'utf-8');
+		const opts = {
+			method: 'POST',
+			body: new NodeBlob([buffer], {
+				type: 'text/plain;charset=UTF-8'
+			})
+		};
+		return fetch(url, opts).then(res => {
+			return res.json();
+		}).then(res => {
+			expect(res.method).to.equal('POST');
+			expect(res.body).to.equal('a=1');
+			expect(res.headers['transfer-encoding']).to.be.undefined;
+			expect(res.headers['content-type']).to.equal('text/plain;charset=utf-8');
+			expect(res.headers['content-length']).to.equal('3');
+		}, error => {
+			if('fromWeb' in Readable) {
+				expect.fail(`Unexpected error: ${error.message}`);
+			} else {
+				expect(error.message).to.contain('socket hang up');
+			}
 		});
 	});
 

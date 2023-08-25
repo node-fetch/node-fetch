@@ -5,7 +5,7 @@
  * Body interface provides common methods for Request and Response
  */
 
-import Stream from 'stream';
+import Stream, { Readable } from 'stream';
 
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
@@ -504,7 +504,16 @@ export function writeToStream(dest, instance) {
 		// body is null
 		dest.end();
 	} else if (isBlob(body)) {
-		body.stream().pipe(dest);
+		const bodyStream = body.stream();
+		if(bodyStream.constructor.name === 'ReadableStream') {
+			if('fromWeb' in Readable) {
+				Readable.fromWeb(bodyStream).pipe(dest);
+			} else {
+				dest.end();
+			}
+		} else {
+			bodyStream.pipe(dest);
+		}
 	} else if (Buffer.isBuffer(body)) {
 		// body is buffer
 		dest.write(body);
