@@ -19,6 +19,7 @@ import Headers, { createHeadersLenient } from './headers.js';
 import Request, { getNodeRequestOptions } from './request.js';
 import FetchError from './fetch-error.js';
 import AbortError from './abort-error.js';
+import { pipeAndDestroy } from './utils';
 
 import whatwgUrl from 'whatwg-url';
 
@@ -261,7 +262,7 @@ export default function fetch(url, opts) {
 			res.once('end', () => {
 				if (signal) signal.removeEventListener('abort', abortAndFinalize);
 			});
-			let body = res.pipe(new PassThrough());
+			let body = pipeAndDestroy(res, new PassThrough());
 
 			const response_options = {
 				url: request.url,
@@ -302,7 +303,7 @@ export default function fetch(url, opts) {
 
 			// for gzip
 			if (codings == 'gzip' || codings == 'x-gzip') {
-				body = body.pipe(zlib.createGunzip(zlibOptions));
+				body = pipeAndDestroy(body, zlib.createGunzip(zlibOptions));
 				response = new Response(body, response_options);
 				resolve(response);
 				return;
@@ -312,13 +313,13 @@ export default function fetch(url, opts) {
 			if (codings == 'deflate' || codings == 'x-deflate') {
 				// handle the infamous raw deflate response from old servers
 				// a hack for old IIS and Apache servers
-				const raw = res.pipe(new PassThrough());
+				const raw = pipeAndDestroy(res, new PassThrough());
 				raw.once('data', chunk => {
 					// see http://stackoverflow.com/questions/37519828
 					if ((chunk[0] & 0x0F) === 0x08) {
-						body = body.pipe(zlib.createInflate());
+						body = pipeAndDestroy(body, zlib.createInflate());
 					} else {
-						body = body.pipe(zlib.createInflateRaw());
+						body = pipeAndDestroy(body, zlib.createInflateRaw());
 					}
 					response = new Response(body, response_options);
 					resolve(response);
@@ -335,7 +336,7 @@ export default function fetch(url, opts) {
 
 			// for br
 			if (codings == 'br' && typeof zlib.createBrotliDecompress === 'function') {
-				body = body.pipe(zlib.createBrotliDecompress());
+				body = pipeAndDestroy(body, zlib.createBrotliDecompress());
 				response = new Response(body, response_options);
 				resolve(response);
 				return;

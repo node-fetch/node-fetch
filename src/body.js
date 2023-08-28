@@ -9,6 +9,7 @@ import Stream from 'stream';
 
 import Blob, { BUFFER } from './blob.js';
 import FetchError from './fetch-error.js';
+import { pipeAndDestroy } from './utils';
 
 let convert;
 try { convert = require('encoding').convert; } catch(e) {}
@@ -218,7 +219,12 @@ function consumeBody() {
 	let accumBytes = 0;
 	let abort = false;
 
-	return new Body.Promise((resolve, reject) => {
+	return new Body.Promise((resolve, _reject) => {
+		const reject = (err) => {
+			_reject(err);
+			body.emit('error', err);
+		};
+
 		let resTimeout;
 
 		// allow timeout on slow response body
@@ -234,10 +240,12 @@ function consumeBody() {
 			if (err.name === 'AbortError') {
 				// if the request was aborted, reject with this Error
 				abort = true;
-				reject(err);
+				// if reject is called and emits 'error' event, then this _reject will do nothing
+				_reject(err);
 			} else {
 				// other errors, such as incorrect content-encoding
-				reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
+				// if reject is called and emits 'error' event, then this _reject will do nothing
+				_reject(new FetchError(`Invalid response body while trying to fetch ${this.url}: ${err.message}`, 'system', err));
 			}
 		});
 
@@ -404,8 +412,8 @@ export function clone(instance) {
 		// tee instance body
 		p1 = new PassThrough();
 		p2 = new PassThrough();
-		body.pipe(p1);
-		body.pipe(p2);
+		pipeAndDestroy(body, p1);
+		pipeAndDestroy(body, p2);
 		// set instance body to teed body and return the other teed body
 		instance[INTERNALS].body = p1;
 		body = p2;
