@@ -141,26 +141,28 @@ To use `fetch()` without importing it, you can patch the `global` object in node
 // fetch-polyfill.js
 import fetch, {
   Blob,
-  blobFrom,
-  blobFromSync,
   File,
-  fileFrom,
-  fileFromSync,
   FormData,
   Headers,
   Request,
   Response,
-} from 'node-fetch'
+} from 'node-fetch';
+import { TextDecoder, TextEncoder } from 'util';
 
 if (!globalThis.fetch) {
-  globalThis.fetch = fetch
-  globalThis.Headers = Headers
-  globalThis.Request = Request
-  globalThis.Response = Response
+  globalThis.fetch = fetch;
+  globalThis.Blob = Blob;
+  globalThis.File = File;
+  globalThis.FormData = FormData;
+  globalThis.Headers = Headers;
+  globalThis.Request = Request;
+  globalThis.Response = Response;
+  globalThis.TextDecoder = TextDecoder;
+  globalThis.TextEncoder = TextEncoder;
 }
 
 // index.js
-import './fetch-polyfill'
+import './fetch-polyfill';
 
 // ...
 ```
