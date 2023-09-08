@@ -18,6 +18,7 @@ import chaiString from 'chai-string';
 import FormData from 'form-data';
 
 import fetch, {
+	AbortError,
 	Blob,
 	FetchError,
 	fileFromSync,
@@ -1235,8 +1236,61 @@ describe('node-fetch', () => {
 
 	testAbortController('mysticatea', () => new AbortControllerMysticatea());
 
-	if (process.version > 'v15') {
-		testAbortController('native', () => new AbortController());
+	// process.version is of the format `v${number}.${number}.${number}`
+	const nodeVersion = process.version.slice(1).split('.').map(n => Number(n));
+
+	if (nodeVersion >= [15, 0, 0]) {
+		testAbortController(
+			'native',
+			() => new AbortController(),
+			() => {
+				if (nodeVersion >= [17, 0, 2]) {
+					it('should include the given reason on the thrown AbortError', () => {
+						const controller = new AbortController();
+						const promise = fetch(`${base}timeout`, {
+							method: 'POST',
+							signal: controller.signal,
+							headers: {
+								'Content-Type': 'application/json',
+								body: '{"hello": "world"}'
+							}
+						});
+
+						controller.abort('the reason');
+
+						return expect(promise)
+							.to.eventually.be.rejected
+							.and.be.an.instanceOf(AbortError)
+							.and.to.have.property('reason')
+							.equals('the reason');
+					});
+
+					it('should include default reason on the thrown AbortError when not given', () => {
+						const controller = new AbortController();
+						const promise = fetch(`${base}timeout`, {
+							method: 'POST',
+							signal: controller.signal,
+							headers: {
+								'Content-Type': 'application/json',
+								body: '{"hello": "world"}'
+							}
+						});
+
+						controller.abort();
+
+						return expect(promise)
+							.to.eventually.be.rejected
+							.and.be.an.instanceOf(AbortError)
+							.and.to.have.property('reason')
+							.that.is.an.instanceOf(DOMException)
+							.and.include({
+								message: 'This operation was aborted',
+								name: 'AbortError',
+								code: DOMException.ABORT_ERR
+							});
+					});
+				}
+			});
 	}
 
 	it('should throw a TypeError if a signal is not of type AbortSignal or EventTarget', () => {
