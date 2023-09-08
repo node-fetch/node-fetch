@@ -13,6 +13,7 @@ import {
 
 type AbortSignal = {
 	readonly aborted: boolean;
+	readonly reason: unknown;
 
 	addEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
 	removeEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
@@ -212,6 +213,7 @@ export class FetchError extends Error {
 export class AbortError extends Error {
 	type: string;
 	name: 'AbortError';
+	reason: DOMException | unknown;
 	[Symbol.toStringTag]: 'AbortError';
 }
 
