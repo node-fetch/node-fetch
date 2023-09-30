@@ -91,6 +91,8 @@ async function run() {
 		['b', '2'],
 		new Map([['a', null], ['3', null]]).keys()
 	]);
+	new Headers({'content-type': ['text/plain', 'application/json']});
+	new Headers({'content-length': 250});
 	/* eslint-enable no-new */
 
 	expectType<Response>(Response.redirect('https://google.com'));

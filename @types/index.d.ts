@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import {RequestOptions} from 'http';
+import {RequestOptions, OutgoingHttpHeader, OutgoingHttpHeaders} from 'http';
 import {FormData} from 'formdata-polyfill/esm.min.js';
 import {
 	Blob,
@@ -18,7 +18,7 @@ type AbortSignal = {
 	removeEventListener: (type: 'abort', listener: (this: AbortSignal) => void) => void;
 };
 
-export type HeadersInit = Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>;
+export type HeadersInit = Headers | OutgoingHttpHeaders | Iterable<readonly [string, OutgoingHttpHeader]> | Iterable<Iterable<OutgoingHttpHeader>>;
 
 export {
 	FormData,
