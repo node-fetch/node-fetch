@@ -18,7 +18,7 @@
 
 ---
 
-**You might be looking for the [v2 docs](https://github.com/node-fetch/node-fetch/tree/2.x#readme)**
+**These are the docs for the latest version of node-fetch, v3. You might be looking for the [v2 docs](https://github.com/node-fetch/node-fetch/tree/2.x#readme)**
 
 <!-- TOC -->
 
