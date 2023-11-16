@@ -213,7 +213,7 @@ export default async function fetch(url, options_) {
 						}
 
 						// HTTP-redirect fetch step 9
-						if (response_.statusCode !== 303 && request.body && options_.body instanceof Stream.Readable) {
+						if (response_.statusCode !== 303 && requestOptions.body instanceof Stream.Readable) {
 							reject(new FetchError('Cannot follow redirect with body being a readable stream', 'unsupported-redirect'));
 							finalize();
 							return;
