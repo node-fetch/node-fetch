@@ -37,7 +37,7 @@
     },
     "homepage": "https://github.com/bitinn/node-fetch",
     "dependencies": {
-        "whatwg-url": "^5.0.0"
+        "whatwg-url": "^14.0.0"
     },
     "peerDependencies": { 
         "encoding": "^0.1.0"
