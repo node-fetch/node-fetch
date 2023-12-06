@@ -1,6 +1,6 @@
 {
     "name": "node-fetch",
-    "version": "2.6.7",
+    "version": "2.7.0",
     "description": "A light-weight module that brings window.fetch to node.js",
     "main": "lib/index.js",
     "browser": "./browser.js",
@@ -37,7 +37,7 @@
     },
     "homepage": "https://github.com/bitinn/node-fetch",
     "dependencies": {
-        "whatwg-url": "^5.0.0"
+        "whatwg-url": "^14.0.0"
     },
     "peerDependencies": { 
         "encoding": "^0.1.0"
