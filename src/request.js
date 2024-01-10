@@ -274,8 +274,11 @@ export const getNodeRequestOptions = request => {
 	}
 
 	// HTTP-network-or-cache fetch step 2.11
+	// > If request's user-agent is null, excluding user-agent in request's header list
 	if (!headers.has('User-Agent')) {
 		headers.set('User-Agent', 'node-fetch');
+	} else if (headers.get('User-Agent') === 'null') {
+		headers.delete('User-Agent')
 	}
 
 	// HTTP-network-or-cache fetch step 2.15
