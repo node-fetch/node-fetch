@@ -410,7 +410,7 @@ export default class TestServer {
 
 		if (p === '/chunked/multiple-ending') {
 			res.socket.write('HTTP/1.1 200\r\nTransfer-Encoding: chunked\r\n\r\n');
-			res.socket.write('3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n');
+			res.socket.end('3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n');
 		}
 
 		if (p === '/error/json') {
