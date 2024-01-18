@@ -4,7 +4,7 @@ import http from 'node:http';
 import AbortController from 'abort-controller';
 import chai from 'chai';
 import FormData from 'form-data';
-import Blob from 'fetch-blob';
+import { Blob } from 'fetch-blob';
 
 import {Request} from '../src/index.js';
 import TestServer from './utils/server.js';

@@ -2183,7 +2183,8 @@ describe('node-fetch', () => {
 		function lookupSpy(hostname, options, callback) {
 			families.push(options.family);
 
-			return lookup(hostname, {}, callback);
+			const cb = process.version.startsWith('v2') ? (err, address, family) => callback(err, [{address, family}]) : callback;
+			return lookup(hostname, {}, cb);
 		}
 
 		const agent = new http.Agent({lookup: lookupSpy, family});
