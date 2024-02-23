@@ -1,7 +1,10 @@
 ---
-name: 🐞 Bug report
+name: "\U0001F41E Bug report"
 about: Create a report to help us improve node-fetch
+title: ''
 labels: bug
+assignees: ''
+
 ---
 
 <!--- Provide a clear and concise description of what the bug is. -->
