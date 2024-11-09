@@ -68,6 +68,7 @@ export default async function fetch(url, options_) {
 
 		const abort = () => {
 			const error = new AbortError('The operation was aborted.');
+			error.cause = signal.reason;
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
 				request.body.destroy(error);
