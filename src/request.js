@@ -69,12 +69,6 @@ export default class Request extends Body {
 			doBadDataWarn();
 		}
 
-		// eslint-disable-next-line no-eq-null, eqeqeq
-		if ((init.body != null || (isRequest(input) && input.body !== null)) &&
-			(method === 'GET' || method === 'HEAD')) {
-			throw new TypeError('Request with GET/HEAD method cannot have body');
-		}
-
 		const inputBody = init.body ?
 			init.body :
 			(isRequest(input) && input.body !== null ?

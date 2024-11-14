@@ -110,23 +110,6 @@ describe('Request', () => {
 		expect(derivedRequest.signal).to.equal(null);
 	});
 
-	it('should throw error with GET/HEAD requests with body', () => {
-		expect(() => new Request(base, {body: ''}))
-			.to.throw(TypeError);
-		expect(() => new Request(base, {body: 'a'}))
-			.to.throw(TypeError);
-		expect(() => new Request(base, {body: '', method: 'HEAD'}))
-			.to.throw(TypeError);
-		expect(() => new Request(base, {body: 'a', method: 'HEAD'}))
-			.to.throw(TypeError);
-		expect(() => new Request(base, {body: 'a', method: 'get'}))
-			.to.throw(TypeError);
-		expect(() => new Request(base, {body: 'a', method: 'head'}))
-			.to.throw(TypeError);
-		expect(() => new Request(new Request(base), {body: 'a'}))
-			.to.throw(TypeError);
-	});
-
 	it('should throw error when including credentials', () => {
 		expect(() => new Request('https://john:pass@github.com/'))
 			.to.throw(TypeError);
