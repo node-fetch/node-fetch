@@ -616,7 +616,7 @@ MIT
 [npm-image]: https://flat.badgen.net/npm/v/node-fetch
 [npm-url]: https://www.npmjs.com/package/node-fetch
 [travis-image]: https://flat.badgen.net/travis/bitinn/node-fetch
-[travis-url]: https://travis-ci.org/bitinn/node-fetch
+[travis-url]: https://travis-ci.org/node-fetch/node-fetch
 [codecov-image]: https://flat.badgen.net/codecov/c/github/bitinn/node-fetch/master
 [codecov-url]: https://codecov.io/gh/bitinn/node-fetch
 [install-size-image]: https://flat.badgen.net/packagephobia/install/node-fetch
