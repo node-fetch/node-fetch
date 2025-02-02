@@ -93,7 +93,7 @@ fetch.Promise = Bluebird;
 
 ## Common Usage
 
-NOTE: The documentation below is up-to-date with `2.x` releases; see the [`1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.com/bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](UPGRADE-GUIDE.md) for the differences.
+NOTE: The documentation below is up-to-date with `2.x` releases; see the [`1.x` readme](https://github.com/bitinn/node-fetch/blob/1.x/README.md), [changelog](https://github.https://github.com//bitinn/node-fetch/blob/1.x/CHANGELOG.md) and [2.x upgrade guide](UPGRADE-GUIDE.md) for the differences.
 
 #### Plain text or HTML
 ```js
