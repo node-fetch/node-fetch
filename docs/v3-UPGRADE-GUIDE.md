@@ -2,7 +2,7 @@
 
 node-fetch v3.x brings about many changes that increase the compliance of
 WHATWG's [Fetch Standard][whatwg-fetch]. However, many of these changes mean
-that apps written for node-fetch v2.x needs to be updated to work with
+that apps written for node-fetch v2.x need to be updated to work with
 node-fetch v3.x and be conformant with the Fetch Standard. This document helps
 you make this transition.
 
