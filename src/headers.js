@@ -139,6 +139,9 @@ export default class Headers extends URLSearchParams {
 							return new Set(URLSearchParams.prototype.keys.call(target)).keys();
 						};
 
+					case 'size': 
+						return [...target].length;
+
 					default:
 						return Reflect.get(target, p, receiver);
 				}
