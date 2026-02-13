@@ -105,7 +105,7 @@ describe('node-fetch', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'});
+			.and.include({type: 'system', code: 'ECONNREFUSED'});
 	});
 
 	it('error should contain system error if one occurred', () => {
@@ -2121,6 +2121,7 @@ describe('node-fetch', () => {
 	it('should create custom FetchError', function funcName() {
 		const systemError = new Error('system');
 		systemError.code = 'ESOMEERROR';
+		systemError.errno = -111;
 
 		const err = new FetchError('test message', 'test-error', systemError);
 		expect(err).to.be.an.instanceof(Error);
@@ -2129,7 +2130,7 @@ describe('node-fetch', () => {
 		expect(err.message).to.equal('test message');
 		expect(err.type).to.equal('test-error');
 		expect(err.code).to.equal('ESOMEERROR');
-		expect(err.errno).to.equal('ESOMEERROR');
+		expect(err.errno).to.equal(-111);
 		// Reading the stack is quite slow (~30-50ms)
 		expect(err.stack).to.include('funcName').and.to.startWith(`${err.name}: ${err.message}`);
 	});
