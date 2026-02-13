@@ -206,7 +206,8 @@ export class FetchError extends Error {
 	[Symbol.toStringTag]: 'FetchError';
 	type: string;
 	code?: string;
-	errno?: string;
+	errno?: number;
+	erroredSysCall?: string;
 }
 
 export class AbortError extends Error {
