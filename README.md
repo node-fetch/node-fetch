@@ -108,6 +108,26 @@ Current stable release (`3.x`) requires at least Node.js 12.20.0.
 npm install node-fetch
 ```
 
+### ⚠️ Node.js 18+ Already Has Native Fetch
+
+If you are using **Node.js 18 or later**, you don't need to install `node-fetch`! Node.js 18+ includes a built-in `fetch` API that is standards-compliant and ready to use.
+
+**Why use native fetch instead of node-fetch?**
+- **No extra dependency** - Reduces your `node_modules` size
+- **Smaller bundle size** - Especially important for serverless deployments (AWS Lambda, Vercel, etc.)
+- **No maintenance burden** - No need to keep a third-party package updated
+- **Better performance** - Native implementation is optimized for Node.js
+
+```js
+// Node.js 18+ - Just use fetch directly!
+const response = await fetch('https://example.com');
+const data = await response.json();
+```
+
+If you need to support older Node.js versions (12, 14, 16) or need specific features/fixes that node-fetch provides, then `node-fetch` is still a good choice.
+
+For more details on the native fetch implementation, see the [Node.js fetch documentation](https://nodejs.org/dist/latest-v18.x/docs/api/globals.html#fetch).
+
 ## Loading and configuring the module
 
 ### ES Modules (ESM)
