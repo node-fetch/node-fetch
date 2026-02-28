@@ -17,9 +17,9 @@ const fetch = require('node-fetch');
 	} catch (error) {
 		if (error.name === 'AbortError') {
 			console.log('request was aborted');
-		}
+		} 
 	}
-})();
+})(); 
 ```
 
 - All [operational errors][joyent-guide] *other than aborted requests* are rejected with a [FetchError](https://github.com/node-fetch/node-fetch/blob/master/README.md#class-fetcherror). You can handle them all through the `try/catch` block or promise `catch` clause.
