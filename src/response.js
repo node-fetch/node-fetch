@@ -9,6 +9,7 @@ import Body, {clone, extractContentType} from './body.js';
 import {isRedirect} from './utils/is-redirect.js';
 
 const INTERNALS = Symbol('Response internals');
+const nullBodyStatus = new Set([101, 103, 204, 205, 304]);
 
 /**
  * Response class
@@ -25,6 +26,14 @@ export default class Response extends Body {
 
 		// eslint-disable-next-line no-eq-null, eqeqeq, no-negated-condition
 		const status = options.status != null ? options.status : 200;
+
+		if (status < 200 || status > 599) {
+			throw new RangeError(`Failed to construct 'Response': The status provided (${status}) is outside the range [200, 599].`);
+		}
+
+		if (body !== null && nullBodyStatus.has(status)) {
+			throw new TypeError('Response with null body status cannot have body');
+		}
 
 		const headers = new Headers(options.headers);
 
@@ -119,8 +128,9 @@ export default class Response extends Body {
 	}
 
 	static error() {
-		const response = new Response(null, {status: 0, statusText: ''});
+		const response = new Response(null, {status: 200, statusText: ''});
 		response[INTERNALS].type = 'error';
+		response[INTERNALS].status = 0;
 		return response;
 	}
 
