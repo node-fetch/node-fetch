@@ -104,6 +104,9 @@ See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic
 
 Current stable release (`3.x`) requires at least Node.js 12.20.0.
 
+> [!NOTE]
+> Node.js includes a built-in `fetch()` implementation in modern releases (stable in recent Node 21+ versions, and available in earlier 18+ releases). If that covers your use case, you may not need to install `node-fetch`.
+
 ```sh
 npm install node-fetch
 ```
