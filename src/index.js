@@ -105,7 +105,17 @@ export default async function fetch(url, options_) {
 		};
 
 		request_.on('error', error => {
-			reject(new FetchError(`request to ${request.url} failed, reason: ${error.message}`, 'system', error));
+			let suggestion = '';
+			if (error.code === 'ECONNREFUSED') {
+				suggestion = ' The server may be down or the URL incorrect. Check if the server is running and the URL is correct.';
+			} else if (error.code === 'ENOTFOUND') {
+				suggestion = ' Check if the domain name is correct and you have internet connectivity.';
+			} else if (error.code === 'ETIMEDOUT' || error.code === 'ETIMEDOUT') {
+				suggestion = ' The request timed out. Try increasing the timeout option or check network connectivity.';
+			} else if (error.code === 'CERT_HAS_EXPIRED') {
+				suggestion = ' The SSL certificate has expired. Contact the server administrator or disable SSL verification for testing.';
+			}
+			reject(new FetchError(\`request to \${request.url} failed, reason: \${error.message}\${suggestion}\`, 'system', error));
 			finalize();
 		});
 
@@ -127,7 +137,11 @@ export default async function fetch(url, options_) {
 				s.prependListener('close', hadError => {
 					// if end happened before close but the socket didn't emit an error, do it now
 					if (response && endedWithEventsCount < s._eventsCount && !hadError) {
-						const error = new Error('Premature close');
+						const error = new Error(
+							'Premature close: The server closed the connection before sending a complete response. ' +
+							'This may be due to a network issue, server timeout, or the server aborting the connection. ' +
+							'Try: 1) Checking network connectivity, 2) Increasing timeout, 3) Ensuring the server is stable.'
+						);
 						error.code = 'ERR_STREAM_PREMATURE_CLOSE';
 						response.body.emit('error', error);
 					}
@@ -386,7 +400,11 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 	request.on('socket', socket => {
 		const onSocketClose = () => {
 			if (isChunkedTransfer && !properLastChunkReceived) {
-				const error = new Error('Premature close');
+				const error = new Error(
+					'Premature close: Connection closed during chunked transfer. ' +
+					'The server may have unexpectedly terminated the connection. ' +
+					'Check: 1) Server logs, 2) Network stability, 3) Large response handling.'
+				);
 				error.code = 'ERR_STREAM_PREMATURE_CLOSE';
 				errorCallback(error);
 			}
