@@ -22,18 +22,22 @@ const fetch = require('node-fetch');
 })();
 ```
 
-- All [operational errors][joyent-guide] *other than aborted requests* are rejected with a [FetchError](https://github.com/node-fetch/node-fetch/blob/master/README.md#class-fetcherror). You can handle them all through the `try/catch` block or promise `catch` clause.
+- Operational errors can surface as different error classes depending on where they happen.
 
-- All errors come with an `error.message` detailing the cause of errors.
+  - `AbortError` when the request is cancelled.
+  - `FetchError` for network/stream/redirect failures created by node-fetch.
+  - `TypeError`, `RangeError`, `SyntaxError`, or generic `Error` for validation and parsing failures (for example invalid init options, invalid redirect URL handling, or invalid JSON).
 
-- All errors originating from `node-fetch` are marked with a custom `err.type`.
+- All errors come with an `error.message` describing the cause.
 
-- All errors originating from Node.js core are marked with `error.type = 'system'`, and in addition contain an `error.code` and an `error.errno` for error handling. These are aliases for error codes thrown by Node.js core.
+- `FetchError` instances created by `node-fetch` include a custom `error.type`.
 
-- [Programmer errors][joyent-guide] are either thrown as soon as possible, or rejected with default `Error` with `error.message` for ease of troubleshooting.
+- `FetchError` instances that wrap Node.js core I/O failures use `error.type = 'system'` and include `error.code` and `error.errno` from Node.js.
+
+- [Programmer errors][joyent-guide] are thrown as soon as possible (or rejected) with standard JavaScript errors to make troubleshooting easier.
 
 List of error types:
 
-- Because we maintain 100% coverage, see [test/main.js](https://github.com/node-fetch/node-fetch/blob/master/test/main.js) for a full list of custom `FetchError` types, as well as some of the common errors from Node.js
+- For currently covered cases and `FetchError` type strings, see [test/main.js](https://github.com/node-fetch/node-fetch/blob/master/test/main.js).
 
 [joyent-guide]: https://www.joyent.com/node-js/production/design/errors#operational-errors-vs-programmer-errors
