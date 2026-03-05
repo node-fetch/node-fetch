@@ -211,6 +211,23 @@ describe('Response', () => {
 		expect(res.status).to.equal(200);
 	});
 
+
+	it('should throw when status is outside the 200-599 range', () => {
+		expect(() => new Response(null, {status: 199})).to.throw(RangeError);
+		expect(() => new Response(null, {status: 600})).to.throw(RangeError);
+	});
+
+	it('should throw when null body status has a body', () => {
+		expect(() => new Response('body', {status: 204})).to.throw(TypeError);
+		expect(() => new Response('body', {status: 205})).to.throw(TypeError);
+		expect(() => new Response('body', {status: 304})).to.throw(TypeError);
+	});
+
+	it('should allow null body status without a body', () => {
+		expect(() => new Response(undefined, {status: 204})).to.not.throw();
+		expect(() => new Response(null, {status: 304})).to.not.throw();
+	});
+
 	it('should default to empty string as url', () => {
 		const res = new Response();
 		expect(res.url).to.equal('');
