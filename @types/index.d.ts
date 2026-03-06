@@ -206,7 +206,7 @@ export class FetchError extends Error {
 	[Symbol.toStringTag]: 'FetchError';
 	type: string;
 	code?: string;
-	errno?: string;
+	errno?: NodeJS.ErrnoException['errno'];
 }
 
 export class AbortError extends Error {

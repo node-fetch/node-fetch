@@ -54,7 +54,7 @@ async function run() {
 		expectType<Blob>(await postResponse.blob());
 	} catch (error: unknown) {
 		if (error instanceof FetchError) {
-			throw new TypeError(error.errno as string | undefined);
+			throw new TypeError(String(error.errno));
 		}
 
 		if (error instanceof AbortError) {
