@@ -1305,6 +1305,38 @@ describe('node-fetch', () => {
 		expect(json.headers.accept).to.equal('application/json');
 	});
 
+	it('should ignore forbidden request headers from init', async () => {
+		const url = `${base}inspect`;
+		const res = await fetch(url, {
+			headers: {
+				connection: 'close',
+				host: 'example.com',
+				cookie: 'a=1',
+				'proxy-authorization': 'secret',
+				'sec-fetch-site': 'same-origin',
+				accept: 'application/json'
+			}
+		});
+
+		const json = await res.json();
+		expect(json.headers.cookie).to.be.undefined;
+		expect(json.headers['proxy-authorization']).to.be.undefined;
+		expect(json.headers['sec-fetch-site']).to.be.undefined;
+		expect(json.headers.accept).to.equal('application/json');
+	});
+
+	it('should still set internal content-length for POST body', async () => {
+		const url = `${base}inspect`;
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {'content-length': '999'},
+			body: 'abc'
+		});
+
+		const json = await res.json();
+		expect(json.headers['content-length']).to.equal('3');
+	});
+
 	it('should allow POST request', async () => {
 		const url = `${base}inspect`;
 		const options = {

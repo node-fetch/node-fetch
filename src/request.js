@@ -35,6 +35,30 @@ const doBadDataWarn = deprecate(() => {},
 	'.data is not a valid RequestInit property, use .body instead',
 	'https://github.com/node-fetch/node-fetch/issues/1000 (request)');
 
+const forbiddenRequestHeaderNames = new Set([
+	'accept-charset',
+	'access-control-request-headers',
+	'access-control-request-method',
+	'connection',
+	'content-length',
+	'cookie',
+	'cookie2',
+	'date',
+	'dnt',
+	'expect',
+	'host',
+	'keep-alive',
+	'origin',
+	'referer',
+	'te',
+	'trailer',
+	'transfer-encoding',
+	'upgrade',
+	'via'
+]);
+
+const isForbiddenRequestHeader = name => forbiddenRequestHeaderNames.has(name) || name.startsWith('proxy-') || name.startsWith('sec-');
+
 /**
  * Request class
  *
@@ -226,6 +250,12 @@ Object.defineProperties(Request.prototype, {
 export const getNodeRequestOptions = request => {
 	const {parsedURL} = request[INTERNALS];
 	const headers = new Headers(request[INTERNALS].headers);
+
+	for (const name of [...headers.keys()]) {
+		if (isForbiddenRequestHeader(name)) {
+			headers.delete(name);
+		}
+	}
 
 	// Fetch step 1.3
 	if (!headers.has('Accept')) {
