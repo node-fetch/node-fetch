@@ -145,7 +145,8 @@ export default class Body {
 	 * @return  Promise
 	 */
 	async json() {
-		const text = await this.text();
+		const buffer = await consumeBody(this);
+		const text = new TextDecoder('utf-8', {fatal: true}).decode(buffer);
 		return JSON.parse(text);
 	}
 
