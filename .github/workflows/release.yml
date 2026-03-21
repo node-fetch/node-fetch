@@ -7,16 +7,21 @@ on:
       - beta
       - "*.x" # maintenance releases such as 2.x
 
+permissions:
+  id-token: write # to enable use of OIDC for trusted publishing and npm provenance
+  contents: write # tags and releases
+  pull-requests: write # comments
+  issues: write # comments
+
 jobs:
   release:
     name: release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
