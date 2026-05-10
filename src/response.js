@@ -26,6 +26,17 @@ export default class Response extends Body {
 		// eslint-disable-next-line no-eq-null, eqeqeq, no-negated-condition
 		const status = options.status != null ? options.status : 200;
 
+		// Validate status range per https://fetch.spec.whatwg.org/#dom-response (step 1)
+		if (status !== 0 && (status < 200 || status > 599)) {
+			throw new RangeError(`Failed to construct 'Response': The status provided (${status}) is outside the range [200, 599].`);
+		}
+
+		// Validate null body status per https://fetch.spec.whatwg.org/#dom-response (step 6.1)
+		// Null body statuses: 101, 103, 204, 205, 304
+		if (body !== null && [101, 103, 204, 205, 304].includes(status)) {
+			throw new TypeError(`Failed to construct 'Response': Response with null body status cannot have body.`);
+		}
+
 		const headers = new Headers(options.headers);
 
 		if (body !== null && !headers.has('Content-Type')) {

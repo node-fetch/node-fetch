@@ -211,6 +211,31 @@ describe('Response', () => {
 		expect(res.status).to.equal(200);
 	});
 
+	it('should throw RangeError when status is below 200', () => {
+		expect(() => new Response(null, {status: 199})).to.throw(RangeError, 'outside the range [200, 599]');
+	});
+
+	it('should throw RangeError when status is above 599', () => {
+		expect(() => new Response(null, {status: 600})).to.throw(RangeError, 'outside the range [200, 599]');
+	});
+
+	it('should not throw RangeError for status 0 (used by error() factory)', () => {
+		expect(() => new Response(null, {status: 0})).to.not.throw();
+	});
+
+	it('should throw TypeError when body is provided with null body status 204', () => {
+		expect(() => new Response('body', {status: 204})).to.throw(TypeError, 'null body status');
+	});
+
+	it('should throw TypeError when body is provided with null body status 304', () => {
+		expect(() => new Response('body', {status: 304})).to.throw(TypeError, 'null body status');
+	});
+
+	it('should not throw when body is null with null body status 204', () => {
+		expect(() => new Response(null, {status: 204})).to.not.throw();
+		expect(() => new Response(undefined, {status: 204})).to.not.throw();
+	});
+
 	it('should default to empty string as url', () => {
 		const res = new Response();
 		expect(res.url).to.equal('');
