@@ -108,6 +108,9 @@ Current stable release (`3.x`) requires at least Node.js 12.20.0.
 npm install node-fetch
 ```
 
+> [!NOTE]  
+> The `fetch` API has been a built-in feature since Node.js v21, so you might not need `node-fetch`.
+
 ## Loading and configuring the module
 
 ### ES Modules (ESM)
