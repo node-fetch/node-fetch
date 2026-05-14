@@ -1,39 +1,134 @@
+# Error Handling with node-fetch
 
-Error handling with node-fetch
-==============================
+Because `window.fetch` isn't designed to be transparent about the cause of request errors, node-fetch provides its own error hierarchy for better error handling.
 
-Because `window.fetch` isn't designed to be transparent about the cause of request errors, we have to come up with our own solutions.
+## Error Types
 
-The basics:
+node-fetch defines the following error types:
 
-- A cancelled request is rejected with an [`AbortError`](https://github.com/node-fetch/node-fetch/blob/master/README.md#class-aborterror). You can check if the reason for rejection was that the request was aborted by checking the `Error`'s `name` is `AbortError`.
+### FetchBaseError
 
-```js
-const fetch = require('node-fetch');
+The base error class for all node-fetch errors. All errors extend this class.
 
-(async () => {
-	try {
-		await fetch(url, {signal});
-	} catch (error) {
-		if (error.name === 'AbortError') {
-			console.log('request was aborted');
-		}
-	}
-})();
+**Properties:**
+- `name` - The error class name
+- `message` - Human-readable error description
+- `type` - Machine-readable error type string
+
+### AbortError
+
+Thrown when a request is aborted via `AbortController` or `AbortSignal`.
+
+```javascript
+import fetch from 'node-fetch';
+
+const controller = new AbortController();
+const signal = controller.signal;
+
+fetch(url, { signal }).catch(error => {
+  if (error.name === 'AbortError') {
+    console.log('Request was aborted');
+  }
+});
 ```
 
-- All [operational errors][joyent-guide] *other than aborted requests* are rejected with a [FetchError](https://github.com/node-fetch/node-fetch/blob/master/README.md#class-fetcherror). You can handle them all through the `try/catch` block or promise `catch` clause.
+**Properties:**
+- `type` - `'aborted'`
 
-- All errors come with an `error.message` detailing the cause of errors.
+### FetchError
 
-- All errors originating from `node-fetch` are marked with a custom `err.type`.
+Thrown for operational errors during the fetch operation.
 
-- All errors originating from Node.js core are marked with `error.type = 'system'`, and in addition contain an `error.code` and an `error.errno` for error handling. These are aliases for error codes thrown by Node.js core.
+**Properties:**
+- `type` - Error type string (see below)
+- `code` - System error code (when `type` is `'system'`)
+- `errno` - System error number (when `type` is `'system'`)
+- `erroredSysCall` - The system call that failed (when `type` is `'system'`)
 
-- [Programmer errors][joyent-guide] are either thrown as soon as possible, or rejected with default `Error` with `error.message` for ease of troubleshooting.
+## Error Types
 
-List of error types:
+The following `type` values are used:
 
-- Because we maintain 100% coverage, see [test/main.js](https://github.com/node-fetch/node-fetch/blob/master/test/main.js) for a full list of custom `FetchError` types, as well as some of the common errors from Node.js
+| Type | Description |
+|------|-------------|
+| `'aborted'` | Request was aborted |
+| `'system'` | Node.js system error (network, DNS, etc.) |
+| `'invalid-json'` | Response body is not valid JSON |
+| `'body-timeout'` | Response body timed out |
+| `'request-timeout'` | Request timed out |
+| `'fetch-error'` | General fetch error |
 
-[joyent-guide]: https://www.joyent.com/node-js/production/design/errors#operational-errors-vs-programmer-errors
+## Error Handling Examples
+
+### Basic Error Handling
+
+```javascript
+import fetch from 'node-fetch';
+
+try {
+  const response = await fetch(url);
+  const data = await response.json();
+} catch (error) {
+  if (error.name === 'AbortError') {
+    console.log('Request was aborted');
+  } else if (error.name === 'FetchError') {
+    console.log('Fetch error:', error.message);
+    console.log('Error type:', error.type);
+  } else {
+    console.log('Unexpected error:', error);
+  }
+}
+```
+
+### System Error Handling
+
+```javascript
+import fetch from 'node-fetch';
+
+try {
+  const response = await fetch(url);
+} catch (error) {
+  if (error.type === 'system') {
+    console.log('System error:', error.code);
+    console.log('System call:', error.erroredSysCall);
+  }
+}
+```
+
+### Timeout Handling
+
+```javascript
+import fetch from 'node-fetch';
+
+try {
+  const response = await fetch(url, {
+    timeout: 5000 // 5 second timeout
+  });
+} catch (error) {
+  if (error.type === 'request-timeout') {
+    console.log('Request timed out');
+  }
+}
+```
+
+## Response Errors
+
+Note that node-fetch only throws errors for network/request failures. HTTP error status codes (4xx, 5xx) are **not** thrown as errors. You must check `response.ok` or `response.status`:
+
+```javascript
+import fetch from 'node-fetch';
+
+const response = await fetch(url);
+
+if (!response.ok) {
+  console.log('HTTP error:', response.status, response.statusText);
+  return;
+}
+
+const data = await response.json();
+```
+
+## See Also
+
+- [README.md](../README.md) - Main documentation
+- [v3-UPGRADE-GUIDE.md](./v3-UPGRADE-GUIDE.md) - Migration guide from v2 to v3
