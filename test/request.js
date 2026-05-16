@@ -7,6 +7,7 @@ import FormData from 'form-data';
 import Blob from 'fetch-blob';
 
 import {Request} from '../src/index.js';
+import {getNodeRequestOptions} from '../src/request.js';
 import TestServer from './utils/server.js';
 
 const {expect} = chai;
@@ -312,4 +313,30 @@ describe('Request', () => {
 			data: ''
 		});
 	}));
+
+	it('should send Host header as the first header', () => {
+		const request = new Request('https://example.com/path', {
+			headers: {
+				'X-Custom': 'value',
+				'Accept': 'application/json'
+			}
+		});
+		const {options} = getNodeRequestOptions(request);
+		const headerKeys = Object.keys(options.headers);
+		expect(headerKeys[0]).to.equal('host');
+		expect(options.headers.host).to.equal('example.com');
+	});
+
+	it('should preserve custom Host header as first', () => {
+		const request = new Request('https://example.com/path', {
+			headers: {
+				'Host': 'custom.example.com',
+				'X-Custom': 'value'
+			}
+		});
+		const {options} = getNodeRequestOptions(request);
+		const headerKeys = Object.keys(options.headers);
+		expect(headerKeys[0]).to.equal('host');
+		expect(options.headers.host).to.equal('custom.example.com');
+	});
 });
