@@ -240,6 +240,13 @@ export default class TestServer {
 			res.end('testtest');
 		}
 
+		if (p === '/size/content-length') {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.setHeader('Content-Length', '1000');
+			res.end('short');
+		}
+
 		if (p === '/redirect/301') {
 			res.statusCode = 301;
 			res.setHeader('Location', '/inspect');

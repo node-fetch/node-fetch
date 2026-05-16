@@ -1805,6 +1805,16 @@ describe('node-fetch', () => {
 			.and.have.property('type', 'max-size');
 	});
 
+	it('should reject early when Content-Length exceeds size limit', async () => {
+		const url = `${base}size/content-length`;
+		const options = {
+			size: 5
+		};
+		return expect(fetch(url, options)).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.have.property('type', 'max-size');
+	});
+
 	it('should allow piping response body as stream', async () => {
 		const url = `${base}hello`;
 		const res = await fetch(url);
