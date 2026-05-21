@@ -37,7 +37,7 @@ async function run() {
 	// Post
 	try {
 		const request = new Request('http://byjka.com/buka');
-		new Request(new URL('http://byjka.com/buka'));
+		expectType<Request>(new Request(new URL('http://byjka.com/buka')));
 		expectType<string>(request.url);
 		expectType<Headers>(request.headers);
 
@@ -81,6 +81,7 @@ async function run() {
 
 	/* eslint-disable no-new */
 	new Request('url', {agent: false});
+	new Request('url', {method: 'POST', body: 'data', duplex: 'half'});
 
 	new Headers({Header: 'value'});
 	// new Headers(['header', 'value']); // should not work

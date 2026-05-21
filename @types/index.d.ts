@@ -74,6 +74,10 @@ export interface RequestInit {
 	 */
 	body?: BodyInit | null;
 	/**
+	 * A string indicating how the request will interact with duplex streams.
+	 */
+	duplex?: RequestDuplex;
+	/**
 	 * A Headers object, an object literal, or an array of two-item arrays to set request's headers.
 	 */
 	headers?: HeadersInit;
@@ -144,6 +148,7 @@ declare class BodyMixin {
 export interface Body extends Pick<BodyMixin, keyof BodyMixin> {}
 
 export type RequestRedirect = 'error' | 'follow' | 'manual';
+export type RequestDuplex = 'half';
 export type ReferrerPolicy = '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'same-origin' | 'origin' | 'strict-origin' | 'origin-when-cross-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
 export type RequestInfo = string | Request;
 export class Request extends BodyMixin {
