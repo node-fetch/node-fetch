@@ -293,6 +293,26 @@ export const getNodeRequestOptions = request => {
 
 	const search = getSearch(parsedURL);
 
+	// HTTP-network fetch step 5
+	// Prepend Host header if not already present, ensuring it appears first
+	// like browsers and other HTTP libraries do (issue #1570)
+	if (!headers.has('Host')) {
+		headers.set('Host', parsedURL.host);
+	}
+
+	// Build headers object with Host first to match browser behavior
+	const rawHeaders = headers[Symbol.for('nodejs.util.inspect.custom')]();
+	const headersWithHostFirst = {};
+	if ('host' in rawHeaders) {
+		headersWithHostFirst.host = rawHeaders.host;
+	}
+
+	for (const key of Object.keys(rawHeaders)) {
+		if (key !== 'host') {
+			headersWithHostFirst[key] = rawHeaders[key];
+		}
+	}
+
 	// Pass the full URL directly to request(), but overwrite the following
 	// options:
 	const options = {
@@ -300,7 +320,7 @@ export const getNodeRequestOptions = request => {
 		path: parsedURL.pathname + search,
 		// The following options are not expressed in the URL
 		method: request.method,
-		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
+		headers: headersWithHostFirst,
 		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};

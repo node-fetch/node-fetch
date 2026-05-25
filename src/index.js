@@ -250,6 +250,20 @@ export default async function fetch(url, options_) {
 				});
 			}
 
+			// Check Content-Length against size limit early (issue #879)
+			// This allows rejecting responses that are too large before consuming any body data
+			if (request.size > 0) {
+				const contentLength = headers.get('Content-Length');
+				if (contentLength !== null) {
+					const length = Number(contentLength);
+					if (!Number.isNaN(length) && length > request.size) {
+						reject(new FetchError(`content size at ${request.url} over limit: ${request.size}`, 'max-size'));
+						finalize();
+						return;
+					}
+				}
+			}
+
 			let body = pump(response_, new PassThrough(), error => {
 				if (error) {
 					reject(error);
