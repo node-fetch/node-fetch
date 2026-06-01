@@ -300,7 +300,9 @@ export const getNodeRequestOptions = request => {
 		path: parsedURL.pathname + search,
 		// The following options are not expressed in the URL
 		method: request.method,
-		headers: headers[Symbol.for('nodejs.util.inspect.custom')](),
+		// Prepend host to ensure it appears as the first header
+		// (https://github.com/node-fetch/node-fetch/issues/1570)
+		headers: {host: parsedURL.host, ...headers[Symbol.for('nodejs.util.inspect.custom')]()},
 		insecureHTTPParser: request.insecureHTTPParser,
 		agent
 	};
