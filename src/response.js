@@ -26,6 +26,10 @@ export default class Response extends Body {
 		// eslint-disable-next-line no-eq-null, eqeqeq, no-negated-condition
 		const status = options.status != null ? options.status : 200;
 
+		if (status < 200 || status > 599) {
+			throw new RangeError(`Failed to construct 'Response': The status provided (${status}) is outside the range [200, 599].`);
+		}
+
 		const headers = new Headers(options.headers);
 
 		if (body !== null && !headers.has('Content-Type')) {
@@ -119,8 +123,9 @@ export default class Response extends Body {
 	}
 
 	static error() {
-		const response = new Response(null, {status: 0, statusText: ''});
+		const response = new Response(null, {statusText: ''});
 		response[INTERNALS].type = 'error';
+		response[INTERNALS].status = 0;
 		return response;
 	}
 
