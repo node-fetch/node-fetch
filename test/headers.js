@@ -159,6 +159,23 @@ describe('Headers', () => {
 		expect(() => headers.append('', 'ok')).to.throw(TypeError);
 	});
 
+	it('should normalize header values by trimming leading/trailing HTTP whitespace', () => {
+		const headers = new Headers();
+		headers.set('x', '  hello  ');
+		expect(headers.get('x')).to.equal('hello');
+
+		headers.append('y', '\t\r\n world \t\r\n');
+		expect(headers.get('y')).to.equal('world');
+
+		// A trailing CRLF is whitespace and must be normalized away, not rejected
+		expect(() => headers.set('z', 'value\r\n')).to.not.throw();
+		expect(headers.get('z')).to.equal('value');
+
+		const fromInit = new Headers([['a', '  bar  '], ['b', 'baz\r\n']]);
+		expect(fromInit.get('a')).to.equal('bar');
+		expect(fromInit.get('b')).to.equal('baz');
+	});
+
 	it('should ignore unsupported attributes while reading headers', () => {
 		const FakeHeader = function () {};
 		// Prototypes are currently ignored
