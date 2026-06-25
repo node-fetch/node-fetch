@@ -30,6 +30,15 @@ const validateHeaderValue = typeof http.validateHeaderValue === 'function' ?
 	};
 
 /**
+ * Normalize a header value by removing leading and trailing HTTP whitespace
+ * (tab 0x09, LF 0x0A, CR 0x0D, space 0x20), per the WHATWG Fetch standard.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+const normalizeValue = value => String(value).replace(/^[\t\n\r ]+|[\t\n\r ]+$/g, '');
+
+/**
  * @typedef {Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>} HeadersInit
  */
 
@@ -97,9 +106,10 @@ export default class Headers extends URLSearchParams {
 		result =
 			result.length > 0 ?
 				result.map(([name, value]) => {
+					const normalizedValue = normalizeValue(value);
 					validateHeaderName(name);
-					validateHeaderValue(name, String(value));
-					return [String(name).toLowerCase(), String(value)];
+					validateHeaderValue(name, normalizedValue);
+					return [String(name).toLowerCase(), normalizedValue];
 				}) :
 				undefined;
 
@@ -113,12 +123,13 @@ export default class Headers extends URLSearchParams {
 					case 'append':
 					case 'set':
 						return (name, value) => {
+							const normalizedValue = normalizeValue(value);
 							validateHeaderName(name);
-							validateHeaderValue(name, String(value));
+							validateHeaderValue(name, normalizedValue);
 							return URLSearchParams.prototype[p].call(
 								target,
 								String(name).toLowerCase(),
-								String(value)
+								normalizedValue
 							);
 						};
 
