@@ -106,4 +106,4 @@ information on Node.js' support lifetime.
 [gh-fetch]: https://github.com/github/fetch
 [chrome-headers]: https://crbug.com/645492
 [firefox-headers]: https://bugzilla.mozilla.org/show_bug.cgi?id=1278275
-[changelog]: CHANGELOG.md
+[changelog]: https://github.com/node-fetch/node-fetch/releases

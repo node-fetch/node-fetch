@@ -141,4 +141,4 @@ Since v3.x you no longer need to install `@types/node-fetch` package in order to
 [fetch-charset-detection-docs]: https://richienb.github.io/fetch-charset-detection/globals.html#convertbody
 [fetch-blob]: https://github.com/node-fetch/fetch-blob#readme
 [whatwg-nodejs-url]: https://nodejs.org/api/url.html#url_the_whatwg_url_api
-[changelog]: CHANGELOG.md
+[changelog]: https://github.com/node-fetch/node-fetch/releases

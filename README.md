@@ -811,7 +811,7 @@ http.createServer(async function (req, res) {
   const arrayBuffer = await new Response(req).arrayBuffer()
   const blob = await new Response(req, {
     headers: req.headers // So that `type` inherits `Content-Type`
-  }.blob()
+  }).blob()
 })
 ```
 
