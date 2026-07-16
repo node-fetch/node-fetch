@@ -109,8 +109,9 @@ export default class Body {
 
 	async formData() {
 		const ct = this.headers.get('content-type');
+		const contentType = ct?.split(';', 1)[0].trim().toLowerCase();
 
-		if (ct.startsWith('application/x-www-form-urlencoded')) {
+		if (contentType === 'application/x-www-form-urlencoded') {
 			const formData = new FormData();
 			const parameters = new URLSearchParams(await this.text());
 
@@ -119,6 +120,11 @@ export default class Body {
 			}
 
 			return formData;
+		}
+
+		if (contentType !== 'multipart/form-data') {
+			this.body?.destroy();
+			throw new TypeError('Failed to fetch');
 		}
 
 		const {toFormData} = await import('./utils/multipart-parser.js');
