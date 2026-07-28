@@ -9,6 +9,7 @@ import Body, {clone, extractContentType} from './body.js';
 import {isRedirect} from './utils/is-redirect.js';
 
 const INTERNALS = Symbol('Response internals');
+const NULL_BODY_STATUSES = new Set([101, 204, 304]);
 
 /**
  * Response class
@@ -26,12 +27,31 @@ export default class Response extends Body {
 		// eslint-disable-next-line no-eq-null, eqeqeq, no-negated-condition
 		const status = options.status != null ? options.status : 200;
 
+		// Validate status per fetch spec
+		if (status < 200 || status > 599) {
+			throw new RangeError(`Failed to construct 'Response': The status provided (${status}) is outside the range [200, 599].`);
+		}
+
+		if (options.statusText !== undefined) {
+			// Validate statusText per fetch spec (reason-phrase token: HTAB, SP, VCHAR, obs-text)
+			// Disallow CR, LF, and NUL
+			if (/[\0\r\n]/.test(options.statusText)) {
+				throw new TypeError('Failed to construct \'Response\': The status text provided contains invalid characters.');
+			}
+		}
+
 		const headers = new Headers(options.headers);
 
-		if (body !== null && !headers.has('Content-Type')) {
-			const contentType = extractContentType(body, this);
-			if (contentType) {
-				headers.append('Content-Type', contentType);
+		if (body !== null && body !== undefined) {
+			if (NULL_BODY_STATUSES.has(status)) {
+				throw new TypeError('Failed to construct \'Response\': Response with null body status cannot have body.');
+			}
+
+			if (!headers.has('Content-Type')) {
+				const contentType = extractContentType(body, this);
+				if (contentType) {
+					headers.append('Content-Type', contentType);
+				}
 			}
 		}
 
@@ -119,8 +139,16 @@ export default class Response extends Body {
 	}
 
 	static error() {
-		const response = new Response(null, {status: 0, statusText: ''});
-		response[INTERNALS].type = 'error';
+		const response = Reflect.construct(Response, [], Response);
+		response[INTERNALS] = {
+			type: 'error',
+			url: '',
+			status: 0,
+			statusText: '',
+			headers: new Headers(),
+			counter: 0,
+			highWaterMark: 0
+		};
 		return response;
 	}
 

@@ -256,6 +256,28 @@ describe('Response', () => {
 		expect(res.statusText).to.equal('');
 	});
 
+	it('should throw RangeError when status is outside range 200-599', () => {
+		expect(() => new Response(null, {status: 199})).to.throw(RangeError);
+		expect(() => new Response(null, {status: 600})).to.throw(RangeError);
+		expect(() => new Response(null, {status: 0})).to.throw(RangeError);
+	});
+
+	it('should accept valid status codes', () => {
+		expect(() => new Response(null, {status: 200})).to.not.throw();
+		expect(() => new Response(null, {status: 599})).to.not.throw();
+	});
+
+	it('should throw TypeError when body is given with null body status', () => {
+		expect(() => new Response('body', {status: 204})).to.throw(TypeError);
+		expect(() => new Response('body', {status: 304})).to.throw(TypeError);
+	});
+
+	it('should allow null body with null body status', () => {
+		expect(() => new Response(null, {status: 204})).to.not.throw();
+		expect(() => new Response(null, {status: 304})).to.not.throw();
+		expect(() => new Response(undefined, {status: 204})).to.not.throw();
+	});
+
 	it('should warn once when using .data (response)', () => new Promise(resolve => {
 		process.once('warning', evt => {
 			expect(evt.message).to.equal('data doesn\'t exist, use json(), text(), arrayBuffer(), or body instead');
