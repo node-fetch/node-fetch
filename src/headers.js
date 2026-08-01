@@ -210,7 +210,15 @@ export default class Headers extends URLSearchParams {
 	 * For better console.log(headers) and also to convert Headers into Node.js Request compatible format
 	 */
 	[Symbol.for('nodejs.util.inspect.custom')]() {
-		return [...this.keys()].reduce((result, key) => {
+		const keys = [...this.keys()];
+		// Ensure 'host' header is the first header, matching browser behavior
+		const hostIndex = keys.indexOf('host');
+		if (hostIndex > -1) {
+			keys.splice(hostIndex, 1);
+			keys.unshift('host');
+		}
+
+		return keys.reduce((result, key) => {
 			const values = this.getAll(key);
 			// Http.request() only supports string as Host header.
 			// This hack makes specifying custom Host header possible.
