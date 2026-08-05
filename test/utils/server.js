@@ -370,6 +370,15 @@ export default class TestServer {
 			res.destroy();
 		}
 
+		if (p === '/error/refuse') {
+			request.pause();
+			setTimeout(() => {
+				res.writeHead(413, {'content-type': 'application/json'});
+				res.end(JSON.stringify({error: 'too large'}));
+				request.socket.destroy();
+			}, 50);
+		}
+
 		if (p === '/error/premature') {
 			res.writeHead(200, {'content-length': 50});
 			res.write('foo');
