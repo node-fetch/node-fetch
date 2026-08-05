@@ -691,6 +691,44 @@ describe('node-fetch', () => {
 			.and.have.property('code', 'ECONNRESET');
 	});
 
+	it('should not crash when server refuses body before reading it', async function () {
+		this.timeout(10000);
+
+		const ipv4 = new TestServer('127.0.0.1');
+		await ipv4.start();
+		const url = `http://127.0.0.1:${ipv4.port}/error/refuse`;
+
+		const uncaught = [];
+		const onUncaught = error => {
+			uncaught.push(error);
+		};
+		process.on('uncaughtException', onUncaught);
+
+		try {
+			const result = await fetch(url, {
+				method: 'POST',
+				body: Buffer.alloc(20 * 1024 * 1024, 0x78),
+				headers: {'content-type': 'text/plain'}
+			}).catch(error => error);
+
+			if (result instanceof Error) {
+				expect(result).to.be.an.instanceOf(FetchError);
+				expect(result.message).to.match(/ECONNRESET|EPIPE|ECONNABORTED|socket|failed/i);
+			} else {
+				expect(result.status).to.equal(413);
+				expect(await result.text()).to.equal(JSON.stringify({error: 'too large'}));
+			}
+
+			await new Promise(resolve => {
+				setTimeout(resolve, 500);
+			});
+			expect(uncaught).to.deep.equal([]);
+		} finally {
+			process.off('uncaughtException', onUncaught);
+			await ipv4.stop();
+		}
+	});
+
 	it('should handle network-error partial response', async () => {
 		const url = `${base}error/premature`;
 		const res = await fetch(url);

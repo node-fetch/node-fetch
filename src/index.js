@@ -92,6 +92,7 @@ export default async function fetch(url, options_) {
 
 		// Send request
 		const request_ = send(parsedURL.toString(), options);
+		let responseReceived = false;
 
 		if (signal) {
 			signal.addEventListener('abort', abortAndFinalize);
@@ -104,9 +105,25 @@ export default async function fetch(url, options_) {
 			}
 		};
 
-		request_.on('error', error => {
+		const handleRequestError = error => {
+			// See https://github.com/nodejs/undici/blob/01a912e49a50c48009ed2639d2a457a6ec26752a/lib/dispatcher/client-h1.js#L735
+			if (responseReceived && isNetworkConnectionError(error)) {
+				return;
+			}
+
 			reject(new FetchError(`request to ${request.url} failed, reason: ${error.message}`, 'system', error));
 			finalize();
+		};
+
+		request_.on('error', handleRequestError);
+
+		request_.on('socket', socket => {
+			socket.on('error', handleRequestError);
+			request_.once('close', () => {
+				if (!socket.destroyed) {
+					socket.off('error', handleRequestError);
+				}
+			});
 		});
 
 		fixResponseChunkedTransferBadEnding(request_, error => {
@@ -136,6 +153,7 @@ export default async function fetch(url, options_) {
 		}
 
 		request_.on('response', response_ => {
+			responseReceived = true;
 			request_.setTimeout(0);
 			const headers = fromRawHeaders(response_.rawHeaders);
 
@@ -369,6 +387,11 @@ export default async function fetch(url, options_) {
 		// eslint-disable-next-line promise/prefer-await-to-then
 		writeToStream(request_, request).catch(reject);
 	});
+}
+
+function isNetworkConnectionError(error) {
+	const code = error && error.code;
+	return code === 'ECONNRESET' || code === 'EPIPE' || code === 'ECONNABORTED';
 }
 
 function fixResponseChunkedTransferBadEnding(request, errorCallback) {
