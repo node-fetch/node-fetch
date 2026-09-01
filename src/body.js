@@ -79,8 +79,8 @@ export default class Body {
 		};
 		this.size = size;
 
-		if (body instanceof Stream) {
-			body.on('error', error_ => {
+		if (stream instanceof Stream) {
+			stream.on('error', error_ => {
 				const error = error_ instanceof FetchBaseError ?
 					error_ :
 					new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, 'system', error_);
