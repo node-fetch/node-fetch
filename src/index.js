@@ -282,7 +282,14 @@ export default async function fetch(url, options_) {
 			// 3. no Content-Encoding header
 			// 4. no content response (204)
 			// 5. content not modified response (304)
-			if (!request.compress || request.method === 'HEAD' || codings === null || response_.statusCode === 204 || response_.statusCode === 304) {
+			// 6. reset content response (205)
+			if (response_.statusCode === 204 || response_.statusCode === 205 || response_.statusCode === 304) {
+				response = new Response(null, responseOptions);
+				resolve(response);
+				return;
+			}
+
+			if (!request.compress || request.method === 'HEAD' || codings === null) {
 				response = new Response(body, responseOptions);
 				resolve(response);
 				return;

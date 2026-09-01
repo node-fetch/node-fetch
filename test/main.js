@@ -865,6 +865,18 @@ describe('node-fetch', () => {
 		expect(result).to.be.empty;
 	});
 
+	it('should handle reset content response with no body', async () => {
+		const url = `${base}reseted`;
+		const res = await fetch(url);
+		expect(res.status).to.equal(205);
+		expect(res.statusText).to.equal('Reset Content');
+		expect(res.ok).to.be.true;
+		expect(res.body).to.equal(null);
+		const result = await res.text();
+		expect(result).to.be.a('string');
+		expect(result).to.be.empty;
+	});
+
 	it('should decompress gzip response', async () => {
 		const url = `${base}gzip`;
 		const res = await fetch(url);
