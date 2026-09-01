@@ -259,7 +259,7 @@ export function determineRequestsReferrer(request, {referrerURLCallback, referre
 			}
 
 			// 2. Return referrerOrigin.
-			return referrerOrigin.toString();
+			return referrerOrigin;
 
 		case 'strict-origin-when-cross-origin':
 			// 1. If the origin of referrerURL and the origin of request's current URL are the same, then
