@@ -1087,6 +1087,23 @@ describe('node-fetch', () => {
 					});
 			});
 
+			it('should reject immediately, without crashing, if an already-aborted signal is used with a non-stream body', () => {
+				const url = `${base}timeout`;
+				const options = {
+					method: 'POST',
+					body: 'hello world',
+					signal: controller.signal
+				};
+				controller.abort();
+				const fetched = fetch(url, options);
+				return expect(fetched).to.eventually.be.rejected
+					.and.be.an.instanceOf(Error)
+					.and.include({
+						type: 'aborted',
+						name: 'AbortError'
+					});
+			});
+
 			it('should allow redirects to be aborted', () => {
 				const request = new Request(`${base}redirect/slow`, {
 					signal: controller.signal
