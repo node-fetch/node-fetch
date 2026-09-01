@@ -9,7 +9,7 @@ import Body, {clone, extractContentType} from './body.js';
 import {isRedirect} from './utils/is-redirect.js';
 
 const INTERNALS = Symbol('Response internals');
-const NULL_BODY_STATUSES = new Set([101, 204, 304]);
+const NULL_BODY_STATUSES = new Set([101, 103, 204, 205, 304]);
 
 /**
  * Response class

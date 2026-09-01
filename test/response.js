@@ -269,11 +269,13 @@ describe('Response', () => {
 
 	it('should throw TypeError when body is given with null body status', () => {
 		expect(() => new Response('body', {status: 204})).to.throw(TypeError);
+		expect(() => new Response('body', {status: 205})).to.throw(TypeError);
 		expect(() => new Response('body', {status: 304})).to.throw(TypeError);
 	});
 
 	it('should allow null body with null body status', () => {
 		expect(() => new Response(null, {status: 204})).to.not.throw();
+		expect(() => new Response(null, {status: 205})).to.not.throw();
 		expect(() => new Response(null, {status: 304})).to.not.throw();
 		expect(() => new Response(undefined, {status: 204})).to.not.throw();
 	});

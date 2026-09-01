@@ -441,6 +441,11 @@ export default class TestServer {
 			res.end();
 		}
 
+		if (p === '/reseted') {
+			res.statusCode = 205;
+			res.end();
+		}
+
 		if (p === '/not-modified/gzip') {
 			res.statusCode = 304;
 			res.setHeader('Content-Encoding', 'gzip');
