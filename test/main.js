@@ -105,7 +105,41 @@ describe('node-fetch', () => {
 		const url = 'http://localhost:50000/';
 		return expect(fetch(url)).to.eventually.be.rejected
 			.and.be.an.instanceOf(FetchError)
-			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'});
+			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'})
+			.and.have.property('message').that.include('ECONNREFUSED');
+	});
+
+	it('should include nested AggregateError details in request failure reason', function () {
+		this.timeout(5000);
+		const ipv4Error = new Error('connect ETIMEDOUT 1.2.3.4:80');
+		ipv4Error.code = 'ETIMEDOUT';
+		const ipv6Error = new Error('connect ENETUNREACH ::1:80');
+		ipv6Error.code = 'ENETUNREACH';
+
+		// Node < 15 has no AggregateError; simulate the empty-message multi-error Node emits
+		// when both IPv4 and IPv6 connect attempts fail.
+		let aggregateError;
+		if (typeof AggregateError === 'function') {
+			aggregateError = new AggregateError([ipv4Error, ipv6Error]);
+		} else {
+			aggregateError = new Error('AggregateError');
+			aggregateError.name = 'AggregateError';
+			aggregateError.message = '';
+			aggregateError.errors = [ipv4Error, ipv6Error];
+		}
+
+		expect(aggregateError.message).to.equal('');
+
+		const agent = new http.Agent();
+		agent.createConnection = (options, callback) => {
+			callback(aggregateError);
+		};
+
+		const url = `${base}hello`;
+		return expect(fetch(url, {agent})).to.eventually.be.rejected
+			.and.be.an.instanceOf(FetchError)
+			.and.include({type: 'system'})
+			.and.have.property('message', `request to ${url} failed, reason: ETIMEDOUT and ENETUNREACH`);
 	});
 
 	it('error should contain system error if one occurred', () => {

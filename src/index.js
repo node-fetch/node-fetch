@@ -105,7 +105,7 @@ export default async function fetch(url, options_) {
 		};
 
 		request_.on('error', error => {
-			reject(new FetchError(`request to ${request.url} failed, reason: ${error.message}`, 'system', error));
+			reject(new FetchError(`request to ${request.url} failed, reason: ${getRequestFailureReason(error)}`, 'system', error));
 			finalize();
 		});
 
@@ -369,6 +369,32 @@ export default async function fetch(url, options_) {
 		// eslint-disable-next-line promise/prefer-await-to-then
 		writeToStream(request_, request).catch(reject);
 	});
+}
+
+/**
+ * Format the Node request-error reason used in FetchError.
+ * AggregateError from dual-stack connect failures has an empty message;
+ * surface nested error codes/messages instead.
+ *
+ * @param   {Error & {errors?: Array<{code?: string, message?: string}>}} error
+ * @return  {string}
+ */
+function getRequestFailureReason(error) {
+	const message = error && typeof error.message === 'string' ? error.message : '';
+	if (message.trim() !== '') {
+		return message;
+	}
+
+	const nested = error && Array.isArray(error.errors) ? error.errors : [];
+	const parts = [];
+	for (const child of nested) {
+		const part = (child && child.code) || (child && child.message);
+		if (part && !parts.includes(part)) {
+			parts.push(part);
+		}
+	}
+
+	return parts.length > 0 ? parts.join(' and ') : message;
 }
 
 function fixResponseChunkedTransferBadEnding(request, errorCallback) {
