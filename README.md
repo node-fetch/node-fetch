@@ -64,7 +64,7 @@
 		- [body.bodyUsed](#bodybodyused)
 		- [body.arrayBuffer()](#bodyarraybuffer)
 		- [body.blob()](#bodyblob)
-		- [body.formData()](#formdata)
+		- [body.formData()](#bodyformdata)
 		- [body.json()](#bodyjson)
 		- [body.text()](#bodytext)
 	- [Class: FetchError](#class-fetcherror)
