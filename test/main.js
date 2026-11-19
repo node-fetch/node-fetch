@@ -108,6 +108,65 @@ describe('node-fetch', () => {
 			.and.include({type: 'system', code: 'ECONNREFUSED', errno: 'ECONNREFUSED'});
 	});
 
+	describe('network error messages', () => {
+		const errors = [
+			new Error('connect ETIMEDOUT 192.0.2.1:443'),
+			new Error('connect ENETUNREACH 2001:db8::1:443')
+		];
+		// Match AggregateError's shape on Node.js versions without that constructor.
+		/* eslint-disable unicorn/error-message -- Empty messages reproduce the network error. */
+		const cases = [
+			{
+				name: 'includes individual messages for aggregate errors without a message',
+				error: Object.assign(new Error(), {errors}),
+				message: 'connect ETIMEDOUT 192.0.2.1:443, connect ENETUNREACH 2001:db8::1:443'
+			},
+			{
+				name: 'preserves an aggregate error message when present',
+				error: Object.assign(new Error('connection attempts failed'), {errors}),
+				message: 'connection attempts failed'
+			},
+			{
+				name: 'preserves ordinary error messages',
+				error: new Error('socket hang up'),
+				message: 'socket hang up'
+			},
+			{
+				name: 'handles ordinary errors without a message',
+				error: new Error(),
+				message: ''
+			},
+			{
+				name: 'handles aggregate errors without individual errors',
+				error: Object.assign(new Error(), {errors: []}),
+				message: ''
+			}
+		];
+		/* eslint-enable unicorn/error-message */
+
+		for (const {name, error, message} of cases) {
+			it(name, () => {
+				const url = `${base}hello`;
+				error.code = 'ECONNREFUSED';
+				error.syscall = 'connect';
+				const agent = new http.Agent();
+				agent.createConnection = (options, callback) => {
+					callback(error);
+				};
+
+				return expect(fetch(url, {agent})).to.eventually.be.rejected
+					.and.be.an.instanceOf(FetchError)
+					.and.include({
+						message: `request to ${url} failed, reason: ${message}`,
+						type: 'system',
+						code: 'ECONNREFUSED',
+						errno: 'ECONNREFUSED',
+						erroredSysCall: 'connect'
+					});
+			});
+		}
+	});
+
 	it('error should contain system error if one occurred', () => {
 		const err = new FetchError('a message', 'system', new Error('an error'));
 		return expect(err).to.have.property('erroredSysCall');
