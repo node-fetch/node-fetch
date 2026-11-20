@@ -105,7 +105,12 @@ export default async function fetch(url, options_) {
 		};
 
 		request_.on('error', error => {
-			reject(new FetchError(`request to ${request.url} failed, reason: ${error.message}`, 'system', error));
+			let errorMessage = error.message;
+			if (!errorMessage && Array.isArray(error.errors)) {
+				errorMessage = error.errors.map(({message}) => message).join(', ');
+			}
+
+			reject(new FetchError(`request to ${request.url} failed, reason: ${errorMessage}`, 'system', error));
 			finalize();
 		});
 
