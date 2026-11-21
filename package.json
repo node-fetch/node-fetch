@@ -2,11 +2,25 @@
   "name": "node-fetch",
   "version": "3.1.1",
   "description": "A light-weight module that brings Fetch API to node.js",
-  "main": "./src/index.js",
+  "main": "./lib/index.cjs",
+  "module": "./src/index.js",
+  "browser": "./src/browser.js",
   "sideEffects": false,
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./@types/index.d.ts",
+      "browser": "./src/browser.js",
+      "import": "./src/index.js",
+      "require": "./lib/index.cjs",
+      "default": "./src/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
   "files": [
     "src",
+    "lib",
     "@types/index.d.ts"
   ],
   "types": "./@types/index.d.ts",
@@ -14,6 +28,10 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "scripts": {
+    "build": "node scripts/build.js",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
+    "pretest": "npm run build",
     "test": "mocha",
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "test-types": "tsd",
@@ -53,6 +71,7 @@
     "chai-iterator": "^3.0.2",
     "chai-string": "^1.5.0",
     "coveralls": "^3.1.0",
+    "esbuild": "^0.20.2",
     "form-data": "^4.0.0",
     "formdata-node": "^4.2.4",
     "mocha": "^9.1.3",
@@ -78,7 +97,9 @@
       "browser"
     ],
     "ignores": [
-      "example.js"
+      "example.js",
+      "lib",
+      "scripts/cjs-entry.cjs"
     ],
     "rules": {
       "complexity": 0,
@@ -97,7 +118,10 @@
     },
     "overrides": [
       {
-        "files": "test/**/*.js",
+        "files": [
+          "test/**/*.js",
+          "test/**/*.cjs"
+        ],
         "envs": [
           "node",
           "mocha"

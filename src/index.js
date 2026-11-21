@@ -35,6 +35,9 @@ import {
 
 export {FormData, Headers, Request, Response, FetchError, AbortError, isRedirect};
 export {Blob, File, fileFromSync, fileFrom, blobFromSync, blobFrom};
+// Also export fetch as a named export so that `import {fetch} from 'node-fetch'`
+// works and the ESM namespace matches the CommonJS build (see scripts/cjs-entry.cjs)
+export {fetch};
 
 const supportedSchemas = new Set(['data:', 'http:', 'https:']);
 
