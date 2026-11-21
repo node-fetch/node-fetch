@@ -216,4 +216,11 @@ export class AbortError extends Error {
 }
 
 export function isRedirect(code: number): boolean;
-export default function fetch(url: URL | RequestInfo, init?: RequestInit): Promise<Response>;
+
+declare function fetch(url: URL | RequestInfo, init?: RequestInit): Promise<Response>;
+
+// `fetch` is both the default export and a named export, mirroring the
+// CommonJS build where `require('node-fetch')` is the fetch function itself
+// with all named exports (including `fetch` and `default`) attached to it.
+export {fetch};
+export default fetch;

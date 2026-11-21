@@ -64,6 +64,8 @@ async function run() {
 
 	// export *
 	const wildResponse = await _fetch.default('https://google.com');
+	// `fetch` is also available as a named export (matches the CJS build shape)
+	expectType<typeof fetch>(_fetch.fetch);
 	expectType<boolean>(wildResponse.ok);
 	expectType<number>(wildResponse.size);
 	expectType<number>(wildResponse.status);

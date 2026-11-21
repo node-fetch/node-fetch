@@ -118,15 +118,25 @@ import fetch from 'node-fetch';
 
 ### CommonJS
 
-`node-fetch` from v3 is an ESM-only module - you are not able to import it with `require()`.
+`node-fetch` v3 ships both an ES module and a CommonJS build. The `exports` map in `package.json` picks the right one automatically:
 
-If you cannot switch to ESM, please use v2 which remains compatible with CommonJS. Critical bug fixes will continue to be published for v2.
+```js
+// mod.cjs - works on every supported Node.js version (>= 12.20)
+const fetch = require('node-fetch');
 
-```sh
-npm install node-fetch@2
+// All named exports are available as well:
+const {Headers, Request, Response, FetchError, AbortError, FormData, Blob, isRedirect} = require('node-fetch');
 ```
 
-Alternatively, you can use the async `import()` function from CommonJS to load `node-fetch` asynchronously:
+`require('node-fetch')` returns the `fetch` function itself (just like v2 did), with a `.default` alias for ESM interop, so all of these work:
+
+```js
+const fetch = require('node-fetch');
+const fetch2 = require('node-fetch').default;
+const {fetch: fetch3} = require('node-fetch');
+```
+
+If you prefer to load the ES module asynchronously from CommonJS, you can still use `import()`:
 
 ```js
 // mod.cjs
