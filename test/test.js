@@ -896,6 +896,26 @@ describe('node-fetch', () => {
 		});
 	});
 
+	it('should allow custom timeout on cloned response body', function() {
+		const url = `${base}slow`;
+		const opts = {
+			timeout: 20
+		};
+		return fetch(url, opts).then(res => {
+			expect(res.ok).to.be.true;
+			const cl = res.clone();
+			expect(cl.timeout).to.equal(20);
+			return Promise.all([
+				expect(cl.text()).to.eventually.be.rejected
+					.and.be.an.instanceOf(FetchError)
+					.and.have.property('type', 'body-timeout'),
+				expect(res.text()).to.eventually.be.rejected
+					.and.be.an.instanceOf(FetchError)
+					.and.have.property('type', 'body-timeout')
+			]);
+		});
+	});
+
 	it('should allow custom timeout on redirected requests', function() {
 		const url = `${base}redirect/slow-chain`;
 		const opts = {
